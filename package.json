@@ -12,7 +12,8 @@
     "start": "next start",
     "lint": "next lint",
     "download-pdf": "tsx scripts/downloadPdf.ts",
-    "parse-pdf": "tsx scripts/parsePdf.ts"
+    "parse-pdf": "tsx scripts/parsePdf.ts",
+    "process-pdfs": "tsx --env-file=.env scripts/process-all-pdfs.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.3.22",

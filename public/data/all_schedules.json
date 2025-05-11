@@ -1,0 +1,199 @@
+[
+  {
+    "poolName": "Dr. Martin Luther King Jr. Swimming Pool",
+    "address": "5701 3rd Street, San Francisco",
+    "sfRecParkUrl": "sfrecpark.org",
+    "scheduleLastUpdated": "Spring 2025",
+    "programs": [
+      {
+        "programName": "Lap Swim",
+        "dayOfWeek": "Tuesday",
+        "startTime": "11:00",
+        "endTime": "13:00",
+        "notes": "10 lanes"
+      },
+      {
+        "programName": "Senior Lap Swim",
+        "dayOfWeek": "Tuesday",
+        "startTime": "09:00",
+        "endTime": "11:00",
+        "notes": "6 lanes"
+      },
+      {
+        "programName": "Family Swim (shallow)",
+        "dayOfWeek": "Tuesday",
+        "startTime": "14:15",
+        "endTime": "15:15",
+        "notes": "8 lanes"
+      },
+      {
+        "programName": "BSSS Lessons & MLK Swim Team",
+        "dayOfWeek": "Tuesday",
+        "startTime": "15:45",
+        "endTime": "17:45",
+        "notes": "4 lanes"
+      },
+      {
+        "programName": "Water Exercise (shallow)",
+        "dayOfWeek": "Tuesday",
+        "startTime": "18:00",
+        "endTime": "19:00",
+        "notes": "8 lanes"
+      },
+      {
+        "programName": "Adult Water Polo",
+        "dayOfWeek": "Tuesday",
+        "startTime": "19:00",
+        "endTime": "20:30",
+        "notes": "10 lanes"
+      },
+      {
+        "programName": "Senior Lap Swim",
+        "dayOfWeek": "Wednesday",
+        "startTime": "09:00",
+        "endTime": "11:00",
+        "notes": "6 lanes"
+      },
+      {
+        "programName": "Lap Swim",
+        "dayOfWeek": "Wednesday",
+        "startTime": "11:00",
+        "endTime": "13:00",
+        "notes": "10 lanes"
+      },
+      {
+        "programName": "Family Swim (shallow)",
+        "dayOfWeek": "Wednesday",
+        "startTime": "14:15",
+        "endTime": "15:15",
+        "notes": "8 lanes"
+      },
+      {
+        "programName": "BSSS Lessons & MLK Swim Team",
+        "dayOfWeek": "Wednesday",
+        "startTime": "15:45",
+        "endTime": "17:45",
+        "notes": "4 lanes"
+      },
+      {
+        "programName": "Water Exercise (shallow)",
+        "dayOfWeek": "Wednesday",
+        "startTime": "18:00",
+        "endTime": "19:00",
+        "notes": "8 lanes"
+      },
+      {
+        "programName": "Adult Synchro",
+        "dayOfWeek": "Wednesday",
+        "startTime": "18:00",
+        "endTime": "20:00",
+        "notes": "3 lanes"
+      },
+      {
+        "programName": "Adult Hockey",
+        "dayOfWeek": "Wednesday",
+        "startTime": "18:00",
+        "endTime": "20:00",
+        "notes": "7 lanes"
+      },
+      {
+        "programName": "Senior Lap Swim",
+        "dayOfWeek": "Thursday",
+        "startTime": "09:00",
+        "endTime": "11:00",
+        "notes": "6 lanes"
+      },
+      {
+        "programName": "Department Training",
+        "dayOfWeek": "Thursday",
+        "startTime": "11:00",
+        "endTime": "15:30",
+        "notes": "Facility Closed"
+      },
+      {
+        "programName": "Bayview Safety Swim & Splash",
+        "dayOfWeek": "Thursday",
+        "startTime": "15:45",
+        "endTime": "17:45",
+        "notes": "4 lanes"
+      },
+      {
+        "programName": "Water Exercise (shallow)",
+        "dayOfWeek": "Thursday",
+        "startTime": "18:00",
+        "endTime": "19:00",
+        "notes": "8 lanes"
+      },
+      {
+        "programName": "Youth Synchro",
+        "dayOfWeek": "Thursday",
+        "startTime": "18:00",
+        "endTime": "20:00",
+        "notes": "3 lanes"
+      },
+      {
+        "programName": "Youth Hockey",
+        "dayOfWeek": "Thursday",
+        "startTime": "18:00",
+        "endTime": "20:00",
+        "notes": "7 lanes"
+      },
+      {
+        "programName": "Senior Lap Swim",
+        "dayOfWeek": "Friday",
+        "startTime": "09:00",
+        "endTime": "11:00",
+        "notes": "6 lanes"
+      },
+      {
+        "programName": "Lap Swim",
+        "dayOfWeek": "Friday",
+        "startTime": "11:00",
+        "endTime": "13:00",
+        "notes": "10 lanes"
+      },
+      {
+        "programName": "Family Swim (shallow)",
+        "dayOfWeek": "Friday",
+        "startTime": "14:15",
+        "endTime": "15:15",
+        "notes": "8 lanes"
+      },
+      {
+        "programName": "Bayview Safety Swim & Splash",
+        "dayOfWeek": "Friday",
+        "startTime": "15:45",
+        "endTime": "17:45",
+        "notes": "4 lanes"
+      },
+      {
+        "programName": "Adult Water Polo",
+        "dayOfWeek": "Friday",
+        "startTime": "19:00",
+        "endTime": "20:30",
+        "notes": "10 lanes"
+      },
+      {
+        "programName": "Lap Swim",
+        "dayOfWeek": "Saturday",
+        "startTime": "07:30",
+        "endTime": "08:30",
+        "notes": "10 lanes"
+      },
+      {
+        "programName": "Learn-to-Swim Lessons",
+        "dayOfWeek": "Saturday",
+        "startTime": "09:00",
+        "endTime": "12:30",
+        "notes": "10 lanes"
+      },
+      {
+        "programName": "Family Swim",
+        "dayOfWeek": "Saturday",
+        "startTime": "14:00",
+        "endTime": "15:30",
+        "notes": "10 lanes"
+      }
+    ]
+  }
+]

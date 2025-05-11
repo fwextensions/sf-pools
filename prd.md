@@ -21,20 +21,13 @@ This document outlines the requirements for a TypeScript web application, "SF Po
 
 **4. Overall Architecture**
 
-The application will be a Next.js web app.
-*   **Frontend:** React components built with TypeScript for displaying schedules and filtering options.
-*   **Backend (Data Processing):** Next.js API routes (serverless functions) will be used for:
-    * Periodically fetching the list of pools and their respective PDF schedule URLs.
-    * Downloading the PDF schedules.
-    * **Processing PDF content for LLM processing. The primary and successful approach implemented is:**
-        *   **Leveraging a multimodal LLM (`gpt-4o` via the Vercel AI SDK) that directly processes the PDF file (`type: "file"` in message content). This allows the LLM to use visual and layout information for higher accuracy in data extraction.**
-    * **~~As a fallback or alternative (if direct PDF processing by a suitable multimodal LLM is not feasible or optimal):~~**
-        *   **~~Raw text will be extracted from the PDFs (e.g., using `pdf-parse` or a similar library). This text, even if imperfect, will serve as the input for the LLM.~~** (This path was explored but direct PDF processing proved more effective for the initial PoC.)
-    * **Sending the PDF file directly to an LLM via the Vercel AI SDK for structured schedule data extraction.**
-    * Transforming the LLM-extracted data into a structured JSON format.
-    * Target Node v23+ for the server code. 
-*   **Data Storage:** Extracted and processed schedule data will be stored in JSON files committed to the project repository or served as static assets. Given the infrequent updates (every few months), a database is not immediately necessary.
-*   **Deployment:** Vercel or a similar platform that supports Next.js deployments and serverless functions.
+The application will be a Next.js web application.
+*   **Frontend**: Built with Next.js (using the **App Router** paradigm), React, and TypeScript. Tailwind CSS for styling.
+*   **Backend/API**: Next.js Route Handlers (within the `src/app/api/` directory) will handle requests, such as initiating PDF processing.
+*   **PDF Processing**: A core TypeScript module (`src/lib/pdf-processor.ts`) will encapsulate the logic for sending PDF data to an LLM (e.g., OpenAI GPT-4o via Vercel AI SDK) and parsing the structured schedule data.
+*   **Data Storage**: Initially, processed schedules will be stored in a JSON file (`public/data/all_schedules.json`) bundled with the application. Future iterations might explore database solutions.
+*   **Deployment**: Vercel is the preferred platform for deployment.
+*   **Path Aliases**: The project utilizes path aliases (e.g., `@/lib/...`, `@/components/...`) for cleaner and more maintainable import statements, configured in `tsconfig.json`.
 
 **5. Key Features & Use Cases**
 
@@ -60,7 +53,25 @@ The application will be a Next.js web app.
     *   **Description:** A user is interested in a particular pool and wants to see its complete schedule for the week.
     *   **Feature:** Ability to select a single pool and view its full weekly schedule, clearly laid out.
 
-**6. Data Requirements**
+**6. Key Features & Milestones**
+
+### Milestone 1: Proof of Concept - Single PDF Processing & Basic Display (Complete)
+- [x] Setup Next.js project with TypeScript and Tailwind CSS.
+- [x] Develop an API endpoint (`src/app/api/extract-schedule/route.ts`) that takes a predefined PDF (`MLK_Pool_Schedule.pdf`) as input.
+- [x] Integrate with Vercel AI SDK to send the PDF content (as base64 or direct file buffer) to an OpenAI model (e.g., GPT-4o).
+- [x] Define a Zod schema for the expected structured schedule data (Pool Name, Address, Last Updated, Programs with Day/Time/Notes, SF Rec Park URL).
+- [x] Parse the LLM's response and validate it against the Zod schema.
+- [x] Store the extracted, structured data into a local JSON file (`public/data/all_schedules.json`).
+- [x] Create a basic Next.js page (`src/app/schedules/page.tsx`) to display the structured schedule data from the JSON file.
+- [x] **Refactor initial `pages` directory structure to Next.js App Router (`src/app`). (Completed)**
+- [x] **Implement path aliases (e.g., `@/lib/...`) for cleaner imports. (Completed)**
+
+### Milestone 2: Multi-PDF Processing & Enhanced UI
+- [ ] Create a script (`scripts/process-all-pdfs.ts`) that iterates through all PDF files in a designated directory (`data/pdfs/`).
+    - For each PDF, call the extraction logic from `src/lib/pdf-processor.ts`.
+- [ ] Enhance the `src/app/schedules/page.tsx` to better display multiple pool schedules.
+
+**7. Data Requirements**
 
 *   **Source Data:** PDF schedules linked from the SF Rec & Park website (e.g., [https://sfrecpark.org/482/Swimming-Pools](https://sfrecpark.org/482/Swimming-Pools)).
 *   **Data to Extract per Program Entry:**
@@ -97,7 +108,7 @@ The application will be a Next.js web app.
 
 *   **Data Update Frequency:** Schedules change seasonally (every few months). The app should have a mechanism to trigger or perform data re-extraction. Initially, this can be a manual trigger for the serverless function, with the potential for scheduled automation later.
 
-**7. Design & UX Considerations (High-Level)**
+**8. Design & UX Considerations (High-Level)**
 
 *   **Mobile-first responsive design:** Accessible and usable on various screen sizes.
 *   **Clear visual hierarchy:** Easy to scan and understand schedule information.
@@ -105,83 +116,34 @@ The application will be a Next.js web app.
 *   **Performance:** Fast loading times, especially for the initial schedule display.
 *   **Accessibility:** Adherence to WCAG guidelines.
 
-**8. Milestones**
+**9. Directory Structure (Illustrative - Adapting to App Router)**
 
-**Milestone 1: Single Pool Proof of Concept (Data Extraction & Basic Display) - COMPLETED**
+```
+sf-pools/
+├── public/
+│   ├── data/
+│   │   └── all_schedules.json  # Stores consolidated schedule data
+│   └── ...                     # Other static assets (images, fonts)
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── extract-schedule/
+│   │   │       └── route.ts    # API endpoint for PDF extraction
+│   │   ├── schedules/
+│   │   │   └── page.tsx        # Page to display schedules
+│   │   ├── layout.tsx          # Root layout for the App Router
+│   │   ├── page.tsx            # Homepage (e.g., links to schedules)
+│   │   └── globals.css         # Global styles
+│   ├── components/             # Reusable React components (e.g., Navbar, Footer, ScheduleCard)
+│   ├── lib/
+│   │   └── pdf-processor.ts    # Core PDF processing logic, Zod schemas, types
+│   └── ...                     # Other potential src directories (e.g., hooks, types, utils)
+├── data/
+│   └── pdfs/                   # Directory for storing input PDF files
+│       └── MLK_Pool_Schedule.pdf
+```
 
-*   **Goal:** **Successfully extracted** schedule data from *one* pool's PDF (`MLK_Pool_Schedule.pdf`) **by sending the PDF file directly to a multimodal LLM (`gpt-4o`) via the Vercel AI SDK.** The extracted data is returned as structured JSON from a Next.js API endpoint.
-*   **Tasks Accomplished:**
-    1.  Set up Next.js project with TypeScript.
-    2.  Developed a Next.js API route (`/api/extract-schedule`) to load a single pool's PDF schedule (MLK Pool).
-    3.  **Successfully implemented sending the PDF file directly to `gpt-4o` using the Vercel AI SDK's `generateObject` function (with `type: "file"` in the message content) for data extraction. This was the preferred method and proved effective.**
-    4.  ~~As a fallback, or for comparison, implement raw text extraction from the PDF (e.g., using `pdf-parse`). Develop a clear prompt to send this extracted text to an LLM (which could be a text-only or multimodal model) for data extraction.~~ (Explored text extraction using `pdf-parse`, but encountered challenges and limitations. Direct PDF processing was ultimately successful and yielded better results for the PoC.)
-    5.  Manually defined the structure of the JSON output (Zod schema `PoolScheduleSchema`) for the extracted data.
-    6.  The LLM-returned data is directly transformed into the defined JSON structure by the Vercel AI SDK's `generateObject` function.
-    7.  The Next.js API route returns this JSON data.
-    8.  The API response includes debug information such as the LLM model used, prompt text, and PDF file details.
-*   **Deliverable:** A functional Next.js API endpoint (`/api/extract-schedule`) that processes `MLK_Pool_Schedule.pdf` using direct LLM input and returns structured schedule data as JSON. The approach effectively uses the Vercel AI SDK with `gpt-4o`.
-
-**Milestone 2: All Pools Data Extraction & Consolidated Static Display**
-
-*   **Goal:** Extend LLM-based data extraction to all SF public pools and display their schedules in a basic consolidated view, **leveraging the successful direct PDF processing approach with a multimodal LLM established in Milestone 1.**
-*   **Tasks:**
-    1.  Identify the list of all SF public pools and their individual page URLs from [https://sfrecpark.org/482/Swimming-Pools](https://sfrecpark.org/482/Swimming-Pools).
-    2.  Develop a script/API route to:
-        *   Scrape the individual pool pages to find the links to their PDF schedules. *This needs to be robust to minor page structure changes.*
-        *   Download all identified PDF schedules.
-        *   **Prepare all downloaded PDFs for LLM processing using the direct PDF input method (`type: "file"`) successfully demonstrated in Milestone 1.**
-    3.  **Refine and generalize the LLM prompting strategy and data handling logic from Milestone 1 to accommodate variations across different pools. Focus on maintaining consistency and accuracy of LLM extraction.**
-    4.  Consolidate extracted data from all pools into a single JSON file or multiple JSON files (e.g., one per pool, then an aggregator).
-    5.  Create a Next.js page that displays a list of all pools.
-    6.  Allow users to click on a pool name to view its full schedule (similar to Milestone 1 display, but now data-driven for any pool).
-    7.  (Optional) Create a very basic "All Programs Today" view without advanced filtering.
-*   **Deliverable:** A Next.js application that can process PDFs from all 9 pools, store their data in JSON, and display individual pool schedules. A basic script/API route to trigger the data refresh.
-
-**Milestone 3: "What's Open Now?" Feature & UI Enhancements**
-
-*   **Goal:** Implement the "What's open now/soon?" feature and improve the overall UI/UX.
-*   **Tasks:**
-    1.  Design and implement the UI for the "Happening Now & Soon" view.
-    2.  Implement logic to:
-        *   Determine the current day and time.
-        *   Filter the consolidated JSON data to show programs currently active.
-        *   Filter the consolidated JSON data to show programs starting in the next X hours (e.g., 2 hours).
-    3.  Display pool status (Open, Closed, Opening Soon with time).
-    4.  Refine the visual presentation of schedules (e.g., using cards, better typography, clear time blocks).
-    5.  Ensure the main view is intuitive and highlights the "Happening Now & Soon" information effectively.
-*   **Deliverable:** A user-friendly interface displaying current and upcoming programs across all pools.
-
-**Milestone 4: Advanced Filtering & Future Planning View**
-
-*   **Goal:** Implement robust filtering capabilities for planning future pool visits.
-*   **Tasks:**
-    1.  Design and implement UI for filtering options:
-        *   Day of the week selector.
-        *   Time of day selector/slider.
-        *   Program type dropdown (dynamically populated from unique program names found in the data).
-        *   Pool selector (checkboxes or multi-select dropdown).
-    2.  Implement filtering logic on the frontend to dynamically update the displayed schedule based on selected filter criteria.
-    3.  Ensure filter states are manageable (e.g., clear filters button).
-    4.  Optimize performance for filtering large datasets if necessary (though with 9 pools, this should be manageable on the client side).
-*   **Deliverable:** A fully filterable schedule view allowing users to plan future activities.
-
-**Milestone 5: Data Update Automation, Polish & Deployment**
-
-*   **Goal:** Automate the data update process, polish the application, and deploy it.
-*   **Tasks:**
-    1.  Refine the data extraction and processing scripts (now running as Next.js API routes/serverless functions).
-    2.  Implement error handling and logging for the data extraction process.
-    3.  Set up a mechanism to trigger the data update process.
-        *   Option 1 (Simpler): A secured API endpoint that can be manually triggered by an admin.
-        *   Option 2 (Advanced): A scheduled job (e.g., GitHub Action cron, Vercel Cron Job) that calls the update API route periodically (e.g., weekly or monthly).
-    4.  Thoroughly test the application across different browsers and devices.
-    5.  Conduct final UI/UX review and make necessary polishes.
-    6.  Add basic information like an "About" section, link to SF Rec & Park, and data source disclaimers.
-    7.  Deploy the application to Vercel (or chosen platform).
-    8.  Set up monitoring for the live application and data update process.
-*   **Deliverable:** A deployed, polished, and maintainable web application with a semi-automated or fully automated data update pipeline.
-
-**9. Non-Functional Requirements**
+**10. Non-Functional Requirements**
 
 *   **Performance:** Pages should load quickly. Filtering actions should feel responsive.
 *   **Reliability:** Data displayed should be accurate based on the latest processed PDFs. The data extraction process should be resilient to minor PDF format changes if possible, or fail gracefully with logs.
@@ -190,7 +152,7 @@ The application will be a Next.js web app.
 *   **Usability:** The application should be intuitive and easy to use for non-technical users.
 *   **Accessibility:** Adhere to WCAG 2.1 Level AA guidelines where feasible.
 
-**10. Future Considerations (Out of Scope for Initial Version)**
+**11. Future Considerations (Out of Scope for Initial Version)**
 
 *   User accounts/favorites.
 *   Notifications for schedule changes for favorited pools/programs.
@@ -200,7 +162,7 @@ The application will be a Next.js web app.
 *   **Exploring different LLMs, fine-tuning models, or advanced prompting techniques for improved accuracy, consistency, or cost-effectiveness of data extraction.**
 *   Direct API integration if SF Rec & Park ever provides one.
 
-**11. Open Questions & Risks**
+**12. Open Questions & Risks**
 
 *   **Availability and Cost of Multimodal LLMs via Vercel AI SDK:** Confirming that a suitable multimodal LLM capable of direct PDF processing is available, performant, and cost-effective through the Vercel AI SDK is crucial. *Mitigation: Early investigation into Vercel AI SDK's supported models and their capabilities/pricing for PDF processing.* 
 *   **PDF Text Quality & LLM Input (Fallback Scenario):** If falling back to text extraction, the quality of this extracted text remains critical for the LLM's success. Garbled text was the initial problem. *Mitigation (for fallback): Evaluate different text extraction methods. Implement pre-processing steps to clean text. Assess the chosen LLM's ability to handle imperfect text.* 
