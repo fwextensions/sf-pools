@@ -1,73 +1,141 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 // ES module equivalent of __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const MLK_POOL_PDF_URL = 'https://sfrecpark.org/DocumentCenter/View/25795'; // Example URL from PRD
-// Output directory will be <project_root>/data/pdfs
-const OUTPUT_DIR = path.resolve(__dirname, '..', 'data', 'pdfs'); 
-const OUTPUT_FILE_PATH = path.join(OUTPUT_DIR, 'MLK_Pool_Schedule.pdf');
+const DISCOVERED_SCHEDULES_PATH = path.resolve(__dirname, "..", "public",
+	"data", "discovered_pool_schedules.json");
+const OUTPUT_DIR = path.resolve(__dirname, "..", "public", "data", "pdfs");
 
-async function downloadPdf() {
-  try {
-    console.log(`Attempting to download PDF from ${MLK_POOL_PDF_URL}...`);
-    console.log(`Script location (__dirname): ${__dirname}`);
-    console.log(`Target PDF output directory: ${OUTPUT_DIR}`);
-    console.log(`Target PDF output file path: ${OUTPUT_FILE_PATH}`);
+interface DiscoveredPoolInfo {
+	poolName: string;
+	poolPageUrl: string;
+	pdfScheduleUrl?: string;
+}
 
-    // Ensure output directory exists
-    if (!fs.existsSync(OUTPUT_DIR)) {
-      console.log(`Creating directory: ${OUTPUT_DIR}`);
-      fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-    } else {
-      console.log(`Output directory already exists: ${OUTPUT_DIR}`);
-    }
+/**
+ * Sanitizes a pool name to be used as a valid filename.
+ * Replaces spaces and special characters with underscores.
+ */
+function sanitizePoolNameForFilename(poolName: string): string
+{
+	return poolName.replace(/[^a-zA-Z0-9\s.-]/g, "").replace(/[\s.]+/g, "_") +
+		".pdf";
+}
 
-    const response = await fetch(MLK_POOL_PDF_URL);
+async function downloadAndSavePdf(
+	pdfUrl: string,
+	outputFilePath: string,
+	poolName: string)
+{
+	try {
+		console.log(`Attempting to download PDF for ${poolName} from ${pdfUrl}...`);
+		console.log(`Target PDF output file path: ${outputFilePath}`);
 
-    if (!response.ok) {
-      throw new Error(`Failed to download PDF: ${response.status} ${response.statusText}`);
-    }
+		const response = await fetch(pdfUrl);
 
-    if (!response.body) {
-        throw new Error('Response body is null');
-    }
+		if (!response.ok) {
+			throw new Error(
+				`Failed to download PDF (${pdfUrl}): ${response.status} ${response.statusText}`);
+		}
 
-    console.log('Response received, attempting to write to file...');
-    const fileStream = fs.createWriteStream(OUTPUT_FILE_PATH);
-    
-    const reader = response.body.getReader();
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-            break;
-        }
-        fileStream.write(value);
-    }
-    fileStream.end();
-    
-    // Wait for the stream to finish writing
-    await new Promise((resolve, reject) => {
-        fileStream.on('finish', resolve);
-        fileStream.on('error', reject);
-    });
+		if (!response.body) {
+			throw new Error(`Response body is null for ${pdfUrl}`);
+		}
 
-    console.log(`PDF downloaded successfully and saved to ${OUTPUT_FILE_PATH}`);
+		console.log(
+			`Response received for ${poolName}, attempting to write to file...`);
+		const fileStream = fs.createWriteStream(outputFilePath);
 
-  } catch (error) {
-    console.error('Error downloading PDF:', error);
-    if (fs.existsSync(OUTPUT_FILE_PATH)) {
-        const stats = fs.statSync(OUTPUT_FILE_PATH);
-        if (stats.size === 0) { 
-            console.log(`Deleting potentially incomplete file: ${OUTPUT_FILE_PATH}`);
-            fs.unlinkSync(OUTPUT_FILE_PATH);
-        }
-    }
-    process.exit(1); 
-  }
+		const reader = response.body.getReader();
+		// eslint-disable-next-line no-constant-condition
+		while (true) {
+			const { done, value } = await reader.read();
+			if (done) {
+				break;
+			}
+			fileStream.write(value);
+		}
+		fileStream.end();
+
+		await new Promise((
+			resolve,
+			reject) => {
+			fileStream.on("finish", resolve);
+			fileStream.on("error", reject);
+		});
+
+		console.log(
+			`PDF for ${poolName} downloaded successfully and saved to ${outputFilePath}`);
+		return true;
+
+	} catch (error) {
+		console.error(`Error downloading PDF for ${poolName} (${pdfUrl}):`, error);
+		if (fs.existsSync(outputFilePath)) {
+			const stats = fs.statSync(outputFilePath);
+			if (stats.size === 0) {
+				console.log(`Deleting potentially incomplete file: ${outputFilePath}`);
+				fs.unlinkSync(outputFilePath);
+			}
+		}
+		return false;
+	}
+}
+
+async function downloadAllDiscoveredPdfs()
+{
+	console.log(
+		`Reading discovered schedules from: ${DISCOVERED_SCHEDULES_PATH}`);
+	let discoveredSchedules: DiscoveredPoolInfo[] = [];
+	try {
+		const fileContent = await fs.promises.readFile(DISCOVERED_SCHEDULES_PATH,
+			"utf-8");
+		discoveredSchedules = JSON.parse(fileContent);
+	} catch (error) {
+		console.error(`Failed to read or parse ${DISCOVERED_SCHEDULES_PATH}:`,
+			error);
+		process.exit(1);
+	}
+
+	if (discoveredSchedules.length === 0) {
+		console.log(
+			"No schedules found in discovered_pool_schedules.json. Nothing to download.");
+		return;
+	}
+
+	// Ensure output directory exists
+	if (!fs.existsSync(OUTPUT_DIR)) {
+		console.log(`Creating directory: ${OUTPUT_DIR}`);
+		fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+	} else {
+		console.log(`Output directory already exists: ${OUTPUT_DIR}`);
+	}
+
+	let successCount = 0;
+	let failureCount = 0;
+
+	for (const poolInfo of discoveredSchedules) {
+		if (poolInfo.pdfScheduleUrl) {
+			const outputFileName = sanitizePoolNameForFilename(poolInfo.poolName);
+			const outputFilePath = path.join(OUTPUT_DIR, outputFileName);
+			const success = await downloadAndSavePdf(poolInfo.pdfScheduleUrl,
+				outputFilePath, poolInfo.poolName);
+			if (success) {
+				successCount++;
+			} else {
+				failureCount++;
+			}
+		} else {
+			console.log(`Skipping ${poolInfo.poolName} as it has no pdfScheduleUrl.`);
+		}
+	}
+	console.log(`
+Download process complete.
+Successfully downloaded: ${successCount} PDFs.
+Failed to download: ${failureCount} PDFs.`);
 }
 
 const currentFileUrl = import.meta.url;
@@ -75,22 +143,25 @@ const currentFileUrl = import.meta.url;
 // process.argv[1] gives the path of the script executed by Node.
 // We need to resolve it and convert to a file URL for proper comparison.
 const mainModulePath = process.argv[1];
-let mainModuleUrl = '';
+let mainModuleUrl = "";
 if (mainModulePath) {
-    try {
-        mainModuleUrl = new URL(`file://${path.resolve(mainModulePath)}`).href;
-    } catch (e) {
-        // Handle cases where process.argv[1] might not be a valid path
-        console.warn(`Could not convert process.argv[1] ('${mainModulePath}') to a URL.`);
-    }
+	try {
+		mainModuleUrl = new URL(`file://${path.resolve(mainModulePath)}`).href;
+	} catch (e) {
+		// Handle cases where process.argv[1] might not be a valid path
+		console.warn(
+			`Could not convert process.argv[1] ('${mainModulePath}') to a URL.`);
+	}
 }
-
 
 if (currentFileUrl === mainModuleUrl) {
-    downloadPdf().catch(err => {
-        console.error('Unhandled error during direct execution of downloadPdf:', err);
-        process.exit(1);
-    });
+	downloadAllDiscoveredPdfs().catch(err => {
+		console.error(
+			"Unhandled error during direct execution of downloadAllDiscoveredPdfs:",
+			err);
+		process.exit(1);
+	});
 }
 
-export { downloadPdf, MLK_POOL_PDF_URL, OUTPUT_FILE_PATH, OUTPUT_DIR };
+// Exporting the main function if needed elsewhere, though typically run as a script
+export { downloadAllDiscoveredPdfs, OUTPUT_DIR };

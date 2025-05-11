@@ -6,7 +6,7 @@ import { extractScheduleFromPdf, PoolSchedule } from "@/lib/pdf-processor";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const PDFS_DIRECTORY = path.resolve(__dirname, "../data/pdfs");
+const PDFS_DIRECTORY = path.resolve(__dirname, "../public/data/pdfs");
 const OUTPUT_DIRECTORY = path.resolve(__dirname, "../public/data");
 const OUTPUT_FILE = path.join(OUTPUT_DIRECTORY, "all_schedules.json");
 

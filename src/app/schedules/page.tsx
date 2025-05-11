@@ -46,18 +46,18 @@ export default async function SchedulesPage() {
 
 	return (
 		<div className="container mx-auto p-4">
-			<h1 className="text-3xl font-bold mb-6 text-center text-blue-600">San
+			<h1 className="text-3xl font-bold mb-6 text-center text-stone-800">San
 				Francisco Public Pool Schedules</h1>
 
 			{schedules.map((
 				pool,
 				index) => (
 				<div key={index} className="bg-white shadow-lg rounded-lg p-6 mb-8">
-					<h2 className="text-2xl font-semibold mb-2 text-blue-500">{pool.poolName}</h2>
-					{pool.address && <p className="text-gray-700 mb-1">
+					<h2 className="text-2xl font-semibold mb-2 text-stone-600">{pool.poolName}</h2>
+					{pool.address && <p className="text-stone-700 mb-1">
 						<strong>Address:</strong> {pool.address}</p>}
 					{pool.scheduleSeason && (
-						<p className="text-sm text-gray-500 mb-1">
+						<p className="text-sm text-stone-500 mb-1">
 							<strong>Effective:</strong> {pool.scheduleSeason}
 							{pool.scheduleStartDate && pool.scheduleEndDate && (
 								` (${pool.scheduleStartDate} - ${pool.scheduleEndDate})`
@@ -65,12 +65,12 @@ export default async function SchedulesPage() {
 						</p>
 					)}
 					{!pool.scheduleSeason && pool.scheduleStartDate && pool.scheduleEndDate && (
-						<p className="text-sm text-gray-500 mb-1">
+						<p className="text-sm text-stone-500 mb-1">
 							<strong>Effective:</strong> {pool.scheduleStartDate} - {pool.scheduleEndDate}
 						</p>
 					)}
 					{pool.sfRecParkUrl &&
-						<p className="text-sm text-gray-500 mb-4">
+						<p className="text-sm text-stone-500 mb-4">
 							<strong>More Info:</strong>
 							<a
 								href={pool.sfRecParkUrl.startsWith("http") ? pool.sfRecParkUrl :
@@ -83,31 +83,31 @@ export default async function SchedulesPage() {
 							</a>
 						</p>}
 
-					<h3 className="text-xl font-medium mt-4 mb-3 text-gray-800">Programs:</h3>
+					<h3 className="text-xl font-medium mt-4 mb-3 text-stone-800">Programs:</h3>
 					{pool.programs.length > 0 ? (
 						<ul className="space-y-3">
 							{pool.programs.map((
 								program,
 								progIndex) => (
-								<li key={progIndex} className="p-4 bg-gray-50 rounded-md shadow-sm">
-									<p className="font-semibold text-gray-700">{program.programName}</p>
-									<p className="text-sm text-gray-600">
+								<li key={progIndex} className="p-4 bg-stone-50 rounded-md shadow-sm">
+									<p className="font-semibold text-stone-700">{program.programName}</p>
+									<p className="text-sm text-stone-600">
 										<strong>Day:</strong> {program.dayOfWeek}</p>
-									<p className="text-sm text-gray-600">
+									<p className="text-sm text-stone-600">
 										<strong>Time:</strong> {program.startTime} - {program.endTime}
 									</p>
 									{program.lanes !== undefined && (
-										<p className="text-sm text-gray-600">
+										<p className="text-sm text-stone-600">
 											<strong>Lanes:</strong> {program.lanes}
 										</p>
 									)}
-									{program.notes && <p className="text-xs text-gray-500 mt-1">
+									{program.notes && <p className="text-xs text-stone-500 mt-1">
 										<em>Note: {program.notes}</em></p>}
 								</li>
 							))}
 						</ul>
 					) : (
-						<p className="text-gray-600">No specific programs listed for this
+						<p className="text-stone-600">No specific programs listed for this
 							schedule.</p>
 					)}
 				</div>
