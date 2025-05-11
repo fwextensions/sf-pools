@@ -189,15 +189,38 @@ sf-pools/
 *   **Usability:** The application should be intuitive and easy to use for non-technical users.
 *   **Accessibility:** Adhere to WCAG 2.1 Level AA guidelines where feasible.
 
-**11. Future Considerations (Out of Scope for Initial Version)**
+**11. Future Considerations & Potential Enhancements**
 
-*   User accounts/favorites.
-*   Notifications for schedule changes for favorited pools/programs.
-*   Map view of pools.
-*   Direct links to SF Rec & Park registration pages for programs requiring signup (if identifiable).
-*   Community features (e.g., user-reported occupancy, reviews).
-*   **Exploring different LLMs, fine-tuning models, or advanced prompting techniques for improved accuracy, consistency, or cost-effectiveness of data extraction.**
-*   Direct API integration if SF Rec & Park ever provides one.
+*   **Automated Schedule Re-fetching:** Implement a cron job or scheduled task (e.g., using Vercel Cron Jobs or GitHub Actions) to periodically re-run the scraping and PDF processing pipeline to keep schedules up-to-date.
+*   **User Accounts & Preferences:** Allow users to save favorite pools or program types.
+*   **Map Integration:** Display pool locations on a map.
+*   **Notifications:** Alert users to schedule changes for their favorite programs/pools.
+*   **Improved Error Reporting/Handling:** More robust logging and user-facing messages for issues during data extraction or display.
+*   **Advanced Filtering/Sorting Options:** E.g., filter by time of day, duration, specific amenities if that data becomes available.
+*   **Direct Link to PDF:** For each pool or schedule, provide a direct link back to the source PDF for user verification.
+*   **Program Name Normalization & Refinement:**
+    *   **Goal:** To standardize the various program names extracted from PDFs into a cleaner, more consistent, and user-friendly set of filterable categories on the homepage.
+    *   **Current Challenge:** Raw program names extracted by the LLM can have many slight variations for the same core activity (e.g., "Adult Lessons", "Adult Swim Lessons", "Adult Adv. Swim Lessons").
+    *   **Suggested Grouped Program Names for Filtering:**
+        *   Adult Swim Lessons
+        *   Adult Synchronized Swimming
+        *   Adult Water Polo
+        *   Family Swim
+        *   High School Swim Programs
+        *   Lap Swim
+        *   Masters Swim Program
+        *   Parent & Child Swim
+        *   Swim Lessons (General/Youth/Community)
+        *   Senior Swim / Therapy Swim
+        *   Water Exercise
+        *   Youth Swim Teams / Club Teams
+        *   Youth Synchronized Swimming
+        *   Pool Closure / Staff & Departmental Use
+        *   Special Olympics (Keep as distinct category)
+    *   **Potential Approaches:**
+        1.  **Post-Extraction Mapping Logic:** Implement a function (e.g., in `src/lib/pdf-processor.ts` after LLM extraction, or on the client-side in `src/app/page.tsx`) that maps the raw extracted names to these standardized group names. This could use a mapping object or conditional logic.
+        2.  **LLM Prompt Refinement:** Further refine the LLM prompt in `src/lib/pdf-processor.ts` to instruct the model to use these canonical program names during the extraction process. This might involve providing the list of preferred names as part of the prompt's context or few-shot examples.
+        3.  **Handling Combined Sessions:** Develop a strategy for program names that represent combined activities (e.g., "Family / Lap Swim"). This could involve treating them as a distinct combined category, mapping them to multiple individual categories for filtering, or attempting to have the LLM split them into separate entries.
 
 **12. Open Questions & Risks**
 
