@@ -56,9 +56,19 @@ export default async function SchedulesPage() {
 					<h2 className="text-2xl font-semibold mb-2 text-blue-500">{pool.poolName}</h2>
 					{pool.address && <p className="text-gray-700 mb-1">
 						<strong>Address:</strong> {pool.address}</p>}
-					{pool.scheduleLastUpdated &&
-						<p className="text-sm text-gray-500 mb-1"><strong>Last
-							Updated:</strong> {pool.scheduleLastUpdated}</p>}
+					{pool.scheduleSeason && (
+						<p className="text-sm text-gray-500 mb-1">
+							<strong>Effective:</strong> {pool.scheduleSeason}
+							{pool.scheduleStartDate && pool.scheduleEndDate && (
+								` (${pool.scheduleStartDate} - ${pool.scheduleEndDate})`
+							)}
+						</p>
+					)}
+					{!pool.scheduleSeason && pool.scheduleStartDate && pool.scheduleEndDate && (
+						<p className="text-sm text-gray-500 mb-1">
+							<strong>Effective:</strong> {pool.scheduleStartDate} - {pool.scheduleEndDate}
+						</p>
+					)}
 					{pool.sfRecParkUrl &&
 						<p className="text-sm text-gray-500 mb-4">
 							<strong>More Info:</strong>
@@ -86,6 +96,11 @@ export default async function SchedulesPage() {
 									<p className="text-sm text-gray-600">
 										<strong>Time:</strong> {program.startTime} - {program.endTime}
 									</p>
+									{program.lanes !== undefined && (
+										<p className="text-sm text-gray-600">
+											<strong>Lanes:</strong> {program.lanes}
+										</p>
+									)}
 									{program.notes && <p className="text-xs text-gray-500 mt-1">
 										<em>Note: {program.notes}</em></p>}
 								</li>
