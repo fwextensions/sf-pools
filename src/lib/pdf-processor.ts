@@ -26,6 +26,7 @@ const PoolScheduleSchema = z.object({
 
 // Type for the structured schedule data
 export type PoolSchedule = z.infer<typeof PoolScheduleSchema>;
+export type Program = z.infer<typeof ProgramSchema>;
 
 const modelName = "gpt-4o"; // Or another powerful vision model
 

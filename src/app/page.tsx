@@ -1,102 +1,240 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
+import { PoolSchedule, Program } from '@/lib/pdf-processor'; // Assuming types are exported
+
+interface FilteredProgram extends Program {
+  poolName: string;
+  poolId: string; // Or some unique identifier for the pool
+}
+
+export default function ProgramFilterPage() {
+  const [allSchedules, setAllSchedules] = useState<PoolSchedule[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Filter states
+  const [selectedProgramTypes, setSelectedProgramTypes] = useState<string[]>([]);
+  const [selectedPools, setSelectedPools] = useState<string[]>([]); // Using poolName as ID for now
+
+  const dayOrder = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+  // Derived state for filter options
+  const availableProgramTypes = useMemo(() => {
+    const types = new Set<string>();
+    allSchedules.forEach(pool => {
+      pool.programs.forEach(program => types.add(program.programName));
+    });
+    return Array.from(types).sort();
+  }, [allSchedules]);
+
+  const availablePools = useMemo(() => {
+    return allSchedules.map(pool => pool.poolName).sort();
+  }, [allSchedules]);
+
+  // Fetch data on component mount
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/data/all_schedules.json');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch schedules: ${response.statusText}`);
+        }
+        const data = await response.json();
+        setAllSchedules(data);
+        setError(null);
+      } catch (err) {
+        console.error(err);
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        setAllSchedules([]); // Clear data on error
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  // Event handlers for filters
+  const handleProgramTypeChange = (programType: string) => {
+    setSelectedProgramTypes(prev => 
+      prev.includes(programType) 
+        ? prev.filter(item => item !== programType) 
+        : [...prev, programType]
+    );
+  };
+
+  const handlePoolChange = (poolName: string) => {
+    setSelectedPools(prev => 
+      prev.includes(poolName) 
+        ? prev.filter(item => item !== poolName) 
+        : [...prev, poolName]
+    );
+  };
+
+  // Filtered results - Grouped by day and sorted by time
+  const groupedAndSortedResults = useMemo(() => {
+    let filtered: FilteredProgram[] = [];
+    if (allSchedules.length === 0) return {};
+
+    allSchedules.forEach(pool => {
+      pool.programs.forEach(program => {
+        const programMatches = selectedProgramTypes.length === 0 || selectedProgramTypes.includes(program.programName);
+        const poolMatches = selectedPools.length === 0 || selectedPools.includes(pool.poolName);
+
+        if (programMatches && poolMatches) {
+          filtered.push({
+            ...program,
+            poolName: pool.poolName,
+            poolId: pool.poolName, // Consider a more robust ID if available
+          });
+        }
+      });
+    });
+
+    // Sort all filtered programs first by day, then by time
+    filtered.sort((a, b) => {
+      const dayAIndex = dayOrder.indexOf(a.dayOfWeek);
+      const dayBIndex = dayOrder.indexOf(b.dayOfWeek);
+      if (dayAIndex !== dayBIndex) {
+        return dayAIndex - dayBIndex;
+      }
+      // Simple time sort, assuming HH:MM AM/PM format that sorts lexicographically correctly
+      // or a 24-hour format. Refine if time formats are inconsistent.
+      return (a.startTime || "").localeCompare(b.startTime || "");
+    });
+
+    // Group by day of the week
+    const grouped: Record<string, FilteredProgram[]> = {};
+    filtered.forEach(program => {
+      if (!grouped[program.dayOfWeek]) {
+        grouped[program.dayOfWeek] = [];
+      }
+      grouped[program.dayOfWeek].push(program);
+    });
+
+    return grouped;
+  }, [allSchedules, selectedProgramTypes, selectedPools]);
+
+  const hasResults = useMemo(() => {
+    return Object.keys(groupedAndSortedResults).length > 0 && Object.values(groupedAndSortedResults).some(dayPrograms => dayPrograms.length > 0);
+  }, [groupedAndSortedResults]);
+
+  if (isLoading) {
+    return <div className="container mx-auto p-4 text-center">Loading schedules...</div>;
+  }
+
+  if (error) {
+    return <div className="container mx-auto p-4 text-center text-red-500">Error loading schedules: {error}</div>;
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="container mx-auto p-4 font-[family-name:var(--font-geist-sans)]">
+      <header className="mb-8">
+        <h1 className="text-4xl font-bold mb-4 text-center text-stone-800">Find Your Swim</h1>
+        <p className="text-center text-stone-600">
+          Filter programs by type and pool to find the perfect time and place for your swim.
+        </p>
+        <div className="text-center mt-4">
+            <Link href="/schedules" className="text-blue-600 hover:text-blue-800 underline">
+                View Full Pool Schedules
+            </Link>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </header>
+
+      {/* Filter UI Section - Placeholder for now */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div>
+          <h2 className="text-xl font-semibold mb-2 text-stone-700">Filter by Program Type</h2>
+          {/* Program type checkboxes will go here */}
+          {availableProgramTypes.map(type => (
+            <div key={type} className="mb-1">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  value={type}
+                  checked={selectedProgramTypes.includes(type)}
+                  onChange={() => handleProgramTypeChange(type)}
+                  className="form-checkbox h-5 w-5 text-blue-600 rounded border-stone-300 focus:ring-blue-500"
+                />
+                <span className="text-stone-700">{type}</span>
+              </label>
+            </div>
+          ))}
+        </div>
+        <div>
+          <h2 className="text-xl font-semibold mb-2 text-stone-700">Filter by Pool</h2>
+          {/* Pool checkboxes will go here */}
+           {availablePools.map(poolName => (
+            <div key={poolName} className="mb-1">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  value={poolName}
+                  checked={selectedPools.includes(poolName)}
+                  onChange={() => handlePoolChange(poolName)}
+                  className="form-checkbox h-5 w-5 text-blue-600 rounded border-stone-300 focus:ring-blue-500"
+                />
+                <span className="text-stone-700">{poolName}</span>
+              </label>
+            </div>
+          ))}
+        </div>
+        <div className="md:col-span-1 flex items-start">
+            {(selectedProgramTypes.length > 0 || selectedPools.length > 0) && (
+                <button 
+                    onClick={() => {
+                        setSelectedProgramTypes([]);
+                        setSelectedPools([]);
+                    }}
+                    className="px-4 py-2 bg-stone-200 text-stone-700 rounded-md hover:bg-stone-300 transition-colors text-sm"
+                >
+                    Clear All Filters
+                </button>
+            )}
+        </div>
+      </div>
+
+      {/* Results Section - Placeholder for now */}
+      <div>
+        <h2 className="text-2xl font-semibold mb-4 text-stone-700">Available Programs</h2>
+        {hasResults ? (
+          <div className="space-y-6">
+            {dayOrder.map(day => {
+              const programsForDay = groupedAndSortedResults[day];
+              if (!programsForDay || programsForDay.length === 0) {
+                return null;
+              }
+              return (
+                <div key={day}>
+                  <h3 className="text-xl font-semibold text-stone-600 mb-3 border-b pb-1 border-stone-300">{day}</h3>
+                  <div className="space-y-4">
+                    {programsForDay.map((program, index) => (
+                      <div key={`${program.poolId}-${program.programName}-${program.startTime}-${index}`} className="p-4 bg-stone-50 rounded-md shadow-sm hover:shadow-md transition-shadow">
+                        <h4 className="font-semibold text-lg text-stone-800">{program.programName}</h4>
+                        <p className="text-md text-blue-700">at {program.poolName}</p>
+                        <p className="text-sm text-stone-600 mt-1">Time: {program.startTime} - {program.endTime}</p>
+                        {program.lanes !== undefined && <p className="text-sm text-stone-600">Lanes: {program.lanes}</p>}
+                        {program.notes && <p className="text-xs text-stone-500 mt-2"><em>Note: {program.notes}</em></p>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-stone-600">
+            {isLoading ? 'Loading...' : (selectedProgramTypes.length > 0 || selectedPools.length > 0 ? 'No programs match your current filters. Try adjusting your selections.' : 'Select filters above to see available programs.')}
+          </p>
+        )}
+      </div>
+
+      <footer className="mt-12 py-6 border-t border-stone-200">
+        <p className="text-center text-sm text-stone-500">
+          Data sourced from SF Rec & Park. Schedules subject to change.
+        </p>
       </footer>
     </div>
   );

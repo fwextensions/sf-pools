@@ -53,6 +53,13 @@ The application will be a Next.js web application.
     *   **Description:** A user is interested in a particular pool and wants to see its complete schedule for the week.
     *   **Feature:** Ability to select a single pool and view its full weekly schedule, clearly laid out.
 
+*   **Use Case 4: "Advanced Program Discovery & Planning"**
+    *   **Description:** A user wants to find all occurrences of a specific program (e.g., "Lap Swim") across several preferred pools, on any day, to see all their options.
+    *   **Feature:** A homepage interface allowing users to:
+        *   Select one or more program types (e.g., Lap Swim, Recreational Swim).
+        *   Select one or more pools to include in their search.
+        *   View a consolidated list of all matching program sessions, grouped by day of the week and then sorted by time, indicating the pool for each session.
+
 **6. Key Features & Milestones**
 
 ### Milestone 1: Proof of Concept - Single PDF Processing & Basic Display (Complete)
@@ -65,11 +72,37 @@ The application will be a Next.js web application.
 - [x] Create a basic Next.js page (`src/app/schedules/page.tsx`) to display the structured schedule data from the JSON file.
 - [x] **Refactor initial `pages` directory structure to Next.js App Router (`src/app`). (Completed)**
 - [x] **Implement path aliases (e.g., `@/lib/...`) for cleaner imports. (Completed)**
+- [x] **Update PDF Processor to extract `scheduleSeason`, `scheduleStartDate`, `scheduleEndDate`, and `lanes`. (Completed)**
+- [x] **Update `schedules/page.tsx` to display new schedule fields and lane information. (Completed)**
 
-### Milestone 2: Multi-PDF Processing & Enhanced UI
-- [ ] Create a script (`scripts/process-all-pdfs.ts`) that iterates through all PDF files in a designated directory (`data/pdfs/`).
-    - For each PDF, call the extraction logic from `src/lib/pdf-processor.ts`.
-- [ ] Enhance the `src/app/schedules/page.tsx` to better display multiple pool schedules.
+### Milestone 2: Automated Multi-PDF Data Pipeline & Enhanced Schedule Display (Complete)
+- [x] **Develop web scraper (`scripts/scrape-pool-info.ts`):**
+    - [x] Scrape SF Rec & Park website for individual pool page URLs.
+    - [x] For each pool page, identify and extract the direct link to its latest PDF schedule based on link text and URL patterns (e.g., `/DocumentCenter/View/`).
+    - [x] Save discovered pool info (name, page URL, PDF URL) to `public/data/discovered_pool_schedules.json`.
+- [x] **Develop PDF downloader script (`scripts/downloadPdf.ts`):**
+    - [x] Read `public/data/discovered_pool_schedules.json`.
+    - [x] Download each PDF schedule into `public/data/pdfs/`, using a sanitized pool name for the filename.
+- [x] **Enhance `scripts/process-all-pdfs.ts`:**
+    - [x] Iterate through all PDF files in `public/data/pdfs/`.
+    - [x] For each PDF, call the extraction logic from `src/lib/pdf-processor.ts`.
+    - [x] Consolidate all extracted schedules into `public/data/all_schedules.json`.
+- [x] **Enhance `src/app/schedules/page.tsx`:**
+    - [x] Display schedules for all processed pools from `all_schedules.json`.
+    - [x] Refine UI/styling for clarity and improved aesthetics (e.g., updated color palette).
+
+### Milestone 3: Interactive Program Filtering & Homepage
+- [ ] **Develop Homepage (`src/app/page.tsx`) with Program Filtering UI:**
+    - [ ] Design and implement UI elements for selecting:
+        - One or more program types (e.g., "Lap Swim", "Family Swim" - dynamically populated from `all_schedules.json`).
+        - One or more pools (dynamically populated).
+    - [ ] Implement client-side or server-side logic to filter schedules from `all_schedules.json` based on user selections.
+    - [ ] Display filtered results clearly, showing:
+        - Program name, pool name, day of the week, start time, end time.
+        - Group results by Day of the Week.
+        - Sort results within each day by Start Time.
+    - [ ] Ensure the interface is responsive and user-friendly.
+- [ ] **Provide a clear link/navigation from the Homepage to the full schedules view (`/schedules`).**
 
 **7. Data Requirements**
 
@@ -91,6 +124,10 @@ The application will be a Next.js web application.
     "sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Martin-Luther-King-Jr-Pool-216",
     "pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/25795", // May change, needs dynamic fetching
     "scheduleLastUpdated": "YYYY-MM-DD", // Date PDF was processed
+    "scheduleSeason": "Spring",
+    "scheduleStartDate": "YYYY-MM-DD",
+    "scheduleEndDate": "YYYY-MM-DD",
+    "lanes": 8,
     "programs": [
       {
         "programName": "Lap Swim",
@@ -132,9 +169,9 @@ sf-pools/
 │   │   ├── schedules/
 │   │   │   └── page.tsx        # Page to display schedules
 │   │   ├── layout.tsx          # Root layout for the App Router
-│   │   ├── page.tsx            # Homepage (e.g., links to schedules)
+│   │   ├── page.tsx            # Homepage (e.g., links to schedules) -> **Will contain program filtering UI**
 │   │   └── globals.css         # Global styles
-│   ├── components/             # Reusable React components (e.g., Navbar, Footer, ScheduleCard)
+│   ├── components/             # Reusable React components (e.g., Navbar, Footer, ScheduleCard, FilterControls)
 │   ├── lib/
 │   │   └── pdf-processor.ts    # Core PDF processing logic, Zod schemas, types
 │   └── ...                     # Other potential src directories (e.g., hooks, types, utils)
