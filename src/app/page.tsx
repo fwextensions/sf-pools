@@ -13,7 +13,6 @@ export default function ProgramFilterPage() {
 
   const [selectedProgramTypes, setSelectedProgramTypes] = useState<string[]>([]);
   const [selectedPools, setSelectedPools] = useState<string[]>([]);
-  const [programTypesPopoverOpen, setProgramTypesPopoverOpen] = useState(false);
 
   const dayOrder = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -55,7 +54,6 @@ export default function ProgramFilterPage() {
     setSelectedProgramTypes(prev =>
       prev.includes(programType) ? [] : [programType]
     );
-    setProgramTypesPopoverOpen(false);
   };
 
   const handlePoolChange = (poolName: string) => {
@@ -137,10 +135,10 @@ export default function ProgramFilterPage() {
   return (
     <div className="container mx-auto p-4 font-[family-name:var(--font-geist-sans)]">
       <header className="mb-8">
-        <h1 className="text-4xl font-bold mb-4 text-center text-stone-800">Find Your Swim</h1>
-        <p className="text-center text-stone-600">
-          Filter programs by type and pool to find the perfect time and place for your swim.
-        </p>
+        <h1 className="text-4xl font-bold mb-4 text-center text-stone-800">
+          Find Your Swim
+        </h1>
+
         <div className="text-center mt-4">
           <Link href="/schedules" className="text-blue-600 hover:text-blue-800 underline">
             View Full Pool Schedules
@@ -152,8 +150,6 @@ export default function ProgramFilterPage() {
         availableProgramTypes={availableProgramTypes}
         selectedProgramTypes={selectedProgramTypes}
         onProgramTypeChange={handleProgramTypeChange}
-        programTypesPopoverOpen={programTypesPopoverOpen}
-        setProgramTypesPopoverOpen={setProgramTypesPopoverOpen}
         availablePools={availablePools}
         selectedPools={selectedPools}
         onPoolChange={handlePoolChange}
