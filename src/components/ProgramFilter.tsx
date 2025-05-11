@@ -16,25 +16,25 @@ import {
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 
-interface ProgramTypeFilterProps {
-	availableProgramTypes: string[];
-	selectedProgramTypes: string[];
-	onProgramTypeChange: (programType: string) => void;
+interface ProgramFilterProps {
+	availablePrograms: string[];
+	selectedPrograms: string[];
+	onProgramChange: (program: string) => void;
 }
 
 export function ProgramFilter({
-	availableProgramTypes,
-	selectedProgramTypes,
-	onProgramTypeChange,
-}: ProgramTypeFilterProps)
+	availablePrograms,
+	selectedPrograms,
+	onProgramChange,
+}: ProgramFilterProps)
 {
 	const [popoverOpen, setPopoverOpen] = useState(false);
 
-	const programTypesButtonText = selectedProgramTypes.length === 0
-		? "Select a program type..."
-		: selectedProgramTypes.length === 1
-			? selectedProgramTypes[0]
-			: `${selectedProgramTypes.length} selected`;
+	const programsButtonText = selectedPrograms.length === 0
+		? "Select a program..."
+		: selectedPrograms.length === 1
+			? selectedPrograms[0]
+			: `${selectedPrograms.length} selected`;
 
 	return (
 		<div>
@@ -50,32 +50,32 @@ export function ProgramFilter({
 						aria-expanded={popoverOpen}
 						className="w-full justify-between min-h-[40px] text-stone-700"
 					>
-						<span className="truncate">{programTypesButtonText}</span>
+						<span className="truncate">{programsButtonText}</span>
 						<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
 					<Command>
-						<CommandInput placeholder="Search program types..." />
+						<CommandInput placeholder="Search programs..." />
 						<CommandList>
-							<CommandEmpty>No program type found.</CommandEmpty>
+							<CommandEmpty>No program found.</CommandEmpty>
 							<CommandGroup>
-								{availableProgramTypes.map(type => (
+								{availablePrograms.map(program => (
 									<CommandItem
-										key={type}
-										value={type}
+										key={program}
+										value={program}
 										onSelect={() => {
-											onProgramTypeChange(type);
+											onProgramChange(program);
 										}}
 									>
 										<Check
 											className={cn(
 												"mr-2 h-4 w-4 shrink-0",
-												selectedProgramTypes.includes(type) ? "opacity-100" :
+												selectedPrograms.includes(program) ? "opacity-100" :
 													"opacity-0"
 											)}
 										/>
-										<span className="flex-1 truncate">{type}</span>
+										<span className="flex-1 truncate">{program}</span>
 									</CommandItem>
 								))}
 							</CommandGroup>

@@ -5,37 +5,60 @@ import { XCircleIcon } from "lucide-react";
 import { ProgramFilter } from "@/components/ProgramFilter";
 
 interface FilterControlsProps {
-  availableProgramTypes: string[];
-  selectedProgramTypes: string[];
-  onProgramTypeChange: (programType: string) => void;
+  availablePrograms: string[];
+  selectedPrograms: string[];
+  onProgramChange: (program: string) => void;
   availablePools: string[];
   selectedPools: string[];
   onPoolChange: (poolName: string) => void;
-  onSelectAllPools: () => void;
-  onClearPoolSelection: () => void;
-  onClearAllFilters: () => void;
-  hasActiveFilters: boolean;
 }
 
 export default function FilterControls({
-  availableProgramTypes,
-  selectedProgramTypes,
-  onProgramTypeChange,
+  availablePrograms,
+  selectedPrograms,
+  onProgramChange,
   availablePools,
   selectedPools,
   onPoolChange,
-  onSelectAllPools,
-  onClearPoolSelection,
-  onClearAllFilters,
-  hasActiveFilters
 }: FilterControlsProps) {
+
+  const handleSelectAllPools = () => {
+    availablePools.forEach(poolName => {
+      if (!selectedPools.includes(poolName)) {
+        onPoolChange(poolName);
+      }
+    });
+  };
+
+  const handleClearPoolSelection = () => {
+    selectedPools.forEach(poolName => {
+      onPoolChange(poolName);
+    });
+  };
+
+  const handleClearAllFilters = () => {
+    // Clear program selection
+    // Assumes onProgramChange with the current selection clears it, or with an empty string/null for a general clear
+    // Given current parent logic, this should work if only one program is selected
+    if (selectedPrograms.length > 0) {
+        // If multiple programs can be selected, this logic might need to iterate
+        // or onProgramChange should handle a special value for clearing all.
+        // For now, assuming only one program or toggling the first one clears it effectively.
+        onProgramChange(selectedPrograms[0]); 
+    }
+
+    // Clear pool selections
+    handleClearPoolSelection();
+  };
+
+  const hasActiveFilters = selectedPrograms.length > 0 || selectedPools.length > 0;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 items-start">
       <ProgramFilter
-        availableProgramTypes={availableProgramTypes}
-        selectedProgramTypes={selectedProgramTypes}
-        onProgramTypeChange={onProgramTypeChange}
+        availablePrograms={availablePrograms}
+        selectedPrograms={selectedPrograms}
+        onProgramChange={onProgramChange}
       />
 
       <div>
@@ -65,7 +88,7 @@ export default function FilterControls({
             <Button
               variant="outline"
               size="sm"
-              onClick={onSelectAllPools}
+              onClick={handleSelectAllPools}
               disabled={selectedPools.length === availablePools.length}
               className="text-xs"
             >
@@ -74,7 +97,7 @@ export default function FilterControls({
             <Button
               variant="outline"
               size="sm"
-              onClick={onClearPoolSelection}
+              onClick={handleClearPoolSelection}
               disabled={selectedPools.length === 0}
               className="text-xs"
             >
@@ -88,7 +111,7 @@ export default function FilterControls({
         {hasActiveFilters && (
           <Button
             variant="outline"
-            onClick={onClearAllFilters}
+            onClick={handleClearAllFilters}
             className="text-sm w-full md:w-auto bg-stone-200 hover:bg-stone-300 transition-colors"
           >
             <XCircleIcon className="mr-2 h-4 w-4" /> Clear All Filters
