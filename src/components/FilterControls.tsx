@@ -112,7 +112,7 @@ export default function FilterControls({
                     checked={selectedPools.includes(poolName)}
                     onCheckedChange={() => onPoolChange(poolName)}
                   />
-                  <Label htmlFor={`pool-${poolName}`} className="text-stone-700 cursor-pointer">
+                  <Label htmlFor={`pool-${poolName}`} className="text-stone-700 cursor-pointer text-base md:text-sm">
                     {poolName}
                   </Label>
                 </div>
@@ -141,7 +141,7 @@ export default function FilterControls({
               size="sm"
               onClick={handleSelectAllPools}
               disabled={selectedPools.length === availablePools.length}
-              className="text-xs"
+              className="text-sm md:text-xs"
             >
               All
             </Button>
@@ -150,7 +150,7 @@ export default function FilterControls({
               size="sm"
               onClick={handleClearPoolSelection}
               disabled={selectedPools.length === 0}
-              className="text-xs"
+              className="text-sm md:text-xs"
             >
               None
             </Button>
@@ -163,7 +163,7 @@ export default function FilterControls({
           <Button
             variant="outline"
             onClick={handleClearAllFilters}
-            className="text-sm w-full md:w-auto bg-stone-200 hover:bg-stone-300 transition-colors"
+            className="text-base md:text-sm w-full md:w-auto bg-stone-200 hover:bg-stone-300 transition-colors"
           >
             <XCircleIcon className="mr-2 h-4 w-4" /> Clear All Filters
           </Button>

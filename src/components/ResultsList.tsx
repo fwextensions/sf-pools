@@ -39,20 +39,18 @@ export default function ResultsList({
 						<div key={day}>
 							<h3 className="text-xl font-semibold mb-3 text-stone-600 border-b pb-1">{day}</h3>
 							<div className="space-y-3">
-								{groupedAndSortedResults[day].map((
-									program,
-									index) => (
+								{groupedAndSortedResults[day].map((program, index) => (
 									<div key={`${program.poolId}-${program.programName}-${program.startTime}-${index}`} className="p-3 bg-white rounded-lg shadow border border-stone-200">
-										<h4 className="font-semibold text-stone-800">{program.programName}</h4>
-										<p className="text-sm text-stone-600">{program.poolName}</p>
-										<p className="text-sm text-stone-600">
+										<h4 className="font-semibold md:text-lg text-stone-800">{program.programName}</h4>
+										<p className="text-stone-600">{program.poolName}</p>
+										<p className="text-stone-600">
 											{formatTime(program.startTime)} - {formatTime(
 											program.endTime)}
 											{program.lanes &&
-												<span className="ml-2 text-sm text-stone-600">/ {program.lanes} lanes</span>}
+												<span className="ml-2">/ {program.lanes} lanes</span>}
 										</p>
 										{program.notes &&
-											<p className="text-xs text-stone-500 mt-1">Note: {program.notes}</p>}
+											<p className="text-sm text-stone-500 mt-1">Note: {program.notes}</p>}
 									</div>
 								))}
 							</div>
