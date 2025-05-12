@@ -52,16 +52,8 @@ export default function FilterControls({
   selectedPools,
   onPoolChange,
   poolMetadata,
-}: FilterControlsProps) {
-
-  const handleSelectAllPools = () => {
-    availablePools.forEach(poolName => {
-      if (!selectedPools.includes(poolName)) {
-        onPoolChange(poolName);
-      }
-    });
-  };
-
+}: FilterControlsProps)
+{
   const handleClearPoolSelection = () => {
     selectedPools.forEach(poolName => {
       onPoolChange(poolName);
@@ -95,7 +87,7 @@ export default function FilterControls({
 
       <div>
         <h2 className="text-xl font-semibold mb-3 text-stone-700">
-          Select Pool(s)
+          Filter by Pool(s)
         </h2>
 
         <div className="space-y-2 pr-1">
@@ -132,19 +124,6 @@ export default function FilterControls({
         </div>
         {availablePools.length > 0 && (
           <div className="mt-3 flex space-x-2 items-center">
-            <span className="text-sm align-middle">
-              Select
-            </span>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSelectAllPools}
-              disabled={selectedPools.length === availablePools.length}
-              className="text-sm md:text-xs"
-            >
-              All
-            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -152,7 +131,7 @@ export default function FilterControls({
               disabled={selectedPools.length === 0}
               className="text-sm md:text-xs"
             >
-              None
+              Clear Selection
             </Button>
           </div>
         )}
