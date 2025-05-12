@@ -1,0 +1,38 @@
+{
+  "Balboa Aquatics Center": {
+    "shortName": "Balboa",
+    "schedulePageName": "balboa"
+  },
+  "Coffman Aquatics Center": {
+    "shortName": "Coffman",
+    "schedulePageName": "coffman"
+  },
+  "Garfield Aquatic Center": {
+    "shortName": "Garfield",
+    "schedulePageName": "garfield"
+  },
+  "Hamilton Aquatic Center": {
+    "shortName": "Hamilton",
+    "schedulePageName": "hamilton"
+  },
+  "Martin Luther King Jr. Swimming Pool": {
+    "shortName": "MLK",
+    "schedulePageName": "mlk"
+  },
+  "Mission Aquatic Center": {
+    "shortName": "Mission",
+    "schedulePageName": "mission"
+  },
+  "North Beach Aquatics Center": {
+    "shortName": "North Beach",
+    "schedulePageName": "north-beach"
+  },
+  "Rossi Pool": {
+    "shortName": "Rossi",
+    "schedulePageName": "rossi"
+  },
+  "Sava Aquatics Center": {
+    "shortName": "Sava",
+    "schedulePageName": "sava"
+  }
+}

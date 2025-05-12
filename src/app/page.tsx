@@ -6,6 +6,16 @@ import type { PoolSchedule } from "@/lib/pdf-processor";
 import FilterControls from "@/components/FilterControls";
 import ResultsList, { FilteredProgram } from "@/components/ResultsList";
 
+// Define AllPoolsMetadata interface (can be moved to a types file later)
+interface PoolMetadata {
+  shortName: string;
+  schedulePageName: string;
+}
+
+interface AllPoolsMetadata {
+  [fullPoolName: string]: PoolMetadata;
+}
+
 // Helper function to get day order starting from today
 const getOrderedDays = () => {
 	const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday",
@@ -16,6 +26,7 @@ const getOrderedDays = () => {
 
 export default function ProgramFilterPage() {
 	const [allSchedules, setAllSchedules] = useState<PoolSchedule[]>([]);
+	const [poolMetadata, setPoolMetadata] = useState<AllPoolsMetadata | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
@@ -43,18 +54,30 @@ export default function ProgramFilterPage() {
 		{
 			try {
 				setIsLoading(true);
-				const response = await fetch("/data/all_schedules.json");
-				if (!response.ok) {
-					throw new Error(`Failed to fetch schedules: ${response.statusText}`);
+				const [schedulesResponse, metadataResponse] = await Promise.all([
+					fetch("/data/all_schedules.json"),
+					fetch("/data/pool_metadata.json")
+				]);
+
+				if (!schedulesResponse.ok) {
+					throw new Error(`Failed to fetch schedules: ${schedulesResponse.statusText}`);
 				}
-				const data = await response.json();
-				setAllSchedules(data);
+				if (!metadataResponse.ok) {
+					throw new Error(`Failed to fetch pool metadata: ${metadataResponse.statusText}`);
+				}
+
+				const schedulesData = await schedulesResponse.json();
+				const metadataData = await metadataResponse.json();
+
+				setAllSchedules(schedulesData);
+				setPoolMetadata(metadataData);
 				setError(null);
 			} catch (err) {
 				console.error(err);
 				setError(
 					err instanceof Error ? err.message : "An unknown error occurred");
 				setAllSchedules([]);
+				setPoolMetadata(null);
 			} finally {
 				setIsLoading(false);
 			}
@@ -184,6 +207,7 @@ export default function ProgramFilterPage() {
 				availablePools={availablePools}
 				selectedPools={selectedPools}
 				onPoolChange={handlePoolChange}
+				poolMetadata={poolMetadata}
 			/>
 
 			<ResultsList
