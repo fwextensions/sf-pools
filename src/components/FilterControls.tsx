@@ -86,7 +86,7 @@ export default function FilterControls({
   const hasActiveFilters = selectedPrograms.length > 0 || selectedPools.length > 0;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 items-start">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4 items-start">
       <ProgramFilter
         availablePrograms={availablePrograms}
         selectedPrograms={selectedPrograms}
@@ -158,7 +158,7 @@ export default function FilterControls({
         )}
       </div>
 
-      <div className="md:col-span-1 flex md:flex-col md:items-start md:pt-9 space-x-2 md:space-x-0 md:space-y-2">
+      <div className="md:col-span-1 flex md:flex-col md:items-start md:pt-6 space-x-2 md:space-x-0 md:space-y-2">
         {hasActiveFilters && (
           <Button
             variant="outline"

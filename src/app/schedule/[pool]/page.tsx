@@ -5,6 +5,10 @@ import { notFound } from "next/navigation";
 import type { PoolSchedule, Program } from "@/lib/pdf-processor";
 import { formatTime } from "@/lib/timeUtils";
 
+interface PoolPageProps {
+  params: Promise<{ pool: string }>;
+}
+
 interface PoolMetadata {
 	shortName: string;
 	schedulePageName: string;
@@ -52,11 +56,8 @@ export async function generateStaticParams()
 	}
 }
 
-export default async function PoolSchedulePage(props: {
-	params: { pool: string }
-}) {
-	const resolvedParams = await props.params;
-	const { pool: schedulePageName } = resolvedParams;
+export default async function PoolSchedulePage({ params: paramsPromise }: PoolPageProps) {
+  const { pool: schedulePageName } = await paramsPromise;
 
 	const metadataFilePath = path.join(process.cwd(), "public", "data",
 		"pool_metadata.json");
@@ -119,15 +120,15 @@ export default async function PoolSchedulePage(props: {
 				<h1 className="text-4xl font-bold text-center text-stone-800">
 					{poolSchedule.poolName}
 				</h1>
-				<h2 className="text-2xl font-semibold text-center mt-4 mb-1 text-stone-700">
+				<h2 className="text-2xl font-semibold text-center mt-4 text-stone-700">
 					{poolSchedule.scheduleSeason}
 				</h2>
-				<p className="text-center text-sm text-stone-500 mb-4">
+				<p className="text-center text-sm text-stone-500 mb-3">
 					{formatDate(poolSchedule.scheduleStartDate)} to {formatDate(
 					poolSchedule.scheduleEndDate)}
 				</p>
 				{poolSchedule.address &&
-					<p className="text-center text-stone-600 mt-1">{poolSchedule.address}</p>}
+					<p className="text-center text-stone-600">{poolSchedule.address}</p>}
 			</header>
 
 			<div className="space-y-6">

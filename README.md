@@ -1,3 +1,19 @@
+# SF Pools Schedule Viewer
+
+This application helps users find and view schedules for various public swimming pools in San Francisco. It aggregates schedule information, allowing users to easily see what programs are available at different pools and times.
+
+## Features
+
+*   **Combined Schedule View**: See programs from multiple pools on a single page.
+*   **Filter by Program Type**: Narrow down schedules by specific activities (e.g., Lap Swim, Water Polo, Family Swim).
+*   **Filter by Pool**: Select one or more pools to see their specific offerings.
+*   **Individual Pool Pages**: Each pool has its own dedicated page displaying its full schedule, linked directly from the main filter view.
+*   **Responsive Design**: Access schedules easily on desktop or mobile devices.
+
+(The schedule data is sourced from PDF files provided by SF Rec & Park, which are processed and collated into a central data source for this application.)
+
+---
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="Icons" xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 32 32" xml:space="preserve">
+
+	<!-- Blue watery background circle -->
+    <circle cx="16" cy="16" r="16" fill="#75C6E4"/>
+
+    <!-- Original elements, scaled for padding, with white strokes/fill -->
+    <!-- The transform centers the original 32x32 content into a 25.6x25.6 area, providing 3.2px margin -->
+	<g transform="translate(3.2, 3.2) scale(0.8)">
+		<defs>
+		  <style>
+			.swimmer-style {
+			  stroke: white; /* White lines */
+			  stroke-width: 2; /* Original stroke width, will appear as 1.6px after scaling */
+			  stroke-linecap: round;
+			  stroke-linejoin: round;
+			  stroke-miterlimit: 10;
+			}
+		  </style>
+		</defs>
+
+        <!-- Wave: white stroke, no fill -->
+        <path class="swimmer-style" style="fill:none;"
+              d="M2,22l2.6-0.9c3.9-1.3,8.3-0.4,11.4,2.4l0,0c3.1,2.8,7.4,3.7,11.4,2.4L30,25"/>
+
+        <!-- Swimmer Head: filled white, with a white stroke for consistency -->
+        <circle class="swimmer-style" style="fill:none;"
+                cx="23" cy="12" r="4"/>
+
+        <!-- Swimmer Body: white stroke, no fill -->
+        <path class="swimmer-style" style="fill:none;"
+              d="M18,25l1-1c1.7-1.7,1.7-4.4,0-6l-7.5-7.5c-1.4-1.4-3.6-1.4-5,0l-4.4,4.4c-0.6,0.6-0.6,1.6,0,2.2l0,0 c0.5,0.5,1.3,0.6,2,0.2L9,14l3,3l-3.5,3.5"/>
+	</g>
+</svg>

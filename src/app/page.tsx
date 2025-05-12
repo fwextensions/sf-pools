@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import Link from "next/link";
 import type { PoolSchedule } from "@/lib/pdf-processor";
 import FilterControls from "@/components/FilterControls";
 import ResultsList, { FilteredProgram } from "@/components/ResultsList";
@@ -128,7 +127,9 @@ export default function ProgramFilterPage() {
 	};
 
 	const groupedAndSortedResults = useMemo(() => {
-		let filtered: FilteredProgram[] = [];
+		// Initialize as an empty array; items will be pushed into it.
+		// The variable 'filtered' itself is not reassigned, so 'const' is appropriate.
+		const filtered: FilteredProgram[] = []; 
 		if (allSchedules.length === 0) {
 			return {};
 		}
@@ -193,11 +194,6 @@ export default function ProgramFilterPage() {
 					Find Your Swim
 				</h1>
 
-				<div className="text-center mt-4">
-					<Link href="/schedules" className="text-blue-600 hover:text-blue-800 underline">
-						View Full Pool Schedules
-					</Link>
-				</div>
 			</header>
 
 			<FilterControls
