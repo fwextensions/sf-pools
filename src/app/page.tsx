@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import type { PoolSchedule } from "@/lib/pdf-processor";
 import FilterControls from "@/components/FilterControls";
 import ResultsList, { FilteredProgram } from "@/components/ResultsList";
+import { WEB_PATH_ALL_SCHEDULES, WEB_PATH_POOL_METADATA } from "@/lib/constants";
 
 // Define AllPoolsMetadata interface (can be moved to a types file later)
 interface PoolMetadata {
@@ -54,8 +55,8 @@ export default function ProgramFilterPage() {
 			try {
 				setIsLoading(true);
 				const [schedulesResponse, metadataResponse] = await Promise.all([
-					fetch("/data/all_schedules.json"),
-					fetch("/data/pool_metadata.json")
+					fetch(WEB_PATH_ALL_SCHEDULES),
+					fetch(WEB_PATH_POOL_METADATA)
 				]);
 
 				if (!schedulesResponse.ok) {

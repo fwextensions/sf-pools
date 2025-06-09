@@ -1,9 +1,9 @@
 import fs from "fs/promises";
-import path from "path";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { PoolSchedule, Program } from "@/lib/pdf-processor";
 import { formatTime } from "@/lib/timeUtils";
+import { POOL_METADATA_FILE_PATH, ALL_SCHEDULES_FILE_PATH } from "@/lib/constants";
 
 interface PoolPageProps {
   params: Promise<{ pool: string }>;
@@ -43,10 +43,8 @@ function formatDate(
 
 export async function generateStaticParams()
 {
-	const metadataFilePath = path.join(process.cwd(), "public", "data",
-		"pool_metadata.json");
 	try {
-		const metadataFileContent = await fs.readFile(metadataFilePath, "utf-8");
+		const metadataFileContent = await fs.readFile(POOL_METADATA_FILE_PATH, "utf-8");
 		const allMetadata: AllPoolsMetadata = JSON.parse(metadataFileContent);
 		return Object.values(allMetadata).map(
 			meta => ({ pool: meta.schedulePageName }));
@@ -59,16 +57,11 @@ export async function generateStaticParams()
 export default async function PoolSchedulePage({ params: paramsPromise }: PoolPageProps) {
   const { pool: schedulePageName } = await paramsPromise;
 
-	const metadataFilePath = path.join(process.cwd(), "public", "data",
-		"pool_metadata.json");
-	const schedulesFilePath = path.join(process.cwd(), "public", "data",
-		"all_schedules.json");
-
 	let fullPoolName: string | undefined;
 	let poolSchedule: PoolSchedule | undefined;
 
 	try {
-		const metadataFileContent = await fs.readFile(metadataFilePath, "utf-8");
+		const metadataFileContent = await fs.readFile(POOL_METADATA_FILE_PATH, "utf-8");
 		const allMetadata: AllPoolsMetadata = JSON.parse(metadataFileContent);
 		fullPoolName = Object.keys(allMetadata).find(
 			name => allMetadata[name].schedulePageName === schedulePageName);
@@ -77,7 +70,7 @@ export default async function PoolSchedulePage({ params: paramsPromise }: PoolPa
 			notFound();
 		}
 
-		const schedulesFileContent = await fs.readFile(schedulesFilePath, "utf-8");
+		const schedulesFileContent = await fs.readFile(ALL_SCHEDULES_FILE_PATH, "utf-8");
 		const allSchedules: PoolSchedule[] = JSON.parse(schedulesFileContent);
 		poolSchedule =
 			allSchedules.find(schedule => schedule.poolName === fullPoolName);

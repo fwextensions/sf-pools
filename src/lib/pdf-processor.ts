@@ -4,6 +4,54 @@ import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { z } from "zod";
 
+function sortPrograms(programs: Program[])
+{
+  function timeToMinutes(timeStr: string)
+  {
+    const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+
+    if (!match) {
+      console.warn(`Could not parse time: ${timeStr}`);
+
+      // Push unparseable times to the end
+      return Infinity;
+    }
+
+    let hours = parseInt(match[1], 10);
+    const minutes = parseInt(match[2], 10);
+    const modifier = match[3] ? match[3].toUpperCase() : "";
+
+    if (modifier === "PM" && hours !== 12) {
+      hours += 12;
+    }
+
+    if (modifier === "AM" && hours === 12) { // Midnight case: 12 AM is 00:00
+      hours = 0;
+    }
+
+    return hours * 60 + minutes;
+  }
+
+  const dayOrder = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+  programs.sort((a, b) => {
+    const dayAIndex = dayOrder.indexOf(a.dayOfWeek);
+    const dayBIndex = dayOrder.indexOf(b.dayOfWeek);
+
+    const effectiveDayA = dayAIndex === -1 ? Infinity : dayAIndex;
+    const effectiveDayB = dayBIndex === -1 ? Infinity : dayBIndex;
+
+    if (effectiveDayA !== effectiveDayB) {
+      return effectiveDayA - effectiveDayB;
+    }
+
+    const timeA = timeToMinutes(a.startTime);
+    const timeB = timeToMinutes(b.startTime);
+
+    return timeA - timeB;
+  });
+}
+
 // Zod Schemas (copied from api/extract-schedule.ts)
 const ProgramSchema = z.object({
   programName: z.string().describe("Name of the program (e.g., Lap Swim, Family Swim)"),
@@ -29,6 +77,7 @@ export type PoolSchedule = z.infer<typeof PoolScheduleSchema>;
 export type Program = z.infer<typeof ProgramSchema>;
 
 const modelName = "gpt-4o"; // Or another powerful vision model
+const prompt = await fs.readFile(path.join(import.meta.dirname, "prompt.txt"), "utf-8");
 
 /**
  * Processes a single PDF file and extracts structured schedule data using an LLM.
@@ -48,7 +97,7 @@ export async function extractScheduleFromPdf(pdfFilePath: string): Promise<PoolS
         content: [
           {
             type: "text" as const,
-            text: "Please extract the complete schedule information from the attached PDF document. The schedule includes various programs with their names, days of the week, start times, and end times. For each program, if the number of lanes is specified (e.g., '10 lanes', '6 lanes'), extract this as a numeric value into a 'lanes' field. Any other textual notes for a program (e.g., 'Adults Only', 'Shallow water') should be placed in the 'notes' field. Identify the pool name, any listed address, and SF Rec & Park URL. For the schedule's validity period (e.g., 'Spring 2025, April 5 - June 7'): extract the general season/period like 'Spring 2025' into the 'scheduleSeason' field; extract the specific start date like 'April 5' into 'scheduleStartDate'; and extract the specific end date like 'June 7' into 'scheduleEndDate'. If a year is part of the start/end dates, include it. Format the output as a structured JSON object matching the provided schema. Pay close attention to correctly identifying all programs, their timings, lane counts, and the detailed schedule validity (season, start date, end date)."
+            text: prompt,
           },
           {
             type: "file" as const,
@@ -60,18 +109,28 @@ export async function extractScheduleFromPdf(pdfFilePath: string): Promise<PoolS
       },
     ];
 
+    console.time("PDF extraction");
+
     const { object: extractedSchedule } = await generateObject({
       model: openai(modelName),
       schema: PoolScheduleSchema,
       messages: userMessages,
     });
 
-    console.log(`Successfully extracted schedule for: ${pdfFileName}`);
-    // Ensure the returned object conforms to PoolSchedule. Zod already did, but this is an explicit cast.
-    return extractedSchedule as PoolSchedule; 
+    console.timeEnd("PDF extraction");
 
+    // make sure the extracted schedule is valid.  if it's not, it'll throw and be caught below.
+    const schedule = PoolScheduleSchema.parse(extractedSchedule);
+
+    // Sort programs within the schedule by day and then by start time
+    sortPrograms(schedule.programs);
+
+    console.log(`Successfully extracted schedule for: ${pdfFileName}`);
+
+    return schedule;
   } catch (error) {
     console.error(`Error processing PDF ${pdfFileName}:`, error);
+
     return null;
   }
 }

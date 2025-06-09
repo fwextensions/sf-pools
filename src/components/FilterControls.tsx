@@ -87,7 +87,7 @@ export default function FilterControls({
 
       <div>
         <h2 className="text-xl font-semibold mb-3 text-stone-700">
-          Filter by Pool(s)
+          Filter by Pool
         </h2>
 
         <div className="space-y-2 pr-1">

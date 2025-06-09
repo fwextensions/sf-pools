@@ -1,10 +1,8 @@
 import fs from "fs/promises";
 import path from "path";
 import type { Metadata } from "next";
-
-// Assuming PoolSchedule and Program types are exported from pdf-processor
-// Adjust the import path based on your project structure if lib is elsewhere
 import type { PoolSchedule } from "@/lib/pdf-processor";
+import { ALL_SCHEDULES_FILE_PATH } from "@/lib/constants";
 
 export const metadata: Metadata = {
 	title: "SF Pool Schedules",
@@ -16,10 +14,9 @@ async function getSchedulesData(): Promise<{
 	error?: string
 }>
 {
-	const dataFilePath = path.join(process.cwd(), "public", "data",
-		"all_schedules.json");
+	const filePath = ALL_SCHEDULES_FILE_PATH;
 	try {
-		const jsonData = await fs.readFile(dataFilePath, "utf-8");
+		const jsonData = await fs.readFile(filePath, "utf-8");
 		const schedules: PoolSchedule[] = JSON.parse(jsonData);
 		return { schedules };
 	} catch (error) {
