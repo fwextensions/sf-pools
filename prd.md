@@ -11,12 +11,14 @@ This document outlines the requirements for a TypeScript web application, "SF Po
 * Allow users to plan future pool visits by filtering schedules by day, time, and program type.
 * Offer a more accessible and user-friendly alternative to navigating multiple web pages and PDF documents.
 * Minimize manual data update efforts through automated or semi-automated data extraction.
-* Creat a clean, modern, and responsive user interface.
+* Create a clean, modern, and responsive user interface.
 
 **3. Target Users**
 
-*   San Francisco residents looking for recreational swimming, lap swimming, lessons, or other aquatic programs.
-*   Parents planning activities for their children.
+* San Francisco residents looking for recreational swimming, lap swimming, lessons, or other aquatic programs.
+* Parents planning activities for their children.
+* Fitness enthusiasts seeking lap swimming opportunities.
+* Visitors to San Francisco looking for public pool access.
 *   Fitness enthusiasts seeking lap swimming opportunities.
 *   Visitors to San Francisco looking for public pool access.
 
@@ -25,9 +27,9 @@ This document outlines the requirements for a TypeScript web application, "SF Po
 The application will be a Next.js web application.
 *   **Frontend**: Built with Next.js (using the **App Router** paradigm), React v19, and TypeScript. Tailwind v4 CSS for styling.  Shadcn UI for components.
 *   **Backend/API**: Next.js Route Handlers (within the `src/app/api/` directory) will handle requests, such as initiating PDF processing.
-*   **PDF Processing**: A core TypeScript module (`src/lib/pdf-processor.ts`) will encapsulate the logic for sending PDF data to an LLM (e.g., Gemini 2.5 Pro via Vercel AI SDK) and parsing the structured schedule data.
+*   **PDF Processing**: A core TypeScript module (`src/lib/pdf-processor.ts`) encapsulates the logic for sending PDF data to an LLM via the Vercel AI SDK. Default model: Gemini 2.5 Flash (for speed/cost). Optionally use Gemini 2.5 Pro for higher quality.
 *   **Data Storage**: Initially, processed schedules will be stored in a JSON file (`public/data/all_schedules.json`) bundled with the application. Future iterations might explore database solutions.
-*   **Deployment**: Vercel is the preferred platform for deployment.
+*   **Deployment**: Vercel is the preferred platform for deployment. Deployment has been moved to a later milestone (see Milestone 8).
 *   **Path Aliases**: The project utilizes path aliases (e.g., `@/lib/...`, `@/components/...`) for cleaner and more maintainable import statements, configured in `tsconfig.json`.
 
 **5. Key Features & Use Cases**
@@ -64,46 +66,88 @@ The application will be a Next.js web application.
 **6. Key Features & Milestones**
 
 ### Milestone 1: Proof of Concept - Single PDF Processing & Basic Display
-- [ ] Setup Next.js project with TypeScript and Tailwind CSS.
-- [ ] Develop an API endpoint (`src/app/api/extract-schedule/route.ts`) that takes a predefined PDF (`MLK_Pool_Schedule.pdf`) as input.
-- [ ] Integrate with Vercel AI SDK to send the PDF content (as base64 or direct file buffer) to a multimodal LLM (e.g., Gemini 2.5 Pro).
-- [ ] Define a Zod schema for the expected structured schedule data (Pool Name, Address, Last Updated, Programs with Day/Time/Notes, SF Rec Park URL).
-- [ ] Parse the LLM's response and validate it against the Zod schema.
-- [ ] Store the extracted, structured data into a local JSON file (`public/data/all_schedules.json`).
-- [ ] Create a basic Next.js page (`src/app/schedules/page.tsx`) to display the structured schedule data from the JSON file.
-- [ ] **Refactor initial `pages` directory structure to Next.js App Router (`src/app`).**
-- [ ] **Implement path aliases (e.g., `@/lib/...`) for cleaner imports.**
-- [ ] **Update PDF Processor to extract `scheduleSeason`, `scheduleStartDate`, `scheduleEndDate`, and `lanes`.**
-- [ ] **Update `schedules/page.tsx` to display new schedule fields and lane information.**
+- [x] Setup Next.js project with TypeScript and Tailwind CSS.
+- [x] Develop an API endpoint (`src/app/api/extract-schedule/route.ts`) that takes a predefined PDF (via `MLK_PDF_URL`) or auto-discovers it from the facility page.
+- [x] Integrate with Vercel AI SDK to send the PDF content to a multimodal LLM (Gemini 2.5 Flash by default).
+- [x] Define a Zod schema for the expected structured schedule data (Pool Name, Address, Last Updated, Programs with Day/Time/Notes, SF Rec Park URL).
+- [x] Parse the LLM's response and validate it against the Zod schema.
+- [x] Store the extracted, structured data into a local JSON file (`public/data/all_schedules.json`).
+- [x] Create a basic Next.js page (`src/app/schedules/page.tsx`) to display the structured schedule data from the JSON file.
+- [x] **Use Next.js App Router (`src/app`).**
+- [x] **Implement path aliases (e.g., `@/lib/...`) for cleaner imports.**
+- [x] **Update PDF Processor to extract `scheduleSeason`, `scheduleStartDate`, `scheduleEndDate`, and `lanes`.**
+- [x] **Update `schedules/page.tsx` to display new schedule fields and lane information.**
 
 ### Milestone 2: Automated Multi-PDF Data Pipeline & Enhanced Schedule Display
-- [ ] **Develop web scraper (`scripts/scrape-pool-info.ts`):**
-    - [ ] Scrape SF Rec & Park website for individual pool page URLs.
-    - [ ] For each pool page, identify and extract the direct link to its latest PDF schedule based on link text and URL patterns (e.g., `/DocumentCenter/View/`).
-    - [ ] Save discovered pool info (name, page URL, PDF URL) to `public/data/discovered_pool_schedules.json`.
-- [ ] **Develop PDF downloader script (`scripts/downloadPdf.ts`):**
-    - [ ] Read `public/data/discovered_pool_schedules.json`.
-    - [ ] Download each PDF schedule into `public/data/pdfs/`, using a sanitized pool name for the filename.
-- [ ] **Enhance `scripts/process-all-pdfs.ts`:**
-    - [ ] Iterate through all PDF files in `public/data/pdfs/`.
-    - [ ] For each PDF, call the extraction logic from `src/lib/pdf-processor.ts`.
-    - [ ] Consolidate all extracted schedules into `public/data/all_schedules.json`.
-- [ ] **Enhance `src/app/schedules/page.tsx`:**
-    - [ ] Display schedules for all processed pools from `all_schedules.json`.
+- [x] **Develop web scraper (`scripts/scrape-pool-info.ts`):**
+    - [x] Scrape SF Rec & Park website for individual pool page URLs.
+    - [x] For each pool page, identify and extract the direct link to its latest PDF schedule (prefer the in-page `.details` → "Documents" row; fallback scoring within `.details` only).
+    - [x] Save discovered pool info (name, page URL, PDF URL) to `public/data/discovered_pool_schedules.json`.
+- [x] **Develop PDF downloader script (`scripts/downloadPdf.ts`):**
+    - [x] Read `public/data/discovered_pool_schedules.json`.
+    - [x] Download each PDF schedule into `data/pdfs/`, using a sanitized pool name for the filename (with numeric suffixes for uniqueness).
+- [x] **Enhance `scripts/process-all-pdfs.ts`:**
+    - [x] Iterate through all PDF files in `data/pdfs/`.
+    - [x] For each PDF, call the extraction logic from `src/lib/pdf-processor.ts`.
+    - [x] Consolidate all extracted schedules into `public/data/all_schedules.json`.
+- [x] **Enhance `src/app/schedules/page.tsx`:**
+    - [x] Display schedules for all processed pools from `all_schedules.json`.
     - [ ] Refine UI/styling for clarity and improved aesthetics (e.g., updated color palette).
 
 ### Milestone 3: Interactive Program Filtering & Homepage
-- [ ] **Develop Homepage (`src/app/page.tsx`) with Program Filtering UI:**
-    - [ ] Design and implement UI elements for selecting:
-        - One or more program types (e.g., "Lap Swim", "Family Swim" - dynamically populated from `all_schedules.json`).
-        - One or more pools (dynamically populated).
-    - [ ] Implement client-side or server-side logic to filter schedules from `all_schedules.json` based on user selections.
-    - [ ] Display filtered results clearly, showing:
-        - Program name, pool name, day of the week, start time, end time.
-        - Group results by Day of the Week.
-        - Sort results within each day by Start Time.
-    - [ ] Ensure the interface is responsive and user-friendly.
-- [ ] **Provide a clear link/navigation from the Homepage to the full schedules view (`/schedules`).**
+- [x] **Develop Homepage (`src/app/page.tsx`) with Program Filtering UI:**
+    - [x] Design and implement UI elements for selecting:
+        - [x] One or more program types (dynamically populated from `all_schedules.json`).
+        - [x] One or more pools (dynamically populated).
+    - [x] Implement client-side logic to filter schedules from `all_schedules.json` based on user selections.
+    - [x] Display filtered results clearly, showing:
+        - [x] Program name, pool name, day of the week, start time, end time.
+        - [x] Group results by Day of the Week.
+        - [x] Sort results within each day by Start Time.
+    - [x] Ensure the interface is responsive and user-friendly.
+- [x] **Provide a clear link/navigation from the Homepage to the full schedules view (`/schedules`).**
+
+### Milestone 4: Day & Time Filters (Use Case 2 completeness)
+- [ ] Add day-of-week filter (multi-select and/or single-select)
+- [ ] Add time-of-day presets (Morning, Afternoon, Evening) and custom time range picker
+- [ ] Persist filter state in URL query params for sharable views
+- [ ] Optimize client-side filtering performance for larger data sets
+- [ ] Ensure correct 12-hour display and comparisons in Pacific Time
+
+### Milestone 5: "Happening Now & Soon" (Use Case 1)
+- [ ] Compute current time in Pacific Time and determine sessions that are:
+    - [ ] Ongoing now (startTime <= now < endTime)
+    - [ ] Starting soon (within next 2 hours; configurable)
+- [ ] Build a homepage section (or `/now`) summarizing:
+    - [ ] Current program per pool (if any) with end time
+    - [ ] Next upcoming program(s) within the window
+    - [ ] Status labels: "closed", "opening soon"
+- [ ] Add links to the pool detail view and source PDF
+- [ ] Ensure correct 12-hour time formatting and ordering
+
+### Milestone 6: Pool Detail View (Use Case 3)
+- [ ] Create a dedicated route per pool (e.g., `/p/[slug]`)
+- [ ] Server-render full weekly schedule for a single pool
+- [ ] Include pool metadata (address, lanes, season/dates), PDF/source links
+- [ ] Add quick day-of-week navigation within the page
+- [ ] Link to this page from schedules and the Now & Soon section
+
+### Milestone 7: Data Normalization & Taxonomy
+- [ ] Define a canonical program taxonomy and mapping rules
+    - [ ] Store a mapping table under `src/lib/program-taxonomy.ts`
+    - [ ] Keep `programNameOriginal` alongside `programNameCanonical`
+- [ ] Integrate normalization in the processing pipeline
+    - [ ] Post-process extracted data to apply canonical names
+    - [ ] Optionally nudge the LLM to emit canonical categories while preserving originals
+- [ ] Update UI filters to use canonical categories
+    - [ ] Show original names in item details for transparency
+- [ ] Add a small analyzer script to surface unmapped/novel program names for review
+
+### Milestone 8: Minimal Deployment
+- [ ] Create a Vercel project and deploy the Next.js app
+- [ ] Configure environment variables (e.g., `GOOGLE_GENERATIVE_AI_API_KEY`)
+- [ ] Decide data strategy for deploy: commit a snapshot of `public/data/all_schedules.json` or keep generation on-demand (ephemeral) and document the trade-offs
+- [ ] Document deploy and data refresh steps in the README
 
 **7. Data Requirements**
 
@@ -133,8 +177,8 @@ The application will be a Next.js web application.
       {
         "programName": "Lap Swim",
         "dayOfWeek": "Monday",
-        "startTime": "07:00", // 24-hour format
-        "endTime": "09:00",
+        "startTime": "9:00a", // 12-hour format h:mm[a|p] in Pacific Time
+        "endTime": "11:00a",
         "notes": "All lanes available"
       },
       // ... more programs
@@ -235,6 +279,6 @@ sf-pools/
 *   **Cost of LLM Usage:** API calls to LLMs have associated costs. Processing many PDFs, especially if they are long or require multiple interactions, could become expensive. *Mitigation: Optimize prompts for efficiency. Cache LLM responses where appropriate (e.g., if the PDF content hasn't changed). Estimate costs based on typical PDF length and number of pools. Explore Vercel AI SDK features for cost management.* 
 *   **Effort for LLM Integration and Prompt Engineering:** The effort to integrate with the Vercel AI SDK, develop effective prompts, and handle LLM responses (including validation and error handling) could be significant. *(This replaces the previous core technical challenge of PDF parser generalization).*
 *   **Definition of "Program Types":** Should the list of filterable program types be manually curated or entirely derived from the data? (Derived is better for maintenance but might be messy initially). *Decision: Instruct the LLM to categorize or extract program types, then potentially add a curation/aliasing layer if needed.* 
-*   **Time Zone Handling:** Ensure all times are handled correctly, assuming SF local time (Pacific Time). *Mitigation: Ensure LLM is prompted to return times in a consistent format, ideally UTC or with timezone information, and handle conversions appropriately in the application.*
+*   **Time Zone Handling:** Ensure all times are handled correctly in SF local time (Pacific Time). *Mitigation: LLM returns times in a consistent 12-hour format `h:mm[a|p]` (e.g., `9:00a`, `2:15p`) interpreted as Pacific Time; UI parsing/sorting supports this and falls back to legacy `HH:mm` when present.*
 
 This PRD provides a detailed guide for an engineer to build the SF Pools Schedule Viewer. The milestones are designed to deliver value incrementally and tackle the riskiest parts (LLM integration and prompt engineering) early on.

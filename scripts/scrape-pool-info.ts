@@ -118,14 +118,6 @@ function pickBestPdfLink(
 	});
 	scored.sort((a, b) => b.score - a.score);
 
-	// debug the top two choices to help diagnose scoring
-	console.log(
-		scored
-			.slice(0, 2)
-			.map((s) => `${s.score}: ${s.text} -> ${s.href}`)
-			.join("\n"),
-	);
-
 	return scored[0]?.href ?? null;
 }
 
@@ -133,7 +125,6 @@ export async function main() {
 	console.log("scraping pool listing:", LIST_URL);
 	const poolPages = await discoverPoolPages();
 	console.log(`found ${poolPages.length} pool pages`);
-console.log(poolPages.join("\n"));
 
 	const results: Array<{
 		poolName: string;
