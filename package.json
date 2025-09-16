@@ -1,0 +1,35 @@
+{
+	"name": "sf-pools-schedule-viewer",
+	"version": "0.1.0",
+	"private": true,
+	"license": "MIT",
+	"type": "module",
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "next lint"
+	},
+	"dependencies": {
+		"@ai-sdk/google": "latest",
+		"ai": "latest",
+		"next": "latest",
+		"react": "latest",
+		"react-dom": "latest",
+		"zod": "latest"
+	},
+	"devDependencies": {
+		"@tailwindcss/postcss": "latest",
+		"@types/node": "latest",
+		"@types/react": "19.1.13",
+		"eslint": "latest",
+		"eslint-config-next": "latest",
+		"postcss": "latest",
+		"prettier": "latest",
+		"tailwindcss": "latest",
+		"typescript": "latest"
+	},
+	"engines": {
+		"node": ">=24.4.1"
+	}
+}

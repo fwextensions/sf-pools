@@ -1,0 +1,33 @@
+# dependencies
+/node_modules/
+/.pnp
+.pnp.js
+
+# next.js
+/.next/
+/out/
+
+# env
+.env
+.env.*
+!.env.example
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# vercel
+.vercel/
+
+# editor
+*.swp
+.DS_Store
+.idea/
+.vscode/
+
+# data
+/data/pdfs/*
+!/data/pdfs/.gitkeep
+/public/data/all_schedules.json

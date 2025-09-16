@@ -1,0 +1,121 @@
+import fs from "node:fs/promises";
+import path from "node:path";
+import type { PoolSchedule } from "@/lib/pdf-processor";
+
+const DAYS: Array<PoolSchedule["programs"][number]["dayOfWeek"]> = [
+	"Monday",
+	"Tuesday",
+	"Wednesday",
+	"Thursday",
+	"Friday",
+	"Saturday",
+	"Sunday",
+];
+
+async function readSchedules(): Promise<PoolSchedule[] | null> {
+	try {
+		const file = path.join(process.cwd(), "public", "data", "all_schedules.json");
+		const content = await fs.readFile(file, "utf-8");
+		return JSON.parse(content) as PoolSchedule[];
+	} catch {
+		return null;
+	}
+}
+
+function formatDate(d?: string | null): string {
+	if (!d) return "";
+	return new Date(d).toLocaleDateString("en-US", {
+		year: "numeric",
+		month: "short",
+		day: "2-digit",
+		timeZone: "America/Los_Angeles",
+	});
+}
+
+function byStartTime(a: string, b: string): number {
+	return a.localeCompare(b);
+}
+
+export default async function SchedulesPage() {
+	const schedules = await readSchedules();
+
+	return (
+		<main className="container py-8">
+			<h1 className="text-3xl font-semibold">SF Pools — Schedules</h1>
+			<p className="mt-2 text-slate-600">
+				view extracted schedules. to generate data, POST to <code className="px-1 py-0.5 rounded bg-slate-100">/api/extract-schedule</code>.
+			</p>
+
+			{!schedules || schedules.length === 0 ? (
+				<div className="mt-8 rounded border border-slate-200 bg-white p-4">
+					<p className="text-slate-700">
+						no schedule data found. run the extractor:
+					</p>
+					<pre className="mt-3 whitespace-pre-wrap rounded bg-slate-50 p-3 text-sm text-slate-800">
+						{`curl -X POST http://localhost:3000/api/extract-schedule`}
+					</pre>
+					<p className="mt-2 text-sm text-slate-600">
+						set MLK_PDF_URL in .env.local to override autodiscovery if needed.
+					</p>
+				</div>
+			) : (
+				<div className="mt-8 space-y-8">
+					{schedules.map((pool) => (
+						<section key={pool.poolName} className="rounded border border-slate-200 bg-white p-4">
+							<header className="mb-4">
+								<h2 className="text-2xl font-medium">{pool.poolName}</h2>
+								<div className="mt-1 text-sm text-slate-600">
+									{pool.address ? <span>{pool.address}</span> : null}
+									{pool.lanes ? <span className="ml-2">• {pool.lanes} lanes</span> : null}
+									{(pool.scheduleSeason || pool.scheduleStartDate || pool.scheduleEndDate) ? (
+										<span className="ml-2">
+											• {pool.scheduleSeason ? `${pool.scheduleSeason} ` : ""}
+											{pool.scheduleStartDate ? formatDate(pool.scheduleStartDate) : ""}
+											{pool.scheduleEndDate ? ` – ${formatDate(pool.scheduleEndDate)}` : ""}
+										</span>
+									) : null}
+								</div>
+								{pool.pdfScheduleUrl ? (
+									<a
+										href={pool.pdfScheduleUrl}
+										target="_blank"
+										rel="noreferrer"
+										className="mt-1 inline-block text-sm text-blue-700 hover:underline"
+									>
+										view source PDF
+									</a>
+								) : null}
+							</header>
+
+							<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+								{DAYS.map((day) => {
+									const items = (pool.programs || []).filter((p) => p.dayOfWeek === day);
+									if (items.length === 0) return null;
+									const sorted = [...items].sort((a, b) => byStartTime(a.startTime, b.startTime));
+									return (
+										<div key={day} className="rounded border border-slate-200">
+											<div className="bg-slate-50 px-3 py-2 font-medium">{day}</div>
+											<ul className="divide-y divide-slate-200">
+												{sorted.map((p, idx) => (
+													<li key={idx} className="px-3 py-2 text-sm">
+														<div className="flex items-center justify-between">
+															<span className="font-medium">{p.programName}</span>
+															<span className="text-slate-600">{p.startTime} – {p.endTime}</span>
+														</div>
+														{p.notes ? (
+															<div className="mt-1 text-slate-600">{p.notes}</div>
+														) : null}
+													</li>
+												))}
+											</ul>
+										</div>
+									);
+								})}
+							</div>
+						</section>
+					))}
+				</div>
+			)}
+		</main>
+	);
+}
