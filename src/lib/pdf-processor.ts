@@ -17,12 +17,12 @@ export const ProgramSchema = z.object({
 	dayOfWeek: DayOfWeek,
 	startTime: z
 		.string()
-		.regex(/^\d{2}:\d{2}$/)
-		.describe("24-hour format HH:mm"),
+		.regex(/^(0?[1-9]|1[0-2]):[0-5]\d[ap]$/)
+		.describe("12-hour format h:mm[a|p], e.g., '9:00a' or '2:15p'"),
 	endTime: z
 		.string()
-		.regex(/^\d{2}:\d{2}$/)
-		.describe("24-hour format HH:mm"),
+		.regex(/^(0?[1-9]|1[0-2]):[0-5]\d[ap]$/)
+		.describe("12-hour format h:mm[a|p], e.g., '9:00a' or '2:15p'"),
 	notes: z.string().optional().nullable().default(""),
 });
 
@@ -65,7 +65,7 @@ export async function extractScheduleFromPdf(
 		"Extract exactly the fields required by the provided JSON schema.",
 		"Important rules:",
 		"- Output must be valid JSON that strictly conforms to the schema.",
-		"- Use 24-hour time format 'HH:mm' for startTime and endTime.",
+		"- Use 12-hour time format 'h:mm[a|p]' for startTime and endTime (e.g., '9:00a', '2:15p'). No spaces.",
 		"- dayOfWeek must be one of Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday.",
 		"- Times and dates should be interpreted in Pacific Time.",
 		"- Try to extract scheduleSeason, scheduleStartDate (YYYY-MM-DD), scheduleEndDate (YYYY-MM-DD), and lanes from context if present; if not present, set them to null.",
@@ -80,7 +80,7 @@ export async function extractScheduleFromPdf(
 	].join("\n");
 
 	const { object } = await generateObject({
-		model: google("gemini-2.5-pro"),
+		model: google("gemini-2.5-flash"),
 		schema: AllSchedulesSchema,
 		system,
 		messages: [

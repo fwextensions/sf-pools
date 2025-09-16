@@ -31,3 +31,4 @@ pnpm-debug.log*
 /data/pdfs/*
 !/data/pdfs/.gitkeep
 /public/data/all_schedules.json
+/public/data/discovered_pool_schedules.json
