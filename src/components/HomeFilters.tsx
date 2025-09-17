@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 
 type Props = {
@@ -40,6 +41,16 @@ function parseTimeToMinutes(t: string): number {
 export default function HomeFilters({ all }: Props) {
 	const [selectedPrograms, setSelectedPrograms] = useState<string[]>([]);
 	const [selectedPools, setSelectedPools] = useState<string[]>([]);
+	const [selectedDays, setSelectedDays] = useState<Array<ProgramEntry["dayOfWeek"]>>([...DAYS]);
+	const [timePreset, setTimePreset] = useState<"all" | "morning" | "afternoon" | "evening" | "custom">("all");
+	const [timeStart, setTimeStart] = useState<string>("6:00a");
+	const [timeEnd, setTimeEnd] = useState<string>("10:00p");
+
+	// url state sync
+	const searchParams = useSearchParams();
+	const pathname = usePathname();
+	const router = useRouter();
+	const didInit = useRef(false);
 
 	const programOptions = useMemo(() => {
 		const set = new Set<string>();
@@ -52,6 +63,48 @@ export default function HomeFilters({ all }: Props) {
 	const poolOptions = useMemo(() => {
 		return Array.from(new Set(all.map((p) => p.poolName))).sort((a, b) => a.localeCompare(b));
 	}, [all]);
+
+	// init from query params once
+	useEffect(() => {
+		if (didInit.current) return;
+		const qPrograms = searchParams.get("programs");
+		const qPools = searchParams.get("pools");
+		const qDays = searchParams.get("days");
+		const qPreset = searchParams.get("preset");
+		const qStart = searchParams.get("start");
+		const qEnd = searchParams.get("end");
+
+		if (qPrograms) setSelectedPrograms(qPrograms.split(",").filter(Boolean));
+		if (qPools) setSelectedPools(qPools.split(",").filter(Boolean));
+		if (qDays) {
+			const days = qDays.split(",").filter((d): d is ProgramEntry["dayOfWeek"] => (DAYS as string[]).includes(d));
+			if (days.length > 0) setSelectedDays(days);
+		}
+		if (qPreset === "morning" || qPreset === "afternoon" || qPreset === "evening" || qPreset === "custom" || qPreset === "all") {
+			setTimePreset(qPreset);
+		}
+		if (qStart) setTimeStart(qStart);
+		if (qEnd) setTimeEnd(qEnd);
+
+		didInit.current = true;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	// push state to url when filters change
+	useEffect(() => {
+		if (!didInit.current) return;
+		const params = new URLSearchParams();
+		if (selectedPrograms.length) params.set("programs", selectedPrograms.join(","));
+		if (selectedPools.length) params.set("pools", selectedPools.join(","));
+		if (selectedDays.length && selectedDays.length < DAYS.length) params.set("days", selectedDays.join(","));
+		if (timePreset && timePreset !== "all") params.set("preset", timePreset);
+		if (timePreset === "custom") {
+			params.set("start", timeStart);
+			params.set("end", timeEnd);
+		}
+		const qs = params.toString();
+		router.replace(qs ? `${pathname}?${qs}` : pathname);
+	}, [selectedPrograms, selectedPools, selectedDays, timePreset, timeStart, timeEnd, pathname, router]);
 
 	type Session = {
 		programName: string;
@@ -80,12 +133,41 @@ export default function HomeFilters({ all }: Props) {
 	}, [all]);
 
 	const filtered = useMemo(() => {
+		// day filter
+		const daySet = new Set(selectedDays.length ? selectedDays : DAYS);
+
+		// time window
+		let rangeStart = 0;
+		let rangeEnd = 24 * 60;
+		if (timePreset === "morning") {
+			rangeStart = parseTimeToMinutes("6:00a");
+			rangeEnd = parseTimeToMinutes("12:00p");
+		} else if (timePreset === "afternoon") {
+			rangeStart = parseTimeToMinutes("12:00p");
+			rangeEnd = parseTimeToMinutes("5:00p");
+		} else if (timePreset === "evening") {
+			rangeStart = parseTimeToMinutes("5:00p");
+			rangeEnd = parseTimeToMinutes("10:00p");
+		} else if (timePreset === "custom") {
+			const s = parseTimeToMinutes(timeStart);
+			const e = parseTimeToMinutes(timeEnd);
+			if (s !== Number.MAX_SAFE_INTEGER && e !== Number.MAX_SAFE_INTEGER) {
+				rangeStart = Math.min(s, e);
+				rangeEnd = Math.max(s, e);
+			}
+		}
+
 		return sessions.filter((s) => {
 			const progOk = selectedPrograms.length === 0 || selectedPrograms.includes(s.programName);
 			const poolOk = selectedPools.length === 0 || selectedPools.includes(s.poolName);
-			return progOk && poolOk;
+			const dayOk = daySet.has(s.dayOfWeek);
+			const start = parseTimeToMinutes(s.startTime);
+			const end = parseTimeToMinutes(s.endTime);
+			// overlap logic: session intersects [rangeStart, rangeEnd)
+			const timeOk = !(end <= rangeStart || start >= rangeEnd);
+			return progOk && poolOk && dayOk && timeOk;
 		});
-	}, [sessions, selectedPrograms, selectedPools]);
+	}, [sessions, selectedPrograms, selectedPools, selectedDays, timePreset, timeStart, timeEnd]);
 
 	const grouped = useMemo(() => {
 		const map = new Map<Session["dayOfWeek"], Session[]>();
@@ -102,6 +184,10 @@ export default function HomeFilters({ all }: Props) {
 	function clearAll() {
 		setSelectedPrograms([]);
 		setSelectedPools([]);
+		setSelectedDays([...DAYS]);
+		setTimePreset("all");
+		setTimeStart("6:00a");
+		setTimeEnd("10:00p");
 	}
 
 	return (
@@ -167,6 +253,87 @@ export default function HomeFilters({ all }: Props) {
 								</li>
 							))}
 						</ul>
+					</div>
+					<div className="mt-4">
+						<div className="flex items-center justify-between">
+							<h3 className="font-medium">Days</h3>
+							<button
+								className="text-sm text-blue-700 hover:underline"
+								onClick={() => setSelectedDays([...DAYS])}
+							>
+								all
+							</button>
+						</div>
+						<ul className="mt-2 grid grid-cols-2 gap-1">
+							{DAYS.map((day) => (
+								<li key={day}>
+									<label className="inline-flex items-center gap-2">
+										<input
+											type="checkbox"
+											className="h-4 w-4"
+											checked={selectedDays.includes(day)}
+											onChange={() =>
+												setSelectedDays(
+													selectedDays.includes(day)
+														? selectedDays.filter((d) => d !== day)
+														: [...selectedDays, day]
+												)
+											}
+										/>
+										<span className="text-sm">{day}</span>
+									</label>
+								</li>
+							))}
+						</ul>
+					</div>
+					<div className="mt-4">
+						<h3 className="font-medium">Time</h3>
+						<div className="mt-2 space-y-1">
+							<label className="flex items-center gap-2">
+								<input type="radio" name="timepreset" className="h-4 w-4" checked={timePreset === "all"} onChange={() => setTimePreset("all")} />
+								<span className="text-sm">All day</span>
+							</label>
+							<label className="flex items-center gap-2">
+								<input type="radio" name="timepreset" className="h-4 w-4" checked={timePreset === "morning"} onChange={() => setTimePreset("morning")} />
+								<span className="text-sm">Morning (6:00a–12:00p)</span>
+							</label>
+							<label className="flex items-center gap-2">
+								<input type="radio" name="timepreset" className="h-4 w-4" checked={timePreset === "afternoon"} onChange={() => setTimePreset("afternoon")} />
+								<span className="text-sm">Afternoon (12:00p–5:00p)</span>
+							</label>
+							<label className="flex items-center gap-2">
+								<input type="radio" name="timepreset" className="h-4 w-4" checked={timePreset === "evening"} onChange={() => setTimePreset("evening")} />
+								<span className="text-sm">Evening (5:00p–10:00p)</span>
+							</label>
+							<label className="flex items-center gap-2">
+								<input type="radio" name="timepreset" className="h-4 w-4" checked={timePreset === "custom"} onChange={() => setTimePreset("custom")} />
+								<span className="text-sm">Custom</span>
+							</label>
+							{timePreset === "custom" ? (
+								<div className="ml-6 mt-2 grid grid-cols-2 gap-2">
+									<label className="text-sm">
+										<span className="block text-slate-700">Start</span>
+										<input
+											type="text"
+											className="mt-1 w-full rounded border border-slate-300 px-2 py-1"
+											placeholder="9:00a"
+											value={timeStart}
+											onChange={(e) => setTimeStart(e.target.value)}
+										/>
+									</label>
+									<label className="text-sm">
+										<span className="block text-slate-700">End</span>
+										<input
+											type="text"
+											className="mt-1 w-full rounded border border-slate-300 px-2 py-1"
+											placeholder="2:15p"
+											value={timeEnd}
+											onChange={(e) => setTimeEnd(e.target.value)}
+										/>
+									</label>
+								</div>
+							) : null}
+						</div>
 					</div>
 					<div className="mt-4 flex gap-3">
 						<button
