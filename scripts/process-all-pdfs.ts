@@ -2,6 +2,7 @@ import "dotenv/config";
 import { readdir, readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { extractScheduleFromPdf, type PoolSchedule } from "../src/lib/pdf-processor";
+import { findCanonicalProgram } from "../src/lib/program-taxonomy";
 
 const PDF_DIR = path.join(process.cwd(), "data", "pdfs");
 const DISCOVERED_FILE = path.join(process.cwd(), "public", "data", "discovered_pool_schedules.json");
@@ -65,6 +66,12 @@ export async function main() {
 			const today = todayISO();
 			for (const s of schedules) {
 				if (!s.scheduleLastUpdated) s.scheduleLastUpdated = today;
+				// m7: add canonical/original program fields
+				for (const p of s.programs || []) {
+					if (!p.programNameOriginal) p.programNameOriginal = p.programName;
+					const cat = findCanonicalProgram(p.programName);
+					if (cat) p.programNameCanonical = cat;
+				}
 				aggregated.push(s);
 			}
 		} catch (err) {

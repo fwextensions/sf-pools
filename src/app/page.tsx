@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { PoolSchedule } from "@/lib/pdf-processor";
@@ -24,7 +25,9 @@ export default async function HomePage() {
 
 			<div className="mt-6">
 				{all && all.length > 0 ? (
-					<HomeFilters all={all} />
+					<Suspense fallback={<div className="rounded border border-slate-200 bg-white p-4">Loading filters…</div>}>
+						<HomeFilters all={all} />
+					</Suspense>
 				) : (
 					<div className="rounded border border-slate-200 bg-white p-4">
 						<p className="text-slate-700">no schedule data found yet.</p>

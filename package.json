@@ -12,7 +12,8 @@
 		"scrape": "tsx scripts/scrape-pool-info.ts",
 		"download-pdfs": "tsx scripts/downloadPdf.ts",
 		"process-all-pdfs": "tsx scripts/process-all-pdfs.ts",
-		"build-schedules": "npm run scrape && npm run download-pdfs && npm run process-all-pdfs"
+		"build-schedules": "npm run scrape && npm run download-pdfs && npm run process-all-pdfs",
+		"analyze-programs": "tsx scripts/analyze-program-names.ts"
 	},
 	"dependencies": {
 		"@ai-sdk/google": "latest",

@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { PoolSchedule } from "@/lib/pdf-processor";
+import { normalizeProgramName } from "@/lib/program-taxonomy";
 
 const DAYS: Array<PoolSchedule["programs"][number]["dayOfWeek"]> = [
 	"Monday",
@@ -121,7 +122,7 @@ export default async function SchedulesPage() {
 												{sorted.map((p, idx) => (
 													<li key={idx} className="px-3 py-2 text-sm">
 														<div className="flex items-center justify-between">
-															<span className="font-medium">{p.programName}</span>
+															<span className="font-medium">{normalizeProgramName(p.programName)}</span>
 															<span className="text-slate-600">{p.startTime} – {p.endTime}</span>
 														</div>
 														{p.notes ? (

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
+import { normalizeProgramName, findCanonicalProgram } from "@/lib/program-taxonomy";
 
 type Props = {
 	all: PoolSchedule[];
@@ -52,10 +53,18 @@ export default function HomeFilters({ all }: Props) {
 	const router = useRouter();
 	const didInit = useRef(false);
 
+	function programKeyFromRaw(raw: string): string {
+		return findCanonicalProgram(raw) ?? normalizeProgramName(raw);
+	}
+
 	const programOptions = useMemo(() => {
 		const set = new Set<string>();
 		for (const pool of all) {
-			for (const p of pool.programs || []) set.add(p.programName);
+			for (const p of pool.programs || []) {
+				const canonical = (p as any).programNameCanonical as string | undefined | null;
+				const key = canonical ?? programKeyFromRaw(p.programName);
+				set.add(key);
+			}
 		}
 		return Array.from(set).sort((a, b) => a.localeCompare(b));
 	}, [all]);
@@ -74,7 +83,7 @@ export default function HomeFilters({ all }: Props) {
 		const qStart = searchParams.get("start");
 		const qEnd = searchParams.get("end");
 
-		if (qPrograms) setSelectedPrograms(qPrograms.split(",").filter(Boolean));
+		if (qPrograms) setSelectedPrograms(qPrograms.split(",").filter(Boolean).map((s) => programKeyFromRaw(s)));
 		if (qPools) setSelectedPools(qPools.split(",").filter(Boolean));
 		if (qDays) {
 			const days = qDays.split(",").filter((d): d is ProgramEntry["dayOfWeek"] => (DAYS as string[]).includes(d));
@@ -107,7 +116,8 @@ export default function HomeFilters({ all }: Props) {
 	}, [selectedPrograms, selectedPools, selectedDays, timePreset, timeStart, timeEnd, pathname, router]);
 
 	type Session = {
-		programName: string;
+		programCanonical: string;
+		programOriginal: string;
 		poolName: string;
 		dayOfWeek: ProgramEntry["dayOfWeek"];
 		startTime: string;
@@ -119,8 +129,11 @@ export default function HomeFilters({ all }: Props) {
 		const out: Session[] = [];
 		for (const pool of all) {
 			for (const p of pool.programs || []) {
+				const original = normalizeProgramName(p.programName);
+				const canonical = ((p as any).programNameCanonical as string | undefined | null) ?? programKeyFromRaw(p.programName);
 				out.push({
-					programName: p.programName,
+					programCanonical: canonical,
+					programOriginal: original,
 					poolName: pool.poolName,
 					dayOfWeek: p.dayOfWeek,
 					startTime: p.startTime,
@@ -158,7 +171,7 @@ export default function HomeFilters({ all }: Props) {
 		}
 
 		return sessions.filter((s) => {
-			const progOk = selectedPrograms.length === 0 || selectedPrograms.includes(s.programName);
+			const progOk = selectedPrograms.length === 0 || selectedPrograms.includes(s.programCanonical);
 			const poolOk = selectedPools.length === 0 || selectedPools.includes(s.poolName);
 			const dayOk = daySet.has(s.dayOfWeek);
 			const start = parseTimeToMinutes(s.startTime);
@@ -218,35 +231,9 @@ export default function HomeFilters({ all }: Props) {
 									<label className="inline-flex items-center gap-2">
 										<input
 											type="checkbox"
-											className="h-4 w-4"
+											className="h-4 w-4 flex-shrink-0"
 											checked={selectedPrograms.includes(name)}
 											onChange={() => toggleSelection(selectedPrograms, setSelectedPrograms, name)}
-										/>
-										<span className="text-sm">{name}</span>
-									</label>
-								</li>
-							))}
-						</ul>
-					</div>
-					<div className="mt-4">
-						<div className="flex items-center justify-between">
-							<h3 className="font-medium">Pools</h3>
-							<button
-								className="text-sm text-blue-700 hover:underline"
-								onClick={() => setSelectedPools(poolOptions)}
-							>
-								all
-							</button>
-						</div>
-						<ul className="mt-2 space-y-1">
-							{poolOptions.map((name) => (
-								<li key={name}>
-									<label className="inline-flex items-center gap-2">
-										<input
-											type="checkbox"
-											className="h-4 w-4"
-											checked={selectedPools.includes(name)}
-											onChange={() => toggleSelection(selectedPools, setSelectedPools, name)}
 										/>
 										<span className="text-sm">{name}</span>
 									</label>
@@ -270,7 +257,7 @@ export default function HomeFilters({ all }: Props) {
 									<label className="inline-flex items-center gap-2">
 										<input
 											type="checkbox"
-											className="h-4 w-4"
+											className="h-4 w-4 flex-shrink-0"
 											checked={selectedDays.includes(day)}
 											onChange={() =>
 												setSelectedDays(
@@ -361,12 +348,17 @@ export default function HomeFilters({ all }: Props) {
 										{items.map((s, idx) => (
 											<li key={idx} className="px-3 py-2 text-sm">
 												<div className="flex items-center justify-between gap-3">
-													<span className="font-medium">{s.programName}</span>
+													<span className="font-medium">{s.programCanonical}</span>
 													<span className="text-slate-600">{s.startTime} – {s.endTime}</span>
 												</div>
 												<div className="mt-1 flex items-center justify-between text-slate-600">
 													<span>{s.poolName}</span>
-													{s.notes ? <span className="ml-2">{s.notes}</span> : null}
+													<div className="ml-2 flex items-center gap-2">
+														{(s.programOriginal && s.programOriginal !== s.programCanonical) ? (
+															<span className="text-xs italic text-slate-500">original: {s.programOriginal}</span>
+														) : null}
+														{s.notes ? <span>{s.notes}</span> : null}
+													</div>
 												</div>
 											</li>
 										))}

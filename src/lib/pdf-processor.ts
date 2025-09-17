@@ -24,6 +24,9 @@ export const ProgramSchema = z.object({
 		.regex(/^(0?[1-9]|1[0-2]):[0-5]\d[ap]$/)
 		.describe("12-hour format h:mm[a|p], e.g., '9:00a' or '2:15p'"),
 	notes: z.string().optional().nullable().default(""),
+	// m7 fields: optional to avoid breaking existing extractor responses
+	programNameOriginal: z.string().optional().nullable(),
+	programNameCanonical: z.string().optional().nullable(),
 });
 
 export const PoolScheduleSchema = z.object({
