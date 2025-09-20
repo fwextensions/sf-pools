@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { findCanonicalProgram, normalizeProgramName } from "../src/lib/program-taxonomy";
+import { findCanonicalProgram, toTitleCase } from "../src/lib/program-taxonomy";
 import type { PoolSchedule } from "../src/lib/pdf-processor";
 
 async function readAllSchedules(): Promise<PoolSchedule[] | null> {
@@ -27,14 +27,14 @@ async function main() {
 	const counts: Record<string, number> = {};
 	for (const pool of all) {
 		for (const p of pool.programs || []) {
-			const name = p.programName || "";
+			const name = (p as any).programNameOriginal || p.programName || "";
 			counts[name] = (counts[name] || 0) + 1;
 		}
 	}
 
 	const entries = Object.entries(counts).map(([raw, count]) => {
 		const canonical = findCanonicalProgram(raw);
-		const display = normalizeProgramName(raw);
+		const display = toTitleCase(raw);
 		return { raw, display, canonical, count };
 	});
 

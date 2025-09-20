@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
-import { normalizeProgramName } from "@/lib/program-taxonomy";
 
 const DAYS: Array<ProgramEntry["dayOfWeek"]> = [
 	"Monday",
@@ -94,7 +93,7 @@ export default function NowSoon({ all }: Props) {
 			const todays: Session[] = (pool.programs || [])
 				.filter((p) => p.dayOfWeek === now.day)
 				.map((p) => ({
-					programName: normalizeProgramName(p.programName),
+					programName: p.programName,
 					poolName: pool.poolName,
 					startTime: p.startTime,
 					endTime: p.endTime,

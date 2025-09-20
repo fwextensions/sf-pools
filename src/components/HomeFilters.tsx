@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
-import { normalizeProgramName, findCanonicalProgram } from "@/lib/program-taxonomy";
+// canonical program names are already written to programName by the pipeline
 
 type Props = {
 	all: PoolSchedule[];
@@ -53,18 +53,10 @@ export default function HomeFilters({ all }: Props) {
 	const router = useRouter();
 	const didInit = useRef(false);
 
-	function programKeyFromRaw(raw: string): string {
-		return findCanonicalProgram(raw) ?? normalizeProgramName(raw);
-	}
-
 	const programOptions = useMemo(() => {
 		const set = new Set<string>();
 		for (const pool of all) {
-			for (const p of pool.programs || []) {
-				const canonical = (p as any).programNameCanonical as string | undefined | null;
-				const key = canonical ?? programKeyFromRaw(p.programName);
-				set.add(key);
-			}
+			for (const p of pool.programs || []) set.add(p.programName);
 		}
 		return Array.from(set).sort((a, b) => a.localeCompare(b));
 	}, [all]);
@@ -83,7 +75,7 @@ export default function HomeFilters({ all }: Props) {
 		const qStart = searchParams.get("start");
 		const qEnd = searchParams.get("end");
 
-		if (qPrograms) setSelectedPrograms(qPrograms.split(",").filter(Boolean).map((s) => programKeyFromRaw(s)));
+		if (qPrograms) setSelectedPrograms(qPrograms.split(",").filter(Boolean));
 		if (qPools) setSelectedPools(qPools.split(",").filter(Boolean));
 		if (qDays) {
 			const days = qDays.split(",").filter((d): d is ProgramEntry["dayOfWeek"] => (DAYS as string[]).includes(d));
@@ -116,8 +108,8 @@ export default function HomeFilters({ all }: Props) {
 	}, [selectedPrograms, selectedPools, selectedDays, timePreset, timeStart, timeEnd, pathname, router]);
 
 	type Session = {
-		programCanonical: string;
-		programOriginal: string;
+		programName: string;
+		programNameOriginal?: string | null;
 		poolName: string;
 		dayOfWeek: ProgramEntry["dayOfWeek"];
 		startTime: string;
@@ -129,11 +121,9 @@ export default function HomeFilters({ all }: Props) {
 		const out: Session[] = [];
 		for (const pool of all) {
 			for (const p of pool.programs || []) {
-				const original = normalizeProgramName(p.programName);
-				const canonical = ((p as any).programNameCanonical as string | undefined | null) ?? programKeyFromRaw(p.programName);
 				out.push({
-					programCanonical: canonical,
-					programOriginal: original,
+					programName: p.programName,
+					programNameOriginal: (p as any).programNameOriginal ?? null,
 					poolName: pool.poolName,
 					dayOfWeek: p.dayOfWeek,
 					startTime: p.startTime,
@@ -171,7 +161,7 @@ export default function HomeFilters({ all }: Props) {
 		}
 
 		return sessions.filter((s) => {
-			const progOk = selectedPrograms.length === 0 || selectedPrograms.includes(s.programCanonical);
+			const progOk = selectedPrograms.length === 0 || selectedPrograms.includes(s.programName);
 			const poolOk = selectedPools.length === 0 || selectedPools.includes(s.poolName);
 			const dayOk = daySet.has(s.dayOfWeek);
 			const start = parseTimeToMinutes(s.startTime);
@@ -348,14 +338,14 @@ export default function HomeFilters({ all }: Props) {
 										{items.map((s, idx) => (
 											<li key={idx} className="px-3 py-2 text-sm">
 												<div className="flex items-center justify-between gap-3">
-													<span className="font-medium">{s.programCanonical}</span>
+													<span className="font-medium">{s.programName}</span>
 													<span className="text-slate-600">{s.startTime} – {s.endTime}</span>
 												</div>
 												<div className="mt-1 flex items-center justify-between text-slate-600">
 													<span>{s.poolName}</span>
 													<div className="ml-2 flex items-center gap-2">
-														{(s.programOriginal && s.programOriginal !== s.programCanonical) ? (
-															<span className="text-xs italic text-slate-500">original: {s.programOriginal}</span>
+														{(s.programNameOriginal && s.programNameOriginal !== s.programName) ? (
+															<span className="text-xs italic text-slate-500">original: {s.programNameOriginal}</span>
 														) : null}
 														{s.notes ? <span>{s.notes}</span> : null}
 													</div>
