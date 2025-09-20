@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { PoolSchedule } from "@/lib/pdf-processor";
+import { toTitleCase } from "@/lib/program-taxonomy";
 
 const DAYS: Array<PoolSchedule["programs"][number]["dayOfWeek"]> = [
 	"Monday",
@@ -85,7 +86,7 @@ export default async function SchedulesPage() {
 					{schedules.map((pool) => (
 						<section key={pool.poolName} className="rounded border border-slate-200 bg-white p-4">
 							<header className="mb-4">
-								<h2 className="text-2xl font-medium">{pool.poolName}</h2>
+								<h2 className="text-2xl font-medium">{toTitleCase(pool.poolName)}</h2>
 								<div className="mt-1 text-sm text-slate-600">
 									{pool.address ? <span>{pool.address}</span> : null}
 									{pool.lanes ? <span className="ml-2">• {pool.lanes} lanes</span> : null}

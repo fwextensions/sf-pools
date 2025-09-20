@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
+import { toTitleCase } from "@/lib/program-taxonomy";
 // canonical program names are already written to programName by the pipeline
 
 type Props = {
@@ -352,7 +353,7 @@ export default function HomeFilters({ all }: Props) {
 													<span className="text-slate-600">{s.startTime} – {s.endTime}</span>
 												</div>
 												<div className="mt-1 flex items-center justify-between text-slate-600">
-													<span>{s.poolName}</span>
+													<span>{(all.find((p) => p.poolName === s.poolName)?.poolShortName) ?? (all.find((p) => p.poolName === s.poolName)?.poolNameTitle) ?? toTitleCase(s.poolName)}</span>
 													<div className="ml-2 flex items-center gap-2">
 														{s.notes ? <span>{s.notes}</span> : null}
 													</div>

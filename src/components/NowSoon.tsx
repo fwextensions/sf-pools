@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
+import { toTitleCase } from "@/lib/program-taxonomy";
 
 const DAYS: Array<ProgramEntry["dayOfWeek"]> = [
 	"Monday",
@@ -162,7 +163,7 @@ export default function NowSoon({ all }: Props) {
 						{openNow.map(({ pool, current }) => (
 							<li key={pool.poolName} className="rounded border border-emerald-200 bg-emerald-50 p-3 text-sm">
 								<div className="flex items-center justify-between">
-									<span className="font-medium">{pool.poolName}</span>
+									<span className="font-medium">{(pool as any).poolShortName ?? (pool as any).poolNameTitle ?? toTitleCase(pool.poolName)}</span>
 									<span className="rounded bg-emerald-600 px-2 py-0.5 text-white">open</span>
 								</div>
 								<div className="mt-1">{current!.programName} — until {current!.endTime}</div>

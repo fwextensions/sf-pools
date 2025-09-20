@@ -39,6 +39,19 @@ function capitalizeWord(w: string): string {
 	return lower.charAt(0).toUpperCase() + lower.slice(1);
 }
 
+// pool name helpers
+export function shortPoolName(name: string): string {
+	const titled = toTitleCase(name || "").trim();
+	if (!titled) return "";
+	// remove trailing "Community Pool" or "Pool"
+	let s = titled.replace(/\s*(Community)?\s*Pool$/i, "").trim();
+	// remove trailing "Aquatic Center" -> keep main name
+	s = s.replace(/\s*Aquatic\s+Center$/i, "").trim();
+	// collapse multiple spaces
+	s = s.replace(/\s{2,}/g, " ");
+	return s;
+}
+
 export function toTitleCase(input: string): string {
 	if (!input) return "";
 	const trimmed = input.trim();

@@ -1,0 +1,29 @@
+{
+	"Balboa Aquatics Center": {
+		"shortName": "Balboa"
+	},
+	"Coffman Aquatics Center": {
+		"shortName": "Coffman"
+	},
+	"Garfield Aquatic Center": {
+		"shortName": "Garfield"
+	},
+	"Hamilton Aquatic Center": {
+		"shortName": "Hamilton"
+	},
+	"Dr. Martin Luther King Jr. Swimming Pool": {
+		"shortName": "MLK"
+	},
+	"Mission Aquatic Center": {
+		"shortName": "Mission"
+	},
+	"North Beach Aquatics Center": {
+		"shortName": "North Beach"
+	},
+	"Rossi Pool": {
+		"shortName": "Rossi"
+	},
+	"Sava Aquatics Center": {
+		"shortName": "Sava"
+	}
+}

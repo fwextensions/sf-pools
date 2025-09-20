@@ -2,13 +2,14 @@ import "dotenv/config";
 import { readdir, readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { extractScheduleFromPdf, type PoolSchedule } from "../src/lib/pdf-processor";
-import { findCanonicalProgram, normalizeProgramName } from "../src/lib/program-taxonomy";
+import { findCanonicalProgram, normalizeProgramName, toTitleCase } from "../src/lib/program-taxonomy";
 
 const PDF_DIR = path.join(process.cwd(), "data", "pdfs");
 const DISCOVERED_FILE = path.join(process.cwd(), "public", "data", "discovered_pool_schedules.json");
 const OUT_DIR = path.join(process.cwd(), "public", "data");
 const OUT_FILE = path.join(OUT_DIR, "all_schedules.json");
 const EXTRACTED_DIR = path.join(process.cwd(), "data", "extracted");
+const POOLS_META_FILE = path.join(OUT_DIR, "pools.json");
 
 function sanitizeFilename(name: string): string {
 	return name
@@ -16,6 +17,17 @@ function sanitizeFilename(name: string): string {
 		.replace(/[^a-z0-9\s-_]+/g, "")
 		.trim()
 		.replace(/\s+/g, "-");
+}
+
+type PoolsMeta = Record<string, { shortName: string } | string>;
+
+async function loadPoolsMeta(): Promise<PoolsMeta> {
+	try {
+		const raw = await readFile(POOLS_META_FILE, "utf-8");
+		return JSON.parse(raw) as PoolsMeta;
+	} catch {
+		return {};
+	}
 }
 
 function stripTrailingIndex(base: string): string {
@@ -39,6 +51,7 @@ async function loadDiscovered(): Promise<Array<{ poolName: string; pageUrl: stri
 export async function main() {
 	await mkdir(OUT_DIR, { recursive: true });
 	await mkdir(EXTRACTED_DIR, { recursive: true });
+	const poolsMeta = await loadPoolsMeta();
 	const entries = await readdir(PDF_DIR, { withFileTypes: true });
 	const pdfFiles = entries.filter((e) => e.isFile() && e.name.toLowerCase().endsWith(".pdf")).map((e) => e.name);
 	console.log(`found ${pdfFiles.length} pdf(s) to process`);
@@ -85,6 +98,12 @@ export async function main() {
 			const today = todayISO();
 			for (const s of schedules) {
 				if (!s.scheduleLastUpdated) s.scheduleLastUpdated = today;
+				// pool naming: title-case and short name via metadata map
+				const titleName = toTitleCase(s.poolName);
+				s.poolNameTitle = titleName;
+				const metaEntry = (poolsMeta[titleName] ?? poolsMeta[s.poolName]) as ({ shortName: string } | string | undefined);
+				const shortName = typeof metaEntry === "string" ? metaEntry : metaEntry?.shortName;
+				s.poolShortName = shortName ?? null;
 				// m7: rewrite programName to canonical label, preserve original
 				for (const p of s.programs || []) {
 					const original = p.programName;
@@ -93,7 +112,8 @@ export async function main() {
 					p.programName = canonical;
 					p.programNameCanonical = canonical;
 				}
-				aggregated.push(s);
+				const { programs, ...rest } = s;
+				aggregated.push({ ...rest, programs });
 			}
 		} catch (err) {
 			console.warn("failed to process", file, err);
