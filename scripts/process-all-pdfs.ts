@@ -8,6 +8,7 @@ const PDF_DIR = path.join(process.cwd(), "data", "pdfs");
 const DISCOVERED_FILE = path.join(process.cwd(), "public", "data", "discovered_pool_schedules.json");
 const OUT_DIR = path.join(process.cwd(), "public", "data");
 const OUT_FILE = path.join(OUT_DIR, "all_schedules.json");
+const EXTRACTED_DIR = path.join(process.cwd(), "data", "extracted");
 
 function sanitizeFilename(name: string): string {
 	return name
@@ -37,6 +38,7 @@ async function loadDiscovered(): Promise<Array<{ poolName: string; pageUrl: stri
 
 export async function main() {
 	await mkdir(OUT_DIR, { recursive: true });
+	await mkdir(EXTRACTED_DIR, { recursive: true });
 	const entries = await readdir(PDF_DIR, { withFileTypes: true });
 	const pdfFiles = entries.filter((e) => e.isFile() && e.name.toLowerCase().endsWith(".pdf")).map((e) => e.name);
 	console.log(`found ${pdfFiles.length} pdf(s) to process`);
@@ -59,10 +61,27 @@ export async function main() {
 		try {
 			console.log("processing:", file);
 			const buf = await readFile(pdfPath);
-			const schedules = await extractScheduleFromPdf(buf, {
-				pdfScheduleUrl: hint?.pdfUrl ?? undefined,
-				sfRecParkUrl: hint?.pageUrl ?? undefined,
-			});
+			const extractPath = path.join(EXTRACTED_DIR, `${base}.json`);
+			const preferCache = process.env.REFRESH_EXTRACT !== "1";
+			let schedules: PoolSchedule[] | null = null;
+			if (preferCache) {
+				try {
+					const cached = await readFile(extractPath, "utf-8");
+					schedules = JSON.parse(cached) as PoolSchedule[];
+					console.log("loaded cached extract:", path.basename(extractPath));
+				} catch {
+					// no cache found, will extract fresh
+				}
+			}
+			if (!schedules) {
+				schedules = await extractScheduleFromPdf(buf, {
+					pdfScheduleUrl: hint?.pdfUrl ?? undefined,
+					sfRecParkUrl: hint?.pageUrl ?? undefined,
+				});
+				// write raw extraction cache for future reprocessing without reprompt
+				await writeFile(extractPath, JSON.stringify(schedules, null, "\t"), "utf-8");
+				console.log("wrote extract:", extractPath);
+			}
 			const today = todayISO();
 			for (const s of schedules) {
 				if (!s.scheduleLastUpdated) s.scheduleLastUpdated = today;
