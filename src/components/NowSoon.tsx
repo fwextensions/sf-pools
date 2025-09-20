@@ -155,13 +155,13 @@ export default function NowSoon({ all }: Props) {
 			</div>
 
 			<section className="mb-8">
-				<h2 className="mb-2 text-xl font-medium">Open now</h2>
+				<h2 className="mb-2 text-xl font-medium accent-left pl-3">Open now</h2>
 				{openNow.length === 0 ? (
 					<p className="text-slate-600">No pools have ongoing sessions right now.</p>
 				) : (
 					<ul className="grid gap-3 md:grid-cols-2">
 						{openNow.map(({ pool, current }) => (
-							<li key={pool.poolName} className="rounded border border-emerald-200 bg-emerald-50 p-3 text-sm">
+							<li key={pool.poolName} className="rounded border accent-border bg-emerald-50 p-3 text-sm">
 								<div className="flex items-center justify-between">
 									<span className="font-medium">{(pool as any).poolShortName ?? (pool as any).poolNameTitle ?? toTitleCase(pool.poolName)}</span>
 									<span className="rounded bg-emerald-600 px-2 py-0.5 text-white">open</span>
@@ -182,13 +182,13 @@ export default function NowSoon({ all }: Props) {
 			</section>
 
 			<section className="mb-8">
-				<h2 className="mb-2 text-xl font-medium">Starting soon (next {windowMin} min)</h2>
+				<h2 className="mb-2 text-xl font-medium accent-left pl-3">Starting soon (next {windowMin} min)</h2>
 				{openingSoon.length === 0 ? (
 					<p className="text-slate-600">No sessions starting soon within the selected window.</p>
 				) : (
 					<ul className="grid gap-3 md:grid-cols-2">
 						{openingSoon.map(({ pool, upcoming }) => (
-							<li key={pool.poolName} className="rounded border border-amber-200 bg-amber-50 p-3 text-sm">
+							<li key={pool.poolName} className="rounded border accent-border bg-amber-50 p-3 text-sm">
 								<div className="flex items-center justify-between">
 									<span className="font-medium">{pool.poolName}</span>
 									<span className="rounded bg-amber-600 px-2 py-0.5 text-white">opening soon</span>
@@ -215,13 +215,13 @@ export default function NowSoon({ all }: Props) {
 			</section>
 
 			<section>
-				<h2 className="mb-2 text-xl font-medium">Closed (no sessions now or soon)</h2>
+				<h2 className="mb-2 text-xl font-medium accent-left pl-3">Closed (no sessions now or soon)</h2>
 				{closed.length === 0 ? (
 					<p className="text-slate-600">All pools have activity now or starting soon.</p>
 				) : (
 					<ul className="grid gap-3 md:grid-cols-2">
 						{closed.map(({ pool, later }) => (
-							<li key={pool.poolName} className="rounded border border-slate-200 bg-white p-3 text-sm">
+							<li key={pool.poolName} className="rounded border accent-border bg-white p-3 text-sm">
 								<div className="flex items-center justify-between">
 									<span className="font-medium">{pool.poolName}</span>
 									<span className="rounded bg-slate-600 px-2 py-0.5 text-white">closed</span>

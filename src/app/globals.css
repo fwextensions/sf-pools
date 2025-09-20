@@ -3,6 +3,11 @@
 /* base theme tokens */
 :root {
 	color-scheme: light;
+	/* watery blue accent pulled from favicon */
+	--accent-color: #75C6E4;
+	/* derived tints for subtle borders and backgrounds */
+	--accent-border: color-mix(in srgb, var(--accent-color) 40%, white);
+	--accent-muted: color-mix(in srgb, var(--accent-color) 12%, white);
 }
 
 /* basic typography */
@@ -18,4 +23,17 @@ body {
 	margin-right: auto;
 	padding-left: 1rem;
 	padding-right: 1rem;
+}
+
+/* light, line-drawn styling helpers inspired by the favicon */
+.accent-left {
+	border-left: 4px solid var(--accent-color);
+}
+
+.accent-border {
+	border-color: var(--accent-border);
+}
+
+.accent-muted-bg {
+	background-color: var(--accent-muted);
 }

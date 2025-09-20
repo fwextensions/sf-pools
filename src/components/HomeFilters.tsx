@@ -199,14 +199,14 @@ export default function HomeFilters({ all }: Props) {
 	return (
 		<div className="container py-8">
 			<header className="mb-6 flex items-center justify-between">
-				<h1 className="text-3xl font-semibold">Find programs</h1>
+				<h1 className="text-3xl font-semibold accent-left pl-3">Find programs</h1>
 				<a href="/schedules" className="text-blue-700 hover:underline">
 					View full schedules
 				</a>
 			</header>
 
 			<div className="grid gap-6 md:grid-cols-3">
-				<section className="md:col-span-1 rounded border border-slate-200 bg-white p-4">
+				<section className="md:col-span-1 rounded border accent-border bg-white p-4">
 					<h2 className="text-lg font-medium">Filters</h2>
 
 					{/* Pools filter */}
@@ -360,7 +360,7 @@ export default function HomeFilters({ all }: Props) {
 					</div>
 				</section>
 
-				<section className="md:col-span-2 rounded border border-slate-200 bg-white p-4">
+				<section className="md:col-span-2 rounded border accent-border bg-white p-4">
 					<h2 className="text-lg font-medium">Results</h2>
 					<p className="mt-1 text-sm text-slate-600">
 						{filtered.length} session{filtered.length === 1 ? "" : "s"} matching
@@ -370,21 +370,21 @@ export default function HomeFilters({ all }: Props) {
 							const items = grouped.get(day)!;
 							if (!items || items.length === 0) return null;
 							return (
-								<div key={day} className="rounded border border-slate-200">
-									<div className="bg-slate-50 px-3 py-2 font-medium">{day}</div>
+								<div key={day} className="rounded border accent-border">
+									<div className="accent-muted-bg px-3 py-2 font-medium">{day}</div>
 									<ul className="divide-y divide-slate-200">
 										{items.map((s, idx) => (
 											<li key={idx} className="px-3 py-2 text-sm">
 												<div className="flex items-center justify-between gap-3">
 													<span
-												className="font-medium"
-												title={s.programNameOriginal && s.programNameOriginal !== s.programName ? s.programNameOriginal : undefined}
-											>
-												{s.programName}
-											</span>
-											{s.lanes ? (
-												<span className="ml-2 rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700">{s.lanes} lanes</span>
-											) : null}
+														className="font-medium"
+														title={s.programNameOriginal && s.programNameOriginal !== s.programName ? s.programNameOriginal : undefined}
+													>
+														{s.programName}
+													</span>
+													{s.lanes ? (
+														<span className="ml-2 rounded accent-muted-bg px-2 py-0.5 text-xs text-slate-700">{s.lanes} lanes</span>
+													) : null}
 													<span className="text-slate-600">{s.startTime} – {s.endTime}</span>
 												</div>
 												<div className="mt-1 flex items-center justify-between text-slate-600">

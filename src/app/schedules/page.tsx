@@ -64,13 +64,10 @@ export default async function SchedulesPage() {
 
 	return (
 		<main className="container py-8">
-			<h1 className="text-3xl font-semibold">SF Pools — Schedules</h1>
-			<p className="mt-2 text-slate-600">
-				view extracted schedules. to generate data, POST to <code className="px-1 py-0.5 rounded bg-slate-100">/api/extract-schedule</code>.
-			</p>
+			<h1 className="text-3xl font-semibold accent-left pl-3">SF Pools — Schedules</h1>
 
 			{!schedules || schedules.length === 0 ? (
-				<div className="mt-8 rounded border border-slate-200 bg-white p-4">
+				<div className="mt-8 rounded border accent-border bg-white p-4">
 					<p className="text-slate-700">
 						no schedule data found. run the extractor:
 					</p>
@@ -84,7 +81,7 @@ export default async function SchedulesPage() {
 			) : (
 				<div className="mt-8 space-y-8">
 					{schedules.map((pool) => (
-						<section key={pool.poolName} className="rounded border border-slate-200 bg-white p-4">
+						<section key={pool.poolName} className="rounded border accent-border bg-white p-4">
 							<header className="mb-4">
 								<h2 className="text-2xl font-medium">{toTitleCase(pool.poolName)}</h2>
 								<div className="mt-1 text-sm text-slate-600">
@@ -116,8 +113,8 @@ export default async function SchedulesPage() {
 									if (items.length === 0) return null;
 									const sorted = [...items].sort((a, b) => byStartTime(a.startTime, b.startTime));
 									return (
-										<div key={day} className="rounded border border-slate-200">
-											<div className="bg-slate-50 px-3 py-2 font-medium">{day}</div>
+										<div key={day} className="rounded border accent-border">
+											<div className="accent-muted-bg px-3 py-2 font-medium">{day}</div>
 											<ul className="divide-y divide-slate-200">
 												{sorted.map((p, idx) => (
 													<li key={idx} className="px-3 py-2 text-sm">
