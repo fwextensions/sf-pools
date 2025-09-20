@@ -4,6 +4,9 @@
 	"private": true,
 	"license": "MIT",
 	"type": "module",
+	"engines": {
+		"node": "22.x"
+	},
 	"scripts": {
 		"dev": "next dev",
 		"build": "next build",
@@ -36,8 +39,5 @@
 		"tailwindcss": "latest",
 		"tsx": "latest",
 		"typescript": "latest"
-	},
-	"engines": {
-		"node": ">=24.4.1"
 	}
 }
