@@ -208,14 +208,47 @@ export default function HomeFilters({ all }: Props) {
 			<div className="grid gap-6 md:grid-cols-3">
 				<section className="md:col-span-1 rounded border border-slate-200 bg-white p-4">
 					<h2 className="text-lg font-medium">Filters</h2>
+
+					{/* Pools filter */}
+					<div className="mt-4">
+						<div className="flex items-center justify-between">
+							<h3 className="font-medium">Pools</h3>
+							<button
+								className="text-sm text-blue-700 hover:underline"
+								onClick={() => (selectedPools.length ? setSelectedPools([]) : setSelectedPools(poolOptions))}
+							>
+								{selectedPools.length ? "clear" : "all"}
+							</button>
+						</div>
+						<ul className="mt-2 max-h-64 space-y-1 overflow-auto pr-1">
+							{poolOptions.map((poolName) => {
+								const poolMeta = all.find((p) => p.poolName === poolName);
+								const label = (poolMeta as any)?.poolShortName ?? (poolMeta as any)?.poolNameTitle ?? toTitleCase(poolName);
+								return (
+									<li key={poolName}>
+										<label className="inline-flex items-center gap-2">
+											<input
+												type="checkbox"
+												className="h-4 w-4 flex-shrink-0"
+												checked={selectedPools.includes(poolName)}
+												onChange={() => toggleSelection(selectedPools, setSelectedPools, poolName)}
+											/>
+											<span className="text-sm">{label}</span>
+										</label>
+									</li>
+								);
+							})}
+						</ul>
+					</div>
+
 					<div className="mt-4">
 						<div className="flex items-center justify-between">
 							<h3 className="font-medium">Programs</h3>
 							<button
 								className="text-sm text-blue-700 hover:underline"
-								onClick={() => setSelectedPrograms(programOptions)}
+								onClick={() => (selectedPrograms.length ? setSelectedPrograms([]) : setSelectedPrograms(programOptions))}
 							>
-								all
+								{selectedPrograms.length ? "clear" : "all"}
 							</button>
 						</div>
 						<ul className="mt-2 max-h-64 space-y-1 overflow-auto pr-1">
@@ -234,14 +267,16 @@ export default function HomeFilters({ all }: Props) {
 							))}
 						</ul>
 					</div>
+
+					{/* Days filter */}
 					<div className="mt-4">
 						<div className="flex items-center justify-between">
 							<h3 className="font-medium">Days</h3>
 							<button
 								className="text-sm text-blue-700 hover:underline"
-								onClick={() => setSelectedDays([...DAYS])}
+								onClick={() => (selectedDays.length ? setSelectedDays([]) : setSelectedDays([...DAYS]))}
 							>
-								all
+								{selectedDays.length ? "clear" : "all"}
 							</button>
 						</div>
 						<ul className="mt-2 grid grid-cols-2 gap-1">
