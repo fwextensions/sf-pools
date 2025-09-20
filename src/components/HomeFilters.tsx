@@ -110,6 +110,7 @@ export default function HomeFilters({ all }: Props) {
 	type Session = {
 		programName: string;
 		programNameOriginal?: string | null;
+		lanes?: number | null;
 		poolName: string;
 		dayOfWeek: ProgramEntry["dayOfWeek"];
 		startTime: string;
@@ -124,6 +125,7 @@ export default function HomeFilters({ all }: Props) {
 				out.push({
 					programName: p.programName,
 					programNameOriginal: (p as any).programNameOriginal ?? null,
+					lanes: (p as any).lanes ?? null,
 					poolName: pool.poolName,
 					dayOfWeek: p.dayOfWeek,
 					startTime: p.startTime,
@@ -338,15 +340,20 @@ export default function HomeFilters({ all }: Props) {
 										{items.map((s, idx) => (
 											<li key={idx} className="px-3 py-2 text-sm">
 												<div className="flex items-center justify-between gap-3">
-													<span className="font-medium">{s.programName}</span>
+													<span
+												className="font-medium"
+												title={s.programNameOriginal && s.programNameOriginal !== s.programName ? s.programNameOriginal : undefined}
+											>
+												{s.programName}
+											</span>
+											{s.lanes ? (
+												<span className="ml-2 rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700">{s.lanes} lanes</span>
+											) : null}
 													<span className="text-slate-600">{s.startTime} – {s.endTime}</span>
 												</div>
 												<div className="mt-1 flex items-center justify-between text-slate-600">
 													<span>{s.poolName}</span>
 													<div className="ml-2 flex items-center gap-2">
-														{(s.programNameOriginal && s.programNameOriginal !== s.programName) ? (
-															<span className="text-xs italic text-slate-500">original: {s.programNameOriginal}</span>
-														) : null}
 														{s.notes ? <span>{s.notes}</span> : null}
 													</div>
 												</div>

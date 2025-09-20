@@ -122,6 +122,9 @@ export default async function SchedulesPage() {
 													<li key={idx} className="px-3 py-2 text-sm">
 														<div className="flex items-center justify-between">
 															<span className="font-medium">{p.programName}</span>
+															{(p as any).lanes ? (
+																<span className="ml-2 rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700">{(p as any).lanes} lanes</span>
+															) : null}
 															<span className="text-slate-600">{p.startTime} – {p.endTime}</span>
 														</div>
 														{p.notes ? (
