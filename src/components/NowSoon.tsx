@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import { toTitleCase } from "@/lib/program-taxonomy";
+import { ClockIcon } from "@/components/icons";
 
 const DAYS: Array<ProgramEntry["dayOfWeek"]> = [
 	"Monday",
@@ -166,12 +167,12 @@ export default function NowSoon({ all }: Props) {
 									<span className="font-medium">{(pool as any).poolShortName ?? (pool as any).poolNameTitle ?? toTitleCase(pool.poolName)}</span>
 									<span className="rounded bg-emerald-600 px-2 py-0.5 text-white">open</span>
 								</div>
-								<div className="mt-1">{current!.programName} — until {current!.endTime}</div>
+								<div className="mt-1 inline-flex items-center gap-1"><ClockIcon className="h-3.5 w-3.5" />{current!.programName} — until {current!.endTime}</div>
 								<div className="mt-1 flex gap-3">
-									<a className="text-blue-700 hover:underline" href={pool.pdfScheduleUrl ?? "#"} target="_blank" rel="noreferrer">
+									<a className="link-accent" href={pool.pdfScheduleUrl ?? "#"} target="_blank" rel="noreferrer">
 										PDF
 									</a>
-									<a className="text-blue-700 hover:underline" href={pool.sfRecParkUrl ?? "#"} target="_blank" rel="noreferrer">
+									<a className="link-accent" href={pool.sfRecParkUrl ?? "#"} target="_blank" rel="noreferrer">
 										Pool page
 									</a>
 								</div>
@@ -195,16 +196,16 @@ export default function NowSoon({ all }: Props) {
 								</div>
 								<ul className="mt-1 list-disc pl-5">
 									{upcoming.slice(0, 2).map((u, idx) => (
-										<li key={idx}>
-											{u.programName} — {u.startTime} to {u.endTime}
+										<li key={idx} className="inline-flex items-center gap-1">
+											<ClockIcon className="h-3.5 w-3.5" />{u.programName} — {u.startTime} to {u.endTime}
 										</li>
 									))}
 								</ul>
 								<div className="mt-1 flex gap-3">
-									<a className="text-blue-700 hover:underline" href={pool.pdfScheduleUrl ?? "#"} target="_blank" rel="noreferrer">
+									<a className="link-accent" href={pool.pdfScheduleUrl ?? "#"} target="_blank" rel="noreferrer">
 										PDF
 									</a>
-									<a className="text-blue-700 hover:underline" href={pool.sfRecParkUrl ?? "#"} target="_blank" rel="noreferrer">
+									<a className="link-accent" href={pool.sfRecParkUrl ?? "#"} target="_blank" rel="noreferrer">
 										Pool page
 									</a>
 								</div>
@@ -228,16 +229,16 @@ export default function NowSoon({ all }: Props) {
 								</div>
 								<div className="mt-1 text-slate-600">
 									{later ? (
-										<span>later today at {later.startTime} — {later.programName}</span>
+										<span className="inline-flex items-center gap-1"><ClockIcon className="h-3.5 w-3.5" />later today at {later.startTime} — {later.programName}</span>
 									) : (
 										<span>no more sessions today</span>
 									)}
 								</div>
 								<div className="mt-1 flex gap-3">
-									<a className="text-blue-700 hover:underline" href={pool.pdfScheduleUrl ?? "#"} target="_blank" rel="noreferrer">
+									<a className="link-accent" href={pool.pdfScheduleUrl ?? "#"} target="_blank" rel="noreferrer">
 										PDF
 									</a>
-									<a className="text-blue-700 hover:underline" href={pool.sfRecParkUrl ?? "#"} target="_blank" rel="noreferrer">
+									<a className="link-accent" href={pool.sfRecParkUrl ?? "#"} target="_blank" rel="noreferrer">
 										Pool page
 									</a>
 								</div>

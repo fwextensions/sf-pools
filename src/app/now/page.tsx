@@ -23,8 +23,8 @@ export default async function NowPage() {
 					see what is running right now across pools, and what starts soon. times are shown in pacific time.
 				</p>
 				<nav className="mt-3 flex gap-4 text-sm">
-					<a href="/" className="text-blue-700 hover:underline">Home</a>
-					<a href="/schedules" className="text-blue-700 hover:underline">Full schedules</a>
+					<a href="/" className="link-accent">Home</a>
+					<a href="/schedules" className="link-accent">Full schedules</a>
 				</nav>
 			</header>
 

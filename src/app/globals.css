@@ -37,3 +37,23 @@ body {
 .accent-muted-bg {
 	background-color: var(--accent-muted);
 }
+
+/* accent links and outline buttons */
+.link-accent {
+	color: var(--accent-color);
+	text-underline-offset: 2px;
+}
+
+.link-accent:hover {
+	text-decoration: underline;
+}
+
+.btn-outline-accent {
+	border: 1px solid var(--accent-border);
+	color: var(--accent-color);
+	background-color: white;
+}
+
+.btn-outline-accent:hover {
+	background-color: var(--accent-muted);
+}

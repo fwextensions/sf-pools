@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import { toTitleCase } from "@/lib/program-taxonomy";
+import { ClockIcon } from "@/components/icons";
 // canonical program names are already written to programName by the pipeline
 
 type Props = {
@@ -200,7 +201,7 @@ export default function HomeFilters({ all }: Props) {
 		<div className="container py-8">
 			<header className="mb-6 flex items-center justify-between">
 				<h1 className="text-3xl font-semibold accent-left pl-3">Find programs</h1>
-				<a href="/schedules" className="text-blue-700 hover:underline">
+				<a href="/schedules" className="link-accent">
 					View full schedules
 				</a>
 			</header>
@@ -214,7 +215,7 @@ export default function HomeFilters({ all }: Props) {
 						<div className="flex items-center justify-between">
 							<h3 className="font-medium">Pools</h3>
 							<button
-								className="text-sm text-blue-700 hover:underline"
+								className="text-sm link-accent"
 								onClick={() => (selectedPools.length ? setSelectedPools([]) : setSelectedPools(poolOptions))}
 							>
 								{selectedPools.length ? "clear" : "all"}
@@ -245,7 +246,7 @@ export default function HomeFilters({ all }: Props) {
 						<div className="flex items-center justify-between">
 							<h3 className="font-medium">Programs</h3>
 							<button
-								className="text-sm text-blue-700 hover:underline"
+								className="text-sm link-accent"
 								onClick={() => (selectedPrograms.length ? setSelectedPrograms([]) : setSelectedPrograms(programOptions))}
 							>
 								{selectedPrograms.length ? "clear" : "all"}
@@ -273,7 +274,7 @@ export default function HomeFilters({ all }: Props) {
 						<div className="flex items-center justify-between">
 							<h3 className="font-medium">Days</h3>
 							<button
-								className="text-sm text-blue-700 hover:underline"
+								className="text-sm link-accent"
 								onClick={() => (selectedDays.length ? setSelectedDays([]) : setSelectedDays([...DAYS]))}
 							>
 								{selectedDays.length ? "clear" : "all"}
@@ -352,7 +353,7 @@ export default function HomeFilters({ all }: Props) {
 					</div>
 					<div className="mt-4 flex gap-3">
 						<button
-							className="rounded border border-slate-300 bg-white px-3 py-1 text-sm hover:bg-slate-50"
+							className="btn-outline-accent rounded px-3 py-1 text-sm"
 							onClick={clearAll}
 						>
 							Clear
@@ -382,10 +383,10 @@ export default function HomeFilters({ all }: Props) {
 													>
 														{s.programName}
 													</span>
-													{s.lanes ? (
+													{(s as any).lanes ? (
 														<span className="ml-2 rounded accent-muted-bg px-2 py-0.5 text-xs text-slate-700">{s.lanes} lanes</span>
 													) : null}
-													<span className="text-slate-600">{s.startTime} – {s.endTime}</span>
+													<span className="text-slate-600 inline-flex items-center gap-1"><ClockIcon className="h-3.5 w-3.5" />{s.startTime} – {s.endTime}</span>
 												</div>
 												<div className="mt-1 flex items-center justify-between text-slate-600">
 													<span>{(all.find((p) => p.poolName === s.poolName)?.poolShortName) ?? (all.find((p) => p.poolName === s.poolName)?.poolNameTitle) ?? toTitleCase(s.poolName)}</span>

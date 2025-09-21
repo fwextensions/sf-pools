@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { PoolSchedule } from "@/lib/pdf-processor";
 import { toTitleCase } from "@/lib/program-taxonomy";
+import { CalendarIcon, MapPinIcon, ClockIcon } from "@/components/icons";
 
 const DAYS: Array<PoolSchedule["programs"][number]["dayOfWeek"]> = [
 	"Monday",
@@ -85,11 +86,14 @@ export default async function SchedulesPage() {
 							<header className="mb-4">
 								<h2 className="text-2xl font-medium">{toTitleCase(pool.poolName)}</h2>
 								<div className="mt-1 text-sm text-slate-600">
-									{pool.address ? <span>{pool.address}</span> : null}
+									{pool.address ? (
+										<span className="inline-flex items-center gap-1"><MapPinIcon className="h-3.5 w-3.5" />{pool.address}</span>
+									) : null}
 									{pool.lanes ? <span className="ml-2">• {pool.lanes} lanes</span> : null}
 									{(pool.scheduleSeason || pool.scheduleStartDate || pool.scheduleEndDate) ? (
-										<span className="ml-2">
-											• {pool.scheduleSeason ? `${pool.scheduleSeason} ` : ""}
+										<span className="ml-2 inline-flex items-center gap-1">
+											<CalendarIcon className="h-3.5 w-3.5" />
+											{pool.scheduleSeason ? `${pool.scheduleSeason} ` : ""}
 											{pool.scheduleStartDate ? formatDate(pool.scheduleStartDate) : ""}
 											{pool.scheduleEndDate ? ` – ${formatDate(pool.scheduleEndDate)}` : ""}
 										</span>
@@ -100,7 +104,7 @@ export default async function SchedulesPage() {
 										href={pool.pdfScheduleUrl}
 										target="_blank"
 										rel="noreferrer"
-										className="mt-1 inline-block text-sm text-blue-700 hover:underline"
+										className="mt-1 inline-block text-sm link-accent"
 									>
 										view source PDF
 									</a>
@@ -121,9 +125,9 @@ export default async function SchedulesPage() {
 														<div className="flex items-center justify-between">
 															<span className="font-medium">{p.programName}</span>
 															{(p as any).lanes ? (
-																<span className="ml-2 rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700">{(p as any).lanes} lanes</span>
+																<span className="ml-2 rounded accent-muted-bg px-2 py-0.5 text-xs text-slate-700">{(p as any).lanes} lanes</span>
 															) : null}
-															<span className="text-slate-600">{p.startTime} – {p.endTime}</span>
+															<span className="text-slate-600 inline-flex items-center gap-1"><ClockIcon className="h-3.5 w-3.5" />{p.startTime} – {p.endTime}</span>
 														</div>
 														{p.notes ? (
 															<div className="mt-1 text-slate-600">{p.notes}</div>

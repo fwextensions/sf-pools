@@ -67,28 +67,26 @@ export async function extractScheduleFromPdf(
 	pdfBuffer: Buffer,
 	hints?: { pdfScheduleUrl?: string; sfRecParkUrl?: string }
 ): Promise<PoolSchedule[]> {
-	const system = [
-		"You are an expert data extractor for San Francisco public pool schedules.",
-		"Extract exactly the fields required by the provided JSON schema.",
-		"Important rules:",
-		"- Output must be valid JSON that strictly conforms to the schema.",
-		"- Use 12-hour time format 'h:mm[a|p]' for startTime and endTime (e.g., '9:00a', '2:15p'). No spaces.",
-		"- dayOfWeek must be one of Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday.",
-		"- Times and dates should be interpreted in Pacific Time.",
-		"- Try to extract scheduleSeason, scheduleStartDate (YYYY-MM-DD), scheduleEndDate (YYYY-MM-DD), and pool-level lanes from context if present; if not present, set them to null.",
-		"- Keep program names exactly as written in the PDF (no normalization at this stage).",
-		"- If a single time block shows MULTIPLE programs sharing the same start/end time (e.g., 'Senior Lap Swim (6)' and 'Lap Swim (4)' stacked in the same box), you MUST output SEPARATE program entries: one per program, each with the same startTime/endTime and its own lanes value.",
-		"- When a program name includes a lane count in parentheses, e.g., 'Lap Swim (8)', set the per-program 'lanes' field to that number.",
-		"- If the block shows one program across all lanes (e.g., 'Lap Swim (10)'), set 'lanes' to that number. If no per-program lane count is shown, leave 'lanes' as null.",
-		"- If the text indicates a pool section like '(shallow)' or '(deep)', include that text in notes.",
-	].join("\n");
+	const system = `
+You are an expert data extractor for San Francisco public pool schedules.
+Extract exactly the fields required by the provided JSON schema.
+Important rules:
+- Output must be valid JSON that strictly conforms to the schema.
+- Use 12-hour time format 'h:mm[a|p]' for startTime and endTime (e.g., '9:00a', '2:15p'). No spaces.
+- dayOfWeek must be one of Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday.
+- Times and dates should be interpreted in Pacific Time.
+- Try to extract scheduleSeason, scheduleStartDate (YYYY-MM-DD), scheduleEndDate (YYYY-MM-DD), and pool-level lanes from context if present; if not present, set them to null.
+- Keep program names exactly as written in the PDF (no normalization at this stage).
+- If a single time block shows MULTIPLE programs sharing the same start/end time (e.g., 'Senior Lap Swim (6)' and 'Lap Swim (4)' stacked in the same box), you MUST output SEPARATE program entries: one per program, each with the same startTime/endTime and its own lanes value.
+- When a program name includes a lane count in parentheses, e.g., 'Lap Swim (8)', set the per-program 'lanes' field to that number.
+- If the block shows one program across all lanes (e.g., 'Lap Swim (10)'), set 'lanes' to that number. If no per-program lane count is shown, leave 'lanes' as null.
+- If the text indicates a pool section like '(shallow)' or '(deep)', include that text in notes.`;
 
-	const instructions = [
-		"Extract the complete weekly schedule from the attached pool schedule PDF.",
-		"Return a JSON array with a single pool object.",
-		`If known, set pdfScheduleUrl to: ${hints?.pdfScheduleUrl ?? ""}`,
-		`If known, set sfRecParkUrl to: ${hints?.sfRecParkUrl ?? ""}`,
-	].join("\n");
+	const instructions = `
+Extract the complete weekly schedule from the attached pool schedule PDF.
+Return a JSON array with a single pool object.
+If known, set pdfScheduleUrl to: ${hints?.pdfScheduleUrl ?? ""}
+If known, set sfRecParkUrl to: ${hints?.sfRecParkUrl ?? ""}`;
 
 	const { object } = await generateObject({
 		model: google("gemini-2.5-flash"),
