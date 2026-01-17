@@ -1,0 +1,50 @@
+{
+	"balboa-pool": {
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/28024",
+		"pdfHash": "aab03eb9a4d7279ab9abfda139be812de3fba2a55bf844199c3d645b8065533f",
+		"filename": "balboa-pool.pdf",
+		"lastDownloaded": "2026-01-17T01:18:02.275Z"
+	},
+	"coffman-pool": {
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/28025",
+		"pdfHash": "8554636bc4b40ac7b5edd47fe7164405cf0d1bbd313228c9f0f12e84e7d4159b",
+		"filename": "coffman-pool.pdf",
+		"lastDownloaded": "2026-01-17T01:18:02.964Z"
+	},
+	"garfield-pool": {
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/28026",
+		"pdfHash": "82c93e26a4fd61e368b79787f4b47b873c23dee5d7a0d761ca6c943c957b563f",
+		"filename": "garfield-pool.pdf",
+		"lastDownloaded": "2026-01-17T01:18:03.697Z"
+	},
+	"hamilton-pool": {
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/28027",
+		"pdfHash": "7434f1e0fdd63bb735cefe9499a963d0a07c442670477f66853177e361edd30c",
+		"filename": "hamilton-pool.pdf",
+		"lastDownloaded": "2026-01-17T01:18:04.367Z"
+	},
+	"martin-luther-king-jr-pool": {
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/28028",
+		"pdfHash": "9e859b8a10930f8980c66e792decc674a2123cbd1ca8a198addb0907491e0da7",
+		"filename": "martin-luther-king-jr-pool.pdf",
+		"lastDownloaded": "2026-01-17T01:18:05.112Z"
+	},
+	"north-beach-pool": {
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/28029",
+		"pdfHash": "070cd3aef0f8c82a92cbd1f6b4ee8f88a4f338d5548f413befc1fc9d5d9d34a3",
+		"filename": "north-beach-pool.pdf",
+		"lastDownloaded": "2026-01-17T01:18:06.707Z"
+	},
+	"rossi-pool": {
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/28030",
+		"pdfHash": "f2cf78fb5318ffbbd80bd06490f59897ada4cffb7ed0a47cc466987111666381",
+		"filename": "rossi-pool.pdf",
+		"lastDownloaded": "2026-01-17T01:18:07.398Z"
+	},
+	"sava-pool": {
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/19018/Facility--deck-rules-in-English",
+		"pdfHash": "8c74735ba686720e2807b2748d6b71e73f3f7c05d727c13442c3cf8195992d51",
+		"filename": "sava-pool.pdf",
+		"lastDownloaded": "2026-01-17T01:18:08.033Z"
+	}
+}
