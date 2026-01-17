@@ -108,24 +108,25 @@ Future phases will add a Convex database for real-time features.
 
 ---
 
-## Phase 4: Notifications
+## Phase 4: Notifications ✅
 
 **Goal**: Get notified when schedules update or when errors occur.
 
 ### Tasks
 
-- [ ] **4.1** Add Pushover integration
+- [x] **4.1** Add Pushover integration
   - Create `scripts/notify.ts`
   - Send notification on successful update with change summary
   - Send notification on extraction failure
 
-- [ ] **4.2** Add environment variables
+- [x] **4.2** Add environment variables
   - `PUSHOVER_USER_KEY`
   - `PUSHOVER_API_TOKEN`
 
-- [ ] **4.3** Integrate into GitHub Actions workflow
+- [x] **4.3** Integrate into GitHub Actions workflow
   - Call notify script after successful commit
   - Call notify script on workflow failure
+  - Added separate `notify-failure` job that runs if main job fails
 
 ### Files Created/Modified
 
