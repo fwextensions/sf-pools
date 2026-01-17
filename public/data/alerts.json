@@ -1,0 +1,24 @@
+{
+	"siteWideAlerts": [],
+	"poolAlerts": [
+		{
+			"poolName": "Balboa Pool",
+			"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Balboa-Pool-212",
+			"alertText": "DEAR SWIMMERS BALBOA POOL WILL BE CLOSED FOR MAINTENANCE JAN 6 TO JAN 19. THE POOL WILL REOPEN ON JAN 20.",
+			"scrapedAt": "2026-01-17T03:14:15.616Z"
+		},
+		{
+			"poolName": "Martin Luther King Jr. Pool",
+			"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Martin-Luther-King-Jr-Pool-216",
+			"alertText": "Dear swimmers with small children. Please note that the wading pool has a broken heater and is currently closed.",
+			"scrapedAt": "2026-01-17T03:14:15.616Z"
+		},
+		{
+			"poolName": "North Beach Pool",
+			"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
+			"alertText": "North Beach Sauna is currently closed. Our team is working on the repairs, and we will update you soon.",
+			"scrapedAt": "2026-01-17T03:14:15.616Z"
+		}
+	],
+	"lastUpdated": "2026-01-17T03:14:25.238Z"
+}

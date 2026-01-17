@@ -135,27 +135,36 @@ Future phases will add a Convex database for real-time features.
 
 ---
 
-## Phase 5: Pool Alerts Integration
+## Phase 5: Pool Alerts Integration ✅
 
 **Goal**: Scrape and display pool closure alerts from SF Rec & Park.
 
 ### Tasks
 
-- [ ] **5.1** Extend `scripts/scrape-pool-info.ts`
-  - Scrape alert banner from pool listing page
-  - Extract per-pool alerts if available
+- [x] **5.1** Create `scripts/scrape-alerts.ts`
+  - Scrape site-wide alerts from pool listing page
+  - Extract per-pool alerts from individual pool pages
+  - Filter out boilerplate text using keyword matching
 
-- [ ] **5.2** Write alerts to `public/data/alerts.json`
+- [x] **5.2** Write alerts to `public/data/alerts.json`
 
-- [ ] **5.3** Display alerts in UI
-  - Banner component on homepage
-  - Per-pool alerts on schedule cards
+- [x] **5.3** Display alerts in UI
+  - AlertBanner component on homepage
+  - Shows pool-specific alerts with pool name
+
+- [x] **5.4** Pushover notifications for new alerts
+  - High-priority notification when new alerts detected
+  - Integrated into GitHub Actions workflow
 
 ### Files Created/Modified
 
-- `scripts/scrape-pool-info.ts` (modify)
+- `scripts/scrape-alerts.ts` (new)
+- `scripts/notify.ts` (modified - added notifyNewAlerts)
 - `public/data/alerts.json` (new)
 - `src/components/AlertBanner.tsx` (new)
+- `src/app/page.tsx` (modified - displays alerts)
+- `.github/workflows/update-schedules.yml` (modified - scrapes alerts)
+- `package.json` (modified - added scrape-alerts script)
 
 ---
 

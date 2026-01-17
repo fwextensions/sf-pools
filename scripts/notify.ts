@@ -174,6 +174,47 @@ export async function notifyError(error: string): Promise<boolean> {
 	});
 }
 
+export type PoolAlert = {
+	poolName: string;
+	alertText: string;
+};
+
+export async function notifyNewAlerts(
+	siteWideAlerts: string[],
+	poolAlerts: PoolAlert[]
+): Promise<boolean> {
+	const totalAlerts = siteWideAlerts.length + poolAlerts.length;
+	if (totalAlerts === 0) return true;
+
+	const lines: string[] = [];
+
+	if (siteWideAlerts.length > 0) {
+		lines.push(`📢 ${siteWideAlerts.length} site-wide alert(s)`);
+		for (const a of siteWideAlerts.slice(0, 2)) {
+			lines.push(`• ${a.slice(0, 80)}${a.length > 80 ? "..." : ""}`);
+		}
+	}
+
+	if (poolAlerts.length > 0) {
+		if (lines.length > 0) lines.push("");
+		lines.push(`🏊 ${poolAlerts.length} pool alert(s)`);
+		for (const a of poolAlerts.slice(0, 3)) {
+			lines.push(`• ${a.poolName}: ${a.alertText.slice(0, 60)}${a.alertText.length > 60 ? "..." : ""}`);
+		}
+		if (poolAlerts.length > 3) {
+			lines.push(`  ...and ${poolAlerts.length - 3} more`);
+		}
+	}
+
+	return sendNotification({
+		title: `🚨 ${totalAlerts} New Pool Alert${totalAlerts > 1 ? "s" : ""}`,
+		message: lines.join("\n"),
+		priority: 1, // high priority for alerts
+		url: "https://sf-pools.vercel.app/",
+		urlTitle: "View Alerts",
+	});
+}
+
 // CLI interface
 if (import.meta.main) {
 	const args = process.argv.slice(2);
@@ -193,8 +234,19 @@ if (import.meta.main) {
 		notifyError(message || "An error occurred during schedule update.").then((ok) => {
 			process.exit(ok ? 0 : 1);
 		});
+	} else if (type === "alerts") {
+		// load alerts from scrape-alerts and notify
+		import("./scrape-alerts").then(async ({ loadPreviousAlerts }) => {
+			const alerts = await loadPreviousAlerts();
+			if (!alerts) {
+				console.log("No alerts file found");
+				process.exit(0);
+			}
+			const ok = await notifyNewAlerts(alerts.siteWideAlerts, alerts.poolAlerts);
+			process.exit(ok ? 0 : 1);
+		});
 	} else {
-		console.log("Usage: tsx scripts/notify.ts <update|no-changes|error> [message]");
+		console.log("Usage: tsx scripts/notify.ts <update|no-changes|error|alerts> [message]");
 		process.exit(1);
 	}
 }
