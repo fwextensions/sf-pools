@@ -6,6 +6,7 @@ import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import { toTitleCase } from "@/lib/program-taxonomy";
 import { AlertBanner } from "@/components/AlertBanner";
 import type { AlertsData } from "../../scripts/scrape-alerts";
+import PoolAlerts from "@/components/PoolAlerts";
 
 type Props = {
 	all: PoolSchedule[];
@@ -368,41 +369,9 @@ export default function HomeFilters({ all, alerts }: Props) {
 						{filtered.length} session{filtered.length === 1 ? "" : "s"} matching
 					</p>
 
-					{alerts && (() => {
-						// filter alerts to match selected pools (or show all if no pools selected)
-						const relevantAlerts = selectedPools.length === 0
-							? alerts.poolAlerts
-							: alerts.poolAlerts.filter((a) => {
-								// match by pool name - check if any selected pool matches
-								return selectedPools.some((poolName) => {
-									const poolMeta = all.find((p) => p.poolName === poolName);
-									const shortName = poolMeta?.poolShortName;
-									const titleName = poolMeta?.poolNameTitle;
-									return (
-										a.poolName === poolName ||
-										a.poolName === shortName ||
-										a.poolName === titleName ||
-										a.poolName.toLowerCase().includes(shortName?.toLowerCase() ?? "") ||
-										shortName?.toLowerCase().includes(a.poolName.toLowerCase().split(" ")[0] ?? "")
-									);
-								});
-							});
-						if (relevantAlerts.length === 0) return null;
-						return (
-							<div className="mt-3 space-y-2">
-								{relevantAlerts.map((alert, i) => (
-									<div
-										key={`pool-${i}`}
-										className="rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
-									>
-										<span className="mr-2 font-medium">🚨</span>
-										<span className="font-medium">{alert.poolName}: </span>
-										{alert.alertText}
-									</div>
-								))}
-							</div>
-						);
-					})()}
+					{alerts?.poolAlerts && alerts.poolAlerts.length > 0 && (
+						<PoolAlerts alerts={alerts} pools={all} selectedPools={selectedPools} />
+					)}
 
 					<div className="mt-4 grid gap-4 md:grid-cols-2">
 						{DAYS.map((day) => {
