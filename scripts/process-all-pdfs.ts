@@ -4,6 +4,12 @@ import path from "node:path";
 import { extractScheduleFromPdf, type PoolSchedule } from "../src/lib/pdf-processor";
 import { findCanonicalProgram, normalizeProgramName, toTitleCase } from "../src/lib/program-taxonomy";
 import type { PdfManifest } from "./downloadPdf";
+import {
+	computeChangelog,
+	loadPreviousSchedules,
+	saveChangelog,
+	formatChangelogSummary,
+} from "./changelog";
 
 const PDF_DIR = path.join(process.cwd(), "data", "pdfs");
 const DISCOVERED_FILE = path.join(process.cwd(), "public", "data", "discovered_pool_schedules.json");
@@ -84,6 +90,10 @@ async function loadDiscovered(): Promise<Array<{ poolName: string; pageUrl: stri
 export async function main() {
 	await mkdir(OUT_DIR, { recursive: true });
 	await mkdir(EXTRACTED_DIR, { recursive: true });
+
+	// load previous schedules for changelog comparison
+	const previousSchedules = await loadPreviousSchedules();
+
 	const poolsMeta = await loadPoolsMeta();
 	const pdfManifest = await loadPdfManifest();
 	const extractedManifest = await loadExtractedManifest();
@@ -176,6 +186,15 @@ export async function main() {
 	}
 
 	await saveExtractedManifest(extractedManifest);
+
+	// compute and save changelog before writing new data
+	const changelog = computeChangelog(previousSchedules, aggregated);
+	const changelogPath = await saveChangelog(changelog);
+	if (changelogPath) {
+		console.log("wrote changelog:", changelogPath);
+	}
+	console.log(formatChangelogSummary(changelog));
+
 	await writeFile(OUT_FILE, JSON.stringify(aggregated, null, "\t"), "utf-8");
 	console.log("wrote:", OUT_FILE, `(${aggregated.length} pools)`);
 	console.log(`extracted: ${extractedCount}, skipped: ${skippedCount}`);
