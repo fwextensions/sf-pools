@@ -2,7 +2,8 @@ import "dotenv/config";
 import { readdir, readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { extractScheduleFromPdf, type PoolSchedule } from "../src/lib/pdf-processor";
-import { findCanonicalProgram, normalizeProgramName, toTitleCase } from "../src/lib/program-taxonomy";
+import { findCanonicalProgram, normalizeProgramName } from "../src/lib/program-taxonomy";
+import { findPool, getPoolDisplayName } from "../src/lib/pool-mapping";
 import type { PdfManifest } from "./downloadPdf";
 import {
 	computeChangelog,
@@ -16,7 +17,6 @@ const DISCOVERED_FILE = path.join(process.cwd(), "public", "data", "discovered_p
 const OUT_DIR = path.join(process.cwd(), "public", "data");
 const OUT_FILE = path.join(OUT_DIR, "all_schedules.json");
 const EXTRACTED_DIR = path.join(process.cwd(), "data", "extracted");
-const POOLS_META_FILE = path.join(OUT_DIR, "pools.json");
 const MANIFEST_FILE = path.join(process.cwd(), "data", "pdf-manifest.json");
 
 type ExtractedMeta = {
@@ -58,17 +58,6 @@ function sanitizeFilename(name: string): string {
 		.replace(/\s+/g, "-");
 }
 
-type PoolsMeta = Record<string, { shortName: string } | string>;
-
-async function loadPoolsMeta(): Promise<PoolsMeta> {
-	try {
-		const raw = await readFile(POOLS_META_FILE, "utf-8");
-		return JSON.parse(raw) as PoolsMeta;
-	} catch {
-		return {};
-	}
-}
-
 function stripTrailingIndex(base: string): string {
 	// turns "martin-luther-king-jr-pool-2" -> "martin-luther-king-jr-pool"
 	return base.replace(/-(\d+)$/i, "");
@@ -94,7 +83,6 @@ export async function main() {
 	// load previous schedules for changelog comparison
 	const previousSchedules = await loadPreviousSchedules();
 
-	const poolsMeta = await loadPoolsMeta();
 	const pdfManifest = await loadPdfManifest();
 	const extractedManifest = await loadExtractedManifest();
 	const entries = await readdir(PDF_DIR, { withFileTypes: true });
@@ -163,12 +151,10 @@ export async function main() {
 			const today = todayISO();
 			for (const s of schedules) {
 				if (!s.scheduleLastUpdated) s.scheduleLastUpdated = today;
-				// pool naming: title-case and short name via metadata map
-				const titleName = toTitleCase(s.poolName);
-				s.poolNameTitle = titleName;
-				const metaEntry = (poolsMeta[titleName] ?? poolsMeta[s.poolName]) as ({ shortName: string } | string | undefined);
-				const shortName = typeof metaEntry === "string" ? metaEntry : metaEntry?.shortName;
-				s.poolShortName = shortName ?? null;
+				// pool naming: use fuzzy matching to find canonical pool
+				const poolMatch = findPool(s.poolName);
+				s.poolNameTitle = poolMatch ? poolMatch.displayName : getPoolDisplayName(s.poolName);
+				s.poolShortName = poolMatch?.shortName ?? null;
 				// m7: rewrite programName to canonical label, preserve original
 				for (const p of s.programs || []) {
 					const original = p.programName;
