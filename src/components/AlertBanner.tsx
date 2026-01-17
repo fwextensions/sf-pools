@@ -24,7 +24,7 @@ export function AlertBanner({ alerts, poolName }: Props) {
 			{siteWideAlerts.map((alert, i) => (
 				<div
 					key={`site-${i}`}
-					className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+					className="rounded border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800"
 				>
 					<span className="mr-2 font-medium">📢</span>
 					{alert}
@@ -33,7 +33,7 @@ export function AlertBanner({ alerts, poolName }: Props) {
 			{poolAlerts.map((alert, i) => (
 				<div
 					key={`pool-${i}`}
-					className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
+					className="rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
 				>
 					<span className="mr-2 font-medium">🚨</span>
 					{!poolName && <span className="font-medium">{alert.poolName}: </span>}

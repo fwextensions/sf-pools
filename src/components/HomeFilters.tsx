@@ -4,10 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import { toTitleCase } from "@/lib/program-taxonomy";
-// canonical program names are already written to programName by the pipeline
+import { AlertBanner } from "@/components/AlertBanner";
+import type { AlertsData } from "../../scripts/scrape-alerts";
 
 type Props = {
 	all: PoolSchedule[];
+	alerts?: AlertsData | null;
 };
 
 const DAYS: Array<ProgramEntry["dayOfWeek"]> = [
@@ -40,7 +42,7 @@ function parseTimeToMinutes(t: string): number {
 	return Number.MAX_SAFE_INTEGER;
 }
 
-export default function HomeFilters({ all }: Props) {
+export default function HomeFilters({ all, alerts }: Props) {
 	const [selectedPrograms, setSelectedPrograms] = useState<string[]>([]);
 	const [selectedPools, setSelectedPools] = useState<string[]>([]);
 	const [selectedDays, setSelectedDays] = useState<Array<ProgramEntry["dayOfWeek"]>>([...DAYS]);
@@ -197,7 +199,7 @@ export default function HomeFilters({ all }: Props) {
 	}
 
 	return (
-		<div className="container py-8">
+		<div className="py-8">
 			<header className="mb-6 flex items-center justify-between">
 				<h1 className="text-3xl font-semibold accent-left pl-3">Find programs</h1>
 				<a href="/schedules" className="link-accent">
@@ -251,13 +253,13 @@ export default function HomeFilters({ all }: Props) {
 								{selectedPrograms.length ? "clear" : "all"}
 							</button>
 						</div>
-						<ul className="mt-2 max-h-64 space-y-1 overflow-auto pr-1">
+						<ul className="mt-2 max-h-64 space-y-1 overflow-y-auto overflow-x-hidden pr-1">
 							{programOptions.map((name) => (
 								<li key={name}>
-									<label className="inline-flex items-center gap-2">
+									<label className="flex items-center gap-2">
 										<input
 											type="checkbox"
-											className="h-4 w-4 flex-shrink-0"
+											className="h-4 w-4 shrink-0"
 											checked={selectedPrograms.includes(name)}
 											onChange={() => toggleSelection(selectedPrograms, setSelectedPrograms, name)}
 										/>
@@ -365,6 +367,43 @@ export default function HomeFilters({ all }: Props) {
 					<p className="mt-1 text-sm text-slate-600">
 						{filtered.length} session{filtered.length === 1 ? "" : "s"} matching
 					</p>
+
+					{alerts && (() => {
+						// filter alerts to match selected pools (or show all if no pools selected)
+						const relevantAlerts = selectedPools.length === 0
+							? alerts.poolAlerts
+							: alerts.poolAlerts.filter((a) => {
+								// match by pool name - check if any selected pool matches
+								return selectedPools.some((poolName) => {
+									const poolMeta = all.find((p) => p.poolName === poolName);
+									const shortName = poolMeta?.poolShortName;
+									const titleName = poolMeta?.poolNameTitle;
+									return (
+										a.poolName === poolName ||
+										a.poolName === shortName ||
+										a.poolName === titleName ||
+										a.poolName.toLowerCase().includes(shortName?.toLowerCase() ?? "") ||
+										shortName?.toLowerCase().includes(a.poolName.toLowerCase().split(" ")[0] ?? "")
+									);
+								});
+							});
+						if (relevantAlerts.length === 0) return null;
+						return (
+							<div className="mt-3 space-y-2">
+								{relevantAlerts.map((alert, i) => (
+									<div
+										key={`pool-${i}`}
+										className="rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
+									>
+										<span className="mr-2 font-medium">🚨</span>
+										<span className="font-medium">{alert.poolName}: </span>
+										{alert.alertText}
+									</div>
+								))}
+							</div>
+						);
+					})()}
+
 					<div className="mt-4 grid gap-4 md:grid-cols-2">
 						{DAYS.map((day) => {
 							const items = grouped.get(day)!;
@@ -377,12 +416,12 @@ export default function HomeFilters({ all }: Props) {
 											<li key={idx} className="px-3 py-2 text-sm">
 												<div className="flex items-center justify-between gap-3">
 													<span
-														className="font-medium"
+														className="min-w-0 font-medium"
 														title={s.programNameOriginal && s.programNameOriginal !== s.programName ? s.programNameOriginal : undefined}
 													>
-														{s.programName}
+														{s.programName.replace(/\//g, " / ")}
 													</span>
-													<span className="flex items-center gap-2">
+													<span className="flex shrink-0 items-center gap-2">
 														{(s as any).lanes ? (
 															<span className="whitespace-nowrap rounded accent-muted-bg px-2 py-0.5 text-xs text-slate-700">{s.lanes} lanes</span>
 														) : null}
