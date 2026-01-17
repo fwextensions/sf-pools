@@ -5,7 +5,7 @@
 	"license": "MIT",
 	"type": "module",
 	"engines": {
-		"node": "22.x"
+		"node": ">=22.x"
 	},
 	"scripts": {
 		"dev": "next dev",
@@ -31,7 +31,7 @@
 	"devDependencies": {
 		"@tailwindcss/postcss": "latest",
 		"@types/node": "latest",
-		"@types/react": "19.1.13",
+		"@types/react": "19.2.8",
 		"eslint": "latest",
 		"eslint-config-next": "latest",
 		"postcss": "latest",
