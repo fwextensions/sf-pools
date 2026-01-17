@@ -1,9 +1,37 @@
 import "dotenv/config";
-import { mkdir, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const IN_FILE = path.join(process.cwd(), "public", "data", "discovered_pool_schedules.json");
 const OUT_DIR = path.join(process.cwd(), "data", "pdfs");
+const MANIFEST_FILE = path.join(process.cwd(), "data", "pdf-manifest.json");
+
+export type PdfManifestEntry = {
+	pdfUrl: string;
+	pdfHash: string;
+	filename: string;
+	lastDownloaded: string;
+};
+
+export type PdfManifest = Record<string, PdfManifestEntry>;
+
+function computeHash(buf: Buffer): string {
+	return createHash("sha256").update(buf).digest("hex");
+}
+
+async function loadManifest(): Promise<PdfManifest> {
+	try {
+		const raw = await readFile(MANIFEST_FILE, "utf-8");
+		return JSON.parse(raw) as PdfManifest;
+	} catch {
+		return {};
+	}
+}
+
+async function saveManifest(manifest: PdfManifest): Promise<void> {
+	await writeFile(MANIFEST_FILE, JSON.stringify(manifest, null, "\t"), "utf-8");
+}
 
 function sleep(ms: number) {
 	return new Promise((res) => setTimeout(res, ms));
@@ -36,31 +64,58 @@ async function fetchBuffer(url: string): Promise<Buffer> {
 }
 
 export async function main() {
-	const raw = await (await import("node:fs/promises")).readFile(IN_FILE, "utf-8");
+	const raw = await readFile(IN_FILE, "utf-8");
 	const entries: Array<{ poolName: string; pageUrl: string; pdfUrl: string | null }> = JSON.parse(raw);
 
 	await mkdir(OUT_DIR, { recursive: true });
-	let count = 0;
+	const manifest = await loadManifest();
+	let downloadCount = 0;
+	let skippedCount = 0;
 	const used = new Map<string, number>();
+
 	for (const e of entries) {
 		if (!e.pdfUrl) {
 			console.warn("skip (no pdf):", e.poolName);
 			continue;
 		}
+
+		const base = ensureUniqueBase(sanitizeFilename(e.poolName || "pool"), used);
+		const fname = base + ".pdf";
+		const poolKey = base;
+
 		try {
 			await sleep(400);
 			const buf = await fetchBuffer(e.pdfUrl);
-			const base = ensureUniqueBase(sanitizeFilename(e.poolName || "pool"), used);
-			const fname = base + ".pdf";
+			const hash = computeHash(buf);
+
+			// check if PDF has changed
+			const existing = manifest[poolKey];
+			if (existing && existing.pdfHash === hash && existing.pdfUrl === e.pdfUrl) {
+				console.log("unchanged:", e.poolName);
+				skippedCount++;
+				continue;
+			}
+
 			const outPath = path.join(OUT_DIR, fname);
 			await writeFile(outPath, buf);
-			console.log("saved:", outPath);
-			count++;
+
+			// update manifest
+			manifest[poolKey] = {
+				pdfUrl: e.pdfUrl,
+				pdfHash: hash,
+				filename: fname,
+				lastDownloaded: new Date().toISOString(),
+			};
+
+			console.log("saved:", outPath, existing ? "(updated)" : "(new)");
+			downloadCount++;
 		} catch (err) {
 			console.warn("failed to download:", e.poolName, e.pdfUrl, err);
 		}
 	}
-	console.log(`downloaded ${count} pdf(s)`);
+
+	await saveManifest(manifest);
+	console.log(`downloaded ${downloadCount} pdf(s), ${skippedCount} unchanged`);
 }
 
 if (import.meta.main) {
