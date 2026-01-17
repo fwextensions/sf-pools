@@ -82,26 +82,27 @@ Future phases will add a Convex database for real-time features.
 
 ---
 
-## Phase 3: Diff/Changelog Generation
+## Phase 3: Diff/Changelog Generation ✅
 
 **Goal**: Track what changed between schedule updates for visibility and error detection.
 
 ### Tasks
 
-- [ ] **3.1** Before overwriting `all_schedules.json`, compute diff
+- [x] **3.1** Before overwriting `all_schedules.json`, compute diff
   - Compare program counts per pool
   - Detect added/removed programs
   - Detect time changes
 
-- [ ] **3.2** Write changelog to `data/changelog/YYYY-MM-DD.json`
+- [x] **3.2** Write changelog to `data/changelog/YYYY-MM-DD.json`
   - Summary of changes per pool
   - Flag large changes (>20% difference) as potential errors
 
-- [ ] **3.3** Add summary to GitHub Actions output
+- [x] **3.3** Add summary to GitHub Actions output
   - Print changelog summary in workflow logs
 
 ### Files Created/Modified
 
+- `scripts/changelog.ts` (new)
 - `scripts/process-all-pdfs.ts` (modify)
 - `data/changelog/` (new directory)
 
