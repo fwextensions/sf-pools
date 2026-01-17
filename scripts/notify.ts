@@ -1,7 +1,12 @@
 // Pushover notification integration for schedule updates
 import "dotenv/config";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import type { ChangelogEntry } from "./changelog";
 
 const PUSHOVER_API_URL = "https://api.pushover.net/1/messages.json";
+const GITHUB_REPO = "fwextensions/sf-pools";
+const GITHUB_CHANGELOG_PATH = "data/changelog";
 
 export type NotificationOptions = {
 	title: string;
@@ -55,13 +60,101 @@ export async function sendNotification(options: NotificationOptions): Promise<bo
 	}
 }
 
-export async function notifyScheduleUpdate(summary: string): Promise<boolean> {
+function formatDateRange(start: string | null, end: string | null): string {
+	if (!start || !end) return "";
+	// format as "Jan 6 – Mar 14"
+	const startDate = new Date(start + "T00:00:00");
+	const endDate = new Date(end + "T00:00:00");
+	const opts: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
+	return `${startDate.toLocaleDateString("en-US", opts)} – ${endDate.toLocaleDateString("en-US", opts)}`;
+}
+
+function severityEmoji(severity: string): string {
+	switch (severity) {
+		case "wholesale": return "🔄"; // new season
+		case "major": return "📢";
+		case "moderate": return "📝";
+		case "minor": return "✏️";
+		default: return "";
+	}
+}
+
+function severityLabel(severity: string): string {
+	switch (severity) {
+		case "wholesale": return "New schedule season";
+		case "major": return "Major update";
+		case "moderate": return "Moderate update";
+		case "minor": return "Minor update";
+		default: return "Update";
+	}
+}
+
+export async function loadLatestChangelog(): Promise<ChangelogEntry | null> {
+	const changelogDir = path.join(process.cwd(), "data", "changelog");
+	try {
+		const { readdir } = await import("node:fs/promises");
+		const files = await readdir(changelogDir);
+		const jsonFiles = files.filter((f) => f.endsWith(".json")).sort().reverse();
+		if (jsonFiles.length === 0) return null;
+		const latest = path.join(changelogDir, jsonFiles[0]!);
+		const raw = await readFile(latest, "utf-8");
+		return JSON.parse(raw) as ChangelogEntry;
+	} catch {
+		return null;
+	}
+}
+
+export async function notifyScheduleUpdate(changelog?: ChangelogEntry | null): Promise<boolean> {
+	const entry = changelog ?? await loadLatestChangelog();
+
+	let title = "🏊 Pool Schedules Updated";
+	let message = "Schedules have been updated.";
+	let url = "https://sf-pools.vercel.app/schedules";
+	let urlTitle = "View Schedules";
+
+	if (entry) {
+		const emoji = severityEmoji(entry.changeSeverity);
+		const label = severityLabel(entry.changeSeverity);
+		title = `${emoji} ${label}`;
+
+		const lines: string[] = [];
+
+		// schedule date range
+		if (entry.scheduleSeason) {
+			lines.push(entry.scheduleSeason);
+		}
+		const dateRange = formatDateRange(entry.scheduleStartDate, entry.scheduleEndDate);
+		if (dateRange) {
+			lines.push(dateRange);
+		}
+
+		// change summary
+		const parts: string[] = [];
+		if (entry.totalProgramsAdded > 0) parts.push(`+${entry.totalProgramsAdded}`);
+		if (entry.totalProgramsRemoved > 0) parts.push(`-${entry.totalProgramsRemoved}`);
+		if (entry.totalProgramsModified > 0) parts.push(`~${entry.totalProgramsModified}`);
+		if (parts.length > 0) {
+			lines.push(`${entry.poolsChanged} pool(s): ${parts.join(" ")} programs`);
+		}
+
+		// warnings
+		if (entry.warnings.length > 0) {
+			lines.push(`⚠️ ${entry.warnings.length} warning(s)`);
+		}
+
+		message = lines.join("\n");
+
+		// link to GitHub changelog
+		url = `https://github.com/${GITHUB_REPO}/tree/main/${GITHUB_CHANGELOG_PATH}`;
+		urlTitle = "View Change History";
+	}
+
 	return sendNotification({
-		title: "🏊 Pool Schedules Updated",
-		message: summary,
+		title,
+		message,
 		priority: 0,
-		url: "https://sf-pools.vercel.app/schedules",
-		urlTitle: "View Schedules",
+		url,
+		urlTitle,
 	});
 }
 
@@ -85,10 +178,10 @@ export async function notifyError(error: string): Promise<boolean> {
 if (import.meta.main) {
 	const args = process.argv.slice(2);
 	const type = args[0];
-	const message = args.slice(1).join(" ");
 
 	if (type === "update") {
-		notifyScheduleUpdate(message || "Schedules have been updated.").then((ok) => {
+		// load changelog and send rich notification
+		notifyScheduleUpdate().then((ok) => {
 			process.exit(ok ? 0 : 1);
 		});
 	} else if (type === "no-changes") {
@@ -96,6 +189,7 @@ if (import.meta.main) {
 			process.exit(ok ? 0 : 1);
 		});
 	} else if (type === "error") {
+		const message = args.slice(1).join(" ");
 		notifyError(message || "An error occurred during schedule update.").then((ok) => {
 			process.exit(ok ? 0 : 1);
 		});

@@ -21,6 +21,8 @@ export type PoolChange = {
 	changes: ProgramChange[];
 };
 
+export type ChangeSeverity = "none" | "minor" | "moderate" | "major" | "wholesale";
+
 export type ChangelogEntry = {
 	date: string;
 	timestamp: string;
@@ -28,6 +30,11 @@ export type ChangelogEntry = {
 	totalProgramsAdded: number;
 	totalProgramsRemoved: number;
 	totalProgramsModified: number;
+	totalChanges: number;
+	changeSeverity: ChangeSeverity;
+	scheduleStartDate: string | null;
+	scheduleEndDate: string | null;
+	scheduleSeason: string | null;
 	pools: PoolChange[];
 	warnings: string[];
 };
@@ -190,14 +197,55 @@ export function computeChangelog(
 		);
 	}
 
+	// extract schedule date range from new schedules
+	let scheduleStartDate: string | null = null;
+	let scheduleEndDate: string | null = null;
+	let scheduleSeason: string | null = null;
+	for (const s of newSchedules) {
+		if (s.scheduleStartDate && (!scheduleStartDate || s.scheduleStartDate < scheduleStartDate)) {
+			scheduleStartDate = s.scheduleStartDate;
+		}
+		if (s.scheduleEndDate && (!scheduleEndDate || s.scheduleEndDate > scheduleEndDate)) {
+			scheduleEndDate = s.scheduleEndDate;
+		}
+		if (s.scheduleSeason && !scheduleSeason) {
+			scheduleSeason = s.scheduleSeason;
+		}
+	}
+
+	// calculate total changes and severity
+	const totalAdded = poolChanges.reduce((sum, p) => sum + p.programsAdded, 0);
+	const totalRemoved = poolChanges.reduce((sum, p) => sum + p.programsRemoved, 0);
+	const totalModified = poolChanges.reduce((sum, p) => sum + p.programsModified, 0);
+	const totalChanges = totalAdded + totalRemoved + totalModified;
+
+	// determine change severity
+	let changeSeverity: ChangeSeverity = "none";
+	if (totalChanges > 0) {
+		if (changePercent > 0.5 || totalChanges > 100) {
+			changeSeverity = "wholesale"; // likely a new season/schedule
+		} else if (changePercent > 0.2 || totalChanges > 50) {
+			changeSeverity = "major";
+		} else if (totalChanges > 10) {
+			changeSeverity = "moderate";
+		} else {
+			changeSeverity = "minor";
+		}
+	}
+
 	const now = new Date();
 	return {
 		date: now.toISOString().slice(0, 10),
 		timestamp: now.toISOString(),
 		poolsChanged: poolChanges.length,
-		totalProgramsAdded: poolChanges.reduce((sum, p) => sum + p.programsAdded, 0),
-		totalProgramsRemoved: poolChanges.reduce((sum, p) => sum + p.programsRemoved, 0),
-		totalProgramsModified: poolChanges.reduce((sum, p) => sum + p.programsModified, 0),
+		totalProgramsAdded: totalAdded,
+		totalProgramsRemoved: totalRemoved,
+		totalProgramsModified: totalModified,
+		totalChanges,
+		changeSeverity,
+		scheduleStartDate,
+		scheduleEndDate,
+		scheduleSeason,
 		pools: poolChanges,
 		warnings,
 	};

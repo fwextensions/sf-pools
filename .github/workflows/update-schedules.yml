@@ -45,24 +45,9 @@ jobs:
           git commit -m "Update pool schedules $(date -I)"
           git push
 
-      - name: Get changelog summary
-        id: changelog
-        run: |
-          # find the most recent changelog file
-          CHANGELOG=$(ls -t data/changelog/*.json 2>/dev/null | head -1)
-          if [ -n "$CHANGELOG" ]; then
-            POOLS=$(jq -r '.poolsChanged' "$CHANGELOG")
-            ADDED=$(jq -r '.totalProgramsAdded' "$CHANGELOG")
-            REMOVED=$(jq -r '.totalProgramsRemoved' "$CHANGELOG")
-            MODIFIED=$(jq -r '.totalProgramsModified' "$CHANGELOG")
-            echo "summary=Pools: $POOLS changed, Programs: +$ADDED -$REMOVED ~$MODIFIED" >> $GITHUB_OUTPUT
-          else
-            echo "summary=Schedule update completed" >> $GITHUB_OUTPUT
-          fi
-
       - name: Notify on changes
         if: steps.diff.outputs.changed == 'true'
-        run: npx tsx scripts/notify.ts update "${{ steps.changelog.outputs.summary }}"
+        run: npx tsx scripts/notify.ts update
         env:
           PUSHOVER_USER_KEY: ${{ secrets.PUSHOVER_USER_KEY }}
           PUSHOVER_API_TOKEN: ${{ secrets.PUSHOVER_API_TOKEN }}
