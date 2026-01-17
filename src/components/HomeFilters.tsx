@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import { toTitleCase } from "@/lib/program-taxonomy";
-import { ClockIcon } from "@/components/icons";
 // canonical program names are already written to programName by the pipeline
 
 type Props = {
@@ -383,16 +382,16 @@ export default function HomeFilters({ all }: Props) {
 													>
 														{s.programName}
 													</span>
-													{(s as any).lanes ? (
-														<span className="ml-2 rounded accent-muted-bg px-2 py-0.5 text-xs text-slate-700">{s.lanes} lanes</span>
-													) : null}
-													<span className="text-slate-600 inline-flex items-center gap-1"><ClockIcon className="h-3.5 w-3.5" />{s.startTime} – {s.endTime}</span>
+													<span className="flex items-center gap-2">
+														{(s as any).lanes ? (
+															<span className="whitespace-nowrap rounded accent-muted-bg px-2 py-0.5 text-xs text-slate-700">{s.lanes} lanes</span>
+														) : null}
+														<span className="whitespace-nowrap text-slate-600">{s.startTime}&nbsp;–&nbsp;{s.endTime}</span>
+													</span>
 												</div>
 												<div className="mt-1 flex items-center justify-between text-slate-600">
 													<span>{(all.find((p) => p.poolName === s.poolName)?.poolShortName) ?? (all.find((p) => p.poolName === s.poolName)?.poolNameTitle) ?? toTitleCase(s.poolName)}</span>
-													<div className="ml-2 flex items-center gap-2">
-														{s.notes ? <span>{s.notes}</span> : null}
-													</div>
+													{s.notes ? <span className="ml-2">{s.notes}</span> : null}
 												</div>
 											</li>
 										))}
