@@ -49,13 +49,7 @@ export default async function SchedulesPage() {
 			{!schedules || schedules.length === 0 ? (
 				<div className="mt-8 rounded border accent-border bg-white p-4">
 					<p className="text-slate-700">
-						no schedule data found. run the extractor:
-					</p>
-					<pre className="mt-3 whitespace-pre-wrap rounded bg-slate-50 p-3 text-sm text-slate-800">
-						{`curl -X POST http://localhost:3000/api/extract-schedule`}
-					</pre>
-					<p className="mt-2 text-sm text-slate-600">
-						set MLK_PDF_URL in .env.local to override autodiscovery if needed.
+						No schedule data found
 					</p>
 				</div>
 			) : (
@@ -63,20 +57,20 @@ export default async function SchedulesPage() {
 					{schedules.map((pool) => (
 						<section key={pool.name} className="rounded border accent-border bg-white p-4">
 							<header className="mb-4">
-								<h2 className="text-2xl font-medium">{toTitleCase(pool.name)}</h2>
+								<h2 className="text-2xl font-medium mb-4">{toTitleCase(pool.name)}</h2>
 								<div className="mt-1 text-sm text-slate-600">
-									{pool.address ? (
-										<span className="inline-flex items-center gap-1"><MapPinIcon className="h-3.5 w-3.5" />{pool.address}</span>
-									) : null}
-									{pool.lanes ? <span className="ml-2">• {pool.lanes} lanes</span> : null}
 									{(pool.scheduleSeason || pool.scheduleStartDate || pool.scheduleEndDate) ? (
-										<span className="ml-2 inline-flex items-center gap-1">
+										<span className="mr-4 inline-flex items-center gap-1">
 											<CalendarIcon className="h-3.5 w-3.5" />
 											{pool.scheduleSeason ? `${pool.scheduleSeason} ` : ""}
 											{pool.scheduleStartDate ? formatDate(pool.scheduleStartDate) : ""}
 											{pool.scheduleEndDate ? ` – ${formatDate(pool.scheduleEndDate)}` : ""}
 										</span>
 									) : null}
+									{pool.address ? (
+										<span className="inline-flex items-center gap-1"><MapPinIcon className="h-3.5 w-3.5" />{pool.address}</span>
+									) : null}
+									{pool.lanes ? <span className="ml-2">• {pool.lanes} lanes</span> : null}
 								</div>
 								{pool.pdfScheduleUrl ? (
 									<a
@@ -85,7 +79,7 @@ export default async function SchedulesPage() {
 										rel="noreferrer"
 										className="mt-1 inline-block text-sm link-accent"
 									>
-										view source PDF
+										View source PDF
 									</a>
 								) : null}
 							</header>

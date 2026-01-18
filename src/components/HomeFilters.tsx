@@ -383,7 +383,7 @@ export default function HomeFilters({ all, alerts }: Props) {
 														<span className="whitespace-nowrap text-slate-600">{s.startTime}&nbsp;–&nbsp;{s.endTime}</span>
 													</span>
 												</div>
-												<div className="mt-1 flex items-center justify-between text-slate-600">
+												<div className="mt-1 flex justify-between text-slate-600">
 													<span>{(all.find((p) => p.id === s.poolId)?.shortName) ?? (all.find((p) => p.id === s.poolId)?.nameTitle) ?? "Unknown Pool"}</span>
 													{s.notes ? <span className="ml-2">{s.notes}</span> : null}
 												</div>
