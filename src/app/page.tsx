@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { PoolSchedule } from "@/lib/pdf-processor";
 import HomeFilters from "@/components/HomeFilters";
+import SFPoolsAnimation from "@/components/SFPoolsAnimation";
 import type { AlertsData } from "../../scripts/scrape-alerts";
 
 async function readAllSchedules(): Promise<PoolSchedule[]> {
@@ -30,9 +31,8 @@ export default async function HomePage() {
 
 	return (
 		<main className="container py-8">
-			<header>
-				<h1 className="text-3xl font-semibold">SF Pools Schedule Viewer</h1>
-				<p className="mt-2 text-slate-600">search programs across pools by day and type.</p>
+			<header className="h-[200px]">
+				<SFPoolsAnimation />
 			</header>
 			<Suspense fallback={<div className="container py-8"><div className="rounded border border-slate-200 bg-white p-4">Loading…</div></div>}>
 				<HomeFilters all={all} alerts={alerts} />

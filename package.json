@@ -24,10 +24,12 @@
 	},
 	"dependencies": {
 		"@ai-sdk/google": "latest",
+		"@types/p5": "^1.7.7",
 		"ai": "latest",
 		"cheerio": "latest",
 		"dotenv": "latest",
-		"next": "15.5.8",
+		"next": "15.5.9",
+		"p5": "^2.2.0",
 		"react": "latest",
 		"react-dom": "latest",
 		"zod": "latest"
