@@ -35,3 +35,5 @@ pnpm-debug.log*
 /data/changelog/*
 !/data/changelog/.gitkeep
 # pdf-manifest.json is intentionally tracked for incremental extraction
+
+.kiro

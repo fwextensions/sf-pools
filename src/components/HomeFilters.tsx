@@ -7,6 +7,7 @@ import { toTitleCase } from "@/lib/program-taxonomy";
 import { validatePoolId } from "@/lib/pool-mapping";
 import PoolAlerts from "@/components/PoolAlerts";
 import type { AlertsData } from "../../scripts/scrape-alerts";
+import { parseTimeToMinutes } from "@/lib/utils";
 
 type Props = {
 	all: PoolSchedule[];
@@ -22,26 +23,6 @@ const DAYS: Array<ProgramEntry["dayOfWeek"]> = [
 	"Saturday",
 	"Sunday",
 ];
-
-function parseTimeToMinutes(t: string): number {
-	const m = /^(\d{1,2}):(\d{2})([ap])$/.exec(t);
-	if (m) {
-		let h = parseInt(m[1]!, 10);
-		const min = parseInt(m[2]!, 10);
-		const suffix = m[3]!;
-		if (h === 12) h = 0;
-		let total = h * 60 + min;
-		if (suffix === "p") total += 12 * 60;
-		return total;
-	}
-	const m24 = /^(\d{2}):(\d{2})$/.exec(t);
-	if (m24) {
-		const h = parseInt(m24[1]!, 10);
-		const min = parseInt(m24[2]!, 10);
-		return h * 60 + min;
-	}
-	return Number.MAX_SAFE_INTEGER;
-}
 
 export default function HomeFilters({ all, alerts }: Props) {
 	const [selectedPrograms, setSelectedPrograms] = useState<string[]>([]);
