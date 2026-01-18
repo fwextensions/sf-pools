@@ -2,6 +2,7 @@
 import { writeFile, readFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { load } from "cheerio";
+import { getPoolIdFromName } from "../src/lib/pool-mapping";
 
 const LIST_URL = "https://sfrecpark.org/482/Swimming-Pools";
 const OUT_DIR = path.join(process.cwd(), "public", "data");
@@ -23,6 +24,7 @@ async function fetchText(url: string): Promise<string> {
 }
 
 export type PoolAlert = {
+	poolId: string;
 	poolName: string;
 	pageUrl: string;
 	alertText: string;
@@ -156,7 +158,9 @@ async function scrapePoolAlerts(): Promise<PoolAlert[]> {
 							(a) => a.poolName === pool.poolName && a.alertText === text
 						);
 						if (!existing) {
+							const poolId = getPoolIdFromName(pool.poolName) ?? "unknown";
 							alerts.push({
+								poolId,
 								poolName: pool.poolName,
 								pageUrl: pool.pageUrl,
 								alertText: text,

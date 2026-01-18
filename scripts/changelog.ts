@@ -57,12 +57,12 @@ export function computeChangelog(
 ): ChangelogEntry {
 	const oldByPool = new Map<string, PoolSchedule>();
 	for (const s of oldSchedules) {
-		oldByPool.set(s.poolName, s);
+		oldByPool.set(s.name, s);
 	}
 
 	const newByPool = new Map<string, PoolSchedule>();
 	for (const s of newSchedules) {
-		newByPool.set(s.poolName, s);
+		newByPool.set(s.name, s);
 	}
 
 	const poolChanges: PoolChange[] = [];

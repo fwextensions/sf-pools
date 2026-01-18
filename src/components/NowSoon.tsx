@@ -21,7 +21,8 @@ type Props = {
 
 type Session = {
 	programName: string;
-	poolName: string;
+	poolId: string;
+	poolDisplayName: string;
 	startTime: string;
 	endTime: string;
 	startMin: number;
@@ -81,6 +82,14 @@ function getNowInPT(): { day: ProgramEntry["dayOfWeek"]; minutes: number; displa
 	return { day: weekday, minutes, display };
 }
 
+function comparePoolNames(a: { pool: PoolSchedule }, b: { pool: PoolSchedule })
+{
+	const aPoolName = a.pool.shortName || a.pool.name || "";
+	const bPoolName = b.pool.shortName || b.pool.name || "";
+
+	return aPoolName.localeCompare(bPoolName);
+}
+
 export default function NowSoon({ all }: Props) {
 	const [windowMin, setWindowMin] = useState<number>(120);
 	const [now, setNow] = useState(() => getNowInPT());
@@ -96,7 +105,8 @@ export default function NowSoon({ all }: Props) {
 				.filter((p) => p.dayOfWeek === now.day)
 				.map((p) => ({
 					programName: p.programName,
-					poolName: pool.poolName,
+					poolId: pool.id,
+					poolDisplayName: pool.shortName || pool.nameTitle || toTitleCase(pool.name),
 					startTime: p.startTime,
 					endTime: p.endTime,
 					startMin: parseTimeToMinutes(p.startTime),
@@ -124,13 +134,13 @@ export default function NowSoon({ all }: Props) {
 
 	const openNow = perPool
 		.filter((x) => !!x.current)
-		.sort((a, b) => (a.current!.endMin - b.current!.endMin) || a.pool.poolName.localeCompare(b.pool.poolName));
+		.sort((a, b) => (a.current!.endMin - b.current!.endMin) || comparePoolNames(a, b));
 	const openingSoon = perPool
 		.filter((x) => !x.current && x.upcoming.length > 0)
-		.sort((a, b) => (a.upcoming[0]!.startMin - b.upcoming[0]!.startMin) || a.pool.poolName.localeCompare(b.pool.poolName));
+		.sort((a, b) => (a.upcoming[0]!.startMin - b.upcoming[0]!.startMin) || comparePoolNames(a, b));
 	const closed = perPool
 		.filter((x) => !x.current && x.upcoming.length === 0)
-		.sort((a, b) => a.pool.poolName.localeCompare(b.pool.poolName));
+		.sort((a, b) => comparePoolNames(a, b));
 
 	return (
 		<div className="container py-8">
@@ -162,9 +172,9 @@ export default function NowSoon({ all }: Props) {
 				) : (
 					<ul className="grid gap-3 md:grid-cols-2">
 						{openNow.map(({ pool, current }) => (
-							<li key={pool.poolName} className="rounded border accent-border bg-emerald-50 p-3 text-sm">
+							<li key={pool.id} className="rounded border accent-border bg-emerald-50 p-3 text-sm">
 								<div className="flex items-center justify-between">
-									<span className="font-medium">{(pool as any).poolShortName ?? (pool as any).poolNameTitle ?? toTitleCase(pool.poolName)}</span>
+									<span className="font-medium">{pool.shortName || pool.nameTitle || toTitleCase(pool.name)}</span>
 									<span className="rounded bg-emerald-600 px-2 py-0.5 text-white">open</span>
 								</div>
 								<div className="mt-1 inline-flex items-center gap-1"><ClockIcon className="h-3.5 w-3.5" />{current!.programName} — until {current!.endTime}</div>
@@ -189,9 +199,9 @@ export default function NowSoon({ all }: Props) {
 				) : (
 					<ul className="grid gap-3 md:grid-cols-2">
 						{openingSoon.map(({ pool, upcoming }) => (
-							<li key={pool.poolName} className="rounded border accent-border bg-amber-50 p-3 text-sm">
+							<li key={pool.id} className="rounded border accent-border bg-amber-50 p-3 text-sm">
 								<div className="flex items-center justify-between">
-									<span className="font-medium">{pool.poolName}</span>
+									<span className="font-medium">{pool.shortName || pool.nameTitle || toTitleCase(pool.name)}</span>
 									<span className="rounded bg-amber-600 px-2 py-0.5 text-white">opening soon</span>
 								</div>
 								<ul className="mt-1 list-disc pl-5">
@@ -222,9 +232,9 @@ export default function NowSoon({ all }: Props) {
 				) : (
 					<ul className="grid gap-3 md:grid-cols-2">
 						{closed.map(({ pool, later }) => (
-							<li key={pool.poolName} className="rounded border accent-border bg-white p-3 text-sm">
+							<li key={pool.id} className="rounded border accent-border bg-white p-3 text-sm">
 								<div className="flex items-center justify-between">
-									<span className="font-medium">{pool.poolName}</span>
+									<span className="font-medium">{pool.shortName || pool.nameTitle || toTitleCase(pool.name)}</span>
 									<span className="rounded bg-slate-600 px-2 py-0.5 text-white">closed</span>
 								</div>
 								<div className="mt-1 text-slate-600">

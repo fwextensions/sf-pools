@@ -12,23 +12,24 @@ export default function PoolAlerts({ alerts, pools, selectedPools }: Props) {
 	const relevantAlerts = selectedPools.length === 0
 		? alerts.poolAlerts
 		: alerts.poolAlerts.filter((a) => {
-			return selectedPools.some((poolName) => {
-				const poolMeta = pools.find((p) => p.poolName === poolName);
-				const shortName = poolMeta?.poolShortName;
-				const titleName = poolMeta?.poolNameTitle;
+			return selectedPools.some((poolId) => {
+				const poolMeta = pools.find((p) => p.id === poolId);
+				if (!poolMeta) return false;
+				
+				const shortName = poolMeta.shortName;
+				const titleName = poolMeta.nameTitle;
 				const alertLower = a.poolName.toLowerCase();
-				const poolLower = poolName.toLowerCase();
 
 				// exact matches
-				if (a.poolName === poolName || a.poolName === shortName ||
-					a.poolName === titleName) {
+				if (a.poolName === shortName || a.poolName === titleName) {
 					return true;
 				}
 
 				// check if alert contains significant words from pool name
 				const commonWords = new Set(
 					["pool", "swimming", "aquatic", "aquatics", "center"]);
-				const poolWords = poolLower.split(/[\s-]+/).filter(w => w.length > 2 && !commonWords.has(w));
+				const shortNameLower = shortName?.toLowerCase() || "";
+				const poolWords = shortNameLower.split(/[\s-]+/).filter(w => w.length > 2 && !commonWords.has(w));
 				const alertWords = alertLower.split(/[\s-]+/).filter(w => w.length > 2 && !commonWords.has(w));
 				const matchCount = poolWords.filter(pw => alertWords.some(aw => aw.includes(pw) || pw.includes(aw))).length;
 

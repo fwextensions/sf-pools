@@ -82,9 +82,9 @@ export default async function SchedulesPage() {
 			) : (
 				<div className="mt-8 space-y-8">
 					{schedules.map((pool) => (
-						<section key={pool.poolName} className="rounded border accent-border bg-white p-4">
+						<section key={pool.name} className="rounded border accent-border bg-white p-4">
 							<header className="mb-4">
-								<h2 className="text-2xl font-medium">{toTitleCase(pool.poolName)}</h2>
+								<h2 className="text-2xl font-medium">{toTitleCase(pool.name)}</h2>
 								<div className="mt-1 text-sm text-slate-600">
 									{pool.address ? (
 										<span className="inline-flex items-center gap-1"><MapPinIcon className="h-3.5 w-3.5" />{pool.address}</span>

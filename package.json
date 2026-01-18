@@ -12,6 +12,9 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",
+		"test": "jest",
+		"test:watch": "jest --watch",
+		"test:coverage": "jest --coverage",
 		"scrape": "tsx scripts/scrape-pool-info.ts",
 		"download-pdfs": "tsx scripts/downloadPdf.ts",
 		"process-all-pdfs": "tsx scripts/process-all-pdfs.ts",
@@ -22,22 +25,27 @@
 	"dependencies": {
 		"@ai-sdk/google": "latest",
 		"ai": "latest",
+		"cheerio": "latest",
+		"dotenv": "latest",
 		"next": "15.5.8",
 		"react": "latest",
 		"react-dom": "latest",
-		"zod": "latest",
-		"cheerio": "latest",
-		"dotenv": "latest"
+		"zod": "latest"
 	},
 	"devDependencies": {
+		"@jest/globals": "^30.2.0",
 		"@tailwindcss/postcss": "latest",
+		"@types/jest": "^30.0.0",
 		"@types/node": "latest",
 		"@types/react": "19.2.8",
 		"eslint": "latest",
 		"eslint-config-next": "latest",
+		"fast-check": "^4.5.3",
+		"jest": "^30.2.0",
 		"postcss": "latest",
 		"prettier": "latest",
 		"tailwindcss": "latest",
+		"ts-jest": "^29.4.6",
 		"tsx": "latest",
 		"typescript": "latest"
 	}

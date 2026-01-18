@@ -1,16 +1,17 @@
 [
 	{
-		"poolName": "Balboa Aquatics Center",
-		"poolNameTitle": "Balboa Pool",
-		"poolShortName": "Balboa",
 		"address": "51 Havelock St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Balboa-Pool-212",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/28024",
-		"scheduleLastUpdated": "2026-01-17",
+		"scheduleLastUpdated": "2026-01-18",
 		"scheduleSeason": "WINTER 26",
 		"scheduleStartDate": "2026-01-20",
 		"scheduleEndDate": "2026-03-14",
 		"lanes": null,
+		"id": "balboa",
+		"name": "Balboa Aquatics Center",
+		"shortName": "Balboa",
+		"nameTitle": "Balboa Pool",
 		"programs": [
 			{
 				"programName": "Lap Swim",
@@ -315,17 +316,18 @@
 		]
 	},
 	{
-		"poolName": "COFFMAN AQUATICS CENTER",
-		"poolNameTitle": "Coffman Pool",
-		"poolShortName": "Coffman",
 		"address": "1701 VISITACION AVE, SAN FRANCISCO",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Coffman-Pool-213",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/28025",
-		"scheduleLastUpdated": "2026-01-17",
+		"scheduleLastUpdated": "2026-01-18",
 		"scheduleSeason": "Winter 2026",
 		"scheduleStartDate": "2026-01-06",
 		"scheduleEndDate": "2026-03-14",
 		"lanes": null,
+		"id": "coffman",
+		"name": "COFFMAN AQUATICS CENTER",
+		"shortName": "Coffman",
+		"nameTitle": "Coffman Pool",
 		"programs": [
 			{
 				"programName": "Lap Swim",
@@ -610,17 +612,18 @@
 		]
 	},
 	{
-		"poolName": "GARFIELD AQUATIC CENTER",
-		"poolNameTitle": "Garfield Pool",
-		"poolShortName": "Garfield",
 		"address": "1271 TREAT AVE, SAN FRANCISCO",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Garfield-Pool-214",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/28026",
-		"scheduleLastUpdated": "2026-01-17",
+		"scheduleLastUpdated": "2026-01-18",
 		"scheduleSeason": "WINTER 2026",
 		"scheduleStartDate": "2026-01-04",
 		"scheduleEndDate": "2026-03-12",
 		"lanes": null,
+		"id": "garfield",
+		"name": "GARFIELD AQUATIC CENTER",
+		"shortName": "Garfield",
+		"nameTitle": "Garfield Pool",
 		"programs": [
 			{
 				"programName": "Lap Swim",
@@ -1055,17 +1058,18 @@
 		]
 	},
 	{
-		"poolName": "Hamilton Aquatic Center",
-		"poolNameTitle": "Hamilton Pool",
-		"poolShortName": "Hamilton",
 		"address": "1900 Geary Blvd, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Hamilton-Pool-215",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/28027",
-		"scheduleLastUpdated": "2026-01-17",
+		"scheduleLastUpdated": "2026-01-18",
 		"scheduleSeason": "WINTER 2026",
 		"scheduleStartDate": "2026-01-06",
 		"scheduleEndDate": "2026-03-14",
 		"lanes": null,
+		"id": "hamilton",
+		"name": "Hamilton Aquatic Center",
+		"shortName": "Hamilton",
+		"nameTitle": "Hamilton Pool",
 		"programs": [
 			{
 				"programName": "Lap Swim",
@@ -1440,17 +1444,18 @@
 		]
 	},
 	{
-		"poolName": "DR. MARTIN LUTHER KING JR- SWIMMING POOL",
-		"poolNameTitle": "MLK Pool",
-		"poolShortName": "MLK",
 		"address": "5701 3RD STREET, SAN FRANCISCO",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Martin-Luther-King-Jr-Pool-216",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/28028",
-		"scheduleLastUpdated": "2026-01-17",
+		"scheduleLastUpdated": "2026-01-18",
 		"scheduleSeason": "Winter 2026",
 		"scheduleStartDate": "2026-01-06",
 		"scheduleEndDate": "2026-03-14",
 		"lanes": null,
+		"id": "mlk",
+		"name": "DR. MARTIN LUTHER KING JR- SWIMMING POOL",
+		"shortName": "MLK",
+		"nameTitle": "MLK Pool",
 		"programs": [
 			{
 				"programName": "Senior Swim / Therapy Swim",
@@ -1855,17 +1860,234 @@
 		]
 	},
 	{
-		"poolName": "NORTH BEACH AQUATICS CENTER",
-		"poolNameTitle": "North Beach Pool",
-		"poolShortName": "North Beach",
+		"id": "mission",
+		"name": "MISSION AQUATIC CENTER",
+		"nameTitle": "Mission Pool",
+		"shortName": "Mission",
+		"address": "101 LINDA ST, SAN FRANCISCO",
+		"sfRecParkUrl": "https://SFRECPARK.ORG",
+		"pdfScheduleUrl": null,
+		"scheduleLastUpdated": "2026-01-18",
+		"scheduleSeason": "FALL 2025",
+		"scheduleStartDate": "2025-08-19",
+		"scheduleEndDate": "2025-09-27",
+		"lanes": null,
+		"programs": [
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "7:00a",
+				"endTime": "9:30a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "9:30a",
+				"endTime": "10:45a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP/FAMILY SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "11:00a",
+				"endTime": "1:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "2:30p",
+				"endTime": "6:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "9:00a",
+				"endTime": "10:45a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SENIOR/THERAPY",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "11:00a",
+				"endTime": "1:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "2:30p",
+				"endTime": "3:45p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "4:00p",
+				"endTime": "6:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "7:00a",
+				"endTime": "9:30a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "9:30a",
+				"endTime": "10:45a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP/FAMILY SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Pool Closure / Staff & Departmental Use",
+				"dayOfWeek": "Thursday",
+				"startTime": "11:00a",
+				"endTime": "1:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "POOL CLOSED DEPARTMENT TRAINING",
+				"programNameCanonical": "Pool Closure / Staff & Departmental Use"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "3:00p",
+				"endTime": "5:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP/FAMILY SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "9:00a",
+				"endTime": "10:45a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SENIOR/THERAPY",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "11:00a",
+				"endTime": "1:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "2:30p",
+				"endTime": "3:45p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "4:00p",
+				"endTime": "6:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Saturday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SWIM LESSONS*",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "11:30a",
+				"endTime": "12:45p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "2:00p",
+				"endTime": "3:15p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "3:30p",
+				"endTime": "5:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			}
+		]
+	},
+	{
 		"address": "661 LOMBARD ST, SAN FRANCISCO",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/28029",
-		"scheduleLastUpdated": "2026-01-17",
+		"scheduleLastUpdated": "2026-01-18",
 		"scheduleSeason": "Winter 2026",
 		"scheduleStartDate": "2026-01-04",
 		"scheduleEndDate": "2026-03-14",
 		"lanes": null,
+		"id": "northBeach",
+		"name": "NORTH BEACH AQUATICS CENTER",
+		"shortName": "North Beach",
+		"nameTitle": "North Beach Pool",
 		"programs": [
 			{
 				"programName": "Lap Swim",
@@ -2470,17 +2692,18 @@
 		]
 	},
 	{
-		"poolName": "ROSSI POOL",
-		"poolNameTitle": "Rossi Pool",
-		"poolShortName": "Rossi",
 		"address": "600 ARGUELLO BLVD, SAN FRANCISCO",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Rossi-Pool-219",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/28030",
-		"scheduleLastUpdated": "2026-01-17",
+		"scheduleLastUpdated": "2026-01-18",
 		"scheduleSeason": "Winter 2026",
 		"scheduleStartDate": "2026-01-04",
 		"scheduleEndDate": "2026-03-12",
 		"lanes": null,
+		"id": "rossi",
+		"name": "ROSSI POOL",
+		"shortName": "Rossi",
+		"nameTitle": "Rossi Pool",
 		"programs": [
 			{
 				"programName": "Lap Swim",
@@ -2755,17 +2978,18 @@
 		]
 	},
 	{
-		"poolName": "Sava Pool",
-		"poolNameTitle": "Sava Pool",
-		"poolShortName": "Sava",
 		"address": null,
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Sava-Pool-220",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/19018/Facility--deck-rules-in-English",
-		"scheduleLastUpdated": "2026-01-17",
+		"scheduleLastUpdated": "2026-01-18",
 		"scheduleSeason": null,
 		"scheduleStartDate": null,
 		"scheduleEndDate": null,
 		"lanes": null,
+		"id": "sava",
+		"name": "Sava Pool",
+		"shortName": "Sava",
+		"nameTitle": "Sava Pool",
 		"programs": []
 	}
 ]

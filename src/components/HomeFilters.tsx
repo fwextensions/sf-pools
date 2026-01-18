@@ -4,9 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import { toTitleCase } from "@/lib/program-taxonomy";
-import { AlertBanner } from "@/components/AlertBanner";
-import type { AlertsData } from "../../scripts/scrape-alerts";
+import { validatePoolId } from "@/lib/pool-mapping";
 import PoolAlerts from "@/components/PoolAlerts";
+import type { AlertsData } from "../../scripts/scrape-alerts";
 
 type Props = {
 	all: PoolSchedule[];
@@ -66,7 +66,13 @@ export default function HomeFilters({ all, alerts }: Props) {
 	}, [all]);
 
 	const poolOptions = useMemo(() => {
-		return Array.from(new Set(all.map((p) => p.poolName))).sort((a, b) => a.localeCompare(b));
+		return all
+			.map(schedule => ({
+				id: schedule.id,
+				label: schedule.shortName || schedule.nameTitle || toTitleCase(schedule.name)
+			}))
+			.filter((v, i, arr) => arr.findIndex(x => x.id === v.id) === i)
+			.sort((a, b) => a.label.localeCompare(b.label));
 	}, [all]);
 
 	// init from query params once
@@ -80,7 +86,10 @@ export default function HomeFilters({ all, alerts }: Props) {
 		const qEnd = searchParams.get("end");
 
 		if (qPrograms) setSelectedPrograms(qPrograms.split(",").filter(Boolean));
-		if (qPools) setSelectedPools(qPools.split(",").filter(Boolean));
+		if (qPools) {
+			const poolIds = qPools.split(",").filter(id => validatePoolId(id));
+			setSelectedPools(poolIds);
+		}
 		if (qDays) {
 			const days = qDays.split(",").filter((d): d is ProgramEntry["dayOfWeek"] => (DAYS as string[]).includes(d));
 			if (days.length > 0) setSelectedDays(days);
@@ -115,7 +124,7 @@ export default function HomeFilters({ all, alerts }: Props) {
 		programName: string;
 		programNameOriginal?: string | null;
 		lanes?: number | null;
-		poolName: string;
+		poolId: string;
 		dayOfWeek: ProgramEntry["dayOfWeek"];
 		startTime: string;
 		endTime: string;
@@ -130,7 +139,7 @@ export default function HomeFilters({ all, alerts }: Props) {
 					programName: p.programName,
 					programNameOriginal: (p as any).programNameOriginal ?? null,
 					lanes: (p as any).lanes ?? null,
-					poolName: pool.poolName,
+					poolId: pool.id,
 					dayOfWeek: p.dayOfWeek,
 					startTime: p.startTime,
 					endTime: p.endTime,
@@ -168,7 +177,7 @@ export default function HomeFilters({ all, alerts }: Props) {
 
 		return sessions.filter((s) => {
 			const progOk = selectedPrograms.length === 0 || selectedPrograms.includes(s.programName);
-			const poolOk = selectedPools.length === 0 || selectedPools.includes(s.poolName);
+			const poolOk = selectedPools.length === 0 || selectedPools.includes(s.poolId);
 			const dayOk = daySet.has(s.dayOfWeek);
 			const start = parseTimeToMinutes(s.startTime);
 			const end = parseTimeToMinutes(s.endTime);
@@ -218,29 +227,25 @@ export default function HomeFilters({ all, alerts }: Props) {
 							<h3 className="font-medium">Pools</h3>
 							<button
 								className="text-sm link-accent"
-								onClick={() => (selectedPools.length ? setSelectedPools([]) : setSelectedPools(poolOptions))}
+								onClick={() => (selectedPools.length ? setSelectedPools([]) : setSelectedPools(poolOptions.map(p => p.id)))}
 							>
 								{selectedPools.length ? "clear" : "all"}
 							</button>
 						</div>
 						<ul className="mt-2 max-h-64 space-y-1 overflow-auto pr-1">
-							{poolOptions.map((poolName) => {
-								const poolMeta = all.find((p) => p.poolName === poolName);
-								const label = (poolMeta as any)?.poolShortName ?? (poolMeta as any)?.poolNameTitle ?? toTitleCase(poolName);
-								return (
-									<li key={poolName}>
-										<label className="inline-flex items-center gap-2">
-											<input
-												type="checkbox"
-												className="h-4 w-4 flex-shrink-0"
-												checked={selectedPools.includes(poolName)}
-												onChange={() => toggleSelection(selectedPools, setSelectedPools, poolName)}
-											/>
-											<span className="text-sm">{label}</span>
-										</label>
-									</li>
-								);
-							})}
+							{poolOptions.map((pool) => (
+								<li key={pool.id}>
+									<label className="inline-flex items-center gap-2">
+										<input
+											type="checkbox"
+											className="h-4 w-4 flex-shrink-0"
+											checked={selectedPools.includes(pool.id)}
+											onChange={() => toggleSelection(selectedPools, setSelectedPools, pool.id)}
+										/>
+										<span className="text-sm">{pool.label}</span>
+									</label>
+								</li>
+							))}
 						</ul>
 					</div>
 
@@ -398,7 +403,7 @@ export default function HomeFilters({ all, alerts }: Props) {
 													</span>
 												</div>
 												<div className="mt-1 flex items-center justify-between text-slate-600">
-													<span>{(all.find((p) => p.poolName === s.poolName)?.poolShortName) ?? (all.find((p) => p.poolName === s.poolName)?.poolNameTitle) ?? toTitleCase(s.poolName)}</span>
+													<span>{(all.find((p) => p.id === s.poolId)?.shortName) ?? (all.find((p) => p.id === s.poolId)?.nameTitle) ?? "Unknown Pool"}</span>
 													{s.notes ? <span className="ml-2">{s.notes}</span> : null}
 												</div>
 											</li>

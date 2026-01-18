@@ -3,7 +3,8 @@ import { readdir, readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { extractScheduleFromPdf, type PoolSchedule } from "../src/lib/pdf-processor";
 import { findCanonicalProgram, normalizeProgramName } from "../src/lib/program-taxonomy";
-import { findPool, getPoolDisplayName } from "../src/lib/pool-mapping";
+import { findPool, getPoolDisplayName, getPoolIdFromName, getPoolById } from "../src/lib/pool-mapping";
+import { toTitleCase } from "../src/lib/program-taxonomy";
 import type { PdfManifest } from "./downloadPdf";
 import {
 	computeChangelog,
@@ -151,10 +152,28 @@ export async function main() {
 			const today = todayISO();
 			for (const s of schedules) {
 				if (!s.scheduleLastUpdated) s.scheduleLastUpdated = today;
-				// pool naming: use fuzzy matching to find canonical pool
-				const poolMatch = findPool(s.poolName);
-				s.poolNameTitle = poolMatch ? poolMatch.displayName : getPoolDisplayName(s.poolName);
-				s.poolShortName = poolMatch?.shortName ?? null;
+				
+				// get the original pool name from the data source
+				const originalName = s.name || "";
+				
+				// populate id field using getPoolIdFromName
+				const poolId = getPoolIdFromName(originalName);
+				s.id = poolId ?? "unknown";
+				
+				// populate name field with original name
+				s.name = originalName;
+				
+				// populate shortName and nameTitle using getPoolById
+				if (poolId) {
+					const poolMeta = getPoolById(poolId);
+					s.shortName = poolMeta?.shortName ?? toTitleCase(originalName);
+					s.nameTitle = poolMeta?.displayName ?? toTitleCase(originalName);
+				} else {
+					// fallback to toTitleCase for unmatched pools
+					s.shortName = toTitleCase(originalName);
+					s.nameTitle = toTitleCase(originalName);
+				}
+				
 				// m7: rewrite programName to canonical label, preserve original
 				for (const p of s.programs || []) {
 					const original = p.programName;

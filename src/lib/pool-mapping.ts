@@ -4,6 +4,7 @@
 import { toTitleCase } from "./program-taxonomy";
 
 export type PoolMeta = {
+	id: string;
 	shortName: string;
 	displayName: string;
 	aliases: string[];
@@ -12,6 +13,7 @@ export type PoolMeta = {
 // canonical pool data with all known aliases
 export const POOLS: PoolMeta[] = [
 	{
+		id: "balboa",
 		shortName: "Balboa",
 		displayName: "Balboa Pool",
 		aliases: [
@@ -22,6 +24,7 @@ export const POOLS: PoolMeta[] = [
 		],
 	},
 	{
+		id: "coffman",
 		shortName: "Coffman",
 		displayName: "Coffman Pool",
 		aliases: [
@@ -32,6 +35,7 @@ export const POOLS: PoolMeta[] = [
 		],
 	},
 	{
+		id: "garfield",
 		shortName: "Garfield",
 		displayName: "Garfield Pool",
 		aliases: [
@@ -42,6 +46,7 @@ export const POOLS: PoolMeta[] = [
 		],
 	},
 	{
+		id: "hamilton",
 		shortName: "Hamilton",
 		displayName: "Hamilton Pool",
 		aliases: [
@@ -52,6 +57,7 @@ export const POOLS: PoolMeta[] = [
 		],
 	},
 	{
+		id: "mlk",
 		shortName: "MLK",
 		displayName: "MLK Pool",
 		aliases: [
@@ -75,6 +81,7 @@ export const POOLS: PoolMeta[] = [
 		],
 	},
 	{
+		id: "mission",
 		shortName: "Mission",
 		displayName: "Mission Pool",
 		aliases: [
@@ -86,6 +93,7 @@ export const POOLS: PoolMeta[] = [
 		],
 	},
 	{
+		id: "northBeach",
 		shortName: "North Beach",
 		displayName: "North Beach Pool",
 		aliases: [
@@ -98,6 +106,7 @@ export const POOLS: PoolMeta[] = [
 		],
 	},
 	{
+		id: "rossi",
 		shortName: "Rossi",
 		displayName: "Rossi Pool",
 		aliases: [
@@ -108,6 +117,7 @@ export const POOLS: PoolMeta[] = [
 		],
 	},
 	{
+		id: "sava",
 		shortName: "Sava",
 		displayName: "Sava Pool",
 		aliases: [
@@ -121,7 +131,13 @@ export const POOLS: PoolMeta[] = [
 
 // build lookup maps for fast matching
 const exactMatchMap = new Map<string, PoolMeta>();
+const poolIdMap = new Map<string, PoolMeta>();
+
 for (const pool of POOLS) {
+	// map pool ID (lowercase) to pool metadata for O(1) lookup
+	poolIdMap.set(pool.id.toLowerCase(), pool);
+	
+	// map aliases for fuzzy matching
 	for (const alias of pool.aliases) {
 		exactMatchMap.set(alias.toLowerCase(), pool);
 	}
@@ -229,4 +245,50 @@ export function getAllPoolShortNames(): string[] {
 // get pool meta by short name
 export function getPoolByShortName(shortName: string): PoolMeta | null {
 	return POOLS.find((p) => p.shortName.toLowerCase() === shortName.toLowerCase()) ?? null;
+}
+
+/**
+ * Get pool metadata by ID
+ * @param id - Pool ID (case-insensitive)
+ * @returns PoolMeta or null if not found
+ */
+export function getPoolById(id: string): PoolMeta | null {
+	if (!id) return null;
+	const normalized = id.toLowerCase();
+	return poolIdMap.get(normalized) ?? null;
+}
+
+/**
+ * Convert a legacy pool name to a pool ID
+ * @param name - Any pool name format
+ * @returns Pool ID or null if no match found
+ */
+export function getPoolIdFromName(name: string): string | null {
+	const pool = findPool(name);
+	if (!pool) {
+		if (process.env.NODE_ENV !== "test") {
+			console.warn(`Failed to match pool name: "${name}"`);
+		}
+		return null;
+	}
+	return pool.id;
+}
+
+/**
+ * Check if a pool ID is valid
+ * @param id - Pool ID to validate
+ * @returns true if ID exists in POOLS array
+ */
+export function validatePoolId(id: string): boolean {
+	if (!id) return false;
+	const normalized = id.toLowerCase();
+	return poolIdMap.has(normalized);
+}
+
+/**
+ * Get all valid pool IDs
+ * @returns Array of pool IDs
+ */
+export function getAllPoolIds(): string[] {
+	return POOLS.map((p) => p.id);
 }

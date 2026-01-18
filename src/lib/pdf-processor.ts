@@ -32,9 +32,10 @@ export const ProgramSchema = z.object({
 });
 
 export const PoolScheduleSchema = z.object({
-	poolName: z.string(),
-	poolNameTitle: z.string().optional().nullable(),
-	poolShortName: z.string().optional().nullable(),
+	id: z.string(),
+	name: z.string(),
+	nameTitle: z.string().nullable(),
+	shortName: z.string().nullable(),
 	address: z.string().optional().nullable(),
 	sfRecParkUrl: z.string().url().optional().nullable(),
 	pdfScheduleUrl: z.string().url().optional().nullable(),

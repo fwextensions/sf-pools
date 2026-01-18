@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { extractScheduleFromPdf } from "@/lib/pdf-processor";
+import { getPoolIdFromName, getPoolById } from "@/lib/pool-mapping";
+import { toTitleCase } from "@/lib/program-taxonomy";
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -59,10 +61,36 @@ export async function POST(_req: NextRequest) {
 
 		// add/ensure scheduleLastUpdated = date of processing (YYYY-MM-DD)
 		const today = new Date().toISOString().slice(0, 10);
-		const enriched = schedules.map((s) => ({
-			...s,
-			scheduleLastUpdated: s.scheduleLastUpdated ?? today,
-		}));
+		const enriched = schedules.map((s) => {
+			// get the original pool name from the data source
+			const originalName = s.name || "";
+			
+			// populate new id field using getPoolIdFromName
+			const poolId = getPoolIdFromName(originalName);
+			const id = poolId ?? "unknown";
+			
+			// populate shortName and nameTitle using getPoolById
+			let shortName: string;
+			let nameTitle: string;
+			if (poolId) {
+				const poolMeta = getPoolById(poolId);
+				shortName = poolMeta?.shortName ?? toTitleCase(originalName);
+				nameTitle = poolMeta?.displayName ?? toTitleCase(originalName);
+			} else {
+				// fallback to toTitleCase for unmatched pools
+				shortName = toTitleCase(originalName);
+				nameTitle = toTitleCase(originalName);
+			}
+			
+			return {
+				...s,
+				id,
+				name: originalName,
+				shortName,
+				nameTitle,
+				scheduleLastUpdated: s.scheduleLastUpdated ?? today,
+			};
+		});
 
 		const publicDir = path.join(process.cwd(), "public");
 		const dataDir = path.join(publicDir, "data");
