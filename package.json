@@ -23,32 +23,32 @@
 		"analyze-programs": "tsx scripts/analyze-program-names.ts"
 	},
 	"dependencies": {
-		"@ai-sdk/google": "latest",
+		"@ai-sdk/google": "^3.0.13",
 		"@types/p5": "^1.7.7",
-		"ai": "latest",
-		"cheerio": "latest",
-		"dotenv": "latest",
+		"ai": "^6.0.49",
+		"cheerio": "^1.2.0",
+		"dotenv": "^17.2.3",
 		"next": "15.5.9",
 		"p5": "^2.2.0",
-		"react": "latest",
-		"react-dom": "latest",
-		"zod": "latest"
+		"react": "^19.2.3",
+		"react-dom": "^19.2.3",
+		"zod": "^4.3.6"
 	},
 	"devDependencies": {
 		"@jest/globals": "^30.2.0",
-		"@tailwindcss/postcss": "latest",
+		"@tailwindcss/postcss": "^4.1.18",
 		"@types/jest": "^30.0.0",
-		"@types/node": "latest",
-		"@types/react": "19.2.8",
-		"eslint": "latest",
-		"eslint-config-next": "latest",
+		"@types/node": "^24.10.9",
+		"@types/react": "19.2.9",
+		"eslint": "^9.39.2",
+		"eslint-config-next": "^15.5.9",
 		"fast-check": "^4.5.3",
 		"jest": "^30.2.0",
-		"postcss": "latest",
-		"prettier": "latest",
-		"tailwindcss": "latest",
+		"postcss": "^8.5.6",
+		"prettier": "^3.8.1",
+		"tailwindcss": "^4.1.18",
 		"ts-jest": "^29.4.6",
-		"tsx": "latest",
-		"typescript": "latest"
+		"tsx": "^4.21.0",
+		"typescript": "^5.9.3"
 	}
 }

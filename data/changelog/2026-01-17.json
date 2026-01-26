@@ -1,0 +1,1246 @@
+{
+	"date": "2026-01-17",
+	"timestamp": "2026-01-17T01:43:26.891Z",
+	"poolsChanged": 5,
+	"totalProgramsAdded": 198,
+	"totalProgramsRemoved": 0,
+	"totalProgramsModified": 0,
+	"pools": [
+		{
+			"poolName": "Balboa Aquatics Center",
+			"programsAdded": 30,
+			"programsRemoved": 0,
+			"programsModified": 0,
+			"changes": [
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "7:00a–8:00a"
+				},
+				{
+					"type": "added",
+					"program": "High School Swim Programs",
+					"day": "Tuesday",
+					"newTime": "8:30a–10:00a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Tuesday",
+					"newTime": "10:30a–12:00p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Tuesday",
+					"newTime": "10:30a–11:00a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "12:30p–2:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "2:30p–3:30p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Tuesday",
+					"newTime": "3:30p–4:00p"
+				},
+				{
+					"type": "added",
+					"program": "Youth Synchronized Swimming",
+					"day": "Tuesday",
+					"newTime": "5:30p–7:30p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"newTime": "9:00a–10:15a"
+				},
+				{
+					"type": "added",
+					"program": "High School Swim Programs",
+					"day": "Wednesday",
+					"newTime": "10:30a–12:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"newTime": "12:30p–3:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Wednesday",
+					"newTime": "2:00p–3:00p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Wednesday",
+					"newTime": "3:30p–5:30p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "7:00a–8:00a"
+				},
+				{
+					"type": "added",
+					"program": "High School Swim Programs",
+					"day": "Thursday",
+					"newTime": "8:30a–10:00a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Thursday",
+					"newTime": "10:00a–11:00a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "11:30a–2:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "2:30p–4:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Thursday",
+					"newTime": "6:00p–7:30p"
+				},
+				{
+					"type": "added",
+					"program": "High School Swim Programs",
+					"day": "Friday",
+					"newTime": "8:30a–10:00a"
+				},
+				{
+					"type": "added",
+					"program": "High School Swim Programs",
+					"day": "Friday",
+					"newTime": "10:30a–12:00p"
+				},
+				{
+					"type": "added",
+					"program": "Water Exercise",
+					"day": "Friday",
+					"newTime": "12:00p–1:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Friday",
+					"newTime": "1:30p–3:00p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Friday",
+					"newTime": "3:30p–5:30p"
+				},
+				{
+					"type": "added",
+					"program": "Masters Swim Program",
+					"day": "Friday",
+					"newTime": "6:00p–7:30p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Saturday",
+					"newTime": "9:00a–10:30a"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Saturday",
+					"newTime": "9:00a–11:00a"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Saturday",
+					"newTime": "12:30p–2:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Saturday",
+					"newTime": "2:30p–3:30p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Saturday",
+					"newTime": "4:00p–5:00p"
+				}
+			]
+		},
+		{
+			"poolName": "COFFMAN AQUATICS CENTER",
+			"programsAdded": 28,
+			"programsRemoved": 0,
+			"programsModified": 0,
+			"changes": [
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "7:00a–8:30a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Tuesday",
+					"newTime": "8:45a–10:00a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Tuesday",
+					"newTime": "10:00a–11:00a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "11:30a–1:00p"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Tuesday",
+					"newTime": "2:00p–4:00p"
+				},
+				{
+					"type": "added",
+					"program": "Youth Synchronized Swimming",
+					"day": "Tuesday",
+					"newTime": "4:30p–7:00p"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Wednesday",
+					"newTime": "9:00a–10:30a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"newTime": "11:00a–1:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Wednesday",
+					"newTime": "1:30p–2:30p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Wednesday",
+					"newTime": "3:30p–5:30p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"newTime": "5:45p–7:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "7:00a–8:30a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Thursday",
+					"newTime": "8:45a–10:00a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Thursday",
+					"newTime": "10:00a–11:00a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "11:30a–1:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "2:30p–4:00p"
+				},
+				{
+					"type": "added",
+					"program": "Youth Synchronized Swimming",
+					"day": "Thursday",
+					"newTime": "4:30p–7:00p"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Friday",
+					"newTime": "9:00a–10:30a"
+				},
+				{
+					"type": "added",
+					"program": "High School Swim Programs",
+					"day": "Friday",
+					"newTime": "10:30a–11:15a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Friday",
+					"newTime": "11:30a–1:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Friday",
+					"newTime": "2:00p–3:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Friday",
+					"newTime": "3:30p–5:30p"
+				},
+				{
+					"type": "added",
+					"program": "Youth Synchronized Swimming",
+					"day": "Friday",
+					"newTime": "5:30p–7:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Saturday",
+					"newTime": "9:00a–11:00a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Saturday",
+					"newTime": "11:45a–12:45p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Saturday",
+					"newTime": "1:00p–2:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Saturday",
+					"newTime": "2:30p–3:45p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Saturday",
+					"newTime": "4:00p–5:00p"
+				}
+			]
+		},
+		{
+			"poolName": "GARFIELD AQUATIC CENTER",
+			"programsAdded": 43,
+			"programsRemoved": 0,
+			"programsModified": 0,
+			"changes": [
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Sunday",
+					"newTime": "8:30a–10:30a"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Sunday",
+					"newTime": "9:00a–11:00a"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Sunday",
+					"newTime": "12:30p–2:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Sunday",
+					"newTime": "12:30p–2:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Sunday",
+					"newTime": "2:30p–4:30p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Monday",
+					"newTime": "7:00a–8:45a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Monday",
+					"newTime": "7:00a–8:45a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Monday",
+					"newTime": "9:00a–10:45a"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Monday",
+					"newTime": "9:00a–10:45a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Monday",
+					"newTime": "11:00a–1:00p"
+				},
+				{
+					"type": "added",
+					"program": "Water Exercise",
+					"day": "Monday",
+					"newTime": "11:30a–12:30p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Monday",
+					"newTime": "2:00p–3:45p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Monday",
+					"newTime": "2:00p–3:45p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Monday",
+					"newTime": "4:00p–5:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Monday",
+					"newTime": "5:15p–6:30p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Monday",
+					"newTime": "5:15p–6:30p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Tuesday",
+					"newTime": "7:00a–8:45a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "7:00a–8:45a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Tuesday",
+					"newTime": "9:00a–10:45a"
+				},
+				{
+					"type": "added",
+					"program": "*small Pool- Nvps Class",
+					"day": "Tuesday",
+					"newTime": "9:00a–10:00a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "11:00a–1:00p"
+				},
+				{
+					"type": "added",
+					"program": "Water Exercise",
+					"day": "Tuesday",
+					"newTime": "11:00a–12:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Tuesday",
+					"newTime": "2:00p–3:30p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "2:00p–3:30p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Tuesday",
+					"newTime": "3:45p–5:30p"
+				},
+				{
+					"type": "added",
+					"program": "Masters Swim Program",
+					"day": "Tuesday",
+					"newTime": "5:30p–7:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Wednesday",
+					"newTime": "7:00a–8:45a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"newTime": "7:00a–8:45a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Wednesday",
+					"newTime": "9:00a–10:45a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"newTime": "11:00a–1:00p"
+				},
+				{
+					"type": "added",
+					"program": "High School Swim Programs",
+					"day": "Wednesday",
+					"newTime": "11:00a–12:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Wednesday",
+					"newTime": "2:00p–3:45p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"newTime": "2:00p–3:45p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Wednesday",
+					"newTime": "4:00p–5:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Wednesday",
+					"newTime": "5:15p–7:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"newTime": "5:15p–7:00p"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Thursday",
+					"newTime": "9:00a–10:45a"
+				},
+				{
+					"type": "added",
+					"program": "Water Exercise",
+					"day": "Thursday",
+					"newTime": "9:30a–10:30a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "11:00a–1:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Thursday",
+					"newTime": "2:00p–3:30p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "2:00p–3:30p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Thursday",
+					"newTime": "3:45p–5:30p"
+				},
+				{
+					"type": "added",
+					"program": "Masters Swim Program",
+					"day": "Thursday",
+					"newTime": "5:45p–7:00p"
+				}
+			]
+		},
+		{
+			"poolName": "Hamilton Aquatic Center",
+			"programsAdded": 37,
+			"programsRemoved": 0,
+			"programsModified": 0,
+			"changes": [
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "9:00a–11:00a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Tuesday",
+					"newTime": "9:00a–11:00a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "11:00a–12:30p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Tuesday",
+					"newTime": "1:00p–3:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "1:00p–3:00p"
+				},
+				{
+					"type": "added",
+					"program": "High School Swim Programs",
+					"day": "Tuesday",
+					"newTime": "3:30p–6:00p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Tuesday",
+					"newTime": "3:30p–6:00p"
+				},
+				{
+					"type": "added",
+					"program": "Masters Swim Program",
+					"day": "Tuesday",
+					"newTime": "6:30p–8:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"newTime": "6:30a–8:30a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"newTime": "9:00a–11:00a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Wednesday",
+					"newTime": "9:00a–11:00a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"newTime": "11:00a–12:30p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Wednesday",
+					"newTime": "1:00p–2:30p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"newTime": "1:00p–2:30p"
+				},
+				{
+					"type": "added",
+					"program": "High School Swim Programs",
+					"day": "Wednesday",
+					"newTime": "3:00p–6:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"newTime": "6:30p–8:00p"
+				},
+				{
+					"type": "added",
+					"program": "Masters Swim Program",
+					"day": "Thursday",
+					"newTime": "6:45a–8:15a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "9:00a–11:00a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Thursday",
+					"newTime": "9:00a–11:00a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "11:00a–12:30p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Thursday",
+					"newTime": "1:00p–2:30p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "1:00p–2:30p"
+				},
+				{
+					"type": "added",
+					"program": "High School Swim Programs",
+					"day": "Thursday",
+					"newTime": "3:30p–6:00p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Thursday",
+					"newTime": "3:30p–6:00p"
+				},
+				{
+					"type": "added",
+					"program": "Masters Swim Program",
+					"day": "Thursday",
+					"newTime": "6:30p–8:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Friday",
+					"newTime": "6:30a–8:30a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Friday",
+					"newTime": "9:00a–11:00a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Friday",
+					"newTime": "9:00a–11:00a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Friday",
+					"newTime": "11:00a–12:30p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Friday",
+					"newTime": "1:00p–2:30p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Friday",
+					"newTime": "1:00p–2:30p"
+				},
+				{
+					"type": "added",
+					"program": "High School Swim Programs",
+					"day": "Friday",
+					"newTime": "3:00p–6:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Friday",
+					"newTime": "6:30p–8:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Saturday",
+					"newTime": "9:00a–10:30a"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Saturday",
+					"newTime": "9:00a–12:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Saturday",
+					"newTime": "1:30p–3:30p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Saturday",
+					"newTime": "4:00p–5:00p"
+				}
+			]
+		},
+		{
+			"poolName": "NORTH BEACH AQUATICS CENTER",
+			"programsAdded": 60,
+			"programsRemoved": 0,
+			"programsModified": 0,
+			"changes": [
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "7:30a–8:30a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "7:30a–10:00a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Tuesday",
+					"newTime": "9:00a–10:15a"
+				},
+				{
+					"type": "added",
+					"program": "High School Swim Programs",
+					"day": "Tuesday",
+					"newTime": "10:30a–12:00p"
+				},
+				{
+					"type": "added",
+					"program": "High School Swim Programs",
+					"day": "Tuesday",
+					"newTime": "10:30a–12:00p"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Tuesday",
+					"newTime": "12:30p–3:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "12:30p–3:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Tuesday",
+					"newTime": "3:30p–5:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "3:30p–5:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "5:30p–6:30p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "5:30p–6:30p"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Wednesday",
+					"newTime": "9:00a–10:15a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"newTime": "9:00a–10:15a"
+				},
+				{
+					"type": "added",
+					"program": "High School Swim Programs",
+					"day": "Wednesday",
+					"newTime": "10:30a–11:30a"
+				},
+				{
+					"type": "added",
+					"program": "High School Swim Programs",
+					"day": "Wednesday",
+					"newTime": "10:30a–11:30a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Wednesday",
+					"newTime": "11:35a–12:35p"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Wednesday",
+					"newTime": "12:45p–3:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"newTime": "12:00p–3:00p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Wednesday",
+					"newTime": "3:45p–4:15p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Wednesday",
+					"newTime": "3:45p–4:15p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Wednesday",
+					"newTime": "4:30p–5:00p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Wednesday",
+					"newTime": "4:30p–5:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Wednesday",
+					"newTime": "5:30p–6:30p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"newTime": "5:30p–6:30p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "7:30a–8:30a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "7:30a–10:00a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Thursday",
+					"newTime": "9:00a–10:15a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Thursday",
+					"newTime": "11:00a–2:00p"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Thursday",
+					"newTime": "11:00a–2:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "2:15p–3:15p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "2:15p–3:15p"
+				},
+				{
+					"type": "added",
+					"program": "Adult Swim Lessons",
+					"day": "Thursday",
+					"newTime": "3:20p–3:50p"
+				},
+				{
+					"type": "added",
+					"program": "Adult Swim Lessons",
+					"day": "Thursday",
+					"newTime": "3:20p–3:50p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Thursday",
+					"newTime": "4:15p–5:30p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "4:15p–6:30p"
+				},
+				{
+					"type": "added",
+					"program": "Deep Water H2O Aerobics",
+					"day": "Thursday",
+					"newTime": "5:30p–6:30p"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Friday",
+					"newTime": "9:00a–10:15a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Friday",
+					"newTime": "9:00a–10:15a"
+				},
+				{
+					"type": "added",
+					"program": "High School Swim Programs",
+					"day": "Friday",
+					"newTime": "10:30a–11:30a"
+				},
+				{
+					"type": "added",
+					"program": "High School Swim Programs",
+					"day": "Friday",
+					"newTime": "10:30a–11:30a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Friday",
+					"newTime": "11:35a–12:35p"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Friday",
+					"newTime": "12:45p–3:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Friday",
+					"newTime": "12:00p–3:00p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Friday",
+					"newTime": "3:45p–4:15p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Friday",
+					"newTime": "3:45p–4:15p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Friday",
+					"newTime": "4:30p–5:00p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Friday",
+					"newTime": "4:30p–5:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Friday",
+					"newTime": "5:30p–7:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Friday",
+					"newTime": "5:30p–7:30p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Saturday",
+					"newTime": "9:00a–9:30a"
+				},
+				{
+					"type": "added",
+					"program": "Youth Swim Teams / Club Teams",
+					"day": "Saturday",
+					"newTime": "9:00a–10:00a"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Saturday",
+					"newTime": "9:45a–10:15a"
+				},
+				{
+					"type": "added",
+					"program": "Youth Swim Teams / Club Teams",
+					"day": "Saturday",
+					"newTime": "10:15a–11:15a"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Saturday",
+					"newTime": "10:30a–11:00a"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Saturday",
+					"newTime": "12:00p–1:15p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Saturday",
+					"newTime": "12:00p–2:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Saturday",
+					"newTime": "1:45p–3:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Saturday",
+					"newTime": "2:30p–4:30p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Saturday",
+					"newTime": "3:30p–5:00p"
+				},
+				{
+					"type": "added",
+					"program": "Adult Swim Lessons",
+					"day": "Saturday",
+					"newTime": "4:30p–5:00p"
+				}
+			]
+		}
+	],
+	"warnings": [
+		"Pool removed from data: BALBOA AQUATICS CENTER",
+		"Pool removed from data: Coffman Aquatics Center",
+		"Pool removed from data: Garfield Aquatic Center",
+		"Pool removed from data: HAMILTON AQUATIC CENTER",
+		"Pool removed from data: NORTH BEACH AQUATICS CENTER - WARM POOL",
+		"Pool removed from data: NORTH BEACH AQUATICS CENTER - COOL POOL"
+	]
+}

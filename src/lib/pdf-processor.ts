@@ -1,5 +1,5 @@
 import { google } from "@ai-sdk/google";
-import { generateObject } from "ai";
+import { generateText, Output } from "ai";
 import { z } from "zod";
 
 export const DayOfWeek = z.enum([
@@ -89,9 +89,9 @@ Return a JSON array with a single pool object.
 If known, set pdfScheduleUrl to: ${hints?.pdfScheduleUrl ?? ""}
 If known, set sfRecParkUrl to: ${hints?.sfRecParkUrl ?? ""}`;
 
-	const { object } = await generateObject({
+	const result = await generateText({
 		model: google("gemini-2.5-flash"),
-		schema: AllSchedulesSchema,
+		output: Output.array({ element: PoolScheduleSchema }),
 		system,
 		messages: [
 			{
@@ -105,5 +105,5 @@ If known, set sfRecParkUrl to: ${hints?.sfRecParkUrl ?? ""}`;
 	});
 
 	// validate again just to be safe
-	return AllSchedulesSchema.parse(object);
+	return AllSchedulesSchema.parse(result.output);
 }

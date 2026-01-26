@@ -1,0 +1,153 @@
+{
+	"date": "2026-01-18",
+	"timestamp": "2026-01-18T00:21:34.505Z",
+	"poolsChanged": 2,
+	"totalProgramsAdded": 20,
+	"totalProgramsRemoved": 0,
+	"totalProgramsModified": 0,
+	"totalChanges": 20,
+	"changeSeverity": "moderate",
+	"scheduleStartDate": "2025-08-19",
+	"scheduleEndDate": "2026-03-14",
+	"scheduleSeason": "WINTER 26",
+	"pools": [
+		{
+			"poolName": "",
+			"programsAdded": 0,
+			"programsRemoved": 0,
+			"programsModified": 0,
+			"changes": []
+		},
+		{
+			"poolName": "MISSION AQUATIC CENTER",
+			"programsAdded": 20,
+			"programsRemoved": 0,
+			"programsModified": 0,
+			"changes": [
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "7:00a–9:30a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "9:30a–10:45a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "11:00a–1:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "2:30p–6:00p"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Wednesday",
+					"newTime": "9:00a–10:45a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"newTime": "11:00a–1:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Wednesday",
+					"newTime": "2:30p–3:45p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"newTime": "4:00p–6:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "7:00a–9:30a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "9:30a–10:45a"
+				},
+				{
+					"type": "added",
+					"program": "Pool Closure / Staff & Departmental Use",
+					"day": "Thursday",
+					"newTime": "11:00a–1:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "3:00p–5:00p"
+				},
+				{
+					"type": "added",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Friday",
+					"newTime": "9:00a–10:45a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Friday",
+					"newTime": "11:00a–1:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Friday",
+					"newTime": "2:30p–3:45p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Friday",
+					"newTime": "4:00p–6:00p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Saturday",
+					"newTime": "9:00a–11:00a"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Saturday",
+					"newTime": "11:30a–12:45p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Saturday",
+					"newTime": "2:00p–3:15p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Saturday",
+					"newTime": "3:30p–5:00p"
+				}
+			]
+		}
+	],
+	"warnings": [
+		"Pool removed from data: undefined"
+	]
+}

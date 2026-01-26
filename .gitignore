@@ -32,7 +32,7 @@ pnpm-debug.log*
 !/data/pdfs/.gitkeep
 /data/extracted/*
 !/data/extracted/.gitkeep
-/data/changelog/*
+#/data/changelog/*
 !/data/changelog/.gitkeep
 # pdf-manifest.json is intentionally tracked for incremental extraction
 

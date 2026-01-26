@@ -3,7 +3,7 @@ import { readdir, readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { extractScheduleFromPdf, type PoolSchedule } from "../src/lib/pdf-processor";
 import { findCanonicalProgram, normalizeProgramName } from "../src/lib/program-taxonomy";
-import { findPool, getPoolDisplayName, getPoolIdFromName, getPoolById } from "../src/lib/pool-mapping";
+import { getPoolIdFromName, getPoolById } from "../src/lib/pool-mapping";
 import { toTitleCase } from "../src/lib/program-taxonomy";
 import type { PdfManifest } from "./downloadPdf";
 import {
