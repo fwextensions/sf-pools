@@ -1,11 +1,19 @@
-import { writeFile } from "node:fs/promises";
+import { writeFile, readFile } from "node:fs/promises";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { load } from "cheerio";
+import type { PoolEntry } from "./downloadPdf";
 
 const LIST_URL = "https://sfrecpark.org/482/Swimming-Pools";
 const OUT_DIR = path.join(process.cwd(), "public", "data");
 const OUT_FILE = path.join(OUT_DIR, "discovered_pool_schedules.json");
+const POOLS_FILE = path.join(process.cwd(), "data", "pools.json");
+
+export type ScrapeResult = {
+	success: boolean;
+	pools: Array<{ poolId: string; pdfUrl: string | null }>;
+	errors: string[];
+};
 
 function sleep(ms: number) {
 	return new Promise((res) => setTimeout(res, ms));
@@ -56,11 +64,6 @@ function getPoolSlugFromUrl(pageUrl: string): string {
 
 function stripTrailingId(slug: string): string {
 	return slug.replace(/-\d+$/i, "");
-}
-
-function humanizeSlug(slug: string): string {
-	const base = stripTrailingId(slug).replace(/-/g, " ");
-	return base.replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function pickBestPdfLink(
@@ -121,43 +124,122 @@ function pickBestPdfLink(
 	return scored[0]?.href ?? null;
 }
 
-export async function main() {
+async function loadPools(): Promise<PoolEntry[]> {
+	try {
+		const raw = await readFile(POOLS_FILE, "utf-8");
+		return JSON.parse(raw);
+	} catch {
+		return [];
+	}
+}
+
+export async function main(): Promise<ScrapeResult> {
+	const errors: string[] = [];
+
 	console.log("scraping pool listing:", LIST_URL);
 	const poolPages = await discoverPoolPages();
 	console.log(`found ${poolPages.length} pool pages`);
 
-	const results: Array<{
-		poolName: string;
-		pageUrl: string;
-		pdfUrl: string | null;
-	}> = [];
+	// load pools.json as source of truth
+	const pools = await loadPools();
+	if (pools.length === 0) {
+		errors.push("pools.json not found or empty");
+		return { success: false, pools: [], errors };
+	}
+
+	// validate pool count matches
+	if (poolPages.length !== pools.length) {
+		errors.push(`Pool count mismatch: expected ${pools.length}, found ${poolPages.length}`);
+	}
+
+	// build a map of expected page URLs from pools.json
+	const expectedPageUrls = new Set(pools.map((p) => p.pageUrl));
+	const poolsByPageUrl = new Map(pools.map((p) => [p.pageUrl, p]));
+
+	// check for unexpected or missing page URLs
+	for (const pageUrl of poolPages) {
+		if (!expectedPageUrls.has(pageUrl)) {
+			errors.push(`Unexpected pool page URL: ${pageUrl}`);
+		}
+	}
+	for (const pool of pools) {
+		if (!poolPages.includes(pool.pageUrl)) {
+			errors.push(`Missing pool page URL for ${pool.shortName}: ${pool.pageUrl}`);
+		}
+	}
+
+	// scrape each pool page for PDF URLs
+	const results: Array<{ poolId: string; pdfUrl: string | null }> = [];
 
 	for (const pageUrl of poolPages) {
+		const pool = poolsByPageUrl.get(pageUrl);
+		if (!pool) {
+			console.warn("skipping unknown pool page:", pageUrl);
+			continue;
+		}
+
 		try {
 			await sleep(400);
 			const html = await fetchText(pageUrl);
 			const $ = load(html);
 			const slug = getPoolSlugFromUrl(pageUrl);
-			const fallbackName = humanizeSlug(slug) || pageUrl;
-			const h2Name = $("h2").first().text().trim();
-			const pageTitle = $("title").text().trim();
-			const poolName = (h2Name || pageTitle || fallbackName).replace(/\s+/g, " ");
 			const pdfUrl = pickBestPdfLink($, pageUrl, slug);
-			results.push({ poolName, pageUrl, pdfUrl });
-			console.log("discovered:", poolName, "->", pdfUrl ?? "(no pdf found)");
+
+			// validate PDF URL doesn't look like rules/facility doc
+			if (pdfUrl) {
+				const urlLower = pdfUrl.toLowerCase();
+				if (urlLower.includes("rules") || urlLower.includes("facility")) {
+					errors.push(`Suspicious PDF URL for ${pool.shortName}: ${pdfUrl} (looks like rules/facility doc)`);
+				}
+			} else {
+				errors.push(`No PDF found for ${pool.shortName}`);
+			}
+
+			results.push({ poolId: pool.id, pdfUrl });
+			console.log("discovered:", pool.shortName, "->", pdfUrl ?? "(no pdf found)");
 		} catch (err) {
+			errors.push(`Failed to scrape ${pool.shortName}: ${err}`);
 			console.warn("failed to process", pageUrl, err);
 		}
 	}
 
+	// write discovered data for reference
 	await mkdir(OUT_DIR, { recursive: true });
 	await writeFile(OUT_FILE, JSON.stringify(results, null, "\t"), "utf-8");
 	console.log("wrote:", OUT_FILE);
+
+	// determine success - fail if there are structural errors (count/URL mismatch)
+	const structuralErrors = errors.filter((e) =>
+		e.includes("count mismatch") ||
+		e.includes("Unexpected pool") ||
+		e.includes("Missing pool")
+	);
+	const success = structuralErrors.length === 0;
+
+	if (errors.length > 0) {
+		console.log("\n⚠️  Warnings/Errors:");
+		for (const e of errors) {
+			console.log(`  - ${e}`);
+		}
+	}
+
+	if (!success) {
+		console.error("\n❌ Scrape failed: pool structure has changed");
+		console.error("Update pools.json manually if this is expected");
+	}
+
+	return { success, pools: results, errors };
 }
 
 if (import.meta.main) {
-	main().catch((err) => {
-		console.error(err);
-		process.exit(1);
-	});
+	main()
+		.then((result) => {
+			if (!result.success) {
+				process.exit(1);
+			}
+		})
+		.catch((err) => {
+			console.error(err);
+			process.exit(1);
+		});
 }

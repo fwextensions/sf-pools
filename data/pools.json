@@ -1,0 +1,74 @@
+[
+	{
+		"id": "balboa",
+		"name": "Balboa Aquatics Center",
+		"nameTitle": "Balboa Pool",
+		"shortName": "Balboa",
+		"address": "1000 Ocean Ave, San Francisco",
+		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Balboa-Pool-212"
+	},
+	{
+		"id": "coffman",
+		"name": "Coffman Aquatics Center",
+		"nameTitle": "Coffman Pool",
+		"shortName": "Coffman",
+		"address": "1701 Visitacion Ave, San Francisco",
+		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Coffman-Pool-213"
+	},
+	{
+		"id": "garfield",
+		"name": "Garfield Aquatic Center",
+		"nameTitle": "Garfield Pool",
+		"shortName": "Garfield",
+		"address": "1475 Harrison St, San Francisco",
+		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Garfield-Pool-214"
+	},
+	{
+		"id": "hamilton",
+		"name": "Hamilton Aquatic Center",
+		"nameTitle": "Hamilton Pool",
+		"shortName": "Hamilton",
+		"address": "1900 Geary Blvd, San Francisco",
+		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Hamilton-Pool-215"
+	},
+	{
+		"id": "mlk",
+		"name": "Martin Luther King Jr. Swimming Pool",
+		"nameTitle": "MLK Pool",
+		"shortName": "MLK",
+		"address": "5701 3rd St, San Francisco",
+		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Martin-Luther-King-Jr-Pool-216"
+	},
+	{
+		"id": "mission",
+		"name": "Mission Aquatic Center",
+		"nameTitle": "Mission Pool",
+		"shortName": "Mission",
+		"address": "19th St & Linda St, San Francisco",
+		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Mission-Community-Pool-217"
+	},
+	{
+		"id": "northBeach",
+		"name": "North Beach Aquatics Center",
+		"nameTitle": "North Beach Pool",
+		"shortName": "North Beach",
+		"address": "661 Lombard St, San Francisco",
+		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218"
+	},
+	{
+		"id": "rossi",
+		"name": "Rossi Pool",
+		"nameTitle": "Rossi Pool",
+		"shortName": "Rossi",
+		"address": "600 Arguello Blvd, San Francisco",
+		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Rossi-Pool-219"
+	},
+	{
+		"id": "sava",
+		"name": "Sava Pool",
+		"nameTitle": "Sava Pool",
+		"shortName": "Sava",
+		"address": "19th Ave & Wawona St, San Francisco",
+		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Sava-Pool-220"
+	}
+]

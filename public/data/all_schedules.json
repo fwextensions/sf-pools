@@ -1,5 +1,321 @@
 [
 	{
+		"id": "balboa",
+		"name": "Balboa Aquatics Center",
+		"nameTitle": "Balboa Pool",
+		"shortName": "Balboa",
+		"address": "1000 Ocean Ave, San Francisco",
+		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Balboa-Pool-212",
+		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/28024",
+		"scheduleLastUpdated": "2026-01-26",
+		"scheduleSeason": "WINTER 26",
+		"scheduleStartDate": "2026-01-20",
+		"scheduleEndDate": "2026-03-14",
+		"lanes": null,
+		"programs": [
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "7:00a",
+				"endTime": "8:00a",
+				"lanes": null,
+				"notes": "Unless otherwise noted, the small pool is available for Shallow water Lap swim and Parent-child (children under 48\") swim on the steps during our Lap Swims.",
+				"programNameOriginal": "LAP SWIM*",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "High School Swim Programs",
+				"dayOfWeek": "Tuesday",
+				"startTime": "8:30a",
+				"endTime": "10:00a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SFUSD CLASS",
+				"programNameCanonical": "High School Swim Programs"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "10:30a",
+				"endTime": "12:00p",
+				"lanes": null,
+				"notes": "(deep pool)",
+				"programNameOriginal": "SENIOR / THERAPY SWIM",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Tuesday",
+				"startTime": "10:30a",
+				"endTime": "11:00a",
+				"lanes": null,
+				"notes": "(shallow pool) Pre-Registration required to participate in youth/adult lessons. Register at sfrecpark.org/register or call (628)652-2900.",
+				"programNameOriginal": "**SWIM LESSONS",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "12:30p",
+				"endTime": "2:00p",
+				"lanes": null,
+				"notes": "Unless otherwise noted, the small pool is available for Shallow water Lap swim and Parent-child (children under 48\") swim on the steps during our Lap Swims.",
+				"programNameOriginal": "LAP SWIM*",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "2:30p",
+				"endTime": "3:30p",
+				"lanes": null,
+				"notes": "(shallow / deep) (Lap until 4pm)",
+				"programNameOriginal": "REC FAMILY/LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Tuesday",
+				"startTime": "3:30p",
+				"endTime": "4:00p",
+				"lanes": null,
+				"notes": "(shallow pool) Pre-Registration required to participate in youth/adult lessons. Register at sfrecpark.org/register or call (628)652-2900.",
+				"programNameOriginal": "**SWIM LESSONS",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Youth Synchronized Swimming",
+				"dayOfWeek": "Tuesday",
+				"startTime": "5:30p",
+				"endTime": "7:30p",
+				"lanes": null,
+				"notes": "Please contact team coach",
+				"programNameOriginal": "YOUTH SYNCHRO TEAM +",
+				"programNameCanonical": "Youth Synchronized Swimming"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "9:00a",
+				"endTime": "10:15a",
+				"lanes": null,
+				"notes": "Unless otherwise noted, the small pool is available for Shallow water Lap swim and Parent-child (children under 48\") swim on the steps during our Lap Swims.",
+				"programNameOriginal": "LAP SWIM*",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "High School Swim Programs",
+				"dayOfWeek": "Wednesday",
+				"startTime": "10:30a",
+				"endTime": "12:00p",
+				"lanes": null,
+				"notes": "(deep / SFUSD shallow)",
+				"programNameOriginal": "SENIOR / THERAPY / SFUSD SWIM",
+				"programNameCanonical": "High School Swim Programs"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "12:30p",
+				"endTime": "3:00p",
+				"lanes": null,
+				"notes": "(deep) Unless otherwise noted, the small pool is available for Shallow water Lap swim and Parent-child (children under 48\") swim on the steps during our Lap Swims.",
+				"programNameOriginal": "LAP SWIM*",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "2:00p",
+				"endTime": "3:00p",
+				"lanes": null,
+				"notes": "(shallow)",
+				"programNameOriginal": "REC FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Wednesday",
+				"startTime": "3:30p",
+				"endTime": "5:30p",
+				"lanes": null,
+				"notes": "Pre-Registration required to participate in youth/adult lessons. Register at sfrecpark.org/register or call (628)652-2900.",
+				"programNameOriginal": "**SWIM LESSONS",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "7:00a",
+				"endTime": "8:00a",
+				"lanes": null,
+				"notes": "Unless otherwise noted, the small pool is available for Shallow water Lap swim and Parent-child (children under 48\") swim on the steps during our Lap Swims.",
+				"programNameOriginal": "LAP SWIM*",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "High School Swim Programs",
+				"dayOfWeek": "Thursday",
+				"startTime": "8:30a",
+				"endTime": "10:00a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SFUSD CLASS",
+				"programNameCanonical": "High School Swim Programs"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "10:00a",
+				"endTime": "11:00a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SENIOR / THERAPY SWIM",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "11:30a",
+				"endTime": "2:00p",
+				"lanes": null,
+				"notes": "Closed every 3rd Thursday of the month for training. Closed for in service training on the 3rd Thursday of each month from 11am-2pm (Jan. 22, Feb. 19). Unless otherwise noted, the small pool is available for Shallow water Lap swim and Parent-child (children under 48\") swim on the steps during our Lap Swims.",
+				"programNameOriginal": "LAP SWIM*",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "2:30p",
+				"endTime": "4:00p",
+				"lanes": null,
+				"notes": "(shallow/deep)",
+				"programNameOriginal": "REC FAMILY / LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "6:00p",
+				"endTime": "7:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "REC FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "High School Swim Programs",
+				"dayOfWeek": "Friday",
+				"startTime": "8:30a",
+				"endTime": "10:00a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SFUSD CLASS",
+				"programNameCanonical": "High School Swim Programs"
+			},
+			{
+				"programName": "High School Swim Programs",
+				"dayOfWeek": "Friday",
+				"startTime": "10:30a",
+				"endTime": "12:00p",
+				"lanes": null,
+				"notes": "(deep / shallow)",
+				"programNameOriginal": "SENIOR / THERAPY SFUSD SWIM",
+				"programNameCanonical": "High School Swim Programs"
+			},
+			{
+				"programName": "Water Exercise",
+				"dayOfWeek": "Friday",
+				"startTime": "12:00p",
+				"endTime": "1:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "WATER EXERCISE",
+				"programNameCanonical": "Water Exercise"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "1:30p",
+				"endTime": "3:00p",
+				"lanes": null,
+				"notes": "Unless otherwise noted, the small pool is available for Shallow water Lap swim and Parent-child (children under 48\") swim on the steps during our Lap Swims.",
+				"programNameOriginal": "LAP SWIM*",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Friday",
+				"startTime": "3:30p",
+				"endTime": "5:30p",
+				"lanes": null,
+				"notes": "Pre-Registration required to participate in youth/adult lessons. Register at sfrecpark.org/register or call (628)652-2900.",
+				"programNameOriginal": "**SWIM LESSONS",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Masters Swim Program",
+				"dayOfWeek": "Friday",
+				"startTime": "6:00p",
+				"endTime": "7:30p",
+				"lanes": null,
+				"notes": "Please contact team coach",
+				"programNameOriginal": "MASTERS SWIMMING +",
+				"programNameCanonical": "Masters Swim Program"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "9:00a",
+				"endTime": "10:30a",
+				"lanes": null,
+				"notes": "(deep pool)",
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Saturday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": null,
+				"notes": "Pre-Registration required to participate in youth/adult lessons. Register at sfrecpark.org/register or call (628)652-2900.",
+				"programNameOriginal": "**SWIM LESSONS",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "12:30p",
+				"endTime": "2:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "REC FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "2:30p",
+				"endTime": "3:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "REC FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "4:00p",
+				"endTime": "5:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			}
+		]
+	},
+	{
 		"id": "coffman",
 		"name": "Coffman Aquatics Center",
 		"nameTitle": "Coffman Pool",
@@ -7,7 +323,7 @@
 		"address": "1701 Visitacion Ave, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Coffman-Pool-213",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/28113",
-		"scheduleLastUpdated": "2026-01-23",
+		"scheduleLastUpdated": "2026-01-26",
 		"scheduleSeason": "Winter 2026",
 		"scheduleStartDate": "2026-01-06",
 		"scheduleEndDate": "2026-02-03",
@@ -59,8 +375,8 @@
 				"startTime": "2:00p",
 				"endTime": "4:00p",
 				"lanes": null,
-				"notes": "Shared pool, lanes may vary",
-				"programNameOriginal": "REC/FAMILY/ SENIOR SWIM (Shared Pool)^",
+				"notes": "Shared Pool",
+				"programNameOriginal": "REC/FAMILY/ SENIOR SWIM",
 				"programNameCanonical": "Senior Swim / Therapy Swim"
 			},
 			{
@@ -119,8 +435,8 @@
 				"startTime": "5:45p",
 				"endTime": "7:00p",
 				"lanes": null,
-				"notes": "Shared pool, lanes may vary",
-				"programNameOriginal": "REC/FAMILY/LAP SWIM (Shared Pool)^",
+				"notes": "Shared Pool",
+				"programNameOriginal": "REC/FAMILY/LAP SWIM",
 				"programNameCanonical": "Lap Swim"
 			},
 			{
@@ -199,8 +515,8 @@
 				"startTime": "10:30a",
 				"endTime": "11:15a",
 				"lanes": null,
-				"notes": "Shared pool, lanes may vary",
-				"programNameOriginal": "SENIOR / SFUSD (Shared Pool)^",
+				"notes": "Shared Pool",
+				"programNameOriginal": "SENIOR / SFUSD",
 				"programNameCanonical": "High School Swim Programs"
 			},
 			{
@@ -296,14 +612,1222 @@
 		]
 	},
 	{
+		"id": "garfield",
+		"name": "Garfield Aquatic Center",
+		"nameTitle": "Garfield Pool",
+		"shortName": "Garfield",
+		"address": "1475 Harrison St, San Francisco",
+		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Garfield-Pool-214",
+		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/28026",
+		"scheduleLastUpdated": "2026-01-26",
+		"scheduleSeason": "WINTER 2026",
+		"scheduleStartDate": "2026-01-04",
+		"scheduleEndDate": "2026-03-12",
+		"lanes": null,
+		"programs": [
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Sunday",
+				"startTime": "8:30a",
+				"endTime": "10:30a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "MAIN POOL-LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Sunday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "*SMALL POOL-YOUTH LESSONS",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Sunday",
+				"startTime": "12:30p",
+				"endTime": "2:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SMALL POOL-REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Sunday",
+				"startTime": "12:30p",
+				"endTime": "2:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "MAIN POOL-LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Sunday",
+				"startTime": "2:30p",
+				"endTime": "4:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Monday",
+				"startTime": "7:00a",
+				"endTime": "8:45a",
+				"lanes": null,
+				"notes": "Pool closed Jan 19th & Feb 16th",
+				"programNameOriginal": "SMALL POOL-REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Monday",
+				"startTime": "7:00a",
+				"endTime": "8:45a",
+				"lanes": null,
+				"notes": "Pool closed Jan 19th & Feb 16th",
+				"programNameOriginal": "MAIN POOL-LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Monday",
+				"startTime": "9:00a",
+				"endTime": "10:45a",
+				"lanes": null,
+				"notes": "Pool closed Jan 19th & Feb 16th",
+				"programNameOriginal": "MAIN POOL - SENIOR/THERAPY SWIM",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Monday",
+				"startTime": "9:00a",
+				"endTime": "10:45a",
+				"lanes": null,
+				"notes": "Pool closed Jan 19th & Feb 16th",
+				"programNameOriginal": "*SMALL POOL-SWIM LESSONS",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Monday",
+				"startTime": "11:00a",
+				"endTime": "1:00p",
+				"lanes": null,
+				"notes": "Pool closed Jan 19th & Feb 16th",
+				"programNameOriginal": "MAIN POOL-LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Water Exercise",
+				"dayOfWeek": "Monday",
+				"startTime": "11:30a",
+				"endTime": "12:30p",
+				"lanes": null,
+				"notes": "Pool closed Jan 19th & Feb 16th",
+				"programNameOriginal": "SMALL POOL-WATER EXERCISE",
+				"programNameCanonical": "Water Exercise"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Monday",
+				"startTime": "2:00p",
+				"endTime": "3:45p",
+				"lanes": null,
+				"notes": "Pool closed Jan 19th & Feb 16th",
+				"programNameOriginal": "SMALL POOL-REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Monday",
+				"startTime": "2:00p",
+				"endTime": "3:45p",
+				"lanes": null,
+				"notes": "Pool closed Jan 19th & Feb 16th",
+				"programNameOriginal": "MAIN POOL-LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Monday",
+				"startTime": "4:00p",
+				"endTime": "5:00p",
+				"lanes": null,
+				"notes": "Pool closed Jan 19th & Feb 16th",
+				"programNameOriginal": "*YOUTH LESSONS/SWIM TEAM",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Monday",
+				"startTime": "5:15p",
+				"endTime": "6:30p",
+				"lanes": null,
+				"notes": "Pool closed Jan 19th & Feb 16th",
+				"programNameOriginal": "SMALL POOL-REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Monday",
+				"startTime": "5:15p",
+				"endTime": "6:30p",
+				"lanes": null,
+				"notes": "Pool closed Jan 19th & Feb 16th",
+				"programNameOriginal": "MAIN POOL-LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "9:00a",
+				"endTime": "10:45a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "MAIN POOL - SENIOR/THERAPY SWIM",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "*small Pool-Nvps Class",
+				"dayOfWeek": "Tuesday",
+				"startTime": "9:00a",
+				"endTime": "10:00a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "*SMALL POOL-NVPS CLASS",
+				"programNameCanonical": "*small Pool-Nvps Class"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "11:00a",
+				"endTime": "1:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "MAIN POOL-LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Water Exercise",
+				"dayOfWeek": "Tuesday",
+				"startTime": "11:00a",
+				"endTime": "12:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SMALL POOL-WATER EXERCISE",
+				"programNameCanonical": "Water Exercise"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "2:00p",
+				"endTime": "3:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SMALL POOL-REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "2:00p",
+				"endTime": "3:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "MAIN POOL - LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Tuesday",
+				"startTime": "3:45p",
+				"endTime": "5:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "*YOUTH LESSONS/SWIM TEAM",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Masters Swim Program",
+				"dayOfWeek": "Tuesday",
+				"startTime": "5:30p",
+				"endTime": "7:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "◆MASTER'S SWIM TEAM",
+				"programNameCanonical": "Masters Swim Program"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "7:00a",
+				"endTime": "8:45a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SMALL POOL-REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "7:00a",
+				"endTime": "8:45a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "MAIN POOL - LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "9:00a",
+				"endTime": "10:45a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "MAIN POOL-SENIOR/THERAPY SWIM",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "11:00a",
+				"endTime": "1:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "MAIN POOL - LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "High School Swim Programs",
+				"dayOfWeek": "Wednesday",
+				"startTime": "11:00a",
+				"endTime": "12:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "*SMALL POOL-SFUSD CLASS",
+				"programNameCanonical": "High School Swim Programs"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "2:00p",
+				"endTime": "3:45p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SMALL POOL-REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "2:00p",
+				"endTime": "3:45p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "MAIN POOL - LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Wednesday",
+				"startTime": "4:00p",
+				"endTime": "5:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "*YOUTH LESSONS/SWIM TEAM",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "5:15p",
+				"endTime": "7:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SMALL POOL-REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "5:15p",
+				"endTime": "7:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "MAIN POOL - LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "9:00a",
+				"endTime": "10:45a",
+				"lanes": 2,
+				"notes": null,
+				"programNameOriginal": "**MAIN POOL-SENIOR/THERAPY SWIM",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Water Exercise",
+				"dayOfWeek": "Thursday",
+				"startTime": "9:30a",
+				"endTime": "10:30a",
+				"lanes": 1,
+				"notes": null,
+				"programNameOriginal": "DEEP WATER EXERCISE",
+				"programNameCanonical": "Water Exercise"
+			},
+			{
+				"programName": "Pool Closure / Staff & Departmental Use",
+				"dayOfWeek": "Thursday",
+				"startTime": "11:00a",
+				"endTime": "1:00p",
+				"lanes": null,
+				"notes": "Specific dates: Jan 22nd & Feb 19th. Also closed every 3rd Thursday from 11AM-2PM.",
+				"programNameOriginal": "CLOSED FOR STAFF TRAINING",
+				"programNameCanonical": "Pool Closure / Staff & Departmental Use"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "2:00p",
+				"endTime": "3:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SMALL POOL-REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "2:00p",
+				"endTime": "3:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "MAIN POOL - LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Thursday",
+				"startTime": "3:45p",
+				"endTime": "5:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "*YOUTH LESSONS/SWIM TEAM",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Masters Swim Program",
+				"dayOfWeek": "Thursday",
+				"startTime": "5:45p",
+				"endTime": "7:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "◆MASTER'S SWIM TEAM",
+				"programNameCanonical": "Masters Swim Program"
+			}
+		]
+	},
+	{
+		"id": "hamilton",
+		"name": "Hamilton Aquatic Center",
+		"nameTitle": "Hamilton Pool",
+		"shortName": "Hamilton",
+		"address": "1900 Geary Blvd, San Francisco",
+		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Hamilton-Pool-215",
+		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/28027",
+		"scheduleLastUpdated": "2026-01-26",
+		"scheduleSeason": "WINTER 2026",
+		"scheduleStartDate": "2026-01-06",
+		"scheduleEndDate": "2026-03-14",
+		"lanes": null,
+		"programs": [
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": 4,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": 2,
+				"notes": null,
+				"programNameOriginal": "SELF GUIDED EXERCISE",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "11:00a",
+				"endTime": "12:30p",
+				"lanes": 6,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "1:00p",
+				"endTime": "3:00p",
+				"lanes": 2,
+				"notes": null,
+				"programNameOriginal": "REC / FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "1:00p",
+				"endTime": "3:00p",
+				"lanes": 4,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "High School Swim Programs",
+				"dayOfWeek": "Tuesday",
+				"startTime": "3:30p",
+				"endTime": "6:00p",
+				"lanes": null,
+				"notes": "^ SWIM LESSONS ^",
+				"programNameOriginal": "**YOUTH / HS SWIM TEAM **",
+				"programNameCanonical": "High School Swim Programs"
+			},
+			{
+				"programName": "Masters Swim Program",
+				"dayOfWeek": "Tuesday",
+				"startTime": "6:30p",
+				"endTime": "8:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "** MASTERS SWIM TEAM**",
+				"programNameCanonical": "Masters Swim Program"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "6:30a",
+				"endTime": "8:30a",
+				"lanes": 6,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": 4,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": 2,
+				"notes": null,
+				"programNameOriginal": "SELF GUIDED EXERCISE",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "11:00a",
+				"endTime": "12:30p",
+				"lanes": 6,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "1:00p",
+				"endTime": "2:30p",
+				"lanes": 2,
+				"notes": null,
+				"programNameOriginal": "REC / FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "1:00p",
+				"endTime": "2:30p",
+				"lanes": 4,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "High School Swim Programs",
+				"dayOfWeek": "Wednesday",
+				"startTime": "3:00p",
+				"endTime": "6:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "** HIGH SCHOOL SWIM MEET**",
+				"programNameCanonical": "High School Swim Programs"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "6:30p",
+				"endTime": "8:00p",
+				"lanes": 6,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Masters Swim Program",
+				"dayOfWeek": "Thursday",
+				"startTime": "6:45a",
+				"endTime": "8:15a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "**MASTERS SWIM TEAM**",
+				"programNameCanonical": "Masters Swim Program"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": 4,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": 2,
+				"notes": null,
+				"programNameOriginal": "SELF GUIDED EXERCISE",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "11:00a",
+				"endTime": "12:30p",
+				"lanes": 6,
+				"notes": "Pool may be closed on 1/22/26 and 2/19/26 for In-Service Training",
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "1:00p",
+				"endTime": "2:30p",
+				"lanes": 2,
+				"notes": "Pool may be closed on 1/22/26 and 2/19/26 for In-Service Training",
+				"programNameOriginal": "REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "1:00p",
+				"endTime": "2:30p",
+				"lanes": 4,
+				"notes": "Pool may be closed on 1/22/26 and 2/19/26 for In-Service Training",
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "High School Swim Programs",
+				"dayOfWeek": "Thursday",
+				"startTime": "3:30p",
+				"endTime": "6:00p",
+				"lanes": null,
+				"notes": "^ SWIM LESSONS ^",
+				"programNameOriginal": "**YOUTH / HS SWIM TEAM **",
+				"programNameCanonical": "High School Swim Programs"
+			},
+			{
+				"programName": "Masters Swim Program",
+				"dayOfWeek": "Thursday",
+				"startTime": "6:30p",
+				"endTime": "8:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "**MASTERS SWIM TEAM**",
+				"programNameCanonical": "Masters Swim Program"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "6:30a",
+				"endTime": "8:30a",
+				"lanes": 6,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": 4,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": 2,
+				"notes": null,
+				"programNameOriginal": "SELF GUIDED EXERCISE",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "11:00a",
+				"endTime": "12:30p",
+				"lanes": 6,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "1:00p",
+				"endTime": "2:30p",
+				"lanes": 2,
+				"notes": null,
+				"programNameOriginal": "REC / FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "1:00p",
+				"endTime": "2:30p",
+				"lanes": 4,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "High School Swim Programs",
+				"dayOfWeek": "Friday",
+				"startTime": "3:00p",
+				"endTime": "6:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "** HIGH SCHOOL SWIM MEET**",
+				"programNameCanonical": "High School Swim Programs"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "6:30p",
+				"endTime": "8:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "REC / FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "9:00a",
+				"endTime": "10:30a",
+				"lanes": 5,
+				"notes": "(Shared Pool) Pool closed on 3/14/26 from 8:30a-12:30p for In Service Training",
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Saturday",
+				"startTime": "9:00a",
+				"endTime": "12:00p",
+				"lanes": null,
+				"notes": "(1 lane + small pool) Pool closed on 3/14/26 from 8:30a-12:30p for In Service Training",
+				"programNameOriginal": "^ SWIM LESSONS ^",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "1:30p",
+				"endTime": "3:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "REC / FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "4:00p",
+				"endTime": "5:00p",
+				"lanes": 6,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			}
+		]
+	},
+	{
+		"id": "mlk",
+		"name": "Dr. Martin Luther King Jr. Swimming Pool",
+		"nameTitle": "MLK Pool",
+		"shortName": "MLK",
+		"address": "5701 3rd St, San Francisco",
+		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Martin-Luther-King-Jr-Pool-216",
+		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/28028",
+		"scheduleLastUpdated": "2026-01-26",
+		"scheduleSeason": "Winter 2026",
+		"scheduleStartDate": "2026-01-06",
+		"scheduleEndDate": "2026-03-14",
+		"lanes": null,
+		"programs": [
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": 6,
+				"notes": null,
+				"programNameOriginal": "SENIOR LAP SWIM",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": 4,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "11:00a",
+				"endTime": "12:00p",
+				"lanes": 10,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "12:30p",
+				"endTime": "3:30p",
+				"lanes": null,
+				"notes": "(shallow)",
+				"programNameOriginal": "REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "12:30p",
+				"endTime": "3:30p",
+				"lanes": 8,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Tuesday",
+				"startTime": "3:30p",
+				"endTime": "6:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SWIM LESSONS",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Water Exercise",
+				"dayOfWeek": "Tuesday",
+				"startTime": "6:00p",
+				"endTime": "7:00p",
+				"lanes": null,
+				"notes": "(shallow)",
+				"programNameOriginal": "WATER EXERCISE",
+				"programNameCanonical": "Water Exercise"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "6:00p",
+				"endTime": "7:00p",
+				"lanes": 8,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Adult Water Polo",
+				"dayOfWeek": "Tuesday",
+				"startTime": "7:00p",
+				"endTime": "8:30p",
+				"lanes": 10,
+				"notes": "Contact the Team Coach",
+				"programNameOriginal": "ADULT WATER POLO**",
+				"programNameCanonical": "Adult Water Polo"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": 6,
+				"notes": null,
+				"programNameOriginal": "SENIOR LAP SWIM",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": 4,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "11:00a",
+				"endTime": "12:00p",
+				"lanes": 10,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "12:30p",
+				"endTime": "3:30p",
+				"lanes": null,
+				"notes": "(shallow)",
+				"programNameOriginal": "REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "12:30p",
+				"endTime": "3:30p",
+				"lanes": 8,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Wednesday",
+				"startTime": "3:30p",
+				"endTime": "6:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SWIM LESSONS",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Adult Synchronized Swimming",
+				"dayOfWeek": "Wednesday",
+				"startTime": "6:00p",
+				"endTime": "8:00p",
+				"lanes": 3,
+				"notes": "Contact the Team Coach",
+				"programNameOriginal": "ADULT SYNCHRO**",
+				"programNameCanonical": "Adult Synchronized Swimming"
+			},
+			{
+				"programName": "Adult Hockey**",
+				"dayOfWeek": "Wednesday",
+				"startTime": "6:00p",
+				"endTime": "8:00p",
+				"lanes": 7,
+				"notes": "Contact the Team Coach",
+				"programNameOriginal": "ADULT HOCKEY**",
+				"programNameCanonical": "Adult Hockey**"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": 6,
+				"notes": null,
+				"programNameOriginal": "SENIOR LAP SWIM",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": 4,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "11:00a",
+				"endTime": "12:00p",
+				"lanes": 10,
+				"notes": "CLOSED EVERY 3RD THURSDAY FOR TRAINING",
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "12:30p",
+				"endTime": "3:30p",
+				"lanes": null,
+				"notes": "(shallow) CLOSED EVERY 3RD THURSDAY FOR TRAINING",
+				"programNameOriginal": "REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "12:30p",
+				"endTime": "3:30p",
+				"lanes": 8,
+				"notes": "CLOSED EVERY 3RD THURSDAY FOR TRAINING",
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Thursday",
+				"startTime": "3:30p",
+				"endTime": "6:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SWIM LESSONS",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Water Exercise",
+				"dayOfWeek": "Thursday",
+				"startTime": "6:00p",
+				"endTime": "7:00p",
+				"lanes": null,
+				"notes": "(shallow)",
+				"programNameOriginal": "WATER EXERCISE",
+				"programNameCanonical": "Water Exercise"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "6:00p",
+				"endTime": "7:00p",
+				"lanes": 8,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Adult Water Polo",
+				"dayOfWeek": "Thursday",
+				"startTime": "7:00p",
+				"endTime": "8:30p",
+				"lanes": 10,
+				"notes": "Contact the Team Coach",
+				"programNameOriginal": "ADULT WATER POLO**",
+				"programNameCanonical": "Adult Water Polo"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": 6,
+				"notes": null,
+				"programNameOriginal": "SENIOR LAP SWIM",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": 4,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "11:00a",
+				"endTime": "12:00p",
+				"lanes": 10,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "12:30p",
+				"endTime": "3:30p",
+				"lanes": null,
+				"notes": "(shallow)",
+				"programNameOriginal": "REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "12:30p",
+				"endTime": "3:30p",
+				"lanes": 8,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Friday",
+				"startTime": "3:30p",
+				"endTime": "6:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SWIM LESSONS",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Youth Synchronized Swimming",
+				"dayOfWeek": "Friday",
+				"startTime": "6:00p",
+				"endTime": "8:00p",
+				"lanes": 3,
+				"notes": "Contact the Team Coach",
+				"programNameOriginal": "YOUTH SYNCHRO**",
+				"programNameCanonical": "Youth Synchronized Swimming"
+			},
+			{
+				"programName": "Youth Hockey**",
+				"dayOfWeek": "Friday",
+				"startTime": "6:00p",
+				"endTime": "8:00p",
+				"lanes": 7,
+				"notes": "Contact the Team Coach",
+				"programNameOriginal": "YOUTH HOCKEY**",
+				"programNameCanonical": "Youth Hockey**"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "7:00a",
+				"endTime": "8:30a",
+				"lanes": 10,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Masters Swim Program",
+				"dayOfWeek": "Saturday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": 7,
+				"notes": "Contact the Team Coach",
+				"programNameOriginal": "ADULT MASTERS**",
+				"programNameCanonical": "Masters Swim Program"
+			},
+			{
+				"programName": "Adult Synchronized Swimming",
+				"dayOfWeek": "Saturday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": 2,
+				"notes": "Contact the Team Coach",
+				"programNameOriginal": "ADULT SYNCHRO**",
+				"programNameCanonical": "Adult Synchronized Swimming"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Saturday",
+				"startTime": "9:00a",
+				"endTime": "1:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SWIM LESSONS",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "2:00p",
+				"endTime": "3:30p",
+				"lanes": 10,
+				"notes": null,
+				"programNameOriginal": "REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "4:00p",
+				"endTime": "5:00p",
+				"lanes": 10,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			}
+		]
+	},
+	{
 		"id": "northBeach",
 		"name": "North Beach Aquatics Center - Warm Pool",
 		"nameTitle": "North Beach Pool",
 		"shortName": "North Beach",
-		"address": "661 LOMBARD ST, SAN FRANCISCO",
+		"address": "661 Lombard St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/28115",
-		"scheduleLastUpdated": "2026-01-23",
+		"scheduleLastUpdated": "2026-01-26",
 		"scheduleSeason": "Winter 2026",
 		"scheduleStartDate": "2026-01-04",
 		"scheduleEndDate": "2026-03-14",
@@ -646,10 +2170,10 @@
 		"name": "North Beach Aquatics Center - Cool Pool",
 		"nameTitle": "North Beach Pool",
 		"shortName": "North Beach",
-		"address": "661 LOMBARD ST, SAN FRANCISCO",
+		"address": "661 Lombard St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/28115",
-		"scheduleLastUpdated": "2026-01-23",
+		"scheduleLastUpdated": "2026-01-26",
 		"scheduleSeason": "Winter 2026",
 		"scheduleStartDate": "2026-01-04",
 		"scheduleEndDate": "2026-03-14",
@@ -906,5 +2430,316 @@
 				"programNameCanonical": "Adult Swim Lessons"
 			}
 		]
+	},
+	{
+		"id": "rossi",
+		"name": "Rossi Pool",
+		"nameTitle": "Rossi Pool",
+		"shortName": "Rossi",
+		"address": "600 Arguello Blvd, San Francisco",
+		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Rossi-Pool-219",
+		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/28030",
+		"scheduleLastUpdated": "2026-01-26",
+		"scheduleSeason": "Winter 2026",
+		"scheduleStartDate": "2026-01-04",
+		"scheduleEndDate": "2026-03-12",
+		"lanes": null,
+		"programs": [
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Sunday",
+				"startTime": "7:30a",
+				"endTime": "8:30a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Sunday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SWIM LESSONS+",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Sunday",
+				"startTime": "12:30p",
+				"endTime": "2:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Sunday",
+				"startTime": "2:30p",
+				"endTime": "3:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "REC/FAMILY SWIM",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Monday",
+				"startTime": "7:30a",
+				"endTime": "10:00a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Monday",
+				"startTime": "10:15a",
+				"endTime": "11:30a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SWIM LESSONS+",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Monday",
+				"startTime": "11:45a",
+				"endTime": "1:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SENIOR/ THERAPY**",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Monday",
+				"startTime": "1:30p",
+				"endTime": "3:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "High School Swim Programs",
+				"dayOfWeek": "Monday",
+				"startTime": "4:00p",
+				"endTime": "6:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SFUSD/SWIM TEAM‡",
+				"programNameCanonical": "High School Swim Programs"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Monday",
+				"startTime": "6:15p",
+				"endTime": "7:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "7:30a",
+				"endTime": "10:00a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "10:15a",
+				"endTime": "12:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SENIOR SWIM /THERAPY",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "12:30p",
+				"endTime": "3:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "High School Swim Programs",
+				"dayOfWeek": "Tuesday",
+				"startTime": "4:00p",
+				"endTime": "6:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SFUSD/SWIM TEAM‡",
+				"programNameCanonical": "High School Swim Programs"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "6:15p",
+				"endTime": "7:30p",
+				"lanes": 2,
+				"notes": null,
+				"programNameOriginal": "FAMILY/LAP SWIM (2 lanes)**",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "6:15p",
+				"endTime": "7:30p",
+				"lanes": 4,
+				"notes": null,
+				"programNameOriginal": "Lap Swim (4 Lanes)",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "7:30a",
+				"endTime": "10:00a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "9:00a",
+				"endTime": "10:45a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SENIOR SWIM",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "11:00a",
+				"endTime": "1:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "2:00p",
+				"endTime": "3:30p",
+				"lanes": 2,
+				"notes": "Shared Program, originally part of 'FAMILY (2 lanes)/LAP SWIM (4 lanes)**'",
+				"programNameOriginal": "FAMILY (2 lanes)",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "2:00p",
+				"endTime": "3:30p",
+				"lanes": 4,
+				"notes": "Shared Program, originally part of 'FAMILY (2 lanes)/LAP SWIM (4 lanes)**'",
+				"programNameOriginal": "LAP SWIM (4 lanes)",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "High School Swim Programs",
+				"dayOfWeek": "Wednesday",
+				"startTime": "4:00p",
+				"endTime": "6:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SFUSD/SWIM TEAM‡",
+				"programNameCanonical": "High School Swim Programs"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "7:30a",
+				"endTime": "10:00a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "10:15a",
+				"endTime": "11:45a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SENIOR SWIM/AEROBICS**",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "12:30p",
+				"endTime": "3:30p",
+				"lanes": null,
+				"notes": "Closed every 3rd Thursday of the month for training",
+				"programNameOriginal": "LAP SWIM",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "High School Swim Programs",
+				"dayOfWeek": "Thursday",
+				"startTime": "4:00p",
+				"endTime": "6:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SFUSD/SWIM TEAM‡",
+				"programNameCanonical": "High School Swim Programs"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "6:15p",
+				"endTime": "7:30p",
+				"lanes": 3,
+				"notes": null,
+				"programNameOriginal": "FAMILY/LAP SWIM (3 lanes)**",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "6:15p",
+				"endTime": "7:30p",
+				"lanes": 3,
+				"notes": null,
+				"programNameOriginal": "Lap Swim (3 Lanes)",
+				"programNameCanonical": "Lap Swim"
+			}
+		]
+	},
+	{
+		"id": "sava",
+		"name": "Sava Pool",
+		"nameTitle": "Sava Pool",
+		"shortName": "Sava",
+		"address": "19th Ave & Wawona St, San Francisco",
+		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Sava-Pool-220",
+		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/19018/Facility--deck-rules-in-English",
+		"scheduleLastUpdated": "2026-01-26",
+		"scheduleSeason": null,
+		"scheduleStartDate": null,
+		"scheduleEndDate": null,
+		"lanes": null,
+		"programs": []
 	}
 ]

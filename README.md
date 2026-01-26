@@ -1,6 +1,6 @@
 # SF Pools Schedule Viewer
 
-Centralized, searchable schedules for San Francisco public swimming pools. This app scrapes and downloads official pool schedule PDFs, uses an LLM to extract structured schedules, and provides a clean UI to browse by program, day, time, and pool.
+Centralized, searchable schedules for San Francisco public swimming pools. This app scrapes official pool schedule PDFs from SF Rec & Park, uses an LLM to extract structured schedules, and provides a clean UI to browse by program, day, time, and pool.
 
 ## Tech
 
@@ -8,10 +8,11 @@ Centralized, searchable schedules for San Francisco public swimming pools. This 
 - Tailwind CSS v4 (via `@tailwindcss/postcss` and `@import "tailwindcss"`)
 - Vercel AI SDK (`ai`) with Google Generative AI provider (`@ai-sdk/google`)
 - Zod for strict schema validation
+- GitHub Actions for automated weekly schedule updates
 
 ## Prerequisites
 
-- Node.js 24.4.1+
+- Node.js 22+
 - npm
 - A Google Generative AI API key
 
@@ -27,8 +28,6 @@ Centralized, searchable schedules for San Francisco public swimming pools. This 
 
 	```
 	GOOGLE_GENERATIVE_AI_API_KEY=your_key_here
-	# optional: override autodiscovery of MLK pool PDF
-	MLK_PDF_URL=https://sfrecpark.org/DocumentCenter/View/25795
 	```
 
 3. Run the dev server:
@@ -37,30 +36,46 @@ Centralized, searchable schedules for San Francisco public swimming pools. This 
 	npm run dev
 	```
 
-4. Generate schedules (in another terminal):
+4. Generate schedules:
 
 	```
-	curl -X POST http://localhost:3000/api/extract-schedule
+	npm run build-schedules
 	```
 
-This will write `public/data/all_schedules.json` and you can view it at `/schedules`.
+This will scrape PDF URLs, download PDFs, extract schedules, and write `public/data/all_schedules.json`. View at `/schedules`.
 
-## Notes
+## Architecture
 
-- PDFs are not committed. Place any local PDFs under `data/pdfs/` for testing.
-- Extracted data is written to `public/data/all_schedules.json` for the UI, plus a per-PDF cache under `data/extracted/` to avoid re-prompting the LLM.
-- The pipeline writes these pool-level fields when known:
-	- `poolName` (raw as found), `poolNameTitle` (title case), `poolShortName` (from `public/data/pools.json` mapping)
-	- `address`, `sfRecParkUrl`, `pdfScheduleUrl`
-	- `scheduleLastUpdated`, `scheduleSeason`, `scheduleStartDate`, `scheduleEndDate`
-	- `lanes` (pool-wide context when available)
-- Program entries include:
-	- `programName` (canonicalized for consistent filtering)
-	- `programNameOriginal` (original text from the PDF)
-	- `programNameCanonical` (same as `programName` for now)
-	- `dayOfWeek`, `startTime`, `endTime`, `notes`, `lanes` (per-program lanes if listed)
-- Multi-program time blocks in a single box (e.g., "Senior Lap Swim (6)" stacked above "Lap Swim (4)") are split into separate program entries, each with its own `lanes` value.
-- Writing `public/data/all_schedules.json` at runtime is fine locally; on Vercel it is ephemeral. Durable storage can be added later.
+### Data Files
+
+- **`data/pools.json`** — Source of truth for static pool metadata (id, name, shortName, address, pageUrl). Does not change frequently.
+- **`public/data/discovered_pool_schedules.json`** — Scraped PDF URLs (poolId → pdfUrl mapping). Regenerated on each scrape.
+- **`data/pdf-manifest.json`** — Tracks downloaded PDFs by hash to detect changes.
+- **`data/extracted/<poolId>.json`** — Cached LLM extractions per PDF.
+- **`public/data/all_schedules.json`** — Aggregated schedule data for the UI.
+- **`data/changelog/`** — Change history between schedule updates.
+
+### Pipeline Flow
+
+```
+scrape →    download-pdfs →   process-all-pdfs
+   ↓             ↓                 ↓
+validates   checks hash       preserves data
+pool count  downloads if      fails on large
+& URLs      content changed   changes
+```
+
+1. **Scrape**: Discovers pool pages and PDF URLs from SF Rec & Park. Validates against `pools.json` — fails if pool count or page URLs change unexpectedly.
+2. **Download**: Fetches PDFs, checks content hash against manifest. Only downloads if content actually changed (handles URL changes gracefully).
+3. **Process**: Extracts schedules via LLM, preserves unchanged pool schedules, detects large changes.
+
+### Change Detection
+
+The pipeline computes a changelog comparing old vs new schedules:
+- **none/minor**: Normal updates, build succeeds
+- **major/wholesale**: Large changes detected, build fails in CI (requires manual review)
+
+Set `FAIL_ON_LARGE_CHANGES=false` locally to bypass this check during development.
 
 ## Scripts
 
@@ -68,64 +83,48 @@ This will write `public/data/all_schedules.json` and you can view it at `/schedu
 - `npm run build` — build for production
 - `npm run start` — start production build
 - `npm run lint` — run ESLint
-- `npm run scrape` — scrape pool pages to discover schedule PDF URLs; writes `public/data/discovered_pool_schedules.json`
-- `npm run download-pdfs` — download schedule PDFs into `data/pdfs/`
-- `npm run process-all-pdfs` — extract schedules from PDFs (uses per-PDF cache); writes `public/data/all_schedules.json`
-- `npm run build-schedules` — runs `scrape` → `download-pdfs` → `process-all-pdfs`
-- `npm run analyze-programs` — analyze raw vs canonical program names across the dataset
+- `npm run test` — run tests
+- `npm run scrape` — scrape pool pages, validate against pools.json, discover PDF URLs
+- `npm run download-pdfs` — download changed PDFs into `data/pdfs/`
+- `npm run process-all-pdfs` — extract schedules from PDFs, preserve unchanged, write changelog
+- `npm run build-schedules` — full pipeline: scrape → download → process
+- `npm run scrape-alerts` — scrape pool alerts from SF Rec & Park
+- `npm run analyze-programs` — analyze raw vs canonical program names
 
-## How it works
+## How Extraction Works
 
-1. Scrape: collect pool metadata and schedule PDF URLs from the SF Rec & Park site.
-2. Download: fetch PDFs into `data/pdfs/`.
-3. Extract: for each PDF, send content to the LLM with a strict schema (Zod). The system prompt instructs the model to:
-	- Use precise time formats like `h:mm[a|p]` (e.g., `9:00a`, `2:15p`).
-	- Split multi-program blocks into separate entries, capturing per-program lane counts.
-	- Keep original program text for provenance (`programNameOriginal`).
-4. Normalize: pipeline maps `programName` to a canonical label (taxonomy rules) while preserving the original. It also writes `poolNameTitle` and `poolShortName` using `public/data/pools.json`.
-5. Render: the UI provides filters by program, pool, day, and time. The schedules page shows day-by-day program blocks with time ranges and per-program lane counts.
+1. For each PDF, send content to the LLM with a strict Zod schema
+2. The model extracts:
+	- Pool metadata (name, season, date range)
+	- Program entries with day, time, lanes, notes
+3. Pipeline normalizes program names to canonical labels (e.g., "LAP SWIM" → "Lap Swim")
+4. Enriches with static metadata from `pools.json` (address, URLs)
 
-## Pool metadata mapping
+## Automated Updates
 
-- `public/data/pools.json` maps canonical pool titles to short names used in the UI. Example:
+GitHub Actions runs weekly to:
+1. Scrape and download new PDFs
+2. Extract schedules from changed PDFs
+3. Commit changes to `public/data/` and `data/changelog/`
+4. Send push notifications via Pushover
 
-```json
-{
-	"Mission Aquatic Center": { "shortName": "Mission" }
-}
-```
+If large changes are detected, the build fails and a notification is sent for manual review.
 
-- During processing, the pipeline computes `poolNameTitle` from the PDF name (title case) and looks up `poolShortName` from this mapping.
+## Environment Variables
 
-## Per-PDF extraction cache
-
-- Raw structured extraction for each PDF is cached in `data/extracted/<pdf-base>.json`.
-- By default, the pipeline prefers the cache to avoid re-prompting the LLM.
-- Force a refresh with:
-
-```
-REFRESH_EXTRACT=1 npm run process-all-pdfs
-```
-
-## API
-
-- `POST /api/extract-schedule` — runs a one-off extraction (primarily for development) and writes to `public/data/all_schedules.json`.
-
-## Environment
-
-- `.env.local` values:
-
-```
+```bash
+# Required: Google AI API key for schedule extraction
 GOOGLE_GENERATIVE_AI_API_KEY=your_key_here
-# override MLK autodiscovery (optional)
-MLK_PDF_URL=https://sfrecpark.org/DocumentCenter/View/25795
-```
 
-- Optional at runtime:
+# Optional: Disable build failure on large changes (for local dev)
+FAIL_ON_LARGE_CHANGES=false
 
-```
-# when set to 1, re-extract PDFs even if a cache exists
+# Optional: Force re-extraction even if cache exists
 REFRESH_EXTRACT=1
+
+# For CI notifications (GitHub Actions secrets)
+PUSHOVER_USER_KEY=...
+PUSHOVER_API_TOKEN=...
 ```
 
 ## License
