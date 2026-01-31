@@ -131,11 +131,11 @@ export default function NowSoon({ all }: Props) {
 			</header>
 
 			<div className="mb-6 flex flex-wrap items-center gap-3">
-				<label className="text-sm">
-					<span className="mr-2">Window (minutes)</span>
+				<label className="text-sm flex items-center gap-2">
+					<span>Window (minutes)</span>
 					<input
 						type="number"
-						className="w-28 rounded border border-slate-300 px-2 py-1"
+						className="w-24 rounded-md border border-slate-300 px-3 py-2 text-base focus:border-[var(--accent-color)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)]"
 						min={15}
 						max={360}
 						step={15}
@@ -153,17 +153,20 @@ export default function NowSoon({ all }: Props) {
 				) : (
 					<ul className="grid gap-3 md:grid-cols-2">
 						{openNow.map(({ pool, current }) => (
-							<li key={pool.id} className="rounded border accent-border bg-emerald-50 p-3 text-sm">
+							<li key={pool.id} className="pool-open session-card rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm">
 								<div className="flex items-center justify-between">
-									<span className="font-medium">{pool.shortName || pool.nameTitle || toTitleCase(pool.name)}</span>
-									<span className="rounded bg-emerald-600 px-2 py-0.5 text-white">open</span>
+									<span className="font-semibold text-slate-800">{pool.shortName || pool.nameTitle || toTitleCase(pool.name)}</span>
+									<span className="status-open rounded-full bg-emerald-600 px-2.5 py-1 text-xs font-medium text-white">open</span>
 								</div>
-								<div className="mt-1 inline-flex items-center gap-1"><ClockIcon className="h-3.5 w-3.5" />{current!.programName} — until {current!.endTime}</div>
-								<div className="mt-1 flex gap-3">
-									<a className="link-accent" href={pool.pdfScheduleUrl ?? "#"} target="_blank" rel="noreferrer">
-										PDF
+								<div className="mt-2 inline-flex items-center gap-1.5 text-emerald-700">
+									<ClockIcon className="h-4 w-4 icon-water" />
+									<span>{current!.programName} — until {current!.endTime}</span>
+								</div>
+								<div className="mt-3 flex gap-4">
+									<a className="link-accent text-sm font-medium py-1" href={pool.pdfScheduleUrl ?? "#"} target="_blank" rel="noreferrer">
+										PDF schedule
 									</a>
-									<a className="link-accent" href={pool.sfRecParkUrl ?? "#"} target="_blank" rel="noreferrer">
+									<a className="link-accent text-sm font-medium py-1" href={pool.sfRecParkUrl ?? "#"} target="_blank" rel="noreferrer">
 										Pool page
 									</a>
 								</div>
@@ -180,23 +183,24 @@ export default function NowSoon({ all }: Props) {
 				) : (
 					<ul className="grid gap-3 md:grid-cols-2">
 						{openingSoon.map(({ pool, upcoming }) => (
-							<li key={pool.id} className="rounded border accent-border bg-amber-50 p-3 text-sm">
+							<li key={pool.id} className="session-card rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm">
 								<div className="flex items-center justify-between">
-									<span className="font-medium">{pool.shortName || pool.nameTitle || toTitleCase(pool.name)}</span>
-									<span className="rounded bg-amber-600 px-2 py-0.5 text-white">opening soon</span>
+									<span className="font-semibold text-slate-800">{pool.shortName || pool.nameTitle || toTitleCase(pool.name)}</span>
+									<span className="status-soon rounded-full bg-amber-500 px-2.5 py-1 text-xs font-medium text-white">opening soon</span>
 								</div>
-								<ul className="mt-1 list-disc pl-5">
+								<ul className="mt-2 space-y-1">
 									{upcoming.slice(0, 2).map((u, idx) => (
-										<li key={idx} className="inline-flex items-center gap-1">
-											<ClockIcon className="h-3.5 w-3.5" />{u.programName} — {u.startTime} to {u.endTime}
+										<li key={idx} className="flex items-center gap-1.5 text-amber-700">
+											<ClockIcon className="h-4 w-4 icon-water" />
+											<span>{u.programName} — {u.startTime} to {u.endTime}</span>
 										</li>
 									))}
 								</ul>
-								<div className="mt-1 flex gap-3">
-									<a className="link-accent" href={pool.pdfScheduleUrl ?? "#"} target="_blank" rel="noreferrer">
-										PDF
+								<div className="mt-3 flex gap-4">
+									<a className="link-accent text-sm font-medium py-1" href={pool.pdfScheduleUrl ?? "#"} target="_blank" rel="noreferrer">
+										PDF schedule
 									</a>
-									<a className="link-accent" href={pool.sfRecParkUrl ?? "#"} target="_blank" rel="noreferrer">
+									<a className="link-accent text-sm font-medium py-1" href={pool.sfRecParkUrl ?? "#"} target="_blank" rel="noreferrer">
 										Pool page
 									</a>
 								</div>
@@ -213,23 +217,23 @@ export default function NowSoon({ all }: Props) {
 				) : (
 					<ul className="grid gap-3 md:grid-cols-2">
 						{closed.map(({ pool, later }) => (
-							<li key={pool.id} className="rounded border accent-border bg-white p-3 text-sm">
+							<li key={pool.id} className="session-card rounded-lg border accent-border bg-white p-4 text-sm">
 								<div className="flex items-center justify-between">
-									<span className="font-medium">{pool.shortName || pool.nameTitle || toTitleCase(pool.name)}</span>
-									<span className="rounded bg-slate-600 px-2 py-0.5 text-white">closed</span>
+									<span className="font-semibold text-slate-800">{pool.shortName || pool.nameTitle || toTitleCase(pool.name)}</span>
+									<span className="rounded-full bg-slate-400 px-2.5 py-1 text-xs font-medium text-white">closed</span>
 								</div>
-								<div className="mt-1 text-slate-600">
+								<div className="mt-2 text-slate-500">
 									{later ? (
-										<span className="inline-flex items-center gap-1"><ClockIcon className="h-3.5 w-3.5" />later today at {later.startTime} — {later.programName}</span>
+										<span className="inline-flex items-center gap-1.5"><ClockIcon className="h-4 w-4" />later today at {later.startTime} — {later.programName}</span>
 									) : (
-										<span>no more sessions today</span>
+										<span className="italic">no more sessions today</span>
 									)}
 								</div>
-								<div className="mt-1 flex gap-3">
-									<a className="link-accent" href={pool.pdfScheduleUrl ?? "#"} target="_blank" rel="noreferrer">
-										PDF
+								<div className="mt-3 flex gap-4">
+									<a className="link-accent text-sm font-medium py-1" href={pool.pdfScheduleUrl ?? "#"} target="_blank" rel="noreferrer">
+										PDF schedule
 									</a>
-									<a className="link-accent" href={pool.sfRecParkUrl ?? "#"} target="_blank" rel="noreferrer">
+									<a className="link-accent text-sm font-medium py-1" href={pool.sfRecParkUrl ?? "#"} target="_blank" rel="noreferrer">
 										Pool page
 									</a>
 								</div>
