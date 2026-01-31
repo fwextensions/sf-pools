@@ -5,6 +5,15 @@ import { toTitleCase } from "@/lib/program-taxonomy";
 import { CalendarIcon, ClockIcon, MapPinIcon } from "@/components/icons";
 import { parseTimeToMinutes } from "@/lib/utils";
 
+function getProgramTypeClass(programName: string): string {
+	const lower = programName.toLowerCase();
+	if (lower.includes("lap") || lower.includes("adult swim")) return "program-lap";
+	if (lower.includes("lesson") || lower.includes("learn")) return "program-lessons";
+	if (lower.includes("aerobic") || lower.includes("exercise") || lower.includes("fitness")) return "program-aerobics";
+	if (lower.includes("recreation") || lower.includes("open") || lower.includes("family") || lower.includes("free")) return "program-recreation";
+	return "program-default";
+}
+
 const DAYS: Array<PoolSchedule["programs"][number]["dayOfWeek"]> = [
 	"Monday",
 	"Tuesday",
@@ -55,29 +64,31 @@ export default async function SchedulesPage() {
 			) : (
 				<div className="mt-8 space-y-8">
 					{schedules.map((pool) => (
-						<section key={pool.name} className="rounded border accent-border bg-white p-4">
-							<header className="mb-4">
-								<h2 className="text-2xl font-medium mb-4">{toTitleCase(pool.name)}</h2>
-								<div className="mt-1 text-sm text-slate-600">
+						<section key={pool.name} className="rounded-xl border accent-border bg-white p-5 shadow-sm">
+							<header className="mb-5">
+								<h2 className="text-2xl font-semibold text-slate-800 mb-3">{toTitleCase(pool.name)}</h2>
+								<div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500">
 									{(pool.scheduleSeason || pool.scheduleStartDate || pool.scheduleEndDate) ? (
-										<span className="mr-4 inline-flex items-center gap-1">
-											<CalendarIcon className="h-3.5 w-3.5" />
+										<span className="inline-flex items-center gap-1.5">
+											<CalendarIcon className="h-4 w-4 icon-water" />
 											{pool.scheduleSeason ? `${pool.scheduleSeason} ` : ""}
 											{pool.scheduleStartDate ? formatDate(pool.scheduleStartDate) : ""}
 											{pool.scheduleEndDate ? ` – ${formatDate(pool.scheduleEndDate)}` : ""}
 										</span>
 									) : null}
 									{pool.address ? (
-										<span className="inline-flex items-center gap-1"><MapPinIcon className="h-3.5 w-3.5" />{pool.address}</span>
+										<span className="inline-flex items-center gap-1.5"><MapPinIcon className="h-4 w-4 icon-water" />{pool.address}</span>
 									) : null}
-									{pool.lanes ? <span className="ml-2">• {pool.lanes} lanes</span> : null}
+									{pool.lanes ? (
+										<span className="lane-badge inline-flex items-center rounded-full px-2.5 py-0.5 text-xs">{pool.lanes} lanes</span>
+									) : null}
 								</div>
 								{pool.pdfScheduleUrl ? (
 									<a
 										href={pool.pdfScheduleUrl}
 										target="_blank"
 										rel="noreferrer"
-										className="mt-1 inline-block text-sm link-accent"
+										className="mt-3 inline-block text-sm link-accent font-medium py-1"
 									>
 										View source PDF
 									</a>
@@ -90,20 +101,22 @@ export default async function SchedulesPage() {
 									if (items.length === 0) return null;
 									const sorted = [...items].sort((a, b) => byStartTime(a.startTime, b.startTime));
 									return (
-										<div key={day} className="rounded border accent-border">
-											<div className="accent-muted-bg px-3 py-2 font-medium">{day}</div>
-											<ul className="divide-y divide-slate-200">
+										<div key={day} className="rounded-lg border accent-border overflow-hidden">
+											<div className="day-header accent-muted-bg px-3 py-2.5 font-medium">{day}</div>
+											<ul className="divide-y divide-slate-100">
 												{sorted.map((p, idx) => (
-													<li key={idx} className="px-3 py-2 text-sm">
-														<div className="flex items-center justify-between">
-															<span className="font-medium">{p.programName}</span>
-															{(p as any).lanes ? (
-																<span className="ml-2 rounded accent-muted-bg px-2 py-0.5 text-xs text-slate-700">{(p as any).lanes} lanes</span>
-															) : null}
-															<span className="text-slate-600 inline-flex items-center gap-1"><ClockIcon className="h-3.5 w-3.5" />{p.startTime} – {p.endTime}</span>
+													<li key={idx} className={`session-card px-3 py-2.5 text-sm ${getProgramTypeClass(p.programName)}`}>
+														<div className="flex items-center justify-between gap-2">
+															<span className="font-medium text-slate-800">{p.programName}</span>
+															<span className="flex shrink-0 items-center gap-2">
+																{(p as any).lanes ? (
+																	<span className="lane-badge whitespace-nowrap rounded-full px-2 py-0.5 text-xs text-slate-600">{(p as any).lanes} lanes</span>
+																) : null}
+																<span className="text-slate-500 inline-flex items-center gap-1 font-medium"><ClockIcon className="h-4 w-4 icon-water" />{p.startTime} – {p.endTime}</span>
+															</span>
 														</div>
 														{p.notes ? (
-															<div className="mt-1 text-slate-600">{p.notes}</div>
+															<div className="mt-1.5 text-slate-500 text-xs italic">{p.notes}</div>
 														) : null}
 													</li>
 												))}

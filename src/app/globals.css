@@ -57,3 +57,163 @@ body {
 .btn-outline-accent:hover {
 	background-color: var(--accent-muted);
 }
+
+/* ===========================================
+   Mobile-friendly form controls
+   =========================================== */
+
+/* Larger touch targets for checkboxes and radio buttons on mobile */
+@media (max-width: 767px) {
+	input[type="checkbox"],
+	input[type="radio"] {
+		width: 1.25rem;
+		height: 1.25rem;
+		min-width: 1.25rem;
+		min-height: 1.25rem;
+	}
+
+	/* Increase tap area for labels containing checkboxes/radios */
+	label:has(input[type="checkbox"]),
+	label:has(input[type="radio"]) {
+		padding: 0.5rem 0;
+		margin: -0.25rem 0;
+	}
+
+	/* Larger touch area for buttons */
+	.btn-outline-accent {
+		padding: 0.625rem 1rem;
+		min-height: 2.75rem;
+	}
+
+	/* Easier to tap links */
+	.link-accent {
+		padding: 0.25rem 0;
+	}
+}
+
+/* Custom styled checkboxes for better appearance */
+input[type="checkbox"],
+input[type="radio"] {
+	accent-color: var(--accent-color);
+	cursor: pointer;
+}
+
+/* ===========================================
+   Subtle personality & water-themed touches
+   =========================================== */
+
+/* Gentle wave decoration for section headers */
+.wave-underline {
+	position: relative;
+}
+
+.wave-underline::after {
+	content: "";
+	position: absolute;
+	bottom: -4px;
+	left: 0;
+	width: 100%;
+	height: 3px;
+	background: linear-gradient(
+		90deg,
+		transparent 0%,
+		var(--accent-color) 20%,
+		var(--accent-border) 50%,
+		var(--accent-color) 80%,
+		transparent 100%
+	);
+	border-radius: 2px;
+	opacity: 0.6;
+}
+
+/* Session card with subtle water gradient */
+.session-card {
+	background: linear-gradient(
+		135deg,
+		white 0%,
+		white 85%,
+		var(--accent-muted) 100%
+	);
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.session-card:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 2px 8px rgba(117, 198, 228, 0.15);
+}
+
+/* Tap ripple effect for interactive cards */
+@media (max-width: 767px) {
+	.session-card:active {
+		transform: scale(0.98);
+	}
+}
+
+/* Program type color hints - subtle left border variations */
+.program-lap {
+	border-left: 3px solid #4AA8C7;
+}
+
+.program-lessons {
+	border-left: 3px solid #7DD3A8;
+}
+
+.program-aerobics {
+	border-left: 3px solid #C7A84A;
+}
+
+.program-recreation {
+	border-left: 3px solid #A87DD3;
+}
+
+.program-default {
+	border-left: 3px solid var(--accent-color);
+}
+
+/* Day header with subtle wave pattern */
+.day-header {
+	position: relative;
+	overflow: hidden;
+}
+
+.day-header::before {
+	content: "";
+	position: absolute;
+	right: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 60px;
+	height: 20px;
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 20'%3E%3Cpath d='M0,10 Q15,5 30,10 T60,10' fill='none' stroke='%2375C6E4' stroke-width='1.5' opacity='0.3'/%3E%3C/svg%3E") no-repeat center;
+	opacity: 0.5;
+}
+
+/* Pool status badges with subtle glow */
+.status-open {
+	box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+}
+
+.status-soon {
+	box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+}
+
+/* Lane count badge styling */
+.lane-badge {
+	background: linear-gradient(135deg, var(--accent-muted) 0%, white 100%);
+	border: 1px solid var(--accent-border);
+}
+
+/* Subtle shimmer animation for "open now" cards */
+@keyframes gentle-pulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.85; }
+}
+
+.pool-open {
+	animation: gentle-pulse 3s ease-in-out infinite;
+}
+
+/* Icon styling */
+.icon-water {
+	color: var(--accent-color);
+}

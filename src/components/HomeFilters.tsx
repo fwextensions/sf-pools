@@ -9,6 +9,15 @@ import PoolAlerts from "@/components/PoolAlerts";
 import type { AlertsData } from "../../scripts/scrape-alerts";
 import { parseTimeToMinutes } from "@/lib/utils";
 
+function getProgramTypeClass(programName: string): string {
+	const lower = programName.toLowerCase();
+	if (lower.includes("lap") || lower.includes("adult swim")) return "program-lap";
+	if (lower.includes("lesson") || lower.includes("learn")) return "program-lessons";
+	if (lower.includes("aerobic") || lower.includes("exercise") || lower.includes("fitness")) return "program-aerobics";
+	if (lower.includes("recreation") || lower.includes("open") || lower.includes("family") || lower.includes("free")) return "program-recreation";
+	return "program-default";
+}
+
 type Props = {
 	all: PoolSchedule[];
 	alerts?: AlertsData | null;
@@ -213,13 +222,13 @@ export default function HomeFilters({ all, alerts }: Props) {
 								{selectedPools.length ? "clear" : "all"}
 							</button>
 						</div>
-						<ul className="mt-2 max-h-64 space-y-1 overflow-auto pr-1">
+						<ul className="mt-2 max-h-64 space-y-0.5 overflow-auto pr-1">
 							{poolOptions.map((pool) => (
 								<li key={pool.id}>
-									<label className="inline-flex items-center gap-2">
+									<label className="flex items-center gap-3 rounded-md px-2 py-1.5 -mx-2 cursor-pointer hover:bg-slate-50 active:bg-slate-100 transition-colors">
 										<input
 											type="checkbox"
-											className="h-4 w-4 flex-shrink-0"
+											className="h-5 w-5 flex-shrink-0 rounded"
 											checked={selectedPools.includes(pool.id)}
 											onChange={() => toggleSelection(selectedPools, setSelectedPools, pool.id)}
 										/>
@@ -240,13 +249,13 @@ export default function HomeFilters({ all, alerts }: Props) {
 								{selectedPrograms.length ? "clear" : "all"}
 							</button>
 						</div>
-						<ul className="mt-2 max-h-64 space-y-1 overflow-y-auto overflow-x-hidden pr-1">
+						<ul className="mt-2 max-h-64 space-y-0.5 overflow-y-auto overflow-x-hidden pr-1">
 							{programOptions.map((name) => (
 								<li key={name}>
-									<label className="flex items-center gap-2">
+									<label className="flex items-center gap-3 rounded-md px-2 py-1.5 -mx-2 cursor-pointer hover:bg-slate-50 active:bg-slate-100 transition-colors">
 										<input
 											type="checkbox"
-											className="h-4 w-4 shrink-0"
+											className="h-5 w-5 shrink-0 rounded"
 											checked={selectedPrograms.includes(name)}
 											onChange={() => toggleSelection(selectedPrograms, setSelectedPrograms, name)}
 										/>
@@ -268,13 +277,13 @@ export default function HomeFilters({ all, alerts }: Props) {
 								{selectedDays.length ? "clear" : "all"}
 							</button>
 						</div>
-						<ul className="mt-2 grid grid-cols-2 gap-1">
+						<ul className="mt-2 grid grid-cols-2 gap-0.5">
 							{DAYS.map((day) => (
 								<li key={day}>
-									<label className="inline-flex items-center gap-2">
+									<label className="flex items-center gap-3 rounded-md px-2 py-1.5 -mx-2 cursor-pointer hover:bg-slate-50 active:bg-slate-100 transition-colors">
 										<input
 											type="checkbox"
-											className="h-4 w-4 flex-shrink-0"
+											className="h-5 w-5 flex-shrink-0 rounded"
 											checked={selectedDays.includes(day)}
 											onChange={() =>
 												setSelectedDays(
@@ -292,44 +301,44 @@ export default function HomeFilters({ all, alerts }: Props) {
 					</div>
 					<div className="mt-4">
 						<h3 className="font-medium">Time</h3>
-						<div className="mt-2 space-y-1">
-							<label className="flex items-center gap-2">
-								<input type="radio" name="timepreset" className="h-4 w-4" checked={timePreset === "all"} onChange={() => setTimePreset("all")} />
+						<div className="mt-2 space-y-0.5">
+							<label className="flex items-center gap-3 rounded-md px-2 py-1.5 -mx-2 cursor-pointer hover:bg-slate-50 active:bg-slate-100 transition-colors">
+								<input type="radio" name="timepreset" className="h-5 w-5" checked={timePreset === "all"} onChange={() => setTimePreset("all")} />
 								<span className="text-sm">All day</span>
 							</label>
-							<label className="flex items-center gap-2">
-								<input type="radio" name="timepreset" className="h-4 w-4" checked={timePreset === "morning"} onChange={() => setTimePreset("morning")} />
-								<span className="text-sm">Morning (6:00a–12:00p)</span>
+							<label className="flex items-center gap-3 rounded-md px-2 py-1.5 -mx-2 cursor-pointer hover:bg-slate-50 active:bg-slate-100 transition-colors">
+								<input type="radio" name="timepreset" className="h-5 w-5" checked={timePreset === "morning"} onChange={() => setTimePreset("morning")} />
+								<span className="text-sm">Morning (6a–12p)</span>
 							</label>
-							<label className="flex items-center gap-2">
-								<input type="radio" name="timepreset" className="h-4 w-4" checked={timePreset === "afternoon"} onChange={() => setTimePreset("afternoon")} />
-								<span className="text-sm">Afternoon (12:00p–5:00p)</span>
+							<label className="flex items-center gap-3 rounded-md px-2 py-1.5 -mx-2 cursor-pointer hover:bg-slate-50 active:bg-slate-100 transition-colors">
+								<input type="radio" name="timepreset" className="h-5 w-5" checked={timePreset === "afternoon"} onChange={() => setTimePreset("afternoon")} />
+								<span className="text-sm">Afternoon (12p–5p)</span>
 							</label>
-							<label className="flex items-center gap-2">
-								<input type="radio" name="timepreset" className="h-4 w-4" checked={timePreset === "evening"} onChange={() => setTimePreset("evening")} />
-								<span className="text-sm">Evening (5:00p–10:00p)</span>
+							<label className="flex items-center gap-3 rounded-md px-2 py-1.5 -mx-2 cursor-pointer hover:bg-slate-50 active:bg-slate-100 transition-colors">
+								<input type="radio" name="timepreset" className="h-5 w-5" checked={timePreset === "evening"} onChange={() => setTimePreset("evening")} />
+								<span className="text-sm">Evening (5p–10p)</span>
 							</label>
-							<label className="flex items-center gap-2">
-								<input type="radio" name="timepreset" className="h-4 w-4" checked={timePreset === "custom"} onChange={() => setTimePreset("custom")} />
+							<label className="flex items-center gap-3 rounded-md px-2 py-1.5 -mx-2 cursor-pointer hover:bg-slate-50 active:bg-slate-100 transition-colors">
+								<input type="radio" name="timepreset" className="h-5 w-5" checked={timePreset === "custom"} onChange={() => setTimePreset("custom")} />
 								<span className="text-sm">Custom</span>
 							</label>
 							{timePreset === "custom" ? (
-								<div className="ml-6 mt-2 grid grid-cols-2 gap-2">
+								<div className="ml-8 mt-2 grid grid-cols-2 gap-3">
 									<label className="text-sm">
-										<span className="block text-slate-700">Start</span>
+										<span className="block text-slate-700 mb-1">Start</span>
 										<input
 											type="text"
-											className="mt-1 w-full rounded border border-slate-300 px-2 py-1"
+											className="w-full rounded-md border border-slate-300 px-3 py-2 text-base focus:border-[var(--accent-color)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)]"
 											placeholder="9:00a"
 											value={timeStart}
 											onChange={(e) => setTimeStart(e.target.value)}
 										/>
 									</label>
 									<label className="text-sm">
-										<span className="block text-slate-700">End</span>
+										<span className="block text-slate-700 mb-1">End</span>
 										<input
 											type="text"
-											className="mt-1 w-full rounded border border-slate-300 px-2 py-1"
+											className="w-full rounded-md border border-slate-300 px-3 py-2 text-base focus:border-[var(--accent-color)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)]"
 											placeholder="2:15p"
 											value={timeEnd}
 											onChange={(e) => setTimeEnd(e.target.value)}
@@ -339,12 +348,12 @@ export default function HomeFilters({ all, alerts }: Props) {
 							) : null}
 						</div>
 					</div>
-					<div className="mt-4 flex gap-3">
+					<div className="mt-5 flex gap-3">
 						<button
-							className="btn-outline-accent rounded px-3 py-1 text-sm"
+							className="btn-outline-accent rounded-md px-4 py-2.5 text-sm font-medium transition-all active:scale-95"
 							onClick={clearAll}
 						>
-							Clear
+							Clear all filters
 						</button>
 					</div>
 				</section>
@@ -364,28 +373,28 @@ export default function HomeFilters({ all, alerts }: Props) {
 							const items = grouped.get(day)!;
 							if (!items || items.length === 0) return null;
 							return (
-								<div key={day} className="rounded border accent-border">
-									<div className="accent-muted-bg px-3 py-2 font-medium">{day}</div>
-									<ul className="divide-y divide-slate-200">
+								<div key={day} className="rounded-lg border accent-border overflow-hidden">
+									<div className="day-header accent-muted-bg px-3 py-2.5 font-medium">{day}</div>
+									<ul className="divide-y divide-slate-100">
 										{items.map((s, idx) => (
-											<li key={idx} className="px-3 py-2 text-sm">
+											<li key={idx} className={`session-card px-3 py-2.5 text-sm ${getProgramTypeClass(s.programName)}`}>
 												<div className="flex items-center justify-between gap-3">
 													<span
-														className="min-w-0 font-medium"
+														className="min-w-0 font-medium text-slate-800"
 														title={s.programNameOriginal && s.programNameOriginal !== s.programName ? s.programNameOriginal : undefined}
 													>
 														{s.programName.replace(/\//g, " / ")}
 													</span>
 													<span className="flex shrink-0 items-center gap-2">
 														{(s as any).lanes ? (
-															<span className="whitespace-nowrap rounded accent-muted-bg px-2 py-0.5 text-xs text-slate-700">{s.lanes} lanes</span>
+															<span className="lane-badge whitespace-nowrap rounded-full px-2 py-0.5 text-xs text-slate-600">{s.lanes} lanes</span>
 														) : null}
-														<span className="whitespace-nowrap text-slate-600">{s.startTime}&nbsp;–&nbsp;{s.endTime}</span>
+														<span className="whitespace-nowrap text-slate-500 font-medium">{s.startTime}&nbsp;–&nbsp;{s.endTime}</span>
 													</span>
 												</div>
-												<div className="mt-1 flex justify-between text-slate-600">
-													<span>{(all.find((p) => p.id === s.poolId)?.shortName) ?? (all.find((p) => p.id === s.poolId)?.nameTitle) ?? "Unknown Pool"}</span>
-													{s.notes ? <span className="ml-2">{s.notes}</span> : null}
+												<div className="mt-1.5 flex justify-between text-slate-500 text-xs">
+													<span className="font-medium">{(all.find((p) => p.id === s.poolId)?.shortName) ?? (all.find((p) => p.id === s.poolId)?.nameTitle) ?? "Unknown Pool"}</span>
+													{s.notes ? <span className="ml-2 italic">{s.notes}</span> : null}
 												</div>
 											</li>
 										))}
