@@ -149,43 +149,84 @@ input[type="radio"] {
 	}
 }
 
-/* Program type color hints - subtle left border variations */
+/* Program type color hints - bolder left border variations */
 .program-lap {
-	border-left: 3px solid #4AA8C7;
+	border-left: 4px solid #2596be;
 }
 
 .program-lessons {
-	border-left: 3px solid #7DD3A8;
+	border-left: 4px solid #22c55e;
 }
 
 .program-aerobics {
-	border-left: 3px solid #C7A84A;
+	border-left: 4px solid #eab308;
 }
 
 .program-recreation {
-	border-left: 3px solid #A87DD3;
+	border-left: 4px solid #a855f7;
 }
 
 .program-default {
-	border-left: 3px solid var(--accent-color);
+	border-left: 4px solid var(--accent-color);
 }
 
-/* Day header with subtle wave pattern */
+/* Day header with wave that peaks based on day position */
 .day-header {
 	position: relative;
 	overflow: hidden;
 }
 
-.day-header::before {
+/* Wave backgrounds for each day - peak moves left to right through the week */
+.day-monday::after,
+.day-tuesday::after,
+.day-wednesday::after,
+.day-thursday::after,
+.day-friday::after,
+.day-saturday::after,
+.day-sunday::after {
 	content: "";
 	position: absolute;
 	right: 0;
-	top: 50%;
-	transform: translateY(-50%);
-	width: 60px;
-	height: 20px;
-	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 20'%3E%3Cpath d='M0,10 Q15,5 30,10 T60,10' fill='none' stroke='%2375C6E4' stroke-width='1.5' opacity='0.3'/%3E%3C/svg%3E") no-repeat center;
-	opacity: 0.5;
+	bottom: 0;
+	left: 0;
+	height: 100%;
+	pointer-events: none;
+	opacity: 0.35;
+}
+
+.day-monday::after {
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40' preserveAspectRatio='none'%3E%3Cpath d='M0,35 Q25,15 50,30 T100,28 T150,30 T200,28' fill='none' stroke='%2375C6E4' stroke-width='2'/%3E%3C/svg%3E") no-repeat;
+	background-size: 100% 100%;
+}
+
+.day-tuesday::after {
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40' preserveAspectRatio='none'%3E%3Cpath d='M0,30 Q50,28 75,15 T125,30 T175,28 T200,30' fill='none' stroke='%2375C6E4' stroke-width='2'/%3E%3C/svg%3E") no-repeat;
+	background-size: 100% 100%;
+}
+
+.day-wednesday::after {
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40' preserveAspectRatio='none'%3E%3Cpath d='M0,30 Q25,28 50,30 T100,15 T150,30 T200,28' fill='none' stroke='%2375C6E4' stroke-width='2'/%3E%3C/svg%3E") no-repeat;
+	background-size: 100% 100%;
+}
+
+.day-thursday::after {
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40' preserveAspectRatio='none'%3E%3Cpath d='M0,28 Q25,30 50,28 T100,30 T150,15 T200,30' fill='none' stroke='%2375C6E4' stroke-width='2'/%3E%3C/svg%3E") no-repeat;
+	background-size: 100% 100%;
+}
+
+.day-friday::after {
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40' preserveAspectRatio='none'%3E%3Cpath d='M0,30 Q25,28 50,30 T100,28 T150,30 T175,15 Q190,28 200,30' fill='none' stroke='%2375C6E4' stroke-width='2'/%3E%3C/svg%3E") no-repeat;
+	background-size: 100% 100%;
+}
+
+.day-saturday::after {
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40' preserveAspectRatio='none'%3E%3Cpath d='M0,28 Q25,30 50,28 T100,30 T150,28 T185,15 Q195,25 200,30' fill='none' stroke='%2375C6E4' stroke-width='2'/%3E%3C/svg%3E") no-repeat;
+	background-size: 100% 100%;
+}
+
+.day-sunday::after {
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40' preserveAspectRatio='none'%3E%3Cpath d='M0,30 Q25,28 50,30 T100,28 T150,30 T180,28 Q195,15 200,20' fill='none' stroke='%2375C6E4' stroke-width='2'/%3E%3C/svg%3E") no-repeat;
+	background-size: 100% 100%;
 }
 
 /* Pool status badges with subtle glow */

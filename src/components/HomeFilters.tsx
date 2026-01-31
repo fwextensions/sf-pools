@@ -374,7 +374,7 @@ export default function HomeFilters({ all, alerts }: Props) {
 							if (!items || items.length === 0) return null;
 							return (
 								<div key={day} className="rounded-lg border accent-border overflow-hidden">
-									<div className="day-header accent-muted-bg px-3 py-2.5 font-medium">{day}</div>
+									<div className={`day-header day-${day.toLowerCase()} accent-muted-bg px-3 py-2.5 font-medium`}>{day}</div>
 									<ul className="divide-y divide-slate-100">
 										{items.map((s, idx) => (
 											<li key={idx} className={`session-card px-3 py-2.5 text-sm ${getProgramTypeClass(s.programName)}`}>

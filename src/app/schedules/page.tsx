@@ -102,7 +102,7 @@ export default async function SchedulesPage() {
 									const sorted = [...items].sort((a, b) => byStartTime(a.startTime, b.startTime));
 									return (
 										<div key={day} className="rounded-lg border accent-border overflow-hidden">
-											<div className="day-header accent-muted-bg px-3 py-2.5 font-medium">{day}</div>
+											<div className={`day-header day-${day.toLowerCase()} accent-muted-bg px-3 py-2.5 font-medium`}>{day}</div>
 											<ul className="divide-y divide-slate-100">
 												{sorted.map((p, idx) => (
 													<li key={idx} className={`session-card px-3 py-2.5 text-sm ${getProgramTypeClass(p.programName)}`}>
