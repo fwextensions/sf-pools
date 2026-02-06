@@ -1,5 +1,9 @@
 {
-	"siteWideAlerts": [],
+	"siteWideAlerts": [
+		"Dear Swimmers, please note that 3 of our pools will be offline starting Feb 10.",
+		"Martin Luther King Jr. Pool will close on February 10 for its annual maintenance. During this time, we will begin a replastering project on the facility’s smaller wading pool. We’re excited to share that the contractor will continue work after the facility reopens on Tuesday, February 24, without requiring an additional closure of the larger pool.",
+		"Nearby pools available during these closures include Garfield Pool (1271 Treat Avenue) and Balboa Pool (51 Havelock Street). With Sava Pool also closed for replastering and wall repair until spring, visit the link below to view a full list of our pools."
+	],
 	"poolAlerts": [],
-	"lastUpdated": "2026-01-30T20:15:56.345Z"
+	"lastUpdated": "2026-02-06T20:19:48.274Z"
 }

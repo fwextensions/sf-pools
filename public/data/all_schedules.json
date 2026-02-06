@@ -6,11 +6,11 @@
 		"shortName": "Coffman",
 		"address": "1701 Visitacion Ave, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Coffman-Pool-213",
-		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/28140",
-		"scheduleLastUpdated": "2026-01-30",
-		"scheduleSeason": "Winter",
+		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/28172",
+		"scheduleLastUpdated": "2026-02-06",
+		"scheduleSeason": "Winter 2026",
 		"scheduleStartDate": "2026-01-06",
-		"scheduleEndDate": "2026-03-14",
+		"scheduleEndDate": "2026-02-07",
 		"lanes": null,
 		"programs": [
 			{
@@ -59,8 +59,8 @@
 				"startTime": "2:00p",
 				"endTime": "4:00p",
 				"lanes": null,
-				"notes": "shared pool = lanes may vary",
-				"programNameOriginal": "REC/FAMILY / SENIOR SWIM (Shared Pool)^",
+				"notes": "(Shared Pool)^ lanes may vary",
+				"programNameOriginal": "REC/FAMILY/ SENIOR SWIM",
 				"programNameCanonical": "Senior Swim / Therapy Swim"
 			},
 			{
@@ -119,8 +119,8 @@
 				"startTime": "5:45p",
 				"endTime": "7:00p",
 				"lanes": null,
-				"notes": "shared pool = lanes may vary",
-				"programNameOriginal": "REC/FAMILY/LAP SWIM (Shared Pool)^",
+				"notes": "(Shared Pool)^ lanes may vary",
+				"programNameOriginal": "REC/FAMILY/LAP SWIM",
 				"programNameCanonical": "Lap Swim"
 			},
 			{
@@ -199,8 +199,8 @@
 				"startTime": "10:30a",
 				"endTime": "11:15a",
 				"lanes": null,
-				"notes": "shared pool = lanes may vary",
-				"programNameOriginal": "SENIOR / SFUSD (Shared Pool)^",
+				"notes": "(Shared Pool)^ lanes may vary",
+				"programNameOriginal": "SENIOR / SFUSD",
 				"programNameCanonical": "High School Swim Programs"
 			},
 			{
