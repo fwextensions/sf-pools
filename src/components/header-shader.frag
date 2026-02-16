@@ -96,7 +96,7 @@ float ambientWaves(vec2 p, float t) {
 
 const float RIPPLE_FREQUENCY = 50.0;
 const float RIPPLE_SPEED = 6.0;
-const float RIPPLE_AMPLITUDE = 5;
+const float RIPPLE_AMPLITUDE = 5.0;
 const float RIPPLE_FALLOFF = 4.0;
 
 float pointerRipple(vec2 uv, vec2 p, float t) {
@@ -120,7 +120,7 @@ float expandingRippleSingle(vec2 uv, float rx, float ry, float rt, float time, f
 	float ringDist = abs(d - waveRadius);
 
 	float fade = exp(-age * 1.5);
-	float ringWidth = 0.04 + age * 0.02;
+	float ringWidth = 0.01 + age * 0.06;
 	float ring = smoothstep(ringWidth, 0.0, ringDist);
 
 	float wave = sin((d - waveRadius) * 50.0) * ring * fade;
@@ -155,14 +155,16 @@ void main() {
 	}
 
 	// expanding ripples from ring buffer (unrolled - GLSL ES doesn't allow computed array indices)
-	h += expandingRippleSingle(uv, u_ripples[0], u_ripples[1], u_ripples[2], u_time, aspect) * 0.4;
-	h += expandingRippleSingle(uv, u_ripples[3], u_ripples[4], u_ripples[5], u_time, aspect) * 0.4;
-	h += expandingRippleSingle(uv, u_ripples[6], u_ripples[7], u_ripples[8], u_time, aspect) * 0.4;
-	h += expandingRippleSingle(uv, u_ripples[9], u_ripples[10], u_ripples[11], u_time, aspect) * 0.4;
-	h += expandingRippleSingle(uv, u_ripples[12], u_ripples[13], u_ripples[14], u_time, aspect) * 0.4;
-	h += expandingRippleSingle(uv, u_ripples[15], u_ripples[16], u_ripples[17], u_time, aspect) * 0.4;
-	h += expandingRippleSingle(uv, u_ripples[18], u_ripples[19], u_ripples[20], u_time, aspect) * 0.4;
-	h += expandingRippleSingle(uv, u_ripples[21], u_ripples[22], u_ripples[23], u_time, aspect) * 0.4;
+	float expandingH = 0.0;
+	expandingH += expandingRippleSingle(uv, u_ripples[0], u_ripples[1], u_ripples[2], u_time, aspect);
+	expandingH += expandingRippleSingle(uv, u_ripples[3], u_ripples[4], u_ripples[5], u_time, aspect);
+	expandingH += expandingRippleSingle(uv, u_ripples[6], u_ripples[7], u_ripples[8], u_time, aspect);
+	expandingH += expandingRippleSingle(uv, u_ripples[9], u_ripples[10], u_ripples[11], u_time, aspect);
+	expandingH += expandingRippleSingle(uv, u_ripples[12], u_ripples[13], u_ripples[14], u_time, aspect);
+	expandingH += expandingRippleSingle(uv, u_ripples[15], u_ripples[16], u_ripples[17], u_time, aspect);
+	expandingH += expandingRippleSingle(uv, u_ripples[18], u_ripples[19], u_ripples[20], u_time, aspect);
+	expandingH += expandingRippleSingle(uv, u_ripples[21], u_ripples[22], u_ripples[23], u_time, aspect);
+	h += expandingH * 0.4;
 
 	// compute surface normal via finite differences on the full height field
 	float eps = 0.004;
@@ -183,46 +185,47 @@ void main() {
 		hNegY += pointerRipple(uv - vec2(0.0, eps), pUV, tSurface) * pStr;
 	}
 
-	// add expanding ripples to samples (unrolled)
-	hPosX += expandingRippleSingle(uv + vec2(eps, 0.0), u_ripples[0], u_ripples[1], u_ripples[2], u_time, aspect);
-	hNegX += expandingRippleSingle(uv - vec2(eps, 0.0), u_ripples[0], u_ripples[1], u_ripples[2], u_time, aspect);
-	hPosY += expandingRippleSingle(uv + vec2(0.0, eps), u_ripples[0], u_ripples[1], u_ripples[2], u_time, aspect);
-	hNegY += expandingRippleSingle(uv - vec2(0.0, eps), u_ripples[0], u_ripples[1], u_ripples[2], u_time, aspect);
+	// add expanding ripples to samples (unrolled, amplified for visible distortion)
+	float eAmp = 2.5;
+	hPosX += expandingRippleSingle(uv + vec2(eps, 0.0), u_ripples[0], u_ripples[1], u_ripples[2], u_time, aspect) * eAmp;
+	hNegX += expandingRippleSingle(uv - vec2(eps, 0.0), u_ripples[0], u_ripples[1], u_ripples[2], u_time, aspect) * eAmp;
+	hPosY += expandingRippleSingle(uv + vec2(0.0, eps), u_ripples[0], u_ripples[1], u_ripples[2], u_time, aspect) * eAmp;
+	hNegY += expandingRippleSingle(uv - vec2(0.0, eps), u_ripples[0], u_ripples[1], u_ripples[2], u_time, aspect) * eAmp;
 
-	hPosX += expandingRippleSingle(uv + vec2(eps, 0.0), u_ripples[3], u_ripples[4], u_ripples[5], u_time, aspect);
-	hNegX += expandingRippleSingle(uv - vec2(eps, 0.0), u_ripples[3], u_ripples[4], u_ripples[5], u_time, aspect);
-	hPosY += expandingRippleSingle(uv + vec2(0.0, eps), u_ripples[3], u_ripples[4], u_ripples[5], u_time, aspect);
-	hNegY += expandingRippleSingle(uv - vec2(0.0, eps), u_ripples[3], u_ripples[4], u_ripples[5], u_time, aspect);
+	hPosX += expandingRippleSingle(uv + vec2(eps, 0.0), u_ripples[3], u_ripples[4], u_ripples[5], u_time, aspect) * eAmp;
+	hNegX += expandingRippleSingle(uv - vec2(eps, 0.0), u_ripples[3], u_ripples[4], u_ripples[5], u_time, aspect) * eAmp;
+	hPosY += expandingRippleSingle(uv + vec2(0.0, eps), u_ripples[3], u_ripples[4], u_ripples[5], u_time, aspect) * eAmp;
+	hNegY += expandingRippleSingle(uv - vec2(0.0, eps), u_ripples[3], u_ripples[4], u_ripples[5], u_time, aspect) * eAmp;
 
-	hPosX += expandingRippleSingle(uv + vec2(eps, 0.0), u_ripples[6], u_ripples[7], u_ripples[8], u_time, aspect);
-	hNegX += expandingRippleSingle(uv - vec2(eps, 0.0), u_ripples[6], u_ripples[7], u_ripples[8], u_time, aspect);
-	hPosY += expandingRippleSingle(uv + vec2(0.0, eps), u_ripples[6], u_ripples[7], u_ripples[8], u_time, aspect);
-	hNegY += expandingRippleSingle(uv - vec2(0.0, eps), u_ripples[6], u_ripples[7], u_ripples[8], u_time, aspect);
+	hPosX += expandingRippleSingle(uv + vec2(eps, 0.0), u_ripples[6], u_ripples[7], u_ripples[8], u_time, aspect) * eAmp;
+	hNegX += expandingRippleSingle(uv - vec2(eps, 0.0), u_ripples[6], u_ripples[7], u_ripples[8], u_time, aspect) * eAmp;
+	hPosY += expandingRippleSingle(uv + vec2(0.0, eps), u_ripples[6], u_ripples[7], u_ripples[8], u_time, aspect) * eAmp;
+	hNegY += expandingRippleSingle(uv - vec2(0.0, eps), u_ripples[6], u_ripples[7], u_ripples[8], u_time, aspect) * eAmp;
 
-	hPosX += expandingRippleSingle(uv + vec2(eps, 0.0), u_ripples[9], u_ripples[10], u_ripples[11], u_time, aspect);
-	hNegX += expandingRippleSingle(uv - vec2(eps, 0.0), u_ripples[9], u_ripples[10], u_ripples[11], u_time, aspect);
-	hPosY += expandingRippleSingle(uv + vec2(0.0, eps), u_ripples[9], u_ripples[10], u_ripples[11], u_time, aspect);
-	hNegY += expandingRippleSingle(uv - vec2(0.0, eps), u_ripples[9], u_ripples[10], u_ripples[11], u_time, aspect);
+	hPosX += expandingRippleSingle(uv + vec2(eps, 0.0), u_ripples[9], u_ripples[10], u_ripples[11], u_time, aspect) * eAmp;
+	hNegX += expandingRippleSingle(uv - vec2(eps, 0.0), u_ripples[9], u_ripples[10], u_ripples[11], u_time, aspect) * eAmp;
+	hPosY += expandingRippleSingle(uv + vec2(0.0, eps), u_ripples[9], u_ripples[10], u_ripples[11], u_time, aspect) * eAmp;
+	hNegY += expandingRippleSingle(uv - vec2(0.0, eps), u_ripples[9], u_ripples[10], u_ripples[11], u_time, aspect) * eAmp;
 
-	hPosX += expandingRippleSingle(uv + vec2(eps, 0.0), u_ripples[12], u_ripples[13], u_ripples[14], u_time, aspect);
-	hNegX += expandingRippleSingle(uv - vec2(eps, 0.0), u_ripples[12], u_ripples[13], u_ripples[14], u_time, aspect);
-	hPosY += expandingRippleSingle(uv + vec2(0.0, eps), u_ripples[12], u_ripples[13], u_ripples[14], u_time, aspect);
-	hNegY += expandingRippleSingle(uv - vec2(0.0, eps), u_ripples[12], u_ripples[13], u_ripples[14], u_time, aspect);
+	hPosX += expandingRippleSingle(uv + vec2(eps, 0.0), u_ripples[12], u_ripples[13], u_ripples[14], u_time, aspect) * eAmp;
+	hNegX += expandingRippleSingle(uv - vec2(eps, 0.0), u_ripples[12], u_ripples[13], u_ripples[14], u_time, aspect) * eAmp;
+	hPosY += expandingRippleSingle(uv + vec2(0.0, eps), u_ripples[12], u_ripples[13], u_ripples[14], u_time, aspect) * eAmp;
+	hNegY += expandingRippleSingle(uv - vec2(0.0, eps), u_ripples[12], u_ripples[13], u_ripples[14], u_time, aspect) * eAmp;
 
-	hPosX += expandingRippleSingle(uv + vec2(eps, 0.0), u_ripples[15], u_ripples[16], u_ripples[17], u_time, aspect);
-	hNegX += expandingRippleSingle(uv - vec2(eps, 0.0), u_ripples[15], u_ripples[16], u_ripples[17], u_time, aspect);
-	hPosY += expandingRippleSingle(uv + vec2(0.0, eps), u_ripples[15], u_ripples[16], u_ripples[17], u_time, aspect);
-	hNegY += expandingRippleSingle(uv - vec2(0.0, eps), u_ripples[15], u_ripples[16], u_ripples[17], u_time, aspect);
+	hPosX += expandingRippleSingle(uv + vec2(eps, 0.0), u_ripples[15], u_ripples[16], u_ripples[17], u_time, aspect) * eAmp;
+	hNegX += expandingRippleSingle(uv - vec2(eps, 0.0), u_ripples[15], u_ripples[16], u_ripples[17], u_time, aspect) * eAmp;
+	hPosY += expandingRippleSingle(uv + vec2(0.0, eps), u_ripples[15], u_ripples[16], u_ripples[17], u_time, aspect) * eAmp;
+	hNegY += expandingRippleSingle(uv - vec2(0.0, eps), u_ripples[15], u_ripples[16], u_ripples[17], u_time, aspect) * eAmp;
 
-	hPosX += expandingRippleSingle(uv + vec2(eps, 0.0), u_ripples[18], u_ripples[19], u_ripples[20], u_time, aspect);
-	hNegX += expandingRippleSingle(uv - vec2(eps, 0.0), u_ripples[18], u_ripples[19], u_ripples[20], u_time, aspect);
-	hPosY += expandingRippleSingle(uv + vec2(0.0, eps), u_ripples[18], u_ripples[19], u_ripples[20], u_time, aspect);
-	hNegY += expandingRippleSingle(uv - vec2(0.0, eps), u_ripples[18], u_ripples[19], u_ripples[20], u_time, aspect);
+	hPosX += expandingRippleSingle(uv + vec2(eps, 0.0), u_ripples[18], u_ripples[19], u_ripples[20], u_time, aspect) * eAmp;
+	hNegX += expandingRippleSingle(uv - vec2(eps, 0.0), u_ripples[18], u_ripples[19], u_ripples[20], u_time, aspect) * eAmp;
+	hPosY += expandingRippleSingle(uv + vec2(0.0, eps), u_ripples[18], u_ripples[19], u_ripples[20], u_time, aspect) * eAmp;
+	hNegY += expandingRippleSingle(uv - vec2(0.0, eps), u_ripples[18], u_ripples[19], u_ripples[20], u_time, aspect) * eAmp;
 
-	hPosX += expandingRippleSingle(uv + vec2(eps, 0.0), u_ripples[21], u_ripples[22], u_ripples[23], u_time, aspect);
-	hNegX += expandingRippleSingle(uv - vec2(eps, 0.0), u_ripples[21], u_ripples[22], u_ripples[23], u_time, aspect);
-	hPosY += expandingRippleSingle(uv + vec2(0.0, eps), u_ripples[21], u_ripples[22], u_ripples[23], u_time, aspect);
-	hNegY += expandingRippleSingle(uv - vec2(0.0, eps), u_ripples[21], u_ripples[22], u_ripples[23], u_time, aspect);
+	hPosX += expandingRippleSingle(uv + vec2(eps, 0.0), u_ripples[21], u_ripples[22], u_ripples[23], u_time, aspect) * eAmp;
+	hNegX += expandingRippleSingle(uv - vec2(eps, 0.0), u_ripples[21], u_ripples[22], u_ripples[23], u_time, aspect) * eAmp;
+	hPosY += expandingRippleSingle(uv + vec2(0.0, eps), u_ripples[21], u_ripples[22], u_ripples[23], u_time, aspect) * eAmp;
+	hNegY += expandingRippleSingle(uv - vec2(0.0, eps), u_ripples[21], u_ripples[22], u_ripples[23], u_time, aspect) * eAmp;
 
 	vec2 surfaceNormal = vec2(hPosX - hNegX, hPosY - hNegY) * 0.5;
 
@@ -231,20 +234,10 @@ void main() {
 	tileUV.x += sin(uv.y * 6.0 + tCaustic * 10.0) * 0.005;
 	tileUV.y += cos(uv.x * 3.0 + tCaustic * 11.0) * 0.005;
 
-	// pointer ripple contribution to caustic distortion
-	float pointerRippleH = 0.0;
-	if (u_pointerStrength > 0.0) {
-		pointerRippleH = pointerRipple(uv, pUV, tSurface) * u_pointerStrength;
-	}
-
 	// dual caustics: highlights and trailing shadows
 	float causticHighlight = calculateCaustics(uv + surfaceNormal * 0.3, tCaustic);
 	vec2 shadowUV = uv + vec2(0.02, 0.015);
 	float causticShadow = calculateCaustics(shadowUV, tCaustic + 0.3);
-
-	// ripple peaks brighten like caustic highlights, troughs darken like shadows
-	causticHighlight += max(pointerRippleH, 0.0) * 0.6;
-	causticShadow += max(-pointerRippleH, 0.0) * 0.4;
 
 	// lens distortion from caustics
 	tileUV *= (1.0 - causticHighlight * 0.012);
@@ -284,6 +277,15 @@ void main() {
 
 	// apply highlights
 	color += vec3(0.85, 0.95, 0.98) * causticHighlight * 0.5;
+
+	// expanding ripple light: peaks brighten, troughs darken (independent of caustics)
+	vec3 rippleHighlight = vec3(0.9, 0.97, 1.0);
+	vec3 rippleShadow = vec3(0.15, 0.3, 0.4);
+	float rippleBright = max(expandingH, 0.0);
+	float rippleDark = max(-expandingH, 0.0);
+	color += rippleHighlight * rippleBright * 0.4;
+	color = mix(color, color * rippleShadow, rippleDark * 0.25);
+
 	color = clamp(color, 0.0, 1.0);
 
 	gl_FragColor = vec4(color, 1.0);
