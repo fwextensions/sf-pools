@@ -54,7 +54,7 @@ export default function PoolAlerts({ alerts, pools, selectedPools }: Props) {
 					key={`pool-${i}`}
 					className="rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
 				>
-					<span className="mr-2 font-medium">🚨</span>
+					<span className="mr-2 font-medium">🛟</span>
 					<span className="font-medium">{alert.poolName}: </span>
 					{alert.alertText}
 				</div>
