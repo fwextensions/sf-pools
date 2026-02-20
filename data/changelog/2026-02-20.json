@@ -1,0 +1,23 @@
+{
+	"date": "2026-02-20",
+	"timestamp": "2026-02-20T20:16:59.973Z",
+	"poolsChanged": 1,
+	"totalProgramsAdded": 0,
+	"totalProgramsRemoved": 0,
+	"totalProgramsModified": 0,
+	"totalChanges": 0,
+	"changeSeverity": "none",
+	"scheduleStartDate": "2026-01-04",
+	"scheduleEndDate": "2026-03-14",
+	"scheduleSeason": "Winter 2026",
+	"pools": [
+		{
+			"poolName": "Martin Luther King Jr Pool",
+			"programsAdded": 0,
+			"programsRemoved": 0,
+			"programsModified": 0,
+			"changes": []
+		}
+	],
+	"warnings": []
+}
