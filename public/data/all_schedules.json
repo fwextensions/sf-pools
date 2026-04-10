@@ -1,5 +1,20 @@
 [
 	{
+		"id": "mission",
+		"name": "Mission Community Pool",
+		"nameTitle": "Mission Pool",
+		"shortName": "Mission",
+		"address": "19th St & Linda St, San Francisco",
+		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Mission-Community-Pool-217",
+		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/19018/Facility--deck-rules-in-English",
+		"scheduleLastUpdated": "2026-04-10",
+		"scheduleSeason": null,
+		"scheduleStartDate": null,
+		"scheduleEndDate": null,
+		"lanes": null,
+		"programs": []
+	},
+	{
 		"id": "coffman",
 		"name": "Coffman Pool",
 		"nameTitle": "Coffman Pool",
