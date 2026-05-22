@@ -1,0 +1,274 @@
+{
+	"date": "2026-05-22",
+	"timestamp": "2026-05-22T21:06:37.801Z",
+	"poolsChanged": 5,
+	"totalProgramsAdded": 12,
+	"totalProgramsRemoved": 15,
+	"totalProgramsModified": 8,
+	"totalChanges": 35,
+	"changeSeverity": "moderate",
+	"scheduleStartDate": "2026-01-04",
+	"scheduleEndDate": "2026-06-06",
+	"scheduleSeason": "SPRING",
+	"pools": [
+		{
+			"poolName": "Hamilton Aquatic Center",
+			"programsAdded": 2,
+			"programsRemoved": 0,
+			"programsModified": 0,
+			"changes": [
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Tuesday",
+					"newTime": "3:30p–6:00p"
+				},
+				{
+					"type": "added",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Thursday",
+					"newTime": "3:30p–6:00p"
+				}
+			]
+		},
+		{
+			"poolName": "DR. MARTIN LUTHER KING JR- SWIMMING POOL",
+			"programsAdded": 6,
+			"programsRemoved": 10,
+			"programsModified": 2,
+			"changes": [
+				{
+					"type": "modified",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"oldTime": "9:00a–11:00a",
+					"newTime": "7:30a–9:00a"
+				},
+				{
+					"type": "added",
+					"program": "Bayview Safety Swim & Splash",
+					"day": "Tuesday",
+					"newTime": "4:00p–6:00p"
+				},
+				{
+					"type": "added",
+					"program": "Bayview Safety Swim & Splash",
+					"day": "Wednesday",
+					"newTime": "4:00p–6:00p"
+				},
+				{
+					"type": "added",
+					"program": "Adult Hockey** (7)",
+					"day": "Wednesday",
+					"newTime": "6:00p–8:00p"
+				},
+				{
+					"type": "modified",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"oldTime": "9:00a–11:00a",
+					"newTime": "7:30a–9:00a"
+				},
+				{
+					"type": "added",
+					"program": "Bayview Safety Swim & Splash",
+					"day": "Thursday",
+					"newTime": "4:00p–6:00p"
+				},
+				{
+					"type": "added",
+					"program": "Bayview Safety Swim & Splash",
+					"day": "Friday",
+					"newTime": "4:00p–6:00p"
+				},
+				{
+					"type": "added",
+					"program": "Youth Hockey** (7)",
+					"day": "Friday",
+					"newTime": "6:00p–8:00p"
+				},
+				{
+					"type": "removed",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Tuesday",
+					"oldTime": "3:30p–5:00p"
+				},
+				{
+					"type": "removed",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"oldTime": "3:30p–5:00p"
+				},
+				{
+					"type": "removed",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Wednesday",
+					"oldTime": "3:30p–5:30p"
+				},
+				{
+					"type": "removed",
+					"program": "High School Swim Programs",
+					"day": "Wednesday",
+					"oldTime": "3:30p–5:30p"
+				},
+				{
+					"type": "removed",
+					"program": "Adult Hockey**",
+					"day": "Wednesday",
+					"oldTime": "6:00p–8:00p"
+				},
+				{
+					"type": "removed",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Thursday",
+					"oldTime": "3:30p–5:00p"
+				},
+				{
+					"type": "removed",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"oldTime": "3:30p–5:00p"
+				},
+				{
+					"type": "removed",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Friday",
+					"oldTime": "3:30p–5:30p"
+				},
+				{
+					"type": "removed",
+					"program": "Lap Swim",
+					"day": "Friday",
+					"oldTime": "3:30p–5:30p"
+				},
+				{
+					"type": "removed",
+					"program": "Youth Hockey**",
+					"day": "Friday",
+					"oldTime": "6:00p–8:00p"
+				}
+			]
+		},
+		{
+			"poolName": "North Beach Aquatics Center - Warm Pool",
+			"programsAdded": 0,
+			"programsRemoved": 0,
+			"programsModified": 4,
+			"changes": [
+				{
+					"type": "modified",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Wednesday",
+					"oldTime": "11:35a–12:35p",
+					"newTime": "11:45a–12:45p"
+				},
+				{
+					"type": "modified",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Wednesday",
+					"oldTime": "12:45p–3:15p",
+					"newTime": "12:50p–3:15p"
+				},
+				{
+					"type": "modified",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Friday",
+					"oldTime": "11:35a–12:35p",
+					"newTime": "11:45a–12:45p"
+				},
+				{
+					"type": "modified",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Friday",
+					"oldTime": "12:45p–3:15p",
+					"newTime": "12:50p–3:15p"
+				}
+			]
+		},
+		{
+			"poolName": "North Beach Aquatics Center - Cool Pool",
+			"programsAdded": 0,
+			"programsRemoved": 0,
+			"programsModified": 2,
+			"changes": [
+				{
+					"type": "modified",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"oldTime": "12:00p–3:30p",
+					"newTime": "11:45a–3:30p"
+				},
+				{
+					"type": "modified",
+					"program": "Lap Swim",
+					"day": "Friday",
+					"oldTime": "12:00p–3:30p",
+					"newTime": "11:45a–3:30p"
+				}
+			]
+		},
+		{
+			"poolName": "Rossi Pool",
+			"programsAdded": 4,
+			"programsRemoved": 5,
+			"programsModified": 0,
+			"changes": [
+				{
+					"type": "added",
+					"program": "Youth Swim Teams / Club Teams",
+					"day": "Monday",
+					"newTime": "4:00p–6:00p"
+				},
+				{
+					"type": "added",
+					"program": "Youth Swim Teams / Club Teams",
+					"day": "Tuesday",
+					"newTime": "4:00p–6:00p"
+				},
+				{
+					"type": "added",
+					"program": "Youth Swim Teams / Club Teams",
+					"day": "Wednesday",
+					"newTime": "4:00p–6:00p"
+				},
+				{
+					"type": "added",
+					"program": "Youth Swim Teams / Club Teams",
+					"day": "Thursday",
+					"newTime": "4:00p–6:00p"
+				},
+				{
+					"type": "removed",
+					"program": "High School Swim Programs",
+					"day": "Monday",
+					"oldTime": "4:00p–6:00p"
+				},
+				{
+					"type": "removed",
+					"program": "High School Swim Programs",
+					"day": "Tuesday",
+					"oldTime": "4:00p–6:00p"
+				},
+				{
+					"type": "removed",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"oldTime": "7:30a–10:00a"
+				},
+				{
+					"type": "removed",
+					"program": "High School Swim Programs",
+					"day": "Wednesday",
+					"oldTime": "4:00p–6:00p"
+				},
+				{
+					"type": "removed",
+					"program": "High School Swim Programs",
+					"day": "Thursday",
+					"oldTime": "4:00p–6:00p"
+				}
+			]
+		}
+	],
+	"warnings": []
+}
