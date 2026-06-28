@@ -57,3 +57,204 @@ body {
 .btn-outline-accent:hover {
 	background-color: var(--accent-muted);
 }
+
+/* ===========================================
+   Mobile-friendly form controls
+   =========================================== */
+
+/* Larger touch targets for checkboxes and radio buttons on mobile */
+@media (max-width: 767px) {
+	input[type="checkbox"],
+	input[type="radio"] {
+		width: 1.25rem;
+		height: 1.25rem;
+		min-width: 1.25rem;
+		min-height: 1.25rem;
+	}
+
+	/* Increase tap area for labels containing checkboxes/radios */
+	label:has(input[type="checkbox"]),
+	label:has(input[type="radio"]) {
+		padding: 0.5rem 0;
+		margin: -0.25rem 0;
+	}
+
+	/* Larger touch area for buttons */
+	.btn-outline-accent {
+		padding: 0.625rem 1rem;
+		min-height: 2.75rem;
+	}
+
+	/* Easier to tap links */
+	.link-accent {
+		padding: 0.25rem 0;
+	}
+}
+
+/* Custom styled checkboxes for better appearance */
+input[type="checkbox"],
+input[type="radio"] {
+	accent-color: var(--accent-color);
+	cursor: pointer;
+}
+
+/* ===========================================
+   Subtle personality & water-themed touches
+   =========================================== */
+
+/* Gentle wave decoration for section headers */
+.wave-underline {
+	position: relative;
+}
+
+.wave-underline::after {
+	content: "";
+	position: absolute;
+	bottom: -4px;
+	left: 0;
+	width: 100%;
+	height: 3px;
+	background: linear-gradient(
+		90deg,
+		transparent 0%,
+		var(--accent-color) 20%,
+		var(--accent-border) 50%,
+		var(--accent-color) 80%,
+		transparent 100%
+	);
+	border-radius: 2px;
+	opacity: 0.6;
+}
+
+/* Session card with subtle water gradient */
+.session-card {
+	background: linear-gradient(
+		135deg,
+		white 0%,
+		white 85%,
+		var(--accent-muted) 100%
+	);
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.session-card:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 2px 8px rgba(117, 198, 228, 0.15);
+}
+
+/* Tap ripple effect for interactive cards */
+@media (max-width: 767px) {
+	.session-card:active {
+		transform: scale(0.98);
+	}
+}
+
+/* Program type color hints - bolder left border variations */
+.program-lap {
+	border-left: 4px solid #2596be;
+}
+
+.program-lessons {
+	border-left: 4px solid #22c55e;
+}
+
+.program-aerobics {
+	border-left: 4px solid #eab308;
+}
+
+.program-recreation {
+	border-left: 4px solid #a855f7;
+}
+
+.program-default {
+	border-left: 4px solid var(--accent-color);
+}
+
+/* Day header with wave that peaks based on day position */
+.day-header {
+	position: relative;
+	overflow: hidden;
+}
+
+/* Wave backgrounds for each day - peak moves left to right through the week */
+.day-monday::after,
+.day-tuesday::after,
+.day-wednesday::after,
+.day-thursday::after,
+.day-friday::after,
+.day-saturday::after,
+.day-sunday::after {
+	content: "";
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	height: 100%;
+	pointer-events: none;
+	opacity: 0.35;
+}
+
+.day-monday::after {
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40' preserveAspectRatio='none'%3E%3Cpath d='M0,35 Q25,15 50,30 T100,28 T150,30 T200,28' fill='none' stroke='%2375C6E4' stroke-width='2'/%3E%3C/svg%3E") no-repeat;
+	background-size: 100% 100%;
+}
+
+.day-tuesday::after {
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40' preserveAspectRatio='none'%3E%3Cpath d='M0,30 Q50,28 75,15 T125,30 T175,28 T200,30' fill='none' stroke='%2375C6E4' stroke-width='2'/%3E%3C/svg%3E") no-repeat;
+	background-size: 100% 100%;
+}
+
+.day-wednesday::after {
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40' preserveAspectRatio='none'%3E%3Cpath d='M0,30 Q25,28 50,30 T100,15 T150,30 T200,28' fill='none' stroke='%2375C6E4' stroke-width='2'/%3E%3C/svg%3E") no-repeat;
+	background-size: 100% 100%;
+}
+
+.day-thursday::after {
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40' preserveAspectRatio='none'%3E%3Cpath d='M0,28 Q25,30 50,28 T100,30 T150,15 T200,30' fill='none' stroke='%2375C6E4' stroke-width='2'/%3E%3C/svg%3E") no-repeat;
+	background-size: 100% 100%;
+}
+
+.day-friday::after {
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40' preserveAspectRatio='none'%3E%3Cpath d='M0,30 Q25,28 50,30 T100,28 T150,30 T175,15 Q190,28 200,30' fill='none' stroke='%2375C6E4' stroke-width='2'/%3E%3C/svg%3E") no-repeat;
+	background-size: 100% 100%;
+}
+
+.day-saturday::after {
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40' preserveAspectRatio='none'%3E%3Cpath d='M0,28 Q25,30 50,28 T100,30 T150,28 T185,15 Q195,25 200,30' fill='none' stroke='%2375C6E4' stroke-width='2'/%3E%3C/svg%3E") no-repeat;
+	background-size: 100% 100%;
+}
+
+.day-sunday::after {
+	background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 40' preserveAspectRatio='none'%3E%3Cpath d='M0,30 Q25,28 50,30 T100,28 T150,30 T180,28 Q195,15 200,20' fill='none' stroke='%2375C6E4' stroke-width='2'/%3E%3C/svg%3E") no-repeat;
+	background-size: 100% 100%;
+}
+
+/* Pool status badges with subtle glow */
+.status-open {
+	box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+}
+
+.status-soon {
+	box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+}
+
+/* Lane count badge styling */
+.lane-badge {
+	background: linear-gradient(135deg, var(--accent-muted) 0%, white 100%);
+	border: 1px solid var(--accent-border);
+}
+
+/* Subtle shimmer animation for "open now" cards */
+@keyframes gentle-pulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.85; }
+}
+
+.pool-open {
+	animation: gentle-pulse 3s ease-in-out infinite;
+}
+
+/* Icon styling */
+.icon-water {
+	color: var(--accent-color);
+}
