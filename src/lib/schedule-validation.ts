@@ -18,49 +18,68 @@ export function parseTimeToMinutes(time: string): number | null {
 }
 
 /**
+ * "error" anomalies are unambiguously corrupt data that should not ship (they
+ * fail the build); "warning" anomalies are suspicious but may be legitimate and
+ * are surfaced for review without blocking.
+ */
+export type AnomalySeverity = "error" | "warning";
+
+export type Anomaly = {
+	severity: AnomalySeverity;
+	message: string;
+};
+
+/**
  * Detect intrinsic data-quality problems in an extracted schedule — the kinds
  * of issues that usually mean the model misread the PDF rather than that the
- * schedule genuinely changed. Returns a list of human-readable warnings;
- * an empty array means no anomalies were found.
+ * schedule genuinely changed. Returns a list of anomalies; an empty array means
+ * none were found.
  *
  * These are independent of history (the changelog already covers diffs vs the
  * previous run) and are deliberately conservative to avoid false positives on
  * legitimately sparse schedules.
  */
-export function detectScheduleAnomalies(schedule: PoolSchedule): string[] {
-	const anomalies: string[] = [];
+export function detectScheduleAnomalies(schedule: PoolSchedule): Anomaly[] {
+	const anomalies: Anomaly[] = [];
 	const programs = schedule.programs ?? [];
 
 	// a pool with no programs almost always means extraction failed
 	if (programs.length === 0) {
-		anomalies.push("no programs extracted");
+		anomalies.push({ severity: "warning", message: "no programs extracted" });
 		// nothing else to check
 		return anomalies;
 	}
 
-	// end time at or before start time is an impossible block (parse/order error)
+	// an impossible time block (end at/before start, or a time we can't parse)
+	// is corrupt data — never a real schedule, so treat it as an error
 	for (const p of programs) {
 		const start = parseTimeToMinutes(p.startTime);
 		const end = parseTimeToMinutes(p.endTime);
 		if (start === null || end === null) {
-			anomalies.push(`unparseable time in "${p.programName}" (${p.startTime}-${p.endTime})`);
+			anomalies.push({
+				severity: "error",
+				message: `unparseable time in "${p.programName}" (${p.startTime}-${p.endTime})`,
+			});
 			continue;
 		}
 		if (end <= start) {
-			anomalies.push(
-				`end at or before start in "${p.programName}" on ${p.dayOfWeek} (${p.startTime}-${p.endTime})`
-			);
+			anomalies.push({
+				severity: "error",
+				message: `end at or before start in "${p.programName}" on ${p.dayOfWeek} (${p.startTime}-${p.endTime})`,
+			});
 		}
 	}
 
 	// a full week's schedule collapsing to a single day usually means the model
 	// only read part of the PDF. Closed-on-one-day pools still span several days,
-	// so we only flag the extreme case.
+	// so we only flag the extreme case (and only as a warning, since a
+	// weekend-only pool is conceivable).
 	const distinctDays = new Set(programs.map((p) => p.dayOfWeek));
 	if (distinctDays.size <= 1) {
-		anomalies.push(
-			`schedule covers only ${distinctDays.size} day(s): ${[...distinctDays].join(", ") || "none"}`
-		);
+		anomalies.push({
+			severity: "warning",
+			message: `schedule covers only ${distinctDays.size} day(s): ${[...distinctDays].join(", ") || "none"}`,
+		});
 	}
 
 	return anomalies;

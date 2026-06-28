@@ -133,6 +133,7 @@ export async function main(): Promise<ProcessResult> {
 	let skippedCount = 0;
 	let preservedCount = 0;
 	const anomalies: string[] = [];
+	let anomalyErrorCount = 0;
 
 	// track which pool names we've processed (to preserve unprocessed ones)
 	const processedPoolNames = new Set<string>();
@@ -235,9 +236,10 @@ export async function main(): Promise<ProcessResult> {
 
 				// flag intrinsic data-quality problems that suggest a misread PDF
 				for (const a of detectScheduleAnomalies(s)) {
-					const msg = `${s.shortName || s.name}: ${a}`;
+					const msg = `${s.shortName || s.name}: ${a.message}`;
 					anomalies.push(msg);
-					console.warn("⚠️  anomaly:", msg);
+					if (a.severity === "error") anomalyErrorCount++;
+					console.warn(`⚠️  anomaly (${a.severity}):`, msg);
 				}
 
 				const { programs, ...rest } = s;
@@ -259,23 +261,36 @@ export async function main(): Promise<ProcessResult> {
 
 	await saveExtractedManifest(extractedManifest);
 
-	// compute and save changelog before writing new data
+	// compute and save changelog before writing new data; fold extraction
+	// anomalies into its warnings so they're persisted and surfaced by notify
 	const changelog = computeChangelog(previousSchedules, aggregated);
+	if (anomalies.length > 0) {
+		changelog.warnings.push(...anomalies.map((a) => `anomaly: ${a}`));
+	}
 	const changelogPath = await saveChangelog(changelog);
 	if (changelogPath) {
 		console.log("wrote changelog:", changelogPath);
 	}
 	console.log(formatChangelogSummary(changelog));
 
-	// check for severe changes that should fail the build
-	// allow override via env var for local development
+	// check for problems that should fail the build (overridable for local dev):
+	// severe changes for manual review, and corrupt extractions that must not ship
 	const failOnLargeChanges = process.env.FAIL_ON_LARGE_CHANGES !== "false";
-	const shouldFail = failOnLargeChanges && (changelog.changeSeverity === "major" || changelog.changeSeverity === "wholesale");
+	const severeChange =
+		changelog.changeSeverity === "major" || changelog.changeSeverity === "wholesale";
+	const shouldFail = failOnLargeChanges && (severeChange || anomalyErrorCount > 0);
 	if (shouldFail) {
-		console.error(`\n❌ Build failed: ${changelog.changeSeverity} change detected`);
+		if (severeChange) {
+			console.error(`\n❌ Build failed: ${changelog.changeSeverity} change detected`);
+		}
+		if (anomalyErrorCount > 0) {
+			console.error(`\n❌ Build failed: ${anomalyErrorCount} corrupt extraction(s) detected`);
+		}
 		console.error("Review the changelog and manually approve if this is expected.");
-	} else if (!failOnLargeChanges && (changelog.changeSeverity === "major" || changelog.changeSeverity === "wholesale")) {
-		console.warn(`\n⚠️  Large ${changelog.changeSeverity} change detected (build failure disabled via FAIL_ON_LARGE_CHANGES=false)`);
+	} else if (!failOnLargeChanges && (severeChange || anomalyErrorCount > 0)) {
+		console.warn(
+			`\n⚠️  Build-blocking issue(s) detected (failure disabled via FAIL_ON_LARGE_CHANGES=false)`
+		);
 	}
 
 	await writeFile(OUT_FILE, JSON.stringify(aggregated, null, "\t"), "utf-8");
