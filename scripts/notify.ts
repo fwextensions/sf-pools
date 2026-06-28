@@ -137,9 +137,15 @@ export async function notifyScheduleUpdate(changelog?: ChangelogEntry | null): P
 			lines.push(`${entry.poolsChanged} pool(s): ${parts.join(" ")} programs`);
 		}
 
-		// warnings
+		// warnings (including extraction anomalies) — list a few, not just a count
 		if (entry.warnings.length > 0) {
-			lines.push(`⚠️ ${entry.warnings.length} warning(s)`);
+			lines.push(`⚠️ ${entry.warnings.length} warning(s):`);
+			for (const w of entry.warnings.slice(0, 3)) {
+				lines.push(`• ${w.slice(0, 80)}${w.length > 80 ? "…" : ""}`);
+			}
+			if (entry.warnings.length > 3) {
+				lines.push(`  …and ${entry.warnings.length - 3} more`);
+			}
 		}
 
 		message = lines.join("\n");
@@ -163,6 +169,32 @@ export async function notifyScheduleNoChanges(): Promise<boolean> {
 		title: "🏊 Pool Schedules Checked",
 		message: "No changes detected in pool schedules.",
 		priority: -1,
+	});
+}
+
+export async function notifyBuildFailed(changelog?: ChangelogEntry | null): Promise<boolean> {
+	const entry = changelog ?? (await loadLatestChangelog());
+
+	const lines: string[] = ["Schedule build failed — review required before it can ship."];
+	if (entry) {
+		lines.push(`Severity: ${severityLabel(entry.changeSeverity)}`);
+		if (entry.warnings.length > 0) {
+			lines.push(`⚠️ ${entry.warnings.length} warning(s):`);
+			for (const w of entry.warnings.slice(0, 5)) {
+				lines.push(`• ${w.slice(0, 100)}${w.length > 100 ? "…" : ""}`);
+			}
+			if (entry.warnings.length > 5) {
+				lines.push(`  …and ${entry.warnings.length - 5} more`);
+			}
+		}
+	}
+
+	return sendNotification({
+		title: "⚠️ Pool Schedule Build Failed",
+		message: lines.join("\n"),
+		priority: 1,
+		url: `https://github.com/${GITHUB_REPO}/tree/main/${GITHUB_CHANGELOG_PATH}`,
+		urlTitle: "View Changelog",
 	});
 }
 
@@ -229,6 +261,11 @@ if (import.meta.main) {
 		notifyScheduleNoChanges().then((ok) => {
 			process.exit(ok ? 0 : 1);
 		});
+	} else if (type === "build-failed") {
+		// load the changelog (incl. anomaly warnings) and send a failure alert
+		notifyBuildFailed().then((ok) => {
+			process.exit(ok ? 0 : 1);
+		});
 	} else if (type === "error") {
 		const message = args.slice(1).join(" ");
 		notifyError(message || "An error occurred during schedule update.").then((ok) => {
@@ -246,7 +283,9 @@ if (import.meta.main) {
 			process.exit(ok ? 0 : 1);
 		});
 	} else {
-		console.log("Usage: tsx scripts/notify.ts <update|no-changes|error|alerts> [message]");
+		console.log(
+			"Usage: tsx scripts/notify.ts <update|no-changes|build-failed|error|alerts> [message]"
+		);
 		process.exit(1);
 	}
 }

@@ -66,7 +66,7 @@ export type PoolSchedule = z.infer<typeof PoolScheduleSchema>;
 
 export async function extractScheduleFromPdf(
 	pdfBuffer: Buffer,
-	hints?: { pdfScheduleUrl?: string; sfRecParkUrl?: string }
+	hints?: { pdfScheduleUrl?: string; sfRecParkUrl?: string; expectedPoolName?: string }
 ): Promise<PoolSchedule[]> {
 	const system = `
 You are an expert data extractor for San Francisco public pool schedules.
@@ -86,12 +86,17 @@ Important rules:
 	const instructions = `
 Extract the complete weekly schedule from the attached pool schedule PDF.
 Return a JSON array with a single pool object.
+${hints?.expectedPoolName ? `This PDF is the schedule for "${hints.expectedPoolName}". Use this to set the pool's name; do not output a different pool.` : ""}
 If known, set pdfScheduleUrl to: ${hints?.pdfScheduleUrl ?? ""}
 If known, set sfRecParkUrl to: ${hints?.sfRecParkUrl ?? ""}`;
 
 	const result = await generateText({
 		model: google("gemini-2.5-flash"),
 		output: Output.array({ element: PoolScheduleSchema }),
+		// deterministic extraction: avoid run-to-run drift on ambiguous cells
+		temperature: 0,
+		// retry transient API failures (429/5xx/network) with backoff
+		maxRetries: 3,
 		system,
 		messages: [
 			{

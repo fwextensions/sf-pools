@@ -1,11 +1,13 @@
 import "dotenv/config";
+import { createHash } from "node:crypto";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { extractScheduleFromPdf, type PoolSchedule } from "../src/lib/pdf-processor";
 import { findCanonicalProgram, normalizeProgramName } from "../src/lib/program-taxonomy";
 import { getPoolIdFromName, getPoolById } from "../src/lib/pool-mapping";
 import { toTitleCase } from "../src/lib/program-taxonomy";
-import type { PdfManifest, PoolEntry, DiscoveredPool } from "./downloadPdf";
+import { detectScheduleAnomalies } from "../src/lib/schedule-validation";
+import type { PoolEntry, DiscoveredPool } from "./downloadPdf";
 import {
 	computeChangelog,
 	loadPreviousSchedules,
@@ -19,7 +21,6 @@ const DISCOVERED_FILE = path.join(process.cwd(), "public", "data", "discovered_p
 const OUT_DIR = path.join(process.cwd(), "public", "data");
 const OUT_FILE = path.join(OUT_DIR, "all_schedules.json");
 const EXTRACTED_DIR = path.join(process.cwd(), "data", "extracted");
-const MANIFEST_FILE = path.join(process.cwd(), "data", "pdf-manifest.json");
 
 type ExtractedMeta = {
 	pdfHash: string;
@@ -28,13 +29,8 @@ type ExtractedMeta = {
 
 type ExtractedManifest = Record<string, ExtractedMeta>;
 
-async function loadPdfManifest(): Promise<PdfManifest> {
-	try {
-		const raw = await readFile(MANIFEST_FILE, "utf-8");
-		return JSON.parse(raw) as PdfManifest;
-	} catch {
-		return {};
-	}
+function computeHash(buf: Buffer): string {
+	return createHash("sha256").update(buf).digest("hex");
 }
 
 async function loadExtractedManifest(): Promise<ExtractedManifest> {
@@ -88,6 +84,7 @@ export type ProcessResult = {
 	extractedCount: number;
 	skippedCount: number;
 	preservedCount: number;
+	anomalies: string[];
 };
 
 export async function main(): Promise<ProcessResult> {
@@ -115,7 +112,6 @@ export async function main(): Promise<ProcessResult> {
 		discoveredById.set(d.poolId.toLowerCase(), d);
 	}
 
-	const pdfManifest = await loadPdfManifest();
 	const extractedManifest = await loadExtractedManifest();
 
 	// determine which PDFs need processing based on pools.json
@@ -136,6 +132,8 @@ export async function main(): Promise<ProcessResult> {
 	let extractedCount = 0;
 	let skippedCount = 0;
 	let preservedCount = 0;
+	const anomalies: string[] = [];
+	let anomalyErrorCount = 0;
 
 	// track which pool names we've processed (to preserve unprocessed ones)
 	const processedPoolNames = new Set<string>();
@@ -152,11 +150,11 @@ export async function main(): Promise<ProcessResult> {
 			const extractPath = path.join(EXTRACTED_DIR, `${base}.json`);
 			const forceRefresh = process.env.REFRESH_EXTRACT === "1";
 
-			// check if we can skip extraction based on hash
-			const currentPdfMeta = pdfManifest[base];
-			const currentHash = currentPdfMeta?.pdfHash;
+			// hash the actual PDF bytes so the skip decision is self-contained and
+			// can't drift out of sync with a separately-maintained download manifest
+			const currentHash = computeHash(buf);
 			const extractedMeta = extractedManifest[base];
-			const hashUnchanged = currentHash && extractedMeta?.pdfHash === currentHash;
+			const hashUnchanged = extractedMeta?.pdfHash === currentHash;
 
 			let schedules: PoolSchedule[] | null = null;
 
@@ -177,12 +175,13 @@ export async function main(): Promise<ProcessResult> {
 				schedules = await extractScheduleFromPdf(buf, {
 					pdfScheduleUrl: disc?.pdfUrl ?? undefined,
 					sfRecParkUrl: pool?.pageUrl ?? undefined,
+					expectedPoolName: pool?.name ?? undefined,
 				});
 				// write raw extraction cache
 				await writeFile(extractPath, JSON.stringify(schedules, null, "\t"), "utf-8");
 				// update extracted manifest
 				extractedManifest[base] = {
-					pdfHash: currentHash || "",
+					pdfHash: currentHash,
 					extractedAt: new Date().toISOString(),
 				};
 				console.log("wrote extract:", extractPath);
@@ -234,6 +233,15 @@ export async function main(): Promise<ProcessResult> {
 					p.programName = canonical;
 					p.programNameCanonical = canonical;
 				}
+
+				// flag intrinsic data-quality problems that suggest a misread PDF
+				for (const a of detectScheduleAnomalies(s)) {
+					const msg = `${s.shortName || s.name}: ${a.message}`;
+					anomalies.push(msg);
+					if (a.severity === "error") anomalyErrorCount++;
+					console.warn(`⚠️  anomaly (${a.severity}):`, msg);
+				}
+
 				const { programs, ...rest } = s;
 				aggregated.push({ ...rest, programs });
 			}
@@ -253,28 +261,48 @@ export async function main(): Promise<ProcessResult> {
 
 	await saveExtractedManifest(extractedManifest);
 
-	// compute and save changelog before writing new data
+	// compute and save changelog before writing new data; fold extraction
+	// anomalies into its warnings so they're persisted and surfaced by notify
 	const changelog = computeChangelog(previousSchedules, aggregated);
+	if (anomalies.length > 0) {
+		changelog.warnings.push(...anomalies.map((a) => `anomaly: ${a}`));
+	}
 	const changelogPath = await saveChangelog(changelog);
 	if (changelogPath) {
 		console.log("wrote changelog:", changelogPath);
 	}
 	console.log(formatChangelogSummary(changelog));
 
-	// check for severe changes that should fail the build
-	// allow override via env var for local development
+	// check for problems that should fail the build (overridable for local dev):
+	// severe changes for manual review, and corrupt extractions that must not ship
 	const failOnLargeChanges = process.env.FAIL_ON_LARGE_CHANGES !== "false";
-	const shouldFail = failOnLargeChanges && (changelog.changeSeverity === "major" || changelog.changeSeverity === "wholesale");
+	const severeChange =
+		changelog.changeSeverity === "major" || changelog.changeSeverity === "wholesale";
+	const shouldFail = failOnLargeChanges && (severeChange || anomalyErrorCount > 0);
 	if (shouldFail) {
-		console.error(`\n❌ Build failed: ${changelog.changeSeverity} change detected`);
+		if (severeChange) {
+			console.error(`\n❌ Build failed: ${changelog.changeSeverity} change detected`);
+		}
+		if (anomalyErrorCount > 0) {
+			console.error(`\n❌ Build failed: ${anomalyErrorCount} corrupt extraction(s) detected`);
+		}
 		console.error("Review the changelog and manually approve if this is expected.");
-	} else if (!failOnLargeChanges && (changelog.changeSeverity === "major" || changelog.changeSeverity === "wholesale")) {
-		console.warn(`\n⚠️  Large ${changelog.changeSeverity} change detected (build failure disabled via FAIL_ON_LARGE_CHANGES=false)`);
+	} else if (!failOnLargeChanges && (severeChange || anomalyErrorCount > 0)) {
+		console.warn(
+			`\n⚠️  Build-blocking issue(s) detected (failure disabled via FAIL_ON_LARGE_CHANGES=false)`
+		);
 	}
 
 	await writeFile(OUT_FILE, JSON.stringify(aggregated, null, "\t"), "utf-8");
 	console.log("wrote:", OUT_FILE, `(${aggregated.length} pools)`);
 	console.log(`extracted: ${extractedCount}, skipped: ${skippedCount}, preserved: ${preservedCount}`);
+
+	// surface data-quality anomalies (non-fatal; the changelog gate handles
+	// build-failing severity separately)
+	if (anomalies.length > 0) {
+		console.warn(`\n⚠️  ${anomalies.length} data anomaly(ies) detected:`);
+		for (const a of anomalies) console.warn(`  - ${a}`);
+	}
 
 	return {
 		success: !shouldFail,
@@ -282,6 +310,7 @@ export async function main(): Promise<ProcessResult> {
 		extractedCount,
 		skippedCount,
 		preservedCount,
+		anomalies,
 	};
 }
 

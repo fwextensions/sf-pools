@@ -3,6 +3,7 @@ import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { load } from "cheerio";
 import type { PoolEntry } from "./downloadPdf";
+import { fetchText } from "./http";
 
 const LIST_URL = "https://sfrecpark.org/482/Swimming-Pools";
 const OUT_DIR = path.join(process.cwd(), "public", "data");
@@ -17,16 +18,6 @@ export type ScrapeResult = {
 
 function sleep(ms: number) {
 	return new Promise((res) => setTimeout(res, ms));
-}
-
-async function fetchText(url: string): Promise<string> {
-	const res = await fetch(url, {
-		headers: {
-			"user-agent": "Mozilla/5.0 (compatible; sf-pools-schedule-viewer/0.1)",
-		},
-	});
-	if (!res.ok) throw new Error(`request failed ${res.status} ${res.statusText} for ${url}`);
-	return res.text();
 }
 
 function absoluteUrl(base: string, href: string): string {

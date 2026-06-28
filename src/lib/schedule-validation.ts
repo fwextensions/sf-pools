@@ -1,0 +1,86 @@
+import type { PoolSchedule } from "./pdf-processor";
+
+/**
+ * Convert a schedule time string ("h:mm[a|p]", e.g. "9:00a", "2:15p",
+ * "12:00p" = noon, "12:00a" = midnight) to minutes since midnight.
+ * Returns null if the string doesn't match the expected format.
+ */
+export function parseTimeToMinutes(time: string): number | null {
+	const m = /^(\d{1,2}):(\d{2})([ap])$/.exec(time);
+	if (!m) return null;
+	let hour = parseInt(m[1], 10);
+	const minute = parseInt(m[2], 10);
+	if (hour < 1 || hour > 12 || minute > 59) return null;
+	// 12a -> 0 (midnight), 12p -> 12 (noon)
+	if (hour === 12) hour = 0;
+	if (m[3] === "p") hour += 12;
+	return hour * 60 + minute;
+}
+
+/**
+ * "error" anomalies are unambiguously corrupt data that should not ship (they
+ * fail the build); "warning" anomalies are suspicious but may be legitimate and
+ * are surfaced for review without blocking.
+ */
+export type AnomalySeverity = "error" | "warning";
+
+export type Anomaly = {
+	severity: AnomalySeverity;
+	message: string;
+};
+
+/**
+ * Detect intrinsic data-quality problems in an extracted schedule — the kinds
+ * of issues that usually mean the model misread the PDF rather than that the
+ * schedule genuinely changed. Returns a list of anomalies; an empty array means
+ * none were found.
+ *
+ * These are independent of history (the changelog already covers diffs vs the
+ * previous run) and are deliberately conservative to avoid false positives on
+ * legitimately sparse schedules.
+ */
+export function detectScheduleAnomalies(schedule: PoolSchedule): Anomaly[] {
+	const anomalies: Anomaly[] = [];
+	const programs = schedule.programs ?? [];
+
+	// a pool with no programs almost always means extraction failed
+	if (programs.length === 0) {
+		anomalies.push({ severity: "warning", message: "no programs extracted" });
+		// nothing else to check
+		return anomalies;
+	}
+
+	// an impossible time block (end at/before start, or a time we can't parse)
+	// is corrupt data — never a real schedule, so treat it as an error
+	for (const p of programs) {
+		const start = parseTimeToMinutes(p.startTime);
+		const end = parseTimeToMinutes(p.endTime);
+		if (start === null || end === null) {
+			anomalies.push({
+				severity: "error",
+				message: `unparseable time in "${p.programName}" (${p.startTime}-${p.endTime})`,
+			});
+			continue;
+		}
+		if (end <= start) {
+			anomalies.push({
+				severity: "error",
+				message: `end at or before start in "${p.programName}" on ${p.dayOfWeek} (${p.startTime}-${p.endTime})`,
+			});
+		}
+	}
+
+	// a full week's schedule collapsing to a single day usually means the model
+	// only read part of the PDF. Closed-on-one-day pools still span several days,
+	// so we only flag the extreme case (and only as a warning, since a
+	// weekend-only pool is conceivable).
+	const distinctDays = new Set(programs.map((p) => p.dayOfWeek));
+	if (distinctDays.size <= 1) {
+		anomalies.push({
+			severity: "warning",
+			message: `schedule covers only ${distinctDays.size} day(s): ${[...distinctDays].join(", ") || "none"}`,
+		});
+	}
+
+	return anomalies;
+}
