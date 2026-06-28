@@ -177,6 +177,7 @@ export async function main(): Promise<ProcessResult> {
 				schedules = await extractScheduleFromPdf(buf, {
 					pdfScheduleUrl: disc?.pdfUrl ?? undefined,
 					sfRecParkUrl: pool?.pageUrl ?? undefined,
+					expectedPoolName: pool?.name ?? undefined,
 				});
 				// write raw extraction cache
 				await writeFile(extractPath, JSON.stringify(schedules, null, "\t"), "utf-8");

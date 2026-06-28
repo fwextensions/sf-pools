@@ -2,6 +2,7 @@ import "dotenv/config";
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { fetchPdfBuffer } from "./http";
 
 const POOLS_FILE = path.join(process.cwd(), "data", "pools.json");
 const DISCOVERED_FILE = path.join(process.cwd(), "public", "data", "discovered_pool_schedules.json");
@@ -60,17 +61,6 @@ function sanitizeFilename(name: string): string {
 		.replace(/\s+/g, "-");
 }
 
-async function fetchBuffer(url: string): Promise<Buffer> {
-	const res = await fetch(url, {
-		headers: {
-			"user-agent": "Mozilla/5.0 (compatible; sf-pools-schedule-viewer/0.1)",
-		},
-	});
-	if (!res.ok) throw new Error(`download failed ${res.status} ${res.statusText} for ${url}`);
-	const ab = await res.arrayBuffer();
-	return Buffer.from(ab);
-}
-
 async function loadDiscoveredPools(): Promise<DiscoveredPool[]> {
 	try {
 		const raw = await readFile(DISCOVERED_FILE, "utf-8");
@@ -123,7 +113,7 @@ export async function main() {
 
 		try {
 			await sleep(400);
-			const buf = await fetchBuffer(disc.pdfUrl);
+			const buf = await fetchPdfBuffer(disc.pdfUrl);
 			const hash = computeHash(buf);
 
 			// check if PDF has changed (by URL or hash)
