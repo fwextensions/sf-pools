@@ -14,6 +14,10 @@ uniform vec2 u_texel;          // 1.0 / simulation resolution
 uniform vec2 u_impulsePos;     // pointer impulse center, texture UV
 uniform float u_impulseAmp;    // 0.0 when there is no impulse this step
 uniform float u_impulseRadius; // impulse radius, in texels
+uniform float u_scrollAmp;     // scroll swell height; 0.0 when not scrolling
+uniform float u_scrollEdge;    // edge the water piles against: 0 bottom, 1 top
+uniform float u_scrollRadius;  // swell band half-width, in texels
+uniform float u_time;          // seconds, for drifting the swell wobble
 
 varying vec2 vTexCoord;
 
@@ -41,6 +45,21 @@ void main() {
 	if (u_impulseAmp != 0.0) {
 		vec2 rel = (uv - u_impulsePos) / (u_texel * u_impulseRadius);
 		next = mix(next, -u_impulseAmp, exp(-dot(rel, rel)));
+	}
+
+	// scrolling shoves the whole pool; the water's inertia piles it up
+	// against the leading edge as a line swell, which the wave equation
+	// then sends across the surface as a linear wavefront. The band's
+	// centerline and strength undulate along its length (incommensurate
+	// sine frequencies, drifting over time) so the front reads as water
+	// rather than a ruler-straight artifact.
+	if (u_scrollAmp != 0.0) {
+		float wobbleTexels =
+			sin(uv.x * 43.0 + u_time * 2.3) * 1.6 +
+			sin(uv.x * 111.0 - u_time * 3.1) * 0.7;
+		float amp = u_scrollAmp * (0.7 + 0.3 * sin(uv.x * 29.0 + u_time * 1.9));
+		float rel = (uv.y - u_scrollEdge) / (u_texel.y * u_scrollRadius) + wobbleTexels / u_scrollRadius;
+		next = mix(next, amp, exp(-rel * rel));
 	}
 
 	gl_FragColor = vec4(next, state.r, 0.0, 1.0);

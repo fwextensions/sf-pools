@@ -21,6 +21,14 @@ const SIM_SUBSTEPS = 2; // wave-equation steps per frame; more = faster waves
 const SIM_IMPULSE_RADIUS = 3.0; // pointer dent radius, in sim texels
 const MAX_PIXEL_DENSITY = 1.5; // retina resolution is invisible on blurry water
 
+// Scroll-driven swell: inertia responds to acceleration, not velocity, so
+// the water sloshes when scrolling starts, stops, or jerks — a steady
+// scroll glides without pumping energy in every frame (a full-width line
+// source held for even a second visibly overdrives the pool).
+const SCROLL_WAVE_RADIUS = 2.5; // swell band half-width, in sim texels
+const SCROLL_AMP_PER_PX = 0.006; // swell height per px/frame of speed change
+const SCROLL_AMP_MAX = 0.4;
+
 function renderSFPools(
 	p: p5)
 {
@@ -35,6 +43,9 @@ function renderSFPools(
 	let impulseX = 0.5;
 	let impulseY = 0.5;
 	let impulseAmp = 0.0;
+
+	let lastScrollY = 0;
+	let lastScrollDelta = 0;
 
 	function createSimBuffers() {
 		if (simRead) simRead.remove();
@@ -79,6 +90,7 @@ function renderSFPools(
 		displayShader = p.createShader(vertShader, displayFragShader);
 		simShader = p.createShader(vertShader, simFragShader);
 		createSimBuffers();
+		lastScrollY = window.scrollY;
 
 		p.mouseMoved = p.mouseDragged = handlePointerMove;
 
@@ -103,6 +115,21 @@ function renderSFPools(
 
 		p.noStroke();
 
+		// --- scroll swell: how much did the scroll speed change? ---
+		// Accelerating downward shoves the pool up, piling water against the
+		// bottom edge; decelerating (or accelerating upward) piles it
+		// against the top.
+		const scrollDelta = window.scrollY - lastScrollY;
+		const scrollJerk = scrollDelta - lastScrollDelta;
+		lastScrollY = window.scrollY;
+		lastScrollDelta = scrollDelta;
+		let scrollAmp = 0.0;
+		let scrollEdge = 0.0; // sim UV y: 0 = bottom edge, 1 = top edge
+		if (scrollJerk !== 0) {
+			scrollAmp = Math.min(SCROLL_AMP_MAX, Math.abs(scrollJerk) * SCROLL_AMP_PER_PX);
+			scrollEdge = scrollJerk > 0 ? 0.0 : 1.0;
+		}
+
 		// --- advance the wave simulation (ping-pong) ---
 		for (let step = 0; step < SIM_SUBSTEPS; step++) {
 			simWrite.begin();
@@ -112,6 +139,10 @@ function renderSFPools(
 			simShader.setUniform("u_impulsePos", [impulseX, impulseY]);
 			simShader.setUniform("u_impulseAmp", step === 0 ? impulseAmp : 0.0);
 			simShader.setUniform("u_impulseRadius", SIM_IMPULSE_RADIUS);
+			simShader.setUniform("u_scrollAmp", step === 0 ? scrollAmp : 0.0);
+			simShader.setUniform("u_scrollEdge", scrollEdge);
+			simShader.setUniform("u_scrollRadius", SCROLL_WAVE_RADIUS);
+			simShader.setUniform("u_time", time);
 			p.quad(-1, -1, 1, -1, 1, 1, -1, 1);
 			simWrite.end();
 			[simRead, simWrite] = [simWrite, simRead];
