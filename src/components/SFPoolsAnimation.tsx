@@ -2,49 +2,56 @@
 
 import React, { useEffect, useRef } from "react";
 import type p5 from "p5";
-import fragShader from "./header-shader.frag";
+import displayFragShader from "./header-shader.frag";
+import simFragShader from "./water-sim.frag";
 
 const vertShader = `
 	attribute vec3 aPosition;
+	varying vec2 vTexCoord;
 	void main() {
+		vTexCoord = aPosition.xy * 0.5 + 0.5;
 		gl_Position = vec4(aPosition, 1.0);
 	}
 `;
 
-const MAX_RIPPLES = 8;
-const RIPPLE_LIFETIME = 2.5; // must match EXPANDING_RIPPLE_LIFETIME in the shader
-const RIPPLE_SPACING_PX = 40; // spawn a ripple every N pixels of pointer travel
+// Simulation texture width; height follows the canvas aspect so texels are
+// square on screen and waves propagate isotropically.
+const SIM_WIDTH = 512;
+const SIM_SUBSTEPS = 2; // wave-equation steps per frame; more = faster waves
+const SIM_IMPULSE_RADIUS = 3.0; // pointer dent radius, in sim texels
 const MAX_PIXEL_DENSITY = 1.5; // retina resolution is invisible on blurry water
 
 function renderSFPools(
 	p: p5)
 {
-	let myShader: p5.Shader;
+	let displayShader: p5.Shader;
+	let simShader: p5.Shader;
+	// p5.Framebuffer isn't in the (1.x) type definitions yet
+	let simRead: any;
+	let simWrite: any;
+	let simTexel = [1 / SIM_WIDTH, 1 / SIM_WIDTH];
 
-	// ripple slots, flattened [x0,y0,t0, x1,y1,t1, ...]
-	// (plain array so it can be handed to setUniform without copying)
-	const ripples: number[] = [];
-	for (let i = 0; i < MAX_RIPPLES; i++) {
-		ripples.push(0, 0, -10); // birth time -10 means inactive
-	}
-	let lastRippleX = 0.5;
-	let lastRippleY = 0.5;
-	let lastRippleTime = -10;
+	// pointer impulse pending for the next sim step (consumed each frame)
+	let impulseX = 0.5;
+	let impulseY = 0.5;
+	let impulseAmp = 0.0;
 
-	// claims the first expired slot; if every slot is still animating, the
-	// ripple is skipped — better to spawn fewer than cut a live one short
-	function spawnRipple(x: number, y: number, time: number) {
-		for (let i = 0; i < MAX_RIPPLES; i++) {
-			if (time - ripples[i * 3 + 2] > RIPPLE_LIFETIME) {
-				ripples[i * 3] = x;
-				ripples[i * 3 + 1] = y;
-				ripples[i * 3 + 2] = time;
-				lastRippleX = x;
-				lastRippleY = y;
-				lastRippleTime = time;
-				return;
-			}
-		}
+	function createSimBuffers() {
+		if (simRead) simRead.remove();
+		if (simWrite) simWrite.remove();
+
+		const simHeight = Math.max(32, Math.round((SIM_WIDTH * p.height) / p.width));
+		const options = {
+			width: SIM_WIDTH,
+			height: simHeight,
+			format: "float",
+			depth: false,
+			antialias: false,
+			density: 1,
+		};
+		simRead = (p as any).createFramebuffer(options);
+		simWrite = (p as any).createFramebuffer(options);
+		simTexel = [1 / SIM_WIDTH, 1 / simHeight];
 	}
 
 	// p5 listens for mouse events window-wide, so ignore anything outside
@@ -59,34 +66,28 @@ function renderSFPools(
 	function handlePointerMove() {
 		if (!pointerInCanvas()) return;
 
-		const x = p.mouseX / p.width;
-		const y = 1.0 - p.mouseY / p.height;
-		const time = p.millis() / 1000.0;
+		const speedPx = Math.hypot(p.mouseX - p.pmouseX, p.mouseY - p.pmouseY);
 
-		// spawn by distance traveled, so fast swipes leave an even trail
-		const travelX = (x - lastRippleX) * p.width;
-		const travelY = (y - lastRippleY) * p.height;
-		if (travelX * travelX + travelY * travelY > RIPPLE_SPACING_PX * RIPPLE_SPACING_PX) {
-			spawnRipple(x, y, time);
-		}
+		impulseX = p.mouseX / p.width;
+		impulseY = 1.0 - p.mouseY / p.height;
+		impulseAmp = Math.min(1.0, 0.15 + speedPx * 0.01);
 	}
 
 	p.setup = () => {
 		p.pixelDensity(Math.min(window.devicePixelRatio || 1, MAX_PIXEL_DENSITY));
 		p.createCanvas(p.windowWidth, 200, p.WEBGL);
-		myShader = p.createShader(vertShader, fragShader);
+		displayShader = p.createShader(vertShader, displayFragShader);
+		simShader = p.createShader(vertShader, simFragShader);
+		createSimBuffers();
 
 		p.mouseMoved = p.mouseDragged = handlePointerMove;
 
 		p.mouseClicked = () => {
 			if (!pointerInCanvas()) return;
 
-			const x = p.mouseX / p.width;
-			const y = 1.0 - p.mouseY / p.height;
-			const time = p.millis() / 1000.0;
-
-			// always spawn ripple on click
-			spawnRipple(x, y, time);
+			impulseX = p.mouseX / p.width;
+			impulseY = 1.0 - p.mouseY / p.height;
+			impulseAmp = 1.2; // clicks splash harder than moves
 		};
 
 		//@ts-ignore
@@ -100,22 +101,35 @@ function renderSFPools(
 		const d = p.pixelDensity();
 		const time = p.millis() / 1000.0;
 
-		p.shader(myShader);
 		p.noStroke();
 
-		myShader.setUniform("u_resolution", [p.width * d, p.height * d]);
-		myShader.setUniform("u_time", time);
+		// --- advance the wave simulation (ping-pong) ---
+		for (let step = 0; step < SIM_SUBSTEPS; step++) {
+			simWrite.begin();
+			p.shader(simShader);
+			simShader.setUniform("u_state", simRead);
+			simShader.setUniform("u_texel", simTexel);
+			simShader.setUniform("u_impulsePos", [impulseX, impulseY]);
+			simShader.setUniform("u_impulseAmp", step === 0 ? impulseAmp : 0.0);
+			simShader.setUniform("u_impulseRadius", SIM_IMPULSE_RADIUS);
+			p.quad(-1, -1, 1, -1, 1, 1, -1, 1);
+			simWrite.end();
+			[simRead, simWrite] = [simWrite, simRead];
+		}
+		impulseAmp = 0.0;
 
-		// once every ripple has expired, the shader skips the whole loop
-		const anyAlive = time - lastRippleTime < RIPPLE_LIFETIME;
-		myShader.setUniform("u_rippleCount", anyAlive ? MAX_RIPPLES : 0);
-		myShader.setUniform("u_ripples", ripples);
-
+		// --- render the pool ---
+		p.shader(displayShader);
+		displayShader.setUniform("u_resolution", [p.width * d, p.height * d]);
+		displayShader.setUniform("u_time", time);
+		displayShader.setUniform("u_water", simRead);
+		displayShader.setUniform("u_waterTexel", simTexel);
 		p.quad(-1, -1, 1, -1, 1, 1, -1, 1);
 	};
 
 	p.windowResized = () => {
 		p.resizeCanvas(p.windowWidth, 200);
+		createSimBuffers(); // aspect changed, keep sim texels square on screen
 	};
 }
 

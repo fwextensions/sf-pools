@@ -6,8 +6,8 @@ precision highp float;
 
 uniform vec2 u_resolution;
 uniform float u_time;
-uniform float u_ripples[24]; // slots: [x0,y0,t0, x1,y1,t1, ...] for 8 ripples
-uniform float u_rippleCount; // 0.0 when no ripple is live, MAX_RIPPLES otherwise
+uniform sampler2D u_water;  // simulated heightfield, r = height
+uniform vec2 u_waterTexel;  // 1.0 / simulation resolution
 
 // ============================================================================
 // CONSTANTS
@@ -16,12 +16,11 @@ uniform float u_rippleCount; // 0.0 when no ripple is live, MAX_RIPPLES otherwis
 #define TAU 6.28318530718
 #define MAX_ITER 5
 #define MAX_ITER_CHEAP 3
-#define MAX_RIPPLES 8
 
-const float EXPANDING_RIPPLE_SPEED = 0.25;
-const float EXPANDING_RIPPLE_LIFETIME = 2.5;
-const float EXPANDING_RIPPLE_WAVENUMBER = 50.0;
-const float EXPANDING_DISTORTION_AMP = 2.5;
+// Per-texel height differences are tiny; this lifts them into the same
+// range the ambient wave gradients live in.
+const float SIM_GRAD_SCALE = 400.0;
+const float SIM_HEIGHT_SCALE = 1.5;
 
 // Converts analytic wave gradients to the range the old finite-difference
 // normals produced (their sample spacing was eps = 0.004).
@@ -165,51 +164,20 @@ vec3 ambientWaves(vec2 p, float t) {
 	return vec3(h, c1 + c3 + c4, c2 + c3 - c4);
 }
 
-// Expanding ripple as a dispersive wave packet: a sharp leading edge with a
-// trailing train of waves behind it, losing amplitude as the ring spreads.
-vec3 expandingRipple(vec2 uv, vec3 ripple, float time, float aspect) {
-	if (ripple.z < 0.0) return vec3(0.0);
+// Samples the simulated heightfield and derives its gradient by central
+// differences over neighboring texels. The texels are square in screen
+// space, so the per-texel differences are already isotropic.
+vec3 sampleWater(vec2 screenUV) {
+	float hC = texture2D(u_water, screenUV).r;
+	float hE = texture2D(u_water, screenUV + vec2(u_waterTexel.x, 0.0)).r;
+	float hW = texture2D(u_water, screenUV - vec2(u_waterTexel.x, 0.0)).r;
+	float hN = texture2D(u_water, screenUV + vec2(0.0, u_waterTexel.y)).r;
+	float hS = texture2D(u_water, screenUV - vec2(0.0, u_waterTexel.y)).r;
 
-	float age = time - ripple.z;
-	if (age <= 0.0 || age > EXPANDING_RIPPLE_LIFETIME) return vec3(0.0);
-
-	vec2 center = vec2(ripple.x * aspect, ripple.y);
-	vec2 rel = uv - center;
-	float d = length(rel);
-	float waveRadius = age * EXPANDING_RIPPLE_SPEED;
-	float s = d - waveRadius; // signed distance from the wave front
-
-	// asymmetric envelope: narrow ahead of the front, wide behind it
-	float widthAhead = 0.015 + age * 0.04;
-	float width = s > 0.0 ? widthAhead : widthAhead * 2.8;
-	float env = exp(-(s * s) / (width * width));
-
-	// energy fades with time and spreads around the growing ring; the
-	// smoothstep window over the last quarter of life takes the wave to
-	// exactly zero so it can't pop out of view at the age cutoff
-	float fade = exp(-age * 1.4) / (1.0 + waveRadius * 3.0);
-	fade *= smoothstep(EXPANDING_RIPPLE_LIFETIME, EXPANDING_RIPPLE_LIFETIME * 0.75, age);
-
-	float phase = s * EXPANDING_RIPPLE_WAVENUMBER;
-	float h = sin(phase) * env * fade;
-	// dominant gradient term; the envelope's slope is negligible next to
-	// the wavenumber
-	float dhdd = cos(phase) * EXPANDING_RIPPLE_WAVENUMBER * env * fade;
-	vec2 dir = rel / max(d, 1e-4);
-
-	return vec3(h, dir * dhdd);
-}
-
-vec3 sumExpandingRipples(vec2 uv, float time, float aspect) {
-	vec3 acc = vec3(0.0);
-	// indexing a uniform array by loop index is a constant-index-expression,
-	// which GLSL ES 1.0 permits
-	for (int i = 0; i < MAX_RIPPLES; i++) {
-		if (float(i) >= u_rippleCount) break;
-		vec3 ripple = vec3(u_ripples[i * 3], u_ripples[i * 3 + 1], u_ripples[i * 3 + 2]);
-		acc += expandingRipple(uv, ripple, time, aspect);
-	}
-	return acc;
+	return vec3(
+		hC * SIM_HEIGHT_SCALE,
+		vec2(hE - hW, hN - hS) * SIM_GRAD_SCALE
+	);
 }
 
 // ============================================================================
@@ -218,17 +186,21 @@ vec3 sumExpandingRipples(vec2 uv, float time, float aspect) {
 
 void main() {
 	// --- Setup ---
-	vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+	vec2 screenUV = gl_FragCoord.xy / u_resolution.xy;
+	vec2 uv = screenUV;
 	float aspect = u_resolution.x / u_resolution.y;
 	uv.x *= aspect;
 
 	float tSurface = u_time * 0.8;
 	float tCaustic = u_time * 0.12;
 
-	// --- Wave Field (height in .x, gradient in .yz, one tap per source) ---
-	vec3 expanding = sumExpandingRipples(uv, u_time, aspect);
+	// --- Wave Field (height in .x, gradient in .yz) ---
+	// Ambient swell stays analytic; interactive ripples come from the
+	// simulated heightfield, where they expand, interfere, and reflect
+	// off the edges on their own.
+	vec3 water = sampleWater(screenUV);
 	vec3 wave = ambientWaves(uv, tSurface) * 0.8;
-	wave.yz += expanding.yz * EXPANDING_DISTORTION_AMP;
+	wave.yz += water.yz;
 
 	vec2 surfaceNormal = wave.yz * GRADIENT_SCALE;
 
@@ -284,10 +256,16 @@ void main() {
 	color += vec3(0.85, 0.95, 0.98) * dispersedHighlight * 0.5;
 
 	// --- Ripple Lighting (independent of caustics) ---
+	// The x/(1+x) curves respond linearly to small waves but level off for
+	// deep troughs and tall crests, so a fast-moving pointer can't drive
+	// the water to black (the old factor could exceed 1 and extrapolate
+	// the mix past the shadow color).
 	vec3 rippleHighlight = vec3(0.9, 0.97, 1.0);
 	vec3 rippleShadow = vec3(0.15, 0.3, 0.4);
-	color += rippleHighlight * max(expanding.x, 0.0) * 0.4;
-	color = mix(color, color * rippleShadow, max(-expanding.x, 0.0) * 0.25);
+	float crest = max(water.x, 0.0);
+	float trough = max(-water.x, 0.0);
+	color += rippleHighlight * 0.4 * crest / (1.0 + crest);
+	color = mix(color, color * rippleShadow, 0.3 * trough / (1.0 + trough));
 
 	// --- Specular Glint ---
 	// Flat water reflects nothing (dot^64 vanishes); only wave slopes tilted
@@ -297,7 +275,7 @@ void main() {
 	vec3 surfN = normalize(vec3(-wave.yz * 0.25, 1.0));
 	vec3 lightDir = normalize(vec3(0.35, 0.55, 0.75));
 	float spec = pow(max(dot(surfN, lightDir), 0.0), 64.0);
-	float rippleEnergy = min(length(expanding.yz) * EXPANDING_DISTORTION_AMP * 0.05, 1.0);
+	float rippleEnergy = min(length(water.yz) * 0.05, 1.0);
 	color += vec3(1.0, 0.98, 0.92) * spec * rippleEnergy * 0.4;
 
 	// --- Output ---
