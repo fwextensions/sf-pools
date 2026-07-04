@@ -26,6 +26,7 @@ pnpm-debug.log*
 .DS_Store
 .idea/
 .vscode/
+.kiro
 
 # data
 /data/pdfs/*
@@ -36,4 +37,4 @@ pnpm-debug.log*
 !/data/changelog/.gitkeep
 # pdf-manifest.json is intentionally tracked for incremental extraction
 
-.kiro
+tsconfig.tsbuildinfo
