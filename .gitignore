@@ -27,6 +27,7 @@ pnpm-debug.log*
 .idea/
 .vscode/
 .kiro
+.claude
 
 # data
 /data/pdfs/*

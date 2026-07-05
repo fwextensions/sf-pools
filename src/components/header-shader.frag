@@ -17,9 +17,13 @@ uniform vec2 u_waterTexel;  // 1.0 / simulation resolution
 #define MAX_ITER 5
 #define MAX_ITER_CHEAP 3
 
-// Per-texel height differences are tiny; this lifts them into the same
-// range the ambient wave gradients live in.
+// Per-texel height differences are tiny (~0.01 for a fresh ripple); this
+// lifts them into the same range as the analytic ambient-wave gradients so
+// the two fields can be summed. Raise it and simulated ripples refract the
+// tiles, bend the caustics, and glint harder.
 const float SIM_GRAD_SCALE = 400.0;
+// Scales raw simulation heights (roughly -1..1 at a fresh dent) before the
+// crest/trough lighting. Raise it and ripples brighten/darken more.
 const float SIM_HEIGHT_SCALE = 1.5;
 
 // Converts analytic wave gradients to the range the old finite-difference
@@ -148,6 +152,9 @@ float calculateCausticsCheap(vec2 uv, float time) {
 // so no finite-difference resampling is needed for surface normals.
 // ============================================================================
 
+// Four sine waves at mismatched frequencies, directions, and speeds, so
+// their sum never visibly repeats. Per wave: spatial frequency (3.5, 5.0,
+// ...), drift speed (0.9, 1.1, ...), and amplitude (0.4, 0.3, ... in h).
 vec3 ambientWaves(vec2 p, float t) {
 	float a1 = p.x * 3.5 + t * 0.9;
 	float a2 = p.y * 5.0 - t * 1.1;
@@ -191,13 +198,14 @@ void main() {
 	float aspect = u_resolution.x / u_resolution.y;
 	uv.x *= aspect;
 
-	float tSurface = u_time * 0.8;
-	float tCaustic = u_time * 0.12;
+	float tSurface = u_time * 0.8;  // ambient wave animation speed
+	float tCaustic = u_time * 0.12; // caustics drift much slower than waves
 
 	// --- Wave Field (height in .x, gradient in .yz) ---
 	// Ambient swell stays analytic; interactive ripples come from the
 	// simulated heightfield, where they expand, interfere, and reflect
-	// off the edges on their own.
+	// off the edges on their own. 0.8 is the ambient contribution's weight
+	// relative to the (SIM_GRAD_SCALE-scaled) simulation.
 	vec3 water = sampleWater(screenUV);
 	vec3 wave = ambientWaves(uv, tSurface) * 0.8;
 	wave.yz += water.yz;
@@ -205,21 +213,27 @@ void main() {
 	vec2 surfaceNormal = wave.yz * GRADIENT_SCALE;
 
 	// --- Tile UV Distortion ---
+	// 0.035 = how far wave slopes refract the tile pattern (the main
+	// "looking through water" effect). The two tiny sin/cos terms add a
+	// slow independent shimmer so even dead-calm water isn't static.
 	vec2 tileUV = uv + surfaceNormal * 0.035;
 	tileUV.x += sin(uv.y * 6.0 + tCaustic * 10.0) * 0.005;
 	tileUV.y += cos(uv.x * 3.0 + tCaustic * 11.0) * 0.005;
 
 	// --- Caustics ---
-	// The highlight is refracted through the live wave field, so ripples
-	// visibly bend the light pattern; the shadow is a cheaper decorrelated
-	// sample offset to suggest depth.
+	// The highlight is refracted through the live wave field (0.6 = how
+	// hard ripples bend the light pattern), so waves visibly warp the
+	// caustics. The shadow is a cheaper sample, offset in space (0.02,
+	// 0.015) and time (+0.3) so it decorrelates from the highlight and
+	// suggests depth.
 	float causticHighlight = calculateCaustics(uv + surfaceNormal * 0.6, tCaustic);
 	float causticShadow = calculateCausticsCheap(uv + vec2(0.02, 0.015), tCaustic + 0.3);
+	// bright caustics shrink the tile UV a hair, faking light focusing
 	tileUV *= (1.0 - causticHighlight * 0.012);
 
 	// --- Tile Grid Layout ---
-	float preferredHeight = 9.0;
-	float requiredWidth = 33.0;
+	float preferredHeight = 9.0; // target tile rows on a wide canvas
+	float requiredWidth = 33.0;  // min tile columns: 29 for the text + margin
 	float tileCountV = max(preferredHeight, requiredWidth / aspect);
 
 	vec2 gridID = floor(tileUV * tileCountV);
@@ -241,19 +255,22 @@ void main() {
 	vec3 color = mix(grout, mix(tileBase, textTile, isText), tileMask);
 
 	// --- Depth Vignette ---
+	// darken up to 15% toward the corners, fading in over a 1.2-radius
 	float dist = length(uv - vec2(aspect * 0.5, 0.5));
 	color *= 1.0 - smoothstep(1.2, 0.0, dist) * 0.15;
 
 	// --- Caustic Lighting ---
 	vec3 shadowColor = vec3(0.2, 0.35, 0.45);
-	color = mix(color, color * shadowColor, causticShadow * 0.25);
-	// per-channel falloff exponents give chromatic fringes at highlight edges
+	color = mix(color, color * shadowColor, causticShadow * 0.25); // 0.25 = shadow strength
+	// Per-channel falloff exponents fake chromatic dispersion: red decays
+	// fastest (1.25) and blue slowest (0.8), leaving bluish fringes around
+	// the white-hot cores. Push the exponents apart for stronger fringing.
 	vec3 dispersedHighlight = vec3(
 		pow(causticHighlight, 1.25),
 		causticHighlight,
 		pow(causticHighlight, 0.8)
 	);
-	color += vec3(0.85, 0.95, 0.98) * dispersedHighlight * 0.5;
+	color += vec3(0.85, 0.95, 0.98) * dispersedHighlight * 0.5; // 0.5 = highlight strength
 
 	// --- Ripple Lighting (independent of caustics) ---
 	// The x/(1+x) curves respond linearly to small waves but level off for
@@ -264,6 +281,7 @@ void main() {
 	vec3 rippleShadow = vec3(0.15, 0.3, 0.4);
 	float crest = max(water.x, 0.0);
 	float trough = max(-water.x, 0.0);
+	// 0.4 / 0.3 = max crest brightening / max trough darkening
 	color += rippleHighlight * 0.4 * crest / (1.0 + crest);
 	color = mix(color, color * rippleShadow, 0.3 * trough / (1.0 + trough));
 
@@ -272,6 +290,11 @@ void main() {
 	// toward the light produce sparkles. The pow makes brightness stay
 	// saturated until the slope drops below alignment, so also scale by the
 	// local ripple strength to fade the glint with the wave height.
+	// 0.25 converts wave gradient to normal tilt: higher = milder slopes
+	// already glint. lightDir points toward the (off-screen upper-right)
+	// light; 64 is the glint tightness (higher = smaller, sharper sparkles);
+	// 0.05 sets how much sim gradient counts as "full-strength" ripple;
+	// 0.4 is the overall glint brightness.
 	vec3 surfN = normalize(vec3(-wave.yz * 0.25, 1.0));
 	vec3 lightDir = normalize(vec3(0.35, 0.55, 0.75));
 	float spec = pow(max(dot(surfN, lightDir), 0.0), 64.0);

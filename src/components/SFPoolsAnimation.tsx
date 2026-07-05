@@ -39,6 +39,13 @@ const SCROLL_AMP_MAX = 0.4;
 // discrete sloshes per second, which the damping can absorb.
 const SCROLL_COOLDOWN_MS = 180;
 
+// Idle drips: when nobody has touched or scrolled for a while, a drop
+// falls somewhere random — much gentler than a real click (amp 1.2).
+const DRIP_IDLE_DELAY_MS = 6000; // stillness required before dripping starts
+const DRIP_MIN_GAP_MS = 5000; // random spacing between drips
+const DRIP_MAX_GAP_MS = 9000;
+const DRIP_AMP = 0.35;
+
 function renderSFPools(
 	p: p5)
 {
@@ -60,6 +67,9 @@ function renderSFPools(
 	let lastScrollY = 0;
 	let lastScrollDelta = 0;
 	let lastSwellTime = -Infinity;
+
+	let lastInteractionTime = 0;
+	let nextDripTime = 0;
 
 	function createSimBuffers() {
 		if (simRead) simRead.remove();
@@ -110,6 +120,7 @@ function renderSFPools(
 			p.pmouseY >= 0 && p.pmouseY <= p.height;
 		impulsePrevX = prevInCanvas ? p.pmouseX / p.width : impulseX;
 		impulsePrevY = prevInCanvas ? 1.0 - p.pmouseY / p.height : impulseY;
+		lastInteractionTime = p.millis();
 	}
 
 	p.setup = () => {
@@ -130,6 +141,7 @@ function renderSFPools(
 			impulsePrevX = impulseX; // point dent, no sweep
 			impulsePrevY = impulseY;
 			impulseAmp = 1.2; // clicks splash harder than moves
+			lastInteractionTime = p.millis();
 		};
 
 		//@ts-ignore
@@ -159,6 +171,18 @@ function renderSFPools(
 			scrollAmp = Math.min(SCROLL_AMP_MAX, Math.abs(scrollJerk) * SCROLL_AMP_PER_PX);
 			scrollEdge = scrollJerk > 0 ? 0.0 : 1.0;
 			lastSwellTime = p.millis();
+			lastInteractionTime = p.millis();
+		}
+
+		// --- idle drips: an occasional drop lands while nobody's touching ---
+		const now = p.millis();
+		if (now - lastInteractionTime > DRIP_IDLE_DELAY_MS && now >= nextDripTime) {
+			impulseX = 0.1 + Math.random() * 0.8; // keep away from the walls
+			impulseY = 0.1 + Math.random() * 0.8;
+			impulsePrevX = impulseX; // point dent, no sweep
+			impulsePrevY = impulseY;
+			impulseAmp = DRIP_AMP * (0.7 + Math.random() * 0.6);
+			nextDripTime = now + DRIP_MIN_GAP_MS + Math.random() * (DRIP_MAX_GAP_MS - DRIP_MIN_GAP_MS);
 		}
 
 		// --- advance the wave simulation (ping-pong) ---

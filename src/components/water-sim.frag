@@ -22,8 +22,14 @@ uniform float u_time;          // seconds, for drifting the swell wobble
 
 varying vec2 vTexCoord;
 
-// c^2 in texel units; must stay below 0.5 for numerical stability (CFL)
+// c^2 in texel units: how far waves travel per sim step (ring speed ~=
+// sqrt(WAVE_SPEED) texels/step, times SIM_SUBSTEPS per frame on the JS
+// side). Must stay below 0.5 for numerical stability (CFL condition) —
+// above that the simulation explodes into checkerboard noise.
 const float WAVE_SPEED = 0.1;
+// Energy retained per sim step. At 0.985 and 2 substeps/frame at 60fps,
+// waves keep ~16% of their energy after 1s; nudging this toward 1.0
+// makes the pool slosh dramatically longer.
 const float DAMPING = 0.985;
 
 float hash(vec2 p) {
@@ -67,6 +73,10 @@ void main() {
 	// imperfect front instead of forming lobes that radiate circular arcs.
 	if (u_scrollAmp != 0.0) {
 		float seed = floor(u_time); // re-roll the roughness each second
+		// vertical roughness: each column shifts the band by up to ±0.8
+		// texels (the 1.6 span); strength varies 75%–125% per column. The
+		// hash x-scales (511, 257) are just large odd numbers that
+		// decorrelate neighboring columns; 43.0 decorrelates the two hashes.
 		float jitterTexels = (hash(vec2(uv.x * 511.0, seed)) - 0.5) * 1.6;
 		float amp = u_scrollAmp * (0.75 + 0.5 * hash(vec2(uv.x * 257.0, seed + 43.0)));
 		float rel = (uv.y - u_scrollEdge) / (u_texel.y * u_scrollRadius) + jitterTexels / u_scrollRadius;
