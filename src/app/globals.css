@@ -137,11 +137,6 @@ input[type="radio"] {
 	transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.session-card:hover {
-	transform: translateY(-1px);
-	box-shadow: 0 2px 8px rgba(117, 198, 228, 0.15);
-}
-
 /* Tap ripple effect for interactive cards */
 @media (max-width: 767px) {
 	.session-card:active {
