@@ -4,6 +4,7 @@ import path from "node:path";
 import type { PoolSchedule } from "@/lib/pdf-processor";
 import HomeFilters from "@/components/HomeFilters";
 import SFPoolsAnimation from "@/components/SFPoolsAnimation";
+import { HEADER_HEIGHT } from "@/components/SFPPlaceholder";
 import type { AlertsData } from "../../scripts/scrape-alerts";
 
 async function readAllSchedules(): Promise<PoolSchedule[]> {
@@ -31,7 +32,7 @@ export default async function HomePage() {
 
 	return (
 		<main className="container py-8">
-			<header className="h-[200px]">
+			<header style={{ height: HEADER_HEIGHT }}>
 				<SFPoolsAnimation />
 			</header>
 			<Suspense fallback={<div className="container py-8"><div className="rounded border border-slate-200 bg-white p-4">Loading…</div></div>}>

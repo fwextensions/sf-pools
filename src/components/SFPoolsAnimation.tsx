@@ -4,6 +4,12 @@ import React, { useEffect, useRef } from "react";
 import type p5 from "p5";
 import displayFragShader from "./header-shader.frag";
 import simFragShader from "./water-sim.frag";
+import {
+	HeaderTilePlaceholder,
+	HEADER_HEIGHT,
+	headerHeightPx,
+	tileCssPx,
+} from "@/components/SFPPlaceholder";
 
 const vertShader = `
 	attribute vec3 aPosition;
@@ -13,111 +19,6 @@ const vertShader = `
 		gl_Position = vec4(aPosition, 1.0);
 	}
 `;
-
-// ============================================================================
-// SSR TILE PLACEHOLDER
-// ============================================================================
-// A pure-CSS tile grid the server paints on first load, so the header shows
-// tiles (and "SF POOLS") within the first paint instead of a blank box while
-// p5 downloads and boots. The opaque WebGL canvas is stacked on top and covers
-// this once its first frame draws. Layout mirrors header-shader.frag exactly so
-// the two line up:
-//   - The shader sizes tiles to 200/tileCountV px, where
-//     tileCountV = max(9, 33 / aspect) and aspect = width / 200.
-//     That is 200/9 px on wide viewports and width/33 px on narrow ones, which
-//     is exactly min(200/9 px, 100/33 vw) — continuous across the breakpoint.
-//   - Colors, the 5x29 bitmap text, and its glyph spacing are the shader's.
-
-const TILE = "min(22.2222px, 3.0303vw)"; // 200/9 px  or  100/33 vw
-//const GROUT = "#4f89aa"; // vec3(0.28, 0.48, 0.58)
-const GROUT = "#477a94"; // vec3(0.28, 0.48, 0.58)
-const TILE_BLUE = "#7bd2f6"; // vec3(0.459, 0.776, 0.894)
-// Brighter than the shader's base text tile (0.89): once the animation loads
-// the caustics brighten these toward white, so a brighter placeholder matches
-// the lit canvas better and softens the crossfade.
-const TEXT_TILE = "#f0f0ff";
-const GROUT_PCT = 12; // grout line width as % of a tile
-// Half the grout goes at each end of a pattern cell, so the grout stays
-// centered on the cell boundaries (like the shader's symmetric tile mask) and
-// the tile face is centered at 50% — same as the white text faces.
-const GROUT_HALF = GROUT_PCT / 2; // 6%
-
-// Same bitmap font as the shader: each glyph is a 15-bit 3x5 map, laid out on
-// 4-tile centers with a 6-tile gap between "SF" and "POOLS" (textWidth = 29).
-const GLYPHS: { map: number; col: number }[] = [
-	{ map: 29671, col: 0 },  // S
-	{ map: 29641, col: 4 },  // F
-	{ map: 31689, col: 10 }, // P
-	{ map: 31599, col: 14 }, // O
-	{ map: 31599, col: 18 }, // O
-	{ map: 4687, col: 22 },  // L
-	{ map: 29671, col: 26 }, // S
-];
-const TEXT_COLS = 29;
-const TEXT_ROWS = 5;
-
-// Decode the glyphs into [row][col] booleans. The shader's y increases upward
-// (bitIndex = x + y*3, y = 0 is the bottom row), so row 0 here (the top) is
-// glyph y = 4.
-const TEXT_GRID: boolean[][] = Array.from({ length: TEXT_ROWS }, () =>
-	Array<boolean>(TEXT_COLS).fill(false)
-);
-for (const { map, col } of GLYPHS) {
-	for (let y = 0; y < 5; y++) {
-		for (let x = 0; x < 3; x++) {
-			if (Math.floor(map / 2 ** (x + y * 3)) % 2 === 1) {
-				TEXT_GRID[4 - y][col + x] = true;
-			}
-		}
-	}
-}
-
-function HeaderTilePlaceholder() {
-	return (
-		<div
-			aria-hidden
-			className="absolute inset-0"
-			style={{
-				pointerEvents: "none",
-				backgroundColor: TILE_BLUE,
-				// Two grout-line gradients over the blue base form the grid, with
-				// half the grout at each end of the cell so the lines straddle
-				// the cell boundaries and the tile face stays centered.
-				backgroundImage: `repeating-linear-gradient(90deg, ${GROUT} 0 ${GROUT_HALF}%, transparent ${GROUT_HALF}% ${100 - GROUT_HALF}%, ${GROUT} ${100 - GROUT_HALF}% 100%), repeating-linear-gradient(0deg, ${GROUT} 0 ${GROUT_HALF}%, transparent ${GROUT_HALF}% ${100 - GROUT_HALF}%, ${GROUT} ${100 - GROUT_HALF}% 100%)`,
-				backgroundSize: `${TILE} ${TILE}`,
-				backgroundPosition: "center",
-			}}
-		>
-			<div className="absolute inset-0 flex items-center justify-center">
-				<div
-					style={{
-						display: "grid",
-						gridTemplateColumns: `repeat(${TEXT_COLS}, ${TILE})`,
-						gridTemplateRows: `repeat(${TEXT_ROWS}, ${TILE})`,
-					}}
-				>
-					{TEXT_GRID.flatMap((row, r) =>
-						row.map((on, c) =>
-							on ? (
-								<div
-									key={`${r}-${c}`}
-									style={{
-										gridColumn: c + 1,
-										gridRow: r + 1,
-										backgroundColor: GROUT,
-										padding: `${GROUT_PCT / 2}%`,
-									}}
-								>
-									<div style={{ width: "100%", height: "100%", backgroundColor: TEXT_TILE }} />
-								</div>
-							) : null
-						)
-					)}
-				</div>
-			</div>
-		</div>
-	);
-}
 
 // Size the simulation by CSS pixels, not a fixed texel count, so ripples
 // have the same on-screen wavelength, dent size, and speed on every device.
@@ -233,7 +134,7 @@ function renderSFPools(
 
 	p.setup = () => {
 		p.pixelDensity(Math.min(window.devicePixelRatio || 1, MAX_PIXEL_DENSITY));
-		const canvas = p.createCanvas(p.windowWidth, 200, p.WEBGL);
+		const canvas = p.createCanvas(p.windowWidth, headerHeightPx(p.windowWidth), p.WEBGL);
 		// Stack the canvas over the SSR tile placeholder, and fade it in on the
 		// first drawn frame so it doesn't pop over the static placeholder.
 		canvasEl = (canvas as any).elt as HTMLElement;
@@ -328,6 +229,9 @@ function renderSFPools(
 		displayShader.setUniform("u_time", time);
 		displayShader.setUniform("u_water", simRead);
 		displayShader.setUniform("u_waterTexel", simTexel);
+		// integer-CSS-px tile edge, in device px; the CSS placeholder computes
+		// the identical value as min(22px, round(down, 100vw / 33, 1px))
+		displayShader.setUniform("u_tilePx", tileCssPx(p.width) * d);
 		p.quad(-1, -1, 1, -1, 1, 1, -1, 1);
 
 		if (firstFrame) {
@@ -343,7 +247,7 @@ function renderSFPools(
 		// fixed-height canvas.
 		if (p.windowWidth === p.width) return;
 
-		p.resizeCanvas(p.windowWidth, 200);
+		p.resizeCanvas(p.windowWidth, headerHeightPx(p.windowWidth));
 		createSimBuffers(); // aspect changed, keep sim texels square on screen
 	};
 }
@@ -379,7 +283,11 @@ export default function SFPoolsAnimation()
 
 	// TODO: update the rendering code to take in props for the height and width
 	return (
-		<div ref={renderRef} className="absolute left-0 top-0 h-[200px] w-full">
+		<div
+			ref={renderRef}
+			className="absolute left-0 top-0 w-full"
+			style={{ height: HEADER_HEIGHT }}
+		>
 			<HeaderTilePlaceholder />
 		</div>
 	);

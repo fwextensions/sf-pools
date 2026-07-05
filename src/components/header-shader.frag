@@ -8,6 +8,7 @@ uniform vec2 u_resolution;
 uniform float u_time;
 uniform sampler2D u_water;  // simulated heightfield, r = height
 uniform vec2 u_waterTexel;  // 1.0 / simulation resolution
+uniform float u_tilePx;     // tile edge in device px (integer CSS px * density)
 
 // ============================================================================
 // CONSTANTS
@@ -232,9 +233,14 @@ void main() {
 	tileUV *= (1.0 - causticHighlight * 0.012);
 
 	// --- Tile Grid Layout ---
-	float preferredHeight = 9.0; // target tile rows on a wide canvas
-	float requiredWidth = 33.0;  // min tile columns: 29 for the text + margin
-	float tileCountV = max(preferredHeight, requiredWidth / aspect);
+	// The tile edge length arrives as a uniform so JS, this shader, and the
+	// CSS placeholder all share one integer-CSS-pixel tile size:
+	// min(22px, floor(width / 33)) — 9 rows on a wide 198px-tall canvas, at
+	// least 33 columns (29 for the text + margin) on narrow ones. Integer
+	// tiles keep the grid lines on pixel boundaries in both renderers, so
+	// the placeholder and canvas can't drift apart, and make the tile counts
+	// genuinely fractional, keeping the text snapping off float knife edges.
+	float tileCountV = u_resolution.y / u_tilePx;
 
 	vec2 gridID = floor(tileUV * tileCountV);
 	vec2 stableGrid = floor(uv * tileCountV);
@@ -244,7 +250,13 @@ void main() {
 	float totalTilesH = tileCountV * aspect;
 	float textWidth = 29.0;
 	float textHeight = 5.0;
-	vec2 textStart = vec2(floor((totalTilesH - textWidth) / 2.0), ceil((tileCountV - textHeight) / 2.0));
+	// The 0.01 nudges keep the floor/ceil off float knife edges: on narrow
+	// canvases (totalTilesH - 29)/2 is exactly 2, and on wide ones
+	// (tileCountV - 5)/2 is exactly 2, so GPU rounding decides which tile the
+	// text lands on — and different GPUs decide differently. Biasing floor up
+	// and ceil down makes the result deterministic (and match the CSS
+	// placeholder, which snaps the same way).
+	vec2 textStart = vec2(floor((totalTilesH - textWidth) / 2.0 + 0.01), ceil((tileCountV - textHeight) / 2.0 - 0.01));
 	float isText = getText(gridID - textStart);
 
 	// --- Base Color ---
