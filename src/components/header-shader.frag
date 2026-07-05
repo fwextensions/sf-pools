@@ -254,6 +254,19 @@ void main() {
 	vec3 textTile = vec3(0.89, 0.89, 1.0);
 	vec3 color = mix(grout, mix(tileBase, textTile, isText), tileMask);
 
+	// --- Tile Bevel ---
+	// Fake a pillowed edge: near each tile border, tilt the surface outward
+	// (sign(bg) picks the direction, the smoothstep ramps the tilt in over
+	// the outer band of the tile) and light it from the same off-screen
+	// upper-right light as the glint. Multiplying by the current color keeps
+	// the shading tint-consistent, and by tileMask keeps grout flat. Pure
+	// ALU — no extra texture reads. 0.30..0.43 = where the bevel starts and
+	// ends (tile face spans |bg| < ~0.45); 0.14 = bevel contrast.
+	vec2 bg = fract(tileUV * tileCountV) - 0.5;
+	vec2 bevelSlope = sign(bg) * smoothstep(0.30, 0.43, abs(bg));
+	float bevelLight = dot(bevelSlope, normalize(vec2(0.35, 0.55)));
+	color += color * bevelLight * 0.14 * tileMask;
+
 	// --- Depth Vignette ---
 	// darken up to 15% toward the corners, fading in over a 1.2-radius
 	float dist = length(uv - vec2(aspect * 0.5, 0.5));
