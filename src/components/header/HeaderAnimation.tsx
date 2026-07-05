@@ -5,11 +5,11 @@ import type p5 from "p5";
 import displayFragShader from "./header-shader.frag";
 import simFragShader from "./water-sim.frag";
 import {
-	HeaderTilePlaceholder,
+	HeaderPlaceholder,
 	HEADER_HEIGHT,
 	headerHeightPx,
 	tileCssPx,
-} from "@/components/SFPPlaceholder";
+} from "@/components/header/HeaderPlaceholder";
 
 const vertShader = `
 	attribute vec3 aPosition;
@@ -252,7 +252,7 @@ function renderSFPools(
 	};
 }
 
-export default function SFPoolsAnimation()
+export default function HeaderAnimation()
 {
 	// 1. Type the Ref as an HTMLDivElement
 	const renderRef = useRef<HTMLDivElement>(null);
@@ -288,7 +288,7 @@ export default function SFPoolsAnimation()
 			className="absolute left-0 top-0 w-full"
 			style={{ height: HEADER_HEIGHT }}
 		>
-			<HeaderTilePlaceholder />
+			<HeaderPlaceholder />
 		</div>
 	);
 }

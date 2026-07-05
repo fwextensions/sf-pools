@@ -129,7 +129,7 @@ PUSHOVER_API_TOKEN=...
 
 ## Header Water Animation
 
-The animated pool header is a two-pass WebGL pipeline run by p5.js in `src/components/SFPoolsAnimation.tsx`.
+The animated pool header is a two-pass WebGL pipeline run by p5.js in `src/components/HeaderAnimation.tsx`.
 
 ### How it works
 
@@ -161,12 +161,12 @@ The texture is sized in CSS pixels (`SIM_TEXEL_CSS_PX`, ~3px per texel, square o
 | --- | --- | --- |
 | `WAVE_SPEED` | water-sim.frag | Ring travel speed. **Must stay < 0.5** (CFL stability limit) |
 | `DAMPING` | water-sim.frag | How long waves live; toward 1.0 = longer sloshing |
-| `SIM_SUBSTEPS` | SFPoolsAnimation.tsx | Sim steps per frame; overall simulation speed |
-| `SIM_TEXEL_CSS_PX` | SFPoolsAnimation.tsx | Master scale: bigger = chunkier, softer water everywhere |
-| `SIM_IMPULSE_RADIUS` | SFPoolsAnimation.tsx | Size of the pointer's dent, in sim texels |
-| `impulseAmp` formula | SFPoolsAnimation.tsx | How hard moves/clicks press into the water |
-| `SCROLL_AMP_PER_PX`, `SCROLL_AMP_MAX` | SFPoolsAnimation.tsx | Scroll slosh strength per unit of scroll acceleration, and its cap |
-| `SCROLL_COOLDOWN_MS` | SFPoolsAnimation.tsx | Min gap between scroll sloshes; higher = calmer under scrubbing |
+| `SIM_SUBSTEPS` | HeaderAnimation.tsx | Sim steps per frame; overall simulation speed |
+| `SIM_TEXEL_CSS_PX` | HeaderAnimation.tsx | Master scale: bigger = chunkier, softer water everywhere |
+| `SIM_IMPULSE_RADIUS` | HeaderAnimation.tsx | Size of the pointer's dent, in sim texels |
+| `impulseAmp` formula | HeaderAnimation.tsx | How hard moves/clicks press into the water |
+| `SCROLL_AMP_PER_PX`, `SCROLL_AMP_MAX` | HeaderAnimation.tsx | Scroll slosh strength per unit of scroll acceleration, and its cap |
+| `SCROLL_COOLDOWN_MS` | HeaderAnimation.tsx | Min gap between scroll sloshes; higher = calmer under scrubbing |
 | `SIM_GRAD_SCALE` | header-shader.frag | How strongly ripples refract tiles / bend caustics / glint |
 | `SIM_HEIGHT_SCALE` | header-shader.frag | How strongly crests brighten and troughs darken |
 | refraction `0.035` | header-shader.frag main() | Overall "looking through water" distortion |

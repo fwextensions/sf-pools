@@ -79,7 +79,7 @@ for (const { map, col } of GLYPHS) {
 	}
 }
 
-export function HeaderTilePlaceholder()
+export function HeaderPlaceholder()
 {
 	return (
 		<div
