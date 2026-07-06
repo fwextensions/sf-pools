@@ -3,9 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
 	turbopack: {
 		rules: {
-			"*.frag": { type: "raw" },
-			"*.vert": { type: "raw" },
-			"*.glsl": { type: "raw" },
+			"*.frag": { loaders: ["raw-loader"], as: "*.js" },
+			"*.vert": { loaders: ["raw-loader"], as: "*.js" },
+			"*.glsl": { loaders: ["raw-loader"], as: "*.js" },
 		},
 	},
 	webpack(config) {

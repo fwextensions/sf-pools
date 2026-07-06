@@ -1,50 +1,56 @@
 {
 	"balboa": {
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/28024",
-		"pdfHash": "aab03eb9a4d7279ab9abfda139be812de3fba2a55bf844199c3d645b8065533f",
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29562",
+		"pdfHash": "318d08d0ca04c9479c3efd5e75847a7c308b7576a39b9b0f4757468550f4df42",
 		"filename": "balboa.pdf",
-		"lastDownloaded": "2026-01-26T02:50:38.709Z"
+		"lastDownloaded": "2026-07-06T01:17:03.120Z"
 	},
 	"coffman": {
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/28113",
-		"pdfHash": "693df932af4488b6910416de4cd87ce3c5f355dccc1cce192f4ef860cea0cfb6",
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29563",
+		"pdfHash": "3b3444b7aca2df27e9e4b2aaa7d14ded050e1730a8f9c26da0257241b09bfd4c",
 		"filename": "coffman.pdf",
-		"lastDownloaded": "2026-01-26T02:50:39.416Z"
+		"lastDownloaded": "2026-07-06T01:17:03.736Z"
 	},
 	"garfield": {
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/28026",
-		"pdfHash": "82c93e26a4fd61e368b79787f4b47b873c23dee5d7a0d761ca6c943c957b563f",
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29564",
+		"pdfHash": "ec980b5239ba1ed5e0d1ea2b4db4512c9a4f01683aa625c40b8d8519d708f552",
 		"filename": "garfield.pdf",
-		"lastDownloaded": "2026-01-26T02:50:40.070Z"
+		"lastDownloaded": "2026-07-06T01:17:04.345Z"
 	},
 	"hamilton": {
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/28027",
-		"pdfHash": "7434f1e0fdd63bb735cefe9499a963d0a07c442670477f66853177e361edd30c",
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29599",
+		"pdfHash": "0bd01dc9ea83680c17475a0718e79fe77c0b85af5c1a7308c345771bbf8672c6",
 		"filename": "hamilton.pdf",
-		"lastDownloaded": "2026-01-26T02:50:40.717Z"
+		"lastDownloaded": "2026-07-06T01:17:04.983Z"
 	},
 	"mlk": {
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/28028",
-		"pdfHash": "9e859b8a10930f8980c66e792decc674a2123cbd1ca8a198addb0907491e0da7",
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29578",
+		"pdfHash": "631524f6aa3c6810fd22e1e76f14c977c8382c1908b5f355dcba12bac666eb44",
 		"filename": "mlk.pdf",
-		"lastDownloaded": "2026-01-26T02:50:41.411Z"
+		"lastDownloaded": "2026-07-06T01:17:05.571Z"
 	},
 	"northbeach": {
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/28115",
-		"pdfHash": "efb394dbb646f69bee25b246ad477068db494a6bb348d5baed87c36daa5b9948",
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29568",
+		"pdfHash": "801975cb5c2a860eb9e4aeb573945a3d0367a8bf42138769e22ad16c1187833d",
 		"filename": "northbeach.pdf",
-		"lastDownloaded": "2026-01-26T02:50:43.028Z"
+		"lastDownloaded": "2026-07-06T01:17:06.764Z"
 	},
 	"rossi": {
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/28030",
-		"pdfHash": "f2cf78fb5318ffbbd80bd06490f59897ada4cffb7ed0a47cc466987111666381",
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29570",
+		"pdfHash": "4366bb8babcdaa6815a60c47919934e83b6176b6306b9b988581845462dd82b0",
 		"filename": "rossi.pdf",
-		"lastDownloaded": "2026-01-26T02:50:43.794Z"
+		"lastDownloaded": "2026-07-06T01:17:07.363Z"
 	},
 	"sava": {
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/19018/Facility--deck-rules-in-English",
-		"pdfHash": "8c74735ba686720e2807b2748d6b71e73f3f7c05d727c13442c3cf8195992d51",
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29571",
+		"pdfHash": "aa7cf8ecc26978e5a5a713161e86e57376c31668ecd54f1d61a5ae8586188bc9",
 		"filename": "sava.pdf",
-		"lastDownloaded": "2026-01-26T02:50:44.836Z"
+		"lastDownloaded": "2026-07-06T01:17:07.961Z"
+	},
+	"mission": {
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29566",
+		"pdfHash": "064a04e274e735909e8ca465f462844a738d88b8dac3ca53d651b8c5641f81d1",
+		"filename": "mission.pdf",
+		"lastDownloaded": "2026-07-06T01:17:06.155Z"
 	}
 }

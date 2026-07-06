@@ -2,11 +2,11 @@ import "dotenv/config";
 import { createHash } from "node:crypto";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
-import { extractScheduleFromPdf, type PoolSchedule } from "../src/lib/pdf-processor";
-import { findCanonicalProgram, normalizeProgramName } from "../src/lib/program-taxonomy";
-import { getPoolIdFromName, getPoolById } from "../src/lib/pool-mapping";
-import { toTitleCase } from "../src/lib/program-taxonomy";
-import { detectScheduleAnomalies } from "../src/lib/schedule-validation";
+import { extractScheduleFromPdf, type PoolSchedule } from "@/lib/pdf-processor";
+import { findCanonicalProgram, normalizeProgramName } from "@/lib/program-taxonomy";
+import { getPoolIdFromName, getPoolById } from "@/lib/pool-mapping";
+import { toTitleCase } from "@/lib/program-taxonomy";
+import { detectScheduleAnomalies } from "@/lib/schedule-validation";
 import type { PoolEntry, DiscoveredPool } from "./downloadPdf";
 import {
 	computeChangelog,

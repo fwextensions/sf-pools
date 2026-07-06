@@ -268,22 +268,11 @@ export async function saveChangelog(entry: ChangelogEntry): Promise<string | nul
 	}
 
 	await mkdir(CHANGELOG_DIR, { recursive: true });
-	const filename = `${entry.date}.json`;
-	const filepath = path.join(CHANGELOG_DIR, filename);
+	// one changelog per day: re-runs on the same date overwrite the existing file
+	const filepath = path.join(CHANGELOG_DIR, `${entry.date}.json`);
 
-	// if file exists for today, append a timestamp suffix
-	let finalPath = filepath;
-	try {
-		await readFile(filepath);
-		// file exists, use timestamp
-		const ts = entry.timestamp.replace(/[:.]/g, "-");
-		finalPath = path.join(CHANGELOG_DIR, `${entry.date}_${ts}.json`);
-	} catch {
-		// file doesn't exist, use date-only filename
-	}
-
-	await writeFile(finalPath, JSON.stringify(entry, null, "\t"), "utf-8");
-	return finalPath;
+	await writeFile(filepath, JSON.stringify(entry, null, "\t"), "utf-8");
+	return filepath;
 }
 
 export function formatChangelogSummary(entry: ChangelogEntry): string {

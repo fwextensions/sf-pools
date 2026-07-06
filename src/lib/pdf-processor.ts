@@ -91,7 +91,7 @@ If known, set pdfScheduleUrl to: ${hints?.pdfScheduleUrl ?? ""}
 If known, set sfRecParkUrl to: ${hints?.sfRecParkUrl ?? ""}`;
 
 	const result = await generateText({
-		model: google("gemini-2.5-flash"),
+		model: google("gemini-3.1-flash-lite"),
 		output: Output.array({ element: PoolScheduleSchema }),
 		// deterministic extraction: avoid run-to-run drift on ambiguous cells
 		temperature: 0,

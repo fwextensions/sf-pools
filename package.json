@@ -46,6 +46,7 @@
 		"jest": "^30.4.2",
 		"postcss": "^8.5.16",
 		"prettier": "^3.9.4",
+		"raw-loader": "^4.0.2",
 		"tailwindcss": "^4.3.2",
 		"ts-jest": "^29.4.11",
 		"tsx": "^4.23.0",
