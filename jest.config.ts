@@ -17,6 +17,9 @@ const config: Config = {
 	transform: {
 		"^.+\\.tsx?$": ["ts-jest", {
 			useESM: true,
+			tsconfig: {
+				rootDir: ".",
+			},
 		}],
 	},
 	extensionsToTreatAsEsm: [".ts", ".tsx"],

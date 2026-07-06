@@ -66,6 +66,7 @@ export default function HomeFilters({ all, alerts }: Props) {
 	}, [all]);
 
 	// init from query params once
+	/* eslint-disable react-hooks/set-state-in-effect */
 	useEffect(() => {
 		if (didInit.current) return;
 		const qPrograms = searchParams.get("programs");
@@ -93,6 +94,7 @@ export default function HomeFilters({ all, alerts }: Props) {
 		didInit.current = true;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+	/* eslint-enable react-hooks/set-state-in-effect */
 
 	// push state to url when filters change
 	useEffect(() => {
