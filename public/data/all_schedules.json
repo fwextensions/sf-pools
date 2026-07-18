@@ -1,5 +1,593 @@
 [
 	{
+		"id": "northBeachCool",
+		"name": "North Beach Aquatics Center - Cool Pool",
+		"nameTitle": "North Beach Pool (Cool)",
+		"shortName": "North Beach (Cool)",
+		"address": "661 Lombard St, San Francisco",
+		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
+		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29568",
+		"scheduleSeason": "Summer 2026",
+		"scheduleStartDate": "2026-06-06",
+		"scheduleEndDate": "2026-08-10",
+		"scheduleLastUpdated": "2026-07-18",
+		"programs": [
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "7:00a",
+				"endTime": "8:00a",
+				"notes": "",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Summer Lts*",
+				"dayOfWeek": "Tuesday",
+				"startTime": "8:30a",
+				"endTime": "9:45a",
+				"notes": "",
+				"programNameOriginal": "Summer LTS*",
+				"programNameCanonical": "Summer Lts*"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "10:15a",
+				"endTime": "1:00p",
+				"notes": "",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "1:30p",
+				"endTime": "3:45p",
+				"notes": "",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Summer Lts",
+				"dayOfWeek": "Tuesday",
+				"startTime": "4:00p",
+				"endTime": "5:15p",
+				"notes": "",
+				"programNameOriginal": "Summer LTS",
+				"programNameCanonical": "Summer Lts"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "5:30p",
+				"endTime": "6:30p",
+				"notes": "",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Summer Lts*",
+				"dayOfWeek": "Wednesday",
+				"startTime": "8:30a",
+				"endTime": "9:45a",
+				"notes": "",
+				"programNameOriginal": "Summer LTS*",
+				"programNameCanonical": "Summer Lts*"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "10:15a",
+				"endTime": "12:30p",
+				"notes": "",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "1:00p",
+				"endTime": "3:45p",
+				"notes": "",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Summer Lts",
+				"dayOfWeek": "Wednesday",
+				"startTime": "4:00p",
+				"endTime": "5:15p",
+				"notes": "",
+				"programNameOriginal": "Summer LTS",
+				"programNameCanonical": "Summer Lts"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "5:30p",
+				"endTime": "7:00p",
+				"notes": "",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "7:00a",
+				"endTime": "8:00a",
+				"notes": "",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Summer Lts*",
+				"dayOfWeek": "Thursday",
+				"startTime": "8:30a",
+				"endTime": "9:45a",
+				"notes": "",
+				"programNameOriginal": "Summer LTS*",
+				"programNameCanonical": "Summer Lts*"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "10:15a",
+				"endTime": "1:00p",
+				"notes": "",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "1:30p",
+				"endTime": "3:45p",
+				"notes": "",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Summer Lts",
+				"dayOfWeek": "Thursday",
+				"startTime": "4:00p",
+				"endTime": "5:15p",
+				"notes": "",
+				"programNameOriginal": "Summer LTS",
+				"programNameCanonical": "Summer Lts"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "5:30p",
+				"endTime": "6:30p",
+				"notes": "",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Summer Lts*",
+				"dayOfWeek": "Friday",
+				"startTime": "8:30a",
+				"endTime": "9:45a",
+				"notes": "",
+				"programNameOriginal": "Summer LTS*",
+				"programNameCanonical": "Summer Lts*"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "10:15a",
+				"endTime": "12:30p",
+				"notes": "",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "1:00p",
+				"endTime": "3:45p",
+				"notes": "",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Summer Lts",
+				"dayOfWeek": "Friday",
+				"startTime": "4:00p",
+				"endTime": "5:15p",
+				"notes": "",
+				"programNameOriginal": "Summer LTS",
+				"programNameCanonical": "Summer Lts"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "5:30p",
+				"endTime": "7:30p",
+				"notes": "",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Youth Swim Teams / Club Teams",
+				"dayOfWeek": "Saturday",
+				"startTime": "9:00a",
+				"endTime": "10:00a",
+				"notes": "",
+				"programNameOriginal": "Junior Piranha PC Swim *",
+				"programNameCanonical": "Youth Swim Teams / Club Teams"
+			},
+			{
+				"programName": "Piranha Pc Swim*",
+				"dayOfWeek": "Saturday",
+				"startTime": "10:15a",
+				"endTime": "11:15a",
+				"notes": "",
+				"programNameOriginal": "Piranha PC Swim*",
+				"programNameCanonical": "Piranha Pc Swim*"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "12:00p",
+				"endTime": "3:00p",
+				"notes": "",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "3:30p",
+				"endTime": "4:30p",
+				"notes": "",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim"
+			},
+			{
+				"programName": "Adult Swim Lessons",
+				"dayOfWeek": "Saturday",
+				"startTime": "4:30p",
+				"endTime": "5:00p",
+				"notes": "Advanced",
+				"programNameOriginal": "Adult Lessons*",
+				"programNameCanonical": "Adult Swim Lessons"
+			}
+		]
+	},
+	{
+		"id": "northBeachWarm",
+		"name": "North Beach Aquatics Center - Warm Pool",
+		"nameTitle": "North Beach Pool (Warm)",
+		"shortName": "North Beach (Warm)",
+		"address": "661 Lombard St, San Francisco",
+		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
+		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29569",
+		"scheduleSeason": "Summer 2026",
+		"scheduleStartDate": "2026-06-06",
+		"scheduleEndDate": "2026-08-10",
+		"scheduleLastUpdated": "2026-07-18",
+		"programs": [
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "7:00a",
+				"endTime": "8:00a",
+				"notes": "",
+				"programNameOriginal": "Lap Swim (Lap/Therapy)",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Summer Lts",
+				"dayOfWeek": "Tuesday",
+				"startTime": "8:30a",
+				"endTime": "9:45a",
+				"notes": "",
+				"programNameOriginal": "Summer LTS",
+				"programNameCanonical": "Summer Lts"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "10:15a",
+				"endTime": "11:45a",
+				"notes": "",
+				"programNameOriginal": "Rec/Family Swim",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "12:00p",
+				"endTime": "1:00p",
+				"notes": "",
+				"programNameOriginal": "LAP SWIM (Lap/Therapy)",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "1:30p",
+				"endTime": "3:30p",
+				"notes": "",
+				"programNameOriginal": "Rec/Family Swim",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Summer Lts",
+				"dayOfWeek": "Tuesday",
+				"startTime": "4:00p",
+				"endTime": "5:15p",
+				"notes": "",
+				"programNameOriginal": "Summer LTS",
+				"programNameCanonical": "Summer Lts"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "5:30p",
+				"endTime": "6:30p",
+				"notes": "",
+				"programNameOriginal": "LAP SWIM (Lap/Therapy)",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Summer Lts",
+				"dayOfWeek": "Wednesday",
+				"startTime": "8:30a",
+				"endTime": "9:45a",
+				"notes": "",
+				"programNameOriginal": "Summer LTS",
+				"programNameCanonical": "Summer Lts"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "10:15a",
+				"endTime": "11:15p",
+				"notes": "",
+				"programNameOriginal": "Senior/Therapy Swim",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "11:30a",
+				"endTime": "12:30p",
+				"notes": "Shallow",
+				"programNameOriginal": "Self-Guided Exercise",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "11:30a",
+				"endTime": "12:30p",
+				"notes": "Deep",
+				"programNameOriginal": "Senior Swim",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "1:00p",
+				"endTime": "3:30p",
+				"notes": "",
+				"programNameOriginal": "Family Swim",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Summer Lts",
+				"dayOfWeek": "Wednesday",
+				"startTime": "4:00p",
+				"endTime": "5:15p",
+				"notes": "",
+				"programNameOriginal": "Summer LTS",
+				"programNameCanonical": "Summer Lts"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "5:30p",
+				"endTime": "6:30p",
+				"notes": "",
+				"programNameOriginal": "Rec/Family Swim",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "7:00a",
+				"endTime": "8:00a",
+				"notes": "",
+				"programNameOriginal": "Lap Swim (Lap/Therapy)",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Summer Lts",
+				"dayOfWeek": "Thursday",
+				"startTime": "8:30a",
+				"endTime": "9:45a",
+				"notes": "",
+				"programNameOriginal": "Summer LTS",
+				"programNameCanonical": "Summer Lts"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "10:30a",
+				"endTime": "11:45a",
+				"notes": "",
+				"programNameOriginal": "Rec/Family Swim",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "12:00p",
+				"endTime": "1:00p",
+				"notes": "",
+				"programNameOriginal": "LAP SWIM (Lap/Therapy)",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "1:30p",
+				"endTime": "3:15p",
+				"notes": "",
+				"programNameOriginal": "Family Swim",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Adult Swim Lessons",
+				"dayOfWeek": "Thursday",
+				"startTime": "3:20p",
+				"endTime": "3:50p",
+				"notes": "",
+				"programNameOriginal": "Adult Swim Lessons (Beg/Int)",
+				"programNameCanonical": "Adult Swim Lessons"
+			},
+			{
+				"programName": "Summer Lts",
+				"dayOfWeek": "Thursday",
+				"startTime": "4:00p",
+				"endTime": "5:15p",
+				"notes": "",
+				"programNameOriginal": "Summer LTS",
+				"programNameCanonical": "Summer Lts"
+			},
+			{
+				"programName": "Water Exercise",
+				"dayOfWeek": "Thursday",
+				"startTime": "5:30p",
+				"endTime": "6:30p",
+				"notes": "Instructor Led, Deep End",
+				"programNameOriginal": "Water Exercise",
+				"programNameCanonical": "Water Exercise"
+			},
+			{
+				"programName": "Summer Lts",
+				"dayOfWeek": "Friday",
+				"startTime": "8:30a",
+				"endTime": "9:45a",
+				"notes": "",
+				"programNameOriginal": "Summer LTS",
+				"programNameCanonical": "Summer Lts"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "10:15a",
+				"endTime": "11:15p",
+				"notes": "",
+				"programNameOriginal": "Senior/Therapy Swim",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "11:30a",
+				"endTime": "12:30p",
+				"notes": "Shallow",
+				"programNameOriginal": "Self-Guided Exercise",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "11:30a",
+				"endTime": "12:30p",
+				"notes": "Deep",
+				"programNameOriginal": "Senior Swim",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "1:00p",
+				"endTime": "3:30p",
+				"notes": "",
+				"programNameOriginal": "Family Swim",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Summer Lts",
+				"dayOfWeek": "Friday",
+				"startTime": "4:00p",
+				"endTime": "5:15p",
+				"notes": "",
+				"programNameOriginal": "Summer LTS",
+				"programNameCanonical": "Summer Lts"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "5:30p",
+				"endTime": "7:00p",
+				"notes": "",
+				"programNameOriginal": "Rec/Family Swim",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Saturday",
+				"startTime": "9:00a",
+				"endTime": "9:30a",
+				"notes": "",
+				"programNameOriginal": "Learn To Swim",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Saturday",
+				"startTime": "9:45a",
+				"endTime": "10:15a",
+				"notes": "",
+				"programNameOriginal": "Learn To Swim",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Saturday",
+				"startTime": "10:30a",
+				"endTime": "11:00a",
+				"notes": "",
+				"programNameOriginal": "Pre-school Lessons",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "12:00p",
+				"endTime": "1:15p",
+				"notes": "",
+				"programNameOriginal": "Rec/Family Swim",
+				"programNameCanonical": "Family Swim"
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "1:45p",
+				"endTime": "3:00p",
+				"notes": "",
+				"programNameOriginal": "Senior/Therapy Swim",
+				"programNameCanonical": "Senior Swim / Therapy Swim"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "3:30p",
+				"endTime": "5:00p",
+				"notes": "",
+				"programNameOriginal": "Rec/Family Swim",
+				"programNameCanonical": "Family Swim"
+			}
+		]
+	},
+	{
 		"id": "balboa",
 		"name": "Balboa Aquatics Center",
 		"nameTitle": "Balboa Pool",
