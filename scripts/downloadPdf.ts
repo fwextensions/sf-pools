@@ -16,6 +16,9 @@ export type PoolEntry = {
 	shortName: string;
 	address: string;
 	pageUrl: string;
+	// optional keyword used to disambiguate when one facility page hosts multiple
+	// schedule PDFs (e.g. North Beach has separate "warm" and "cool" pool schedules)
+	scheduleMatch?: string;
 };
 
 export type DiscoveredPool = {

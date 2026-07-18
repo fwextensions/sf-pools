@@ -27,17 +27,17 @@ describe("getPoolById", () => {
 		});
 
 		it("should return pool metadata for camelCase pool ID", () => {
-			const result = getPoolById("northBeach");
+			const result = getPoolById("northBeachCool");
 			expect(result).not.toBeNull();
-			expect(result?.id).toBe("northBeach");
-			expect(result?.shortName).toBe("North Beach");
-			expect(result?.displayName).toBe("North Beach Pool");
+			expect(result?.id).toBe("northBeachCool");
+			expect(result?.shortName).toBe("North Beach (Cool)");
+			expect(result?.displayName).toBe("North Beach Pool (Cool)");
 		});
 
 		it("should return pool metadata for camelCase pool ID with different case", () => {
-			const result = getPoolById("NORTHBEACH");
+			const result = getPoolById("NORTHBEACHCOOL");
 			expect(result).not.toBeNull();
-			expect(result?.id).toBe("northBeach");
+			expect(result?.id).toBe("northBeachCool");
 		});
 
 		it("should return pool metadata for MLK pool", () => {
@@ -75,7 +75,7 @@ describe("getPoolById", () => {
 		});
 
 		it("should work for all valid pool IDs", () => {
-			const poolIds = ["balboa", "coffman", "garfield", "hamilton", "mlk", "mission", "northBeach", "rossi", "sava"];
+			const poolIds = ["balboa", "coffman", "garfield", "hamilton", "mlk", "mission", "northBeachCool", "northBeachWarm", "rossi", "sava"];
 			
 			for (const poolId of poolIds) {
 				const result = getPoolById(poolId);
@@ -105,7 +105,7 @@ describe("getPoolById", () => {
 		});
 
 		it("should return same result for camelCase ID with different cases", () => {
-			const variations = ["northBeach", "NorthBeach", "NORTHBEACH", "northbeach", "NoRtHbEaCh"];
+			const variations = ["northBeachCool", "NorthBeachCool", "NORTHBEACHCOOL", "northbeachcool", "NoRtHbEaChCoOl"];
 			const results = variations.map(v => getPoolById(v));
 			
 			// all results should be equal
@@ -540,19 +540,24 @@ describe("getPoolIdFromName", () => {
 			expect(result).toBe("mlk");
 		});
 
-		it("should return pool ID for North Beach pool", () => {
+		it("should return the cool pool ID for generic North Beach pool", () => {
 			const result = getPoolIdFromName("North Beach Pool");
-			expect(result).toBe("northBeach");
+			expect(result).toBe("northBeachCool");
 		});
 
-		it("should return pool ID for North Beach pool with lowercase", () => {
+		it("should return the cool pool ID for generic North Beach with lowercase", () => {
 			const result = getPoolIdFromName("north beach");
-			expect(result).toBe("northBeach");
+			expect(result).toBe("northBeachCool");
 		});
 
 		it("should return pool ID for North Beach warm pool variation", () => {
 			const result = getPoolIdFromName("North Beach Aquatics Center - Warm Pool");
-			expect(result).toBe("northBeach");
+			expect(result).toBe("northBeachWarm");
+		});
+
+		it("should return pool ID for North Beach cool pool variation", () => {
+			const result = getPoolIdFromName("North Beach Aquatics Center - Cool Pool");
+			expect(result).toBe("northBeachCool");
 		});
 
 		it("should return null for unrecognized pool name", () => {
@@ -663,11 +668,11 @@ describe("validatePoolId", () => {
 		});
 
 		it("should return true for valid camelCase pool ID", () => {
-			expect(validatePoolId("northBeach")).toBe(true);
+			expect(validatePoolId("northBeachCool")).toBe(true);
 		});
 
 		it("should return true for valid camelCase pool ID with different case", () => {
-			expect(validatePoolId("NORTHBEACH")).toBe(true);
+			expect(validatePoolId("NORTHBEACHCOOL")).toBe(true);
 		});
 
 		it("should return true for MLK pool ID", () => {
@@ -695,7 +700,7 @@ describe("validatePoolId", () => {
 		});
 
 		it("should return true for all valid pool IDs", () => {
-			const poolIds = ["balboa", "coffman", "garfield", "hamilton", "mlk", "mission", "northBeach", "rossi", "sava"];
+			const poolIds = ["balboa", "coffman", "garfield", "hamilton", "mlk", "mission", "northBeachCool", "northBeachWarm", "rossi", "sava"];
 			
 			for (const poolId of poolIds) {
 				expect(validatePoolId(poolId)).toBe(true);
@@ -725,7 +730,7 @@ describe("validatePoolId", () => {
 		});
 
 		it("should return true for all case variations of camelCase pool ID", () => {
-			const variations = ["northBeach", "NorthBeach", "NORTHBEACH", "northbeach", "NoRtHbEaCh"];
+			const variations = ["northBeachCool", "NorthBeachCool", "NORTHBEACHCOOL", "northbeachcool", "NoRtHbEaChCoOl"];
 			
 			for (const variation of variations) {
 				expect(validatePoolId(variation)).toBe(true);
@@ -756,14 +761,14 @@ describe("getAllPoolIds", () => {
 			expect(result).toEqual(expected);
 		});
 
-		it("should return exactly 9 pool IDs", () => {
+		it("should return exactly 10 pool IDs", () => {
 			const result = getAllPoolIds();
-			expect(result.length).toBe(9);
+			expect(result.length).toBe(10);
 		});
 
 		it("should include all expected pool IDs", () => {
 			const result = getAllPoolIds();
-			const expected = ["balboa", "coffman", "garfield", "hamilton", "mlk", "mission", "northBeach", "rossi", "sava"];
+			const expected = ["balboa", "coffman", "garfield", "hamilton", "mlk", "mission", "northBeachCool", "northBeachWarm", "rossi", "sava"];
 			expect(result).toEqual(expected);
 		});
 
@@ -816,7 +821,7 @@ describe("getAllPoolIds", () => {
 			result1.push("fake");
 			
 			const result2 = getAllPoolIds();
-			expect(result2.length).toBe(9);
+			expect(result2.length).toBe(10);
 			expect(result2).not.toContain("fake");
 		});
 	});

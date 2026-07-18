@@ -44,7 +44,7 @@ describe("Data Processing Integration", () => {
 			const originalName = "North Beach Aquatics Center";
 			
 			const poolId = getPoolIdFromName(originalName);
-			expect(poolId).toBe("northBeach");
+			expect(poolId).toBe("northBeachCool");
 			
 			const poolMeta = getPoolById(poolId!);
 			expect(poolMeta).not.toBeNull();
@@ -52,8 +52,8 @@ describe("Data Processing Integration", () => {
 			const shortName = poolMeta?.shortName ?? toTitleCase(originalName);
 			const nameTitle = poolMeta?.displayName ?? toTitleCase(originalName);
 			
-			expect(shortName).toBe("North Beach");
-			expect(nameTitle).toBe("North Beach Pool");
+			expect(shortName).toBe("North Beach (Cool)");
+			expect(nameTitle).toBe("North Beach Pool (Cool)");
 		});
 
 		it("should use fallback for unmatched pool names", () => {
@@ -80,8 +80,8 @@ describe("Data Processing Integration", () => {
 				{ input: "MLK", expectedId: "mlk", expectedShort: "MLK" },
 				{ input: "Martin Luther King Jr. Pool", expectedId: "mlk", expectedShort: "MLK" },
 				{ input: "Mission Pool", expectedId: "mission", expectedShort: "Mission" },
-				{ input: "North Beach Pool", expectedId: "northBeach", expectedShort: "North Beach" },
-				{ input: "north beach", expectedId: "northBeach", expectedShort: "North Beach" },
+				{ input: "North Beach Pool", expectedId: "northBeachCool", expectedShort: "North Beach (Cool)" },
+				{ input: "north beach", expectedId: "northBeachCool", expectedShort: "North Beach (Cool)" },
 				{ input: "Rossi Pool", expectedId: "rossi", expectedShort: "Rossi" },
 				{ input: "Sava Pool", expectedId: "sava", expectedShort: "Sava" },
 			];

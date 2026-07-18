@@ -24,8 +24,12 @@
 		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29566"
 	},
 	{
-		"poolId": "northBeach",
+		"poolId": "northBeachCool",
 		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29568"
+	},
+	{
+		"poolId": "northBeachWarm",
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29569"
 	},
 	{
 		"poolId": "rossi",

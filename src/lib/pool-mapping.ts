@@ -93,16 +93,31 @@ export const POOLS: PoolMeta[] = [
 		],
 	},
 	{
-		id: "northBeach",
-		shortName: "North Beach",
-		displayName: "North Beach Pool",
+		// North Beach has two physical pools with separate schedules; the "cool"
+		// pool is the main lap pool, so generic "North Beach" names resolve here.
+		id: "northBeachCool",
+		shortName: "North Beach (Cool)",
+		displayName: "North Beach Pool (Cool)",
 		aliases: [
 			"north beach",
 			"north beach pool",
 			"north beach aquatics center",
 			"north beach aquatic center",
-			"north beach aquatics center - warm pool",
 			"north beach aquatics center - cool pool",
+			"north beach cool pool",
+			"north beach cool",
+			"north beach (cool)",
+		],
+	},
+	{
+		id: "northBeachWarm",
+		shortName: "North Beach (Warm)",
+		displayName: "North Beach Pool (Warm)",
+		aliases: [
+			"north beach aquatics center - warm pool",
+			"north beach warm pool",
+			"north beach warm",
+			"north beach (warm)",
 		],
 	},
 	{

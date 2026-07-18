@@ -192,29 +192,36 @@ export async function main(): Promise<ProcessResult> {
 			for (const s of schedules) {
 				if (!s.scheduleLastUpdated) s.scheduleLastUpdated = today;
 
-				// track this pool name as processed
-				processedPoolNames.add(s.name);
-
-				// get the original pool name from the data source
-				const originalName = s.name || "";
-
-				// populate id field using getPoolIdFromName
-				const poolId = getPoolIdFromName(originalName);
-				s.id = poolId ?? "unknown";
-
-				// populate name field with original name
-				s.name = originalName;
-
-				// populate shortName and nameTitle using getPoolById
-				if (poolId) {
-					const poolMeta = getPoolById(poolId);
-					s.shortName = poolMeta?.shortName ?? toTitleCase(originalName);
-					s.nameTitle = poolMeta?.displayName ?? toTitleCase(originalName);
+				// Establish pool identity. When we know which pools.json entry
+				// this PDF belongs to, trust that as the source of truth — the
+				// PDF text alone can't disambiguate pools that share a name
+				// (e.g. North Beach's warm and cool schedules both read "North
+				// Beach"). Fall back to name-matching only when the source pool
+				// is unknown.
+				if (pool) {
+					s.id = pool.id;
+					s.name = pool.name;
+					s.shortName = pool.shortName;
+					s.nameTitle = pool.nameTitle;
 				} else {
-					// fallback to toTitleCase for unmatched pools
-					s.shortName = toTitleCase(originalName);
-					s.nameTitle = toTitleCase(originalName);
+					const originalName = s.name || "";
+					const poolId = getPoolIdFromName(originalName);
+					s.id = poolId ?? "unknown";
+					s.name = originalName;
+					if (poolId) {
+						const poolMeta = getPoolById(poolId);
+						s.shortName = poolMeta?.shortName ?? toTitleCase(originalName);
+						s.nameTitle = poolMeta?.displayName ?? toTitleCase(originalName);
+					} else {
+						// fallback to toTitleCase for unmatched pools
+						s.shortName = toTitleCase(originalName);
+						s.nameTitle = toTitleCase(originalName);
+					}
 				}
+
+				// track this pool name as processed (after identity is settled so the
+				// preserve step keys off the canonical name)
+				processedPoolNames.add(s.name);
 
 				// populate address and URLs from pools.json and discovered data
 				if (pool) {

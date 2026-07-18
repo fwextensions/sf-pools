@@ -48,12 +48,22 @@
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Mission-Community-Pool-217"
 	},
 	{
-		"id": "northBeach",
-		"name": "North Beach Aquatics Center",
-		"nameTitle": "North Beach Pool",
-		"shortName": "North Beach",
+		"id": "northBeachCool",
+		"name": "North Beach Aquatics Center - Cool Pool",
+		"nameTitle": "North Beach Pool (Cool)",
+		"shortName": "North Beach (Cool)",
 		"address": "661 Lombard St, San Francisco",
-		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218"
+		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
+		"scheduleMatch": "cool"
+	},
+	{
+		"id": "northBeachWarm",
+		"name": "North Beach Aquatics Center - Warm Pool",
+		"nameTitle": "North Beach Pool (Warm)",
+		"shortName": "North Beach (Warm)",
+		"address": "661 Lombard St, San Francisco",
+		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
+		"scheduleMatch": "warm"
 	},
 	{
 		"id": "rossi",
