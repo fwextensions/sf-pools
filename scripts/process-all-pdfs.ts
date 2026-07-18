@@ -257,13 +257,20 @@ export async function main(): Promise<ProcessResult> {
 		}
 	}
 
-	// preserve schedules for pools that weren't processed (PDF unchanged or missing)
+	// preserve schedules for pools that weren't processed (PDF unchanged or
+	// missing), but drop entries whose pool no longer exists in pools.json —
+	// otherwise a renamed or split pool (e.g. North Beach -> cool/warm) leaves
+	// a stale entry behind, since the preserve check keys off the pool name.
+	const knownPoolIds = new Set(pools.map((p) => p.id));
 	for (const prev of previousSchedules) {
-		if (!processedPoolNames.has(prev.name)) {
-			aggregated.push(prev);
-			preservedCount++;
-			console.log("preserved (no new pdf):", prev.name);
+		if (processedPoolNames.has(prev.name)) continue;
+		if (!prev.id || !knownPoolIds.has(prev.id)) {
+			console.log("dropped (no longer a known pool):", prev.name);
+			continue;
 		}
+		aggregated.push(prev);
+		preservedCount++;
+		console.log("preserved (no new pdf):", prev.name);
 	}
 
 	await saveExtractedManifest(extractedManifest);
