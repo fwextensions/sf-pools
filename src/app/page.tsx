@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { PoolSchedule } from "@/lib/pdf-processor";
-import HomeFilters from "@/components/HomeFilters";
+import AvailabilityGrid from "@/components/AvailabilityGrid";
 import HeaderAnimation from "@/components/header/HeaderAnimation";
 import { HEADER_HEIGHT } from "@/components/header/HeaderPlaceholder";
 import type { AlertsData } from "../../scripts/scrape-alerts";
@@ -36,7 +36,7 @@ export default async function HomePage() {
 				<HeaderAnimation />
 			</header>
 			<Suspense fallback={<div className="container py-8"><div className="rounded border border-slate-200 bg-white p-4">Loading…</div></div>}>
-				<HomeFilters all={all} alerts={alerts} />
+				<AvailabilityGrid all={all} alerts={alerts} />
 			</Suspense>
 		</main>
 	);
