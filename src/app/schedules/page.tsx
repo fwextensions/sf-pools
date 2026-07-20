@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { PoolSchedule } from "@/lib/pdf-processor";
-import { toTitleCase } from "@/lib/program-taxonomy";
+import { toTitleCase, programLocationQualifier } from "@/lib/program-taxonomy";
 import { CalendarIcon, ClockIcon, MapPinIcon } from "@/components/icons";
 import { parseTimeToMinutes } from "@/lib/utils";
 
@@ -109,7 +109,10 @@ export default async function SchedulesPage() {
 														<div className="flex items-center justify-between gap-2">
 															<span className="font-medium text-slate-800">{p.programName}</span>
 															<span className="flex shrink-0 items-center gap-2">
-																{(p as any).lanes ? (
+																{programLocationQualifier((p as any).programNameOriginal) ? (
+																		<span className="lane-badge whitespace-nowrap rounded-full px-2 py-0.5 text-xs text-slate-600">{programLocationQualifier((p as any).programNameOriginal)}</span>
+																	) : null}
+																	{(p as any).lanes ? (
 																	<span className="lane-badge whitespace-nowrap rounded-full px-2 py-0.5 text-xs text-slate-600">{(p as any).lanes} lanes</span>
 																) : null}
 																<span className="text-slate-500 inline-flex items-center gap-1 font-medium"><ClockIcon className="h-4 w-4 icon-water" />{p.startTime} – {p.endTime}</span>

@@ -22,13 +22,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Summer Lts*",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Tuesday",
 				"startTime": "8:30a",
 				"endTime": "9:45a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS*",
-				"programNameCanonical": "Summer Lts*"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Lap Swim",
@@ -49,13 +49,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Tuesday",
 				"startTime": "4:00p",
 				"endTime": "5:15p",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Lap Swim",
@@ -67,13 +67,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Summer Lts*",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Wednesday",
 				"startTime": "8:30a",
 				"endTime": "9:45a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS*",
-				"programNameCanonical": "Summer Lts*"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Lap Swim",
@@ -94,13 +94,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Wednesday",
 				"startTime": "4:00p",
 				"endTime": "5:15p",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Lap Swim",
@@ -121,13 +121,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Summer Lts*",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Thursday",
 				"startTime": "8:30a",
 				"endTime": "9:45a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS*",
-				"programNameCanonical": "Summer Lts*"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Lap Swim",
@@ -148,13 +148,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Thursday",
 				"startTime": "4:00p",
 				"endTime": "5:15p",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Lap Swim",
@@ -166,13 +166,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Summer Lts*",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Friday",
 				"startTime": "8:30a",
 				"endTime": "9:45a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS*",
-				"programNameCanonical": "Summer Lts*"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Lap Swim",
@@ -193,13 +193,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Friday",
 				"startTime": "4:00p",
 				"endTime": "5:15p",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Lap Swim",
@@ -220,13 +220,13 @@
 				"programNameCanonical": "Youth Swim Teams / Club Teams"
 			},
 			{
-				"programName": "Piranha Pc Swim*",
+				"programName": "Piranha Pc Swim",
 				"dayOfWeek": "Saturday",
 				"startTime": "10:15a",
 				"endTime": "11:15a",
 				"notes": "",
 				"programNameOriginal": "Piranha PC Swim*",
-				"programNameCanonical": "Piranha Pc Swim*"
+				"programNameCanonical": "Piranha Pc Swim"
 			},
 			{
 				"programName": "Lap Swim",
@@ -280,13 +280,13 @@
 				"programNameCanonical": "Senior Swim / Therapy Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Tuesday",
 				"startTime": "8:30a",
 				"endTime": "9:45a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Family Swim",
@@ -316,13 +316,13 @@
 				"programNameCanonical": "Family Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Tuesday",
 				"startTime": "4:00p",
 				"endTime": "5:15p",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Senior Swim / Therapy Swim",
@@ -334,13 +334,13 @@
 				"programNameCanonical": "Senior Swim / Therapy Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Wednesday",
 				"startTime": "8:30a",
 				"endTime": "9:45a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Senior Swim / Therapy Swim",
@@ -379,13 +379,13 @@
 				"programNameCanonical": "Family Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Wednesday",
 				"startTime": "4:00p",
 				"endTime": "5:15p",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Family Swim",
@@ -406,13 +406,13 @@
 				"programNameCanonical": "Senior Swim / Therapy Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Thursday",
 				"startTime": "8:30a",
 				"endTime": "9:45a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Family Swim",
@@ -451,13 +451,13 @@
 				"programNameCanonical": "Adult Swim Lessons"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Thursday",
 				"startTime": "4:00p",
 				"endTime": "5:15p",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Water Exercise",
@@ -469,13 +469,13 @@
 				"programNameCanonical": "Water Exercise"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Friday",
 				"startTime": "8:30a",
 				"endTime": "9:45a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Senior Swim / Therapy Swim",
@@ -514,13 +514,13 @@
 				"programNameCanonical": "Family Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Friday",
 				"startTime": "4:00p",
 				"endTime": "5:15p",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Family Swim",
@@ -610,13 +610,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Tuesday",
 				"startTime": "8:30a",
 				"endTime": "10:00a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Senior Swim / Therapy Swim",
@@ -646,13 +646,13 @@
 				"programNameCanonical": "Family Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Tuesday",
 				"startTime": "4:00p",
 				"endTime": "5:30p",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Rentals (synchro)",
@@ -664,13 +664,13 @@
 				"programNameCanonical": "Rentals (synchro)"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Wednesday",
 				"startTime": "8:30a",
 				"endTime": "10:00a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Senior Swim / Therapy Swim",
@@ -700,13 +700,13 @@
 				"programNameCanonical": "Family Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Wednesday",
 				"startTime": "4:00p",
 				"endTime": "5:30p",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Rentals (synchro)",
@@ -727,13 +727,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Thursday",
 				"startTime": "8:30a",
 				"endTime": "10:00a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Senior Swim / Therapy Swim",
@@ -763,13 +763,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Thursday",
 				"startTime": "4:00p",
 				"endTime": "5:30p",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Family Swim",
@@ -781,13 +781,13 @@
 				"programNameCanonical": "Family Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Friday",
 				"startTime": "8:30a",
 				"endTime": "10:00a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Lap Swim",
@@ -817,13 +817,13 @@
 				"programNameCanonical": "Family Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Friday",
 				"startTime": "4:00p",
 				"endTime": "5:30p",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Masters Swim Program",
@@ -913,40 +913,40 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Summer Lts^",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Tuesday",
 				"startTime": "8:30a",
 				"endTime": "10:00a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS^",
-				"programNameCanonical": "Summer Lts^"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
-				"programName": "Summer Lts^",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Wednesday",
 				"startTime": "8:30a",
 				"endTime": "10:00a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS^",
-				"programNameCanonical": "Summer Lts^"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
-				"programName": "Summer Lts^",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Thursday",
 				"startTime": "8:30a",
 				"endTime": "10:00a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS^",
-				"programNameCanonical": "Summer Lts^"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
-				"programName": "Summer Lts^",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Friday",
 				"startTime": "8:30a",
 				"endTime": "10:00a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS^",
-				"programNameCanonical": "Summer Lts^"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Swim Lessons (General/Youth/Community)",
@@ -1124,40 +1124,40 @@
 				"programNameCanonical": "Family Swim"
 			},
 			{
-				"programName": "Summer Lts^",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Tuesday",
 				"startTime": "3:30p",
 				"endTime": "5:00p",
 				"notes": "",
 				"programNameOriginal": "Summer LTS^",
-				"programNameCanonical": "Summer Lts^"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
-				"programName": "Summer Lts^",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Wednesday",
 				"startTime": "3:30p",
 				"endTime": "5:00p",
 				"notes": "",
 				"programNameOriginal": "Summer LTS^",
-				"programNameCanonical": "Summer Lts^"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
-				"programName": "Summer Lts^",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Thursday",
 				"startTime": "3:30p",
 				"endTime": "5:00p",
 				"notes": "",
 				"programNameOriginal": "Summer LTS^",
-				"programNameCanonical": "Summer Lts^"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
-				"programName": "Summer Lts^",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Friday",
 				"startTime": "3:30p",
 				"endTime": "5:00p",
 				"notes": "",
 				"programNameOriginal": "Summer LTS^",
-				"programNameCanonical": "Summer Lts^"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Lap Swim",
@@ -1633,13 +1633,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Tuesday",
 				"startTime": "8:30a",
 				"endTime": "11:15a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Lap Swim",
@@ -1680,13 +1680,13 @@
 				"programNameCanonical": "Family Swim"
 			},
 			{
-				"programName": "Summer Lts (small Pool)",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Tuesday",
 				"startTime": "4:15p",
 				"endTime": "5:30p",
 				"notes": "Small Pool",
 				"programNameOriginal": "Summer LTS (Small Pool)",
-				"programNameCanonical": "Summer Lts (small Pool)"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Rentals (club)",
@@ -1716,13 +1716,13 @@
 				"programNameCanonical": "Masters Swim Program"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Wednesday",
 				"startTime": "8:30a",
 				"endTime": "11:15a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Lap Swim",
@@ -1801,13 +1801,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Thursday",
 				"startTime": "8:30a",
 				"endTime": "11:15a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Lap Swim",
@@ -1848,13 +1848,13 @@
 				"programNameCanonical": "Family Swim"
 			},
 			{
-				"programName": "Summer Lts (small Pool)",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Thursday",
 				"startTime": "4:15p",
 				"endTime": "5:30p",
 				"notes": "Small Pool",
 				"programNameOriginal": "Summer LTS (Small Pool)",
-				"programNameCanonical": "Summer Lts (small Pool)"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Rentals (club)",
@@ -1885,13 +1885,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Friday",
 				"startTime": "8:30a",
 				"endTime": "11:15a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Lap Swim",
@@ -2498,14 +2498,14 @@
 				"programNameCanonical": "Family Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Tuesday",
 				"startTime": "3:15p",
 				"endTime": "5:15p",
 				"lanes": null,
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Lap Swim",
@@ -2628,14 +2628,14 @@
 				"programNameCanonical": "Family Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Thursday",
 				"startTime": "3:15p",
 				"endTime": "5:15p",
 				"lanes": null,
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Lap Swim",
@@ -2806,13 +2806,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Monday",
 				"startTime": "8:30a",
 				"endTime": "10:30a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Family Swim",
@@ -2878,13 +2878,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Tuesday",
 				"startTime": "8:30a",
 				"endTime": "10:30a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Senior Swim / Therapy Swim",
@@ -2943,13 +2943,13 @@
 				"programNameCanonical": "Family Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Wednesday",
 				"startTime": "8:30a",
 				"endTime": "10:30a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Family Swim",
@@ -3006,13 +3006,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Summer Lts",
+				"programName": "Summer LTS",
 				"dayOfWeek": "Thursday",
 				"startTime": "8:30a",
 				"endTime": "10:30a",
 				"notes": "",
 				"programNameOriginal": "Summer LTS",
-				"programNameCanonical": "Summer Lts"
+				"programNameCanonical": "Summer LTS"
 			},
 			{
 				"programName": "Senior Swim / Therapy Swim",

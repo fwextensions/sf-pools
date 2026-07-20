@@ -25,6 +25,7 @@ export const ACRONYMS = new Set<string>([
 	"YMCA",
 	"LGBTQ+",
 	"JCC",
+	"LTS",
 ]);
 
 function capitalizeWord(w: string): string {
@@ -199,7 +200,23 @@ export function findCanonicalProgram(raw: string): CanonicalCategory | null {
 	return null;
 }
 
-// placeholder for future canonical mapping logic; for now just title-case
+// strip footnote markers (*, ^, †) and pool/lane location qualifiers like
+// "(Small Pool)" or "(Main Pool-2 Lanes)" — those are per-schedule details,
+// not distinct programs; the original stays in programNameOriginal.
+export function stripProgramQualifiers(raw: string): string {
+	let s = (raw || "").trim();
+	s = s.replace(/[*^†\s]+$/g, "");
+	s = s.replace(/\s*\([^)]*(pool|lane)[^)]*\)$/i, "");
+	return s.trim();
+}
+
+// pull the stripped location qualifier back out of an original program name,
+// e.g. "Summer LTS (Small Pool)" -> "Small Pool", for display in details
+export function programLocationQualifier(raw: string | null | undefined): string | null {
+	const m = (raw || "").match(/\(([^)]*(?:pool|lane)[^)]*)\)\s*[*^†]*\s*$/i);
+	return m ? toTitleCase(m[1].trim()) : null;
+}
+
 export function normalizeProgramName(raw: string): string {
-	return toTitleCase(raw);
+	return toTitleCase(stripProgramQualifiers(raw));
 }

@@ -20,7 +20,8 @@
 		"process-all-pdfs": "tsx scripts/process-all-pdfs.ts",
 		"build-schedules": "npm run scrape && npm run download-pdfs && npm run process-all-pdfs",
 		"scrape-alerts": "tsx scripts/scrape-alerts.ts",
-		"analyze-programs": "tsx scripts/analyze-program-names.ts"
+		"analyze-programs": "tsx scripts/analyze-program-names.ts",
+		"renormalize-programs": "tsx scripts/renormalize-programs.ts"
 	},
 	"dependencies": {
 		"@ai-sdk/google": "^4.0.8",
