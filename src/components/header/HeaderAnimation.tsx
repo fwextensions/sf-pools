@@ -285,7 +285,7 @@ export default function HeaderAnimation()
 	return (
 		<div
 			ref={renderRef}
-			className="absolute left-0 top-0 w-full"
+			className="absolute left-0 top-0 w-full overflow-hidden"
 			style={{ height: HEADER_HEIGHT }}
 		>
 			<HeaderPlaceholder />
