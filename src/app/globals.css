@@ -194,3 +194,41 @@ input[type="radio"] {
 .icon-water {
 	color: var(--accent-color);
 }
+
+/* ===========================================
+   Availability grid (home)
+   =========================================== */
+
+.plex-sans {
+	font-family: var(--font-plex-sans), "IBM Plex Sans", system-ui, sans-serif;
+}
+
+.plex-mono {
+	font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+}
+
+/* grid cells are short (15/19px), so expand the touch target invisibly */
+.grid-cell::after {
+	content: "";
+	position: absolute;
+	inset: -6px 0;
+}
+
+/* small square checkboxes for the program picker's raw-name list */
+.picker-checkbox {
+	appearance: none;
+	width: 14px;
+	height: 14px;
+	min-width: 14px;
+	min-height: 14px;
+	flex: none;
+	border: 1.5px solid #5a707c;
+	border-radius: 0;
+	background: #fff;
+	cursor: pointer;
+}
+
+.picker-checkbox:checked {
+	background: #0e2733;
+	border-color: #0e2733;
+}

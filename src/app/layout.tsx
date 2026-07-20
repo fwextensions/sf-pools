@@ -1,5 +1,18 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+
+const plexSans = IBM_Plex_Sans({
+	subsets: ["latin"],
+	weight: ["400", "500", "600", "700"],
+	variable: "--font-plex-sans",
+});
+
+const plexMono = IBM_Plex_Mono({
+	subsets: ["latin"],
+	weight: ["400", "500", "600"],
+	variable: "--font-plex-mono",
+});
 
 export const metadata: Metadata = {
 	title: "SF Pools Schedule Viewer",
@@ -21,7 +34,7 @@ export default function RootLayout({
 			<meta name="apple-mobile-web-app-title" content="SF Pools" />
 			<link rel="manifest" href="/site.webmanifest" />
 		</head>
-		<body className="min-h-screen bg-white text-slate-900 antialiased">
+		<body className={`${plexSans.variable} ${plexMono.variable} min-h-screen bg-white text-slate-900 antialiased`}>
 			{children}
 		</body>
 		</html>
