@@ -10,7 +10,7 @@
 		"scheduleSeason": "Summer 2026",
 		"scheduleStartDate": "2026-06-06",
 		"scheduleEndDate": "2026-08-10",
-		"scheduleLastUpdated": "2026-07-18",
+		"scheduleLastUpdated": "2026-07-24",
 		"programs": [
 			{
 				"programName": "Lap Swim",
@@ -251,8 +251,8 @@
 				"dayOfWeek": "Saturday",
 				"startTime": "4:30p",
 				"endTime": "5:00p",
-				"notes": "Advanced",
-				"programNameOriginal": "Adult Lessons*",
+				"notes": "",
+				"programNameOriginal": "Adult Lessons* (Advanced)",
 				"programNameCanonical": "Adult Swim Lessons"
 			}
 		]
@@ -268,7 +268,7 @@
 		"scheduleSeason": "Summer 2026",
 		"scheduleStartDate": "2026-06-06",
 		"scheduleEndDate": "2026-08-10",
-		"scheduleLastUpdated": "2026-07-18",
+		"scheduleLastUpdated": "2026-07-24",
 		"programs": [
 			{
 				"programName": "Senior Swim / Therapy Swim",
