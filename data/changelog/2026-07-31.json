@@ -1,0 +1,38 @@
+{
+	"date": "2026-07-31",
+	"timestamp": "2026-07-31T20:49:00.516Z",
+	"poolsChanged": 1,
+	"totalProgramsAdded": 0,
+	"totalProgramsRemoved": 0,
+	"totalProgramsModified": 2,
+	"totalChanges": 2,
+	"changeSeverity": "minor",
+	"scheduleStartDate": "2026-06-06",
+	"scheduleEndDate": "2026-08-15",
+	"scheduleSeason": "Summer 2026",
+	"pools": [
+		{
+			"poolName": "North Beach Aquatics Center - Warm Pool",
+			"programsAdded": 0,
+			"programsRemoved": 0,
+			"programsModified": 2,
+			"changes": [
+				{
+					"type": "modified",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Wednesday",
+					"oldTime": "10:15a–11:15p",
+					"newTime": "10:15a–11:15a"
+				},
+				{
+					"type": "modified",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Friday",
+					"oldTime": "10:15a–11:15p",
+					"newTime": "10:15a–11:15a"
+				}
+			]
+		}
+	],
+	"warnings": []
+}

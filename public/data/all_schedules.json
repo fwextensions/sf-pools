@@ -10,7 +10,7 @@
 		"scheduleSeason": "Summer 2026",
 		"scheduleStartDate": "2026-06-06",
 		"scheduleEndDate": "2026-08-10",
-		"scheduleLastUpdated": "2026-07-24",
+		"scheduleLastUpdated": "2026-07-31",
 		"programs": [
 			{
 				"programName": "Lap Swim",
@@ -268,7 +268,7 @@
 		"scheduleSeason": "Summer 2026",
 		"scheduleStartDate": "2026-06-06",
 		"scheduleEndDate": "2026-08-10",
-		"scheduleLastUpdated": "2026-07-24",
+		"scheduleLastUpdated": "2026-07-31",
 		"programs": [
 			{
 				"programName": "Senior Swim / Therapy Swim",
@@ -346,7 +346,7 @@
 				"programName": "Senior Swim / Therapy Swim",
 				"dayOfWeek": "Wednesday",
 				"startTime": "10:15a",
-				"endTime": "11:15p",
+				"endTime": "11:15a",
 				"notes": "",
 				"programNameOriginal": "Senior/Therapy Swim",
 				"programNameCanonical": "Senior Swim / Therapy Swim"
@@ -356,7 +356,7 @@
 				"dayOfWeek": "Wednesday",
 				"startTime": "11:30a",
 				"endTime": "12:30p",
-				"notes": "Shallow",
+				"notes": "shallow",
 				"programNameOriginal": "Self-Guided Exercise",
 				"programNameCanonical": "Senior Swim / Therapy Swim"
 			},
@@ -365,7 +365,7 @@
 				"dayOfWeek": "Wednesday",
 				"startTime": "11:30a",
 				"endTime": "12:30p",
-				"notes": "Deep",
+				"notes": "deep",
 				"programNameOriginal": "Senior Swim",
 				"programNameCanonical": "Senior Swim / Therapy Swim"
 			},
@@ -481,7 +481,7 @@
 				"programName": "Senior Swim / Therapy Swim",
 				"dayOfWeek": "Friday",
 				"startTime": "10:15a",
-				"endTime": "11:15p",
+				"endTime": "11:15a",
 				"notes": "",
 				"programNameOriginal": "Senior/Therapy Swim",
 				"programNameCanonical": "Senior Swim / Therapy Swim"
@@ -491,7 +491,7 @@
 				"dayOfWeek": "Friday",
 				"startTime": "11:30a",
 				"endTime": "12:30p",
-				"notes": "Shallow",
+				"notes": "shallow",
 				"programNameOriginal": "Self-Guided Exercise",
 				"programNameCanonical": "Senior Swim / Therapy Swim"
 			},
@@ -500,7 +500,7 @@
 				"dayOfWeek": "Friday",
 				"startTime": "11:30a",
 				"endTime": "12:30p",
-				"notes": "Deep",
+				"notes": "deep",
 				"programNameOriginal": "Senior Swim",
 				"programNameCanonical": "Senior Swim / Therapy Swim"
 			},
