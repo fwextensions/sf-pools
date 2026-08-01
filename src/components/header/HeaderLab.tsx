@@ -193,14 +193,25 @@ export default function HeaderLab() {
 	// the honest comparison: below 726 CSS px tileCssPx() shrinks the tile grid
 	// and the whole header changes scale, so two narrow side-by-side panes would
 	// differ from production in a way unrelated to the parameters.
+	//
+	// Measured from the container rather than derived from window.innerWidth: a
+	// hardcoded allowance for the sidebar, padding and gap is always slightly
+	// wrong and overflows the viewport horizontally.
+	const mainRef = useRef<HTMLElement>(null);
 	useEffect(() => {
+		const el = mainRef.current;
+		if (!el) return;
 		const measure = () => {
-			const avail = Math.min(window.innerWidth - 380, 1600);
+			// A few px of slack so a pane sized to exactly clientWidth cannot
+			// summon a scrollbar, which would shrink clientWidth, which would
+			// shrink the pane, which would dismiss the scrollbar — forever.
+			const avail = Math.min(el.clientWidth - 4, 1600);
 			setWidth(Math.max(320, stacked ? avail : Math.floor((avail - 16) / 2)));
 		};
 		measure();
-		window.addEventListener("resize", measure);
-		return () => window.removeEventListener("resize", measure);
+		const ro = new ResizeObserver(measure);
+		ro.observe(el);
+		return () => ro.disconnect();
 	}, [stacked]);
 
 	const set = useCallback(
@@ -260,9 +271,13 @@ export default function HeaderLab() {
 	const diffCount = PARAM_SPECS.filter(s => a[s.name] !== b[s.name]).length;
 
 	return (
-		<div className="flex min-h-screen gap-4 bg-slate-50 p-4 text-slate-900">
-			{/* ---- controls ---- */}
-			<aside className="w-[340px] shrink-0 overflow-y-auto">
+		// Viewport-height, non-scrolling shell: the sidebar scrolls its own
+		// content so the panes never move off screen while you hunt for a slider.
+		// Tuning is a look-while-you-drag activity — a slider you cannot see the
+		// effect of is useless.
+		<div className="flex h-screen gap-4 overflow-hidden bg-slate-50 p-4 text-slate-900">
+			{/* ---- controls (the only thing that scrolls) ---- */}
+			<aside className="w-[340px] shrink-0 overflow-y-auto pr-2">
 				<h1 className="text-lg font-semibold">Header tuning lab</h1>
 				<p className="mt-1 text-xs leading-relaxed text-slate-600">
 					Two independent sims sharing one clock and one input stream, so the
@@ -390,7 +405,10 @@ export default function HeaderLab() {
 
 			{/* ---- panes ---- */}
 			<main
-				className="min-w-0 flex-1"
+				ref={mainRef}
+				// Scrolls only if the panes genuinely do not fit (very short window);
+				// normally there is nothing to scroll and they stay put.
+				className="min-w-0 flex-1 overflow-y-auto"
 				onPointerMove={onPointer}
 				onClick={onClick}
 			>
