@@ -64,6 +64,16 @@ function renderSFPools(
 
 	let canvasEl: HTMLElement;
 	let firstFrame = true;
+	// 1.0 when the GPU can linearly filter the float sim texture, 0.0 otherwise.
+	// Feeds u_simLens: without linear filtering the sim's second derivative is
+	// meaningless, so the caustic lens falls back to the analytic field alone
+	// rather than rendering per-texel blocks.
+	let simLens = 1.0;
+	// Antialias fade for ambient wave groups B and C, recomputed on resize. A
+	// band whose wavelength approaches a few device pixels is faded out rather
+	// than left to alias into crawling speckle. Frame-invariant, so it is
+	// computed here instead of per fragment.
+	let bandFade: [number, number] = [1, 1];
 
 	// pointer impulse pending for the next sim step (consumed each frame);
 	// the prev position sweeps the dent along the swipe segment
@@ -98,10 +108,36 @@ function renderSFPools(
 			depth: false,
 			antialias: false,
 			density: 1,
+			// The display shader reconstructs a smooth second derivative of this
+			// texture for the caustic lens, which needs interpolated samples —
+			// with NEAREST the Hessian collapses to zero inside a texel and a
+			// spike on each boundary, and the caustics break into 3-CSS-px
+			// blocks. Requires OES_texture_float_linear; see simLinearFiltering.
+			textureFiltering: (p as any).LINEAR,
 		};
 		simRead = (p as any).createFramebuffer(options);
 		simWrite = (p as any).createFramebuffer(options);
 		simTexel = [1 / simWidth, 1 / simHeight];
+
+		// Linear filtering of FLOAT textures is a separate extension from float
+		// textures themselves, and it is missing on some mobile GPUs. Ask the
+		// real context rather than assuming the option above took effect.
+		const gl = (p as any)._renderer?.GL as WebGLRenderingContext | undefined;
+		simLens = gl && (gl.getExtension("OES_texture_float_linear") ||
+			gl.getExtension("EXT_color_buffer_float")) ? 1.0 : 0.0;
+
+		// One uv unit spans u_resolution.y device px, so a wave of magnitude k
+		// has wavelength TAU * height / k. Fade a band out below AA_CUTOFF_PX
+		// device px. At the header's real size nothing fades; this is insurance
+		// for a very short canvas.
+		const AA_CUTOFF_PX = 8.0;
+		const heightPx = p.height * p.pixelDensity();
+		const fade = (k: number) => {
+			const lambdaPx = (Math.PI * 2 * heightPx) / k;
+			const t = Math.min(Math.max((lambdaPx - AA_CUTOFF_PX) / AA_CUTOFF_PX, 0), 1);
+			return t * t * (3 - 2 * t); // smoothstep
+		};
+		bandFade = [fade(17.0), fade(42.9)]; // peak |k| of wave groups B and C
 	}
 
 	// p5 listens for mouse events window-wide, so ignore anything outside
@@ -229,6 +265,8 @@ function renderSFPools(
 		displayShader.setUniform("u_time", time);
 		displayShader.setUniform("u_water", simRead);
 		displayShader.setUniform("u_waterTexel", simTexel);
+		displayShader.setUniform("u_bandFade", bandFade);
+		displayShader.setUniform("u_simLens", simLens);
 		// integer-CSS-px tile edge, in device px; the CSS placeholder computes
 		// the identical value as min(22px, round(down, 100vw / 33, 1px))
 		displayShader.setUniform("u_tilePx", tileCssPx(p.width) * d);
@@ -258,7 +296,13 @@ export default function HeaderAnimation()
 	const renderRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		let myP5: p5;
+		let myP5: p5 | undefined;
+		// The p5 import is awaited, so cleanup can run while it is still pending
+		// — React StrictMode's dev double-invoke does exactly that. Without this
+		// flag the instance created after cleanup is never removed, leaking a
+		// canvas, a WebGL context, a RAF loop and two float framebuffers per
+		// mount; Chrome drops the oldest context after ~16.
+		let cancelled = false;
 
 		(async () => {
 			try {
@@ -266,15 +310,15 @@ export default function HeaderAnimation()
 				const p5Import = await import("p5");
 				const P5 = p5Import.default;
 
-				if (renderRef.current) {
-					myP5 = new P5(renderSFPools, renderRef.current);
-				}
+				if (cancelled || !renderRef.current) return;
+				myP5 = new P5(renderSFPools, renderRef.current);
 			} catch (error) {
 				console.error("Error loading p5:", error);
 			}
 		})();
 
 		return () => {
+			cancelled = true;
 			if (myP5) {
 				myP5.remove();
 			}
