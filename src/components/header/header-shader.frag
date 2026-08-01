@@ -26,6 +26,17 @@ const float SIM_GRAD_SCALE = 400.0;
 // Scales raw simulation heights (roughly -1..1 at a fresh dent) before the
 // crest/trough lighting. Raise it and ripples brighten/darken more.
 const float SIM_HEIGHT_SCALE = 1.5;
+// Per-texel Laplacian values are even tinier than the gradients; this lifts
+// them into a useful range for a fresh ripple. Negative curvature (a crest,
+// convex to the light) focuses light and brightens the caustics; positive
+// curvature (a trough) defocuses and dims them. Raise it and ripple crests
+// flare harder — past ~1000 a fast pointer drag blows the header to white.
+const float SIM_CURV_SCALE = 650.0;
+// Half-width of the curvature stencil, in texels. 1.0 is the textbook
+// 5-point Laplacian but aliases badly (see sampleWater); 2.0 nulls the
+// Nyquist mode. Raise it further and ripple crests read as broader, softer
+// lenses at the cost of losing the fine caustic detail near the wavefront.
+const float CURV_STENCIL = 2.0;
 
 // Converts analytic wave gradients to the range the old finite-difference
 // normals produced (their sample spacing was eps = 0.004).
@@ -173,18 +184,35 @@ vec3 ambientWaves(vec2 p, float t) {
 }
 
 // Samples the simulated heightfield and derives its gradient by central
-// differences over neighboring texels. The texels are square in screen
-// space, so the per-texel differences are already isotropic.
-vec3 sampleWater(vec2 screenUV) {
+// differences over neighboring texels, plus the Laplacian (curvature) from
+// the same five taps. The texels are square in screen space, so the
+// per-texel differences are already isotropic.
+// Returns vec4(height, dH/dx, dH/dy, curvature).
+vec4 sampleWater(vec2 screenUV) {
 	float hC = texture2D(u_water, screenUV).r;
 	float hE = texture2D(u_water, screenUV + vec2(u_waterTexel.x, 0.0)).r;
 	float hW = texture2D(u_water, screenUV - vec2(u_waterTexel.x, 0.0)).r;
 	float hN = texture2D(u_water, screenUV + vec2(0.0, u_waterTexel.y)).r;
 	float hS = texture2D(u_water, screenUV - vec2(0.0, u_waterTexel.y)).r;
 
-	return vec3(
+	// Curvature uses its own taps at CURV_STENCIL texels rather than reusing
+	// the ±1 neighbors above. A tight 5-point Laplacian responds most
+	// strongly to 2-texel-period detail — the highest frequency the grid can
+	// hold — so any sharply injected impulse shows up as hard stripes. At a
+	// spacing of 2 texels that mode samples identically on both sides and
+	// cancels, low-passing the operator for the cost of 4 extra taps.
+	// Heights sampled this far apart also mean the raw Laplacian is ~4x the
+	// tight one's, which SIM_CURV_SCALE already accounts for.
+	vec2 cs = u_waterTexel * CURV_STENCIL;
+	float cE = texture2D(u_water, screenUV + vec2(cs.x, 0.0)).r;
+	float cW = texture2D(u_water, screenUV - vec2(cs.x, 0.0)).r;
+	float cN = texture2D(u_water, screenUV + vec2(0.0, cs.y)).r;
+	float cS = texture2D(u_water, screenUV - vec2(0.0, cs.y)).r;
+
+	return vec4(
 		hC * SIM_HEIGHT_SCALE,
-		vec2(hE - hW, hN - hS) * SIM_GRAD_SCALE
+		vec2(hE - hW, hN - hS) * SIM_GRAD_SCALE,
+		(cE + cW + cN + cS - 4.0 * hC) * SIM_CURV_SCALE
 	);
 }
 
@@ -207,7 +235,7 @@ void main() {
 	// simulated heightfield, where they expand, interfere, and reflect
 	// off the edges on their own. 0.8 is the ambient contribution's weight
 	// relative to the (SIM_GRAD_SCALE-scaled) simulation.
-	vec3 water = sampleWater(screenUV);
+	vec4 water = sampleWater(screenUV);
 	vec3 wave = ambientWaves(uv, tSurface) * 0.8;
 	wave.yz += water.yz;
 
@@ -224,11 +252,31 @@ void main() {
 	// --- Caustics ---
 	// The highlight is refracted through the live wave field (0.6 = how
 	// hard ripples bend the light pattern), so waves visibly warp the
-	// caustics. The shadow is a cheaper sample, offset in space (0.02,
-	// 0.015) and time (+0.3) so it decorrelates from the highlight and
-	// suggests depth.
+	// caustics. The shadow is a cheaper sample, refracted at 0.35 (a
+	// shallower bend reads as a pattern cast from further away) and offset
+	// in space (0.02, 0.015) and time (+0.3) so it decorrelates from the
+	// highlight and suggests depth.
 	float causticHighlight = calculateCaustics(uv + surfaceNormal * 0.6, tCaustic);
-	float causticShadow = calculateCausticsCheap(uv + vec2(0.02, 0.015), tCaustic + 0.3);
+	float causticShadow = calculateCausticsCheap(uv + surfaceNormal * 0.35 + vec2(0.02, 0.015), tCaustic + 0.3);
+
+	// Curvature focusing: the simulated surface acts as a lens. Crests
+	// (negative Laplacian) converge the light into bright bands, troughs
+	// spread it out. `focus` is >0 where light converges.
+	//
+	// The x/(1+|x|) curve is the same soft-knee used by the ripple lighting
+	// below: linear for gentle curvature, but asymptotic to +/-1 so a fast
+	// pointer drag can't drive the focus term arbitrarily high. Without it
+	// the sharp curvature at a fresh dent blows the header to white.
+	float rawFocus = -water.w;
+	float focus = rawFocus / (1.0 + abs(rawFocus));
+	// 0.9 = how much curvature scales the existing caustic texture (stays
+	// under 1.0 so a trough dims rather than inverting the pattern);
+	// 0.06 = bare light added where there is no caustic to scale, so a
+	// ripple crossing dark water still lights up a little.
+	causticHighlight = causticHighlight * (1.0 + focus * 0.9) + max(focus, 0.0) * 0.06;
+	causticHighlight = max(causticHighlight, 0.0);
+	// Defocusing (troughs) deepens the shadow pass by the same logic.
+	causticShadow = clamp(causticShadow * (1.0 - focus * 0.6) + max(-focus, 0.0) * 0.12, 0.0, 1.0);
 	// bright caustics shrink the tile UV a hair, faking light focusing
 	tileUV *= (1.0 - causticHighlight * 0.012);
 

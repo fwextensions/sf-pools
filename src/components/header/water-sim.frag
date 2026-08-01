@@ -36,6 +36,20 @@ float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
 }
 
+// Value noise along x: hash at every JITTER_WAVELENGTH-th column and
+// smoothstep between. Plain per-column hash() is white noise at the grid's
+// Nyquist frequency, which the header shader's curvature term amplifies into
+// hard vertical stripes. Correlating the noise over several texels keeps the
+// swell front irregular while staying well below Nyquist.
+const float JITTER_WAVELENGTH = 6.0; // texels per noise cell
+
+float smoothNoiseX(float texelX, float seed) {
+	float c = texelX / JITTER_WAVELENGTH;
+	float i = floor(c);
+	float f = smoothstep(0.0, 1.0, fract(c));
+	return mix(hash(vec2(i, seed)), hash(vec2(i + 1.0, seed)), f);
+}
+
 void main() {
 	vec2 uv = vTexCoord;
 	vec2 state = texture2D(u_state, uv).rg;
@@ -67,18 +81,19 @@ void main() {
 
 	// scrolling shoves the whole pool; the water's inertia piles it up
 	// against the leading edge as a line swell, which the wave equation
-	// then sends across the surface as a linear wavefront. Per-column hash
-	// jitter roughens the line so it doesn't read as a ruler-straight
-	// artifact — unlike a smooth wobble, incoherent noise diffuses into an
-	// imperfect front instead of forming lobes that radiate circular arcs.
+	// then sends across the surface as a linear wavefront. Band-limited noise
+	// roughens the line so it doesn't read as a ruler-straight artifact —
+	// unlike a smooth wobble, irregular noise diffuses into an imperfect
+	// front instead of forming lobes that radiate circular arcs.
 	if (u_scrollAmp != 0.0) {
 		float seed = floor(u_time); // re-roll the roughness each second
-		// vertical roughness: each column shifts the band by up to ±0.8
-		// texels (the 1.6 span); strength varies 75%–125% per column. The
-		// hash x-scales (511, 257) are just large odd numbers that
-		// decorrelate neighboring columns; 43.0 decorrelates the two hashes.
-		float jitterTexels = (hash(vec2(uv.x * 511.0, seed)) - 0.5) * 1.6;
-		float amp = u_scrollAmp * (0.75 + 0.5 * hash(vec2(uv.x * 257.0, seed + 43.0)));
+		// vertical roughness: the band shifts by up to ±0.8 texels (the 1.6
+		// span); strength varies 75%–125%. Both vary over JITTER_WAVELENGTH
+		// texels rather than per column — see smoothNoiseX. 43.0 decorrelates
+		// the two noise fields from each other.
+		float texelX = uv.x / u_texel.x;
+		float jitterTexels = (smoothNoiseX(texelX, seed) - 0.5) * 1.6;
+		float amp = u_scrollAmp * (0.75 + 0.5 * smoothNoiseX(texelX, seed + 43.0));
 		float rel = (uv.y - u_scrollEdge) / (u_texel.y * u_scrollRadius) + jitterTexels / u_scrollRadius;
 		next = mix(next, amp, exp(-rel * rel));
 	}
