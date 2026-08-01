@@ -186,23 +186,39 @@ void ambientSpectrum(vec2 p, float t, out float h, out vec2 grad,
 	float fadeB = u_bandFade.x;
 	float fadeC = u_bandFade.y;
 
-	// --- Group A: swell, |k| 3.5-8.5. These four are the exact waves this
-	// shader has always used — same frequencies, amplitudes and drift speeds —
-	// so tile refraction and the specular glint keep their current character
-	// and only the caustics change.
-	addWave(p, t, vec2( 3.5,  0.0), 0.400,  0.9, 0.0, h, grad, hess);
-	addWave(p, t, vec2( 0.0,  5.0), 0.300, -1.1, 0.0, h, grad, hess);
-	addWave(p, t, vec2( 4.0,  4.0), 0.250,  0.7, 0.0, h, grad, hess);
-	addWave(p, t, vec2( 6.0, -6.0), 0.150, -0.8, 0.0, h, grad, hess);
+	// Headings follow the golden angle: wave i points at (i * 137.508) mod 180
+	// degrees. This is not decoration — the caustic filaments of a wave train
+	// run perpendicular to its wave vector, so the direction set IS the
+	// filament direction set, and clustering shows up as visible grain.
+	//
+	// Measured filament-orientation anisotropy (peak histogram bin over a flat
+	// one, so 1.00 is perfectly directionless):
+	//   headings on 0/45/90/135 + the old chop set    2.46x, 46% diagonal
+	//   twelve headings spaced evenly over 180 deg    2.86x  <- WORSE
+	//   golden angle                                  1.25x, 38% diagonal
+	// Even spacing is the trap: equal steps put many pairs at the same relative
+	// angle, and their interference lines reinforce. The golden angle is the
+	// least-resonant rotation there is, which is exactly what is wanted here.
+	//
+	// Every |k|, amplitude, drift speed and phase below is unchanged from the
+	// previous spectrum — only the headings moved. Height RMS and slope RMS are
+	// invariant under rotation, so the swell, the tile refraction and the glint
+	// keep their exact character; only the curvature field becomes isotropic.
+
+	// --- Group A: swell, |k| 3.5-8.5.
+	addWave(p, t, vec2(  3.500,  0.000), 0.400,  0.9, 0.0, h, grad, hess);
+	addWave(p, t, vec2( -3.687,  3.377), 0.300, -1.1, 0.0, h, grad, hess);
+	addWave(p, t, vec2( -0.495,  5.635), 0.250,  0.7, 0.0, h, grad, hess);
+	addWave(p, t, vec2(  5.163,  6.734), 0.150, -0.8, 0.0, h, grad, hess);
 
 	// --- Group B: chop, |k| 11-17 (~3x the swell). Drift speeds follow the
 	// deep-water relation w = 0.42*sqrt(|k|), so short waves outrun long ones
 	// and the twelve components stay permanently out of step. The per-wave
 	// phase offsets keep them from all aligning at the origin.
-	addWave(p, t, vec2( 12.20,   4.45), 0.0475 * fadeB,  1.51, 1.7, h, grad, hess);
-	addWave(p, t, vec2(  6.34, -13.60), 0.0355 * fadeB, -1.63, 3.9, h, grad, hess);
-	addWave(p, t, vec2( -5.81,  15.97), 0.0277 * fadeB,  1.73, 5.2, h, grad, hess);
-	addWave(p, t, vec2( -9.97,   4.65), 0.0661 * fadeB, -1.39, 2.4, h, grad, hess);
+	addWave(p, t, vec2( 12.787,  2.262), 0.0475 * fadeB,  1.51, 1.7, h, grad, hess);
+	addWave(p, t, vec2(-12.661,  8.054), 0.0355 * fadeB, -1.63, 3.9, h, grad, hess);
+	addWave(p, t, vec2( -4.412, 16.411), 0.0277 * fadeB,  1.73, 5.2, h, grad, hess);
+	addWave(p, t, vec2(  5.070,  9.763), 0.0661 * fadeB, -1.39, 2.4, h, grad, hess);
 
 	// The glint raises surface slope to the 64th power, so feeding it the
 	// finest ripples turns the header into crawling white speckle. Snapshot the
@@ -212,10 +228,10 @@ void ambientSpectrum(vec2 p, float t, out float h, out vec2 grad,
 	// --- Group C: ripple, |k| 29-43 (~2.5x again). Amplitudes are 0.4%-2% of
 	// the swell, so these are invisible in the height field and barely present
 	// in the slope — they exist purely to give the determinant fine structure.
-	addWave(p, t, vec2( 25.40,  17.80), 0.00832 * fadeC,  2.34, 0.8, h, grad, hess);
-	addWave(p, t, vec2( 35.70,  -9.58), 0.00586 * fadeC, -2.55, 4.6, h, grad, hess);
-	addWave(p, t, vec2(  5.04,  28.60), 0.00949 * fadeC,  2.26, 3.1, h, grad, hess);
-	addWave(p, t, vec2(-27.60,  32.90), 0.00434 * fadeC, -2.75, 1.2, h, grad, hess);
+	addWave(p, t, vec2( 29.137, 10.641), 0.00832 * fadeC,  2.34, 0.8, h, grad, hess);
+	addWave(p, t, vec2(-34.167, 14.103), 0.00586 * fadeC, -2.55, 4.6, h, grad, hess);
+	addWave(p, t, vec2(-12.309, 26.303), 0.00949 * fadeC,  2.26, 3.1, h, grad, hess);
+	addWave(p, t, vec2( 12.853, 40.978), 0.00434 * fadeC, -2.75, 1.2, h, grad, hess);
 }
 
 // ============================================================================

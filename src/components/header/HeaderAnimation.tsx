@@ -30,6 +30,18 @@ const SIM_MAX_WIDTH = 512;
 const SIM_MIN_WIDTH = 96;
 const SIM_SUBSTEPS = 2; // wave-equation steps per frame; more = faster waves
 const SIM_IMPULSE_RADIUS = 3.0; // pointer dent radius, in sim texels
+
+// Pointer dent depth: IMPULSE_BASE for a slow drag, rising with pointer speed
+// at IMPULSE_PER_PX and capped at IMPULSE_MAX. These were 0.15 / 0.01 / 1.0,
+// which let an ordinary flick carve a full-depth trough — fine when curvature
+// only scaled a texture, but the caustic lens reads curvature directly, so a
+// full-depth dent throws a glare far brighter than the settled ripples that
+// follow it. Halved, so the moment of contact is closer in strength to the
+// wake it leaves behind.
+const IMPULSE_BASE = 0.08;
+const IMPULSE_PER_PX = 0.005;
+const IMPULSE_MAX = 0.5;
+const CLICK_AMP = 0.7; // clicks still splash harder than moves (was 1.2)
 const MAX_PIXEL_DENSITY = 1.5; // retina resolution is invisible on blurry water
 
 // Scroll-driven swell: inertia responds to acceleration, not velocity, so
@@ -77,6 +89,27 @@ export type InputBus = {
 	scrollY: number;
 };
 
+/** JS-side tunables, mirrored by the harness so they get sliders too. */
+export type JsParams = {
+	IMPULSE_BASE: number;
+	IMPULSE_PER_PX: number;
+	IMPULSE_MAX: number;
+	CLICK_AMP: number;
+	SIM_IMPULSE_RADIUS: number;
+	SIM_SUBSTEPS: number;
+	SCROLL_AMP_MAX: number;
+};
+
+export const JS_PARAM_DEFAULTS: JsParams = {
+	IMPULSE_BASE,
+	IMPULSE_PER_PX,
+	IMPULSE_MAX,
+	CLICK_AMP,
+	SIM_IMPULSE_RADIUS,
+	SIM_SUBSTEPS,
+	SCROLL_AMP_MAX,
+};
+
 export type SketchOptions = {
 	/** override the compiled shader sources (the harness promotes consts to uniforms) */
 	displaySrc?: string;
@@ -92,6 +125,11 @@ export type SketchOptions = {
 	t0?: number;
 	/** canvas width in CSS px; defaults to the viewport width */
 	getWidth?: () => number;
+	/**
+	 * Live overrides for the JS-side numbers, read every frame. These cannot be
+	 * uniforms: they shape the impulse BEFORE it reaches the shader.
+	 */
+	getJsParams?: () => Partial<JsParams>;
 	/** when present, replaces p5's own pointer/scroll handling and idle drips */
 	input?: InputBus;
 };
@@ -217,7 +255,10 @@ function renderSFPools(
 
 		impulseX = p.mouseX / p.width;
 		impulseY = 1.0 - p.mouseY / p.height;
-		impulseAmp = Math.min(1.0, 0.15 + speedPx * 0.01);
+		const jp = opts.getJsParams
+			? { ...JS_PARAM_DEFAULTS, ...opts.getJsParams() }
+			: JS_PARAM_DEFAULTS;
+		impulseAmp = Math.min(jp.IMPULSE_MAX, jp.IMPULSE_BASE + speedPx * jp.IMPULSE_PER_PX);
 
 		// sweep the dent from last frame's position, unless the pointer
 		// just entered the canvas (a segment from outside would streak)
@@ -256,7 +297,7 @@ function renderSFPools(
 			impulseY = 1.0 - p.mouseY / p.height;
 			impulsePrevX = impulseX; // point dent, no sweep
 			impulsePrevY = impulseY;
-			impulseAmp = 1.2; // clicks splash harder than moves
+			impulseAmp = (opts.getJsParams?.().CLICK_AMP) ?? CLICK_AMP;
 			lastInteractionTime = nowSeconds() * 1000;
 		};
 
@@ -270,6 +311,10 @@ function renderSFPools(
 	p.draw = () => {
 		const d = p.pixelDensity();
 		const time = nowSeconds();
+		// JS-side tunables. Production passes nothing and gets the constants.
+		const js: JsParams = opts.getJsParams
+			? { ...JS_PARAM_DEFAULTS, ...opts.getJsParams() }
+			: JS_PARAM_DEFAULTS;
 
 		p.noStroke();
 
@@ -301,7 +346,7 @@ function renderSFPools(
 		let scrollEdge = 0.0; // sim UV y: 0 = bottom edge, 1 = top edge
 		const nowMs = time * 1000;
 		if (scrollJerk !== 0 && nowMs - lastSwellTime > SCROLL_COOLDOWN_MS) {
-			scrollAmp = Math.min(SCROLL_AMP_MAX, Math.abs(scrollJerk) * SCROLL_AMP_PER_PX);
+			scrollAmp = Math.min(js.SCROLL_AMP_MAX, Math.abs(scrollJerk) * SCROLL_AMP_PER_PX);
 			scrollEdge = scrollJerk > 0 ? 0.0 : 1.0;
 			lastSwellTime = nowMs;
 			lastInteractionTime = nowMs;
@@ -328,7 +373,7 @@ function renderSFPools(
 		const tunables = opts.getUniforms ? opts.getUniforms() : null;
 
 		// --- advance the wave simulation (ping-pong) ---
-		for (let step = 0; step < SIM_SUBSTEPS; step++) {
+		for (let step = 0; step < js.SIM_SUBSTEPS; step++) {
 			simWrite.begin();
 			p.shader(simShader);
 			if (tunables) {
@@ -339,7 +384,7 @@ function renderSFPools(
 			simShader.setUniform("u_impulsePos", [impulseX, impulseY]);
 			simShader.setUniform("u_impulsePrev", [impulsePrevX, impulsePrevY]);
 			simShader.setUniform("u_impulseAmp", step === 0 ? impulseAmp : 0.0);
-			simShader.setUniform("u_impulseRadius", SIM_IMPULSE_RADIUS);
+			simShader.setUniform("u_impulseRadius", js.SIM_IMPULSE_RADIUS);
 			simShader.setUniform("u_scrollAmp", step === 0 ? scrollAmp : 0.0);
 			simShader.setUniform("u_scrollEdge", scrollEdge);
 			simShader.setUniform("u_scrollRadius", SCROLL_WAVE_RADIUS);

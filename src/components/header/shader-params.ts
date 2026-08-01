@@ -1,5 +1,6 @@
 import displayFragShader from "./header-shader.frag";
 import simFragShader from "./water-sim.frag";
+import { JS_PARAM_DEFAULTS } from "./HeaderAnimation";
 
 // ============================================================================
 // TUNABLE SHADER PARAMETERS
@@ -119,6 +120,44 @@ export const PARAM_SPECS: ParamSpec[] = [
 		label: "Swell front roughness (texels)", min: 1.0, max: 24.0, step: 1.0,
 		hint: "Texels per noise cell along the scroll swell's leading edge. At 1 this is white noise at the grid's Nyquist frequency, which the caustic lens amplifies into hard vertical stripes; higher keeps the front irregular but band-limited.",
 	},
+
+	// --- Pointer input (JS side — these shape the impulse before it reaches
+	// the shader, so they cannot be uniforms) --------------------------------
+	{
+		name: "IMPULSE_BASE", domain: "js", group: "Pointer input",
+		label: "Dent depth, slow drag", min: 0.0, max: 0.6, step: 0.01,
+		hint: "How deep the dent is when the pointer is barely moving.",
+	},
+	{
+		name: "IMPULSE_PER_PX", domain: "js", group: "Pointer input",
+		label: "Depth per px/frame of speed", min: 0.0, max: 0.03, step: 0.001,
+		hint: "How much faster pointer movement deepens the dent. The caustic lens reads curvature directly, so a deep dent throws a much brighter flare than the wake it leaves — lower this if the moment of contact overpowers the ripples that follow.",
+	},
+	{
+		name: "IMPULSE_MAX", domain: "js", group: "Pointer input",
+		label: "Dent depth cap", min: 0.05, max: 1.5, step: 0.05,
+		hint: "Ceiling on dent depth however fast the pointer moves.",
+	},
+	{
+		name: "CLICK_AMP", domain: "js", group: "Pointer input",
+		label: "Click splash depth", min: 0.0, max: 2.0, step: 0.05,
+		hint: "A click stamps a point dent this deep, with no sweep.",
+	},
+	{
+		name: "SIM_IMPULSE_RADIUS", domain: "js", group: "Pointer input",
+		label: "Dent radius (texels)", min: 1.0, max: 12.0, step: 0.5,
+		hint: "Width of the Gaussian dent. Wider dents have gentler curvature for the same depth, so they lens more softly.",
+	},
+	{
+		name: "SIM_SUBSTEPS", domain: "js", group: "Pointer input",
+		label: "Sim steps per frame", min: 1, max: 4, step: 1,
+		hint: "Wave-equation steps per rendered frame. More makes ripples travel and decay faster, at proportional GPU cost.",
+	},
+	{
+		name: "SCROLL_AMP_MAX", domain: "js", group: "Pointer input",
+		label: "Scroll swell cap", min: 0.0, max: 1.0, step: 0.02,
+		hint: "Ceiling on the swell height a scroll jerk can inject.",
+	},
 ];
 
 /** Parse `const float NAME = <number>;` out of a shader source. */
@@ -140,7 +179,16 @@ function sourceFor(domain: ParamDomain): string {
 export const PARAM_DEFAULTS: Record<string, number> = (() => {
 	const out: Record<string, number> = {};
 	for (const spec of PARAM_SPECS) {
-		if (spec.domain === "js") continue;
+		if (spec.domain === "js") {
+			// JS-side numbers live in HeaderAnimation.tsx, not in a shader.
+			const v = (JS_PARAM_DEFAULTS as Record<string, number>)[spec.name];
+			if (v === undefined) {
+				console.warn(`[shader-params] no JS default for ${spec.name}`);
+			} else {
+				out[spec.name] = v;
+			}
+			continue;
+		}
 		const value = parseDefault(sourceFor(spec.domain), spec.name);
 		if (value === undefined) {
 			// Loud rather than silent: a renamed constant would otherwise give the
@@ -174,6 +222,7 @@ export function withTunableUniforms(src: string, names: string[]): string {
 	return out;
 }
 
+export const JS_TUNABLES = PARAM_SPECS.filter(s => s.domain === "js").map(s => s.name);
 export const DISPLAY_TUNABLES = PARAM_SPECS.filter(s => s.domain === "display").map(s => s.name);
 export const SIM_TUNABLES = PARAM_SPECS.filter(s => s.domain === "sim").map(s => s.name);
 
@@ -187,6 +236,12 @@ export function toGlsl(values: Record<string, number>): string {
 	for (const spec of PARAM_SPECS) {
 		const v = values[spec.name];
 		if (v === undefined || v === PARAM_DEFAULTS[spec.name]) continue;
+		if (spec.domain === "js") {
+			if (!groups.has("HeaderAnimation.tsx")) groups.set("HeaderAnimation.tsx", []);
+			const dec = Math.max(0, -Math.floor(Math.log10(spec.step)));
+			groups.get("HeaderAnimation.tsx")!.push(`const ${spec.name} = ${v.toFixed(dec)};`);
+			continue;
+		}
 		const file = spec.domain === "sim" ? "water-sim.frag" : "header-shader.frag";
 		if (!groups.has(file)) groups.set(file, []);
 		// Range inputs accumulate binary float error (0.1 + 0.2 lands on

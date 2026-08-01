@@ -2,13 +2,14 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type p5 from "p5";
-import { renderSFPools, type InputBus } from "./HeaderAnimation";
+import { renderSFPools, type InputBus, type JsParams } from "./HeaderAnimation";
 import { headerHeightPx } from "./HeaderPlaceholder";
 import {
 	PARAM_SPECS,
 	PARAM_DEFAULTS,
 	LAB_DISPLAY_SRC,
 	LAB_SIM_SRC,
+	JS_TUNABLES,
 	toGlsl,
 	type ParamSpec,
 } from "./shader-params";
@@ -68,7 +69,15 @@ function Pane({
 					renderSFPools(p, {
 						displaySrc: LAB_DISPLAY_SRC,
 						simSrc: LAB_SIM_SRC,
+						// Shader uniforms and JS-side numbers come from the same slider
+						// state; split here because the JS ones shape the impulse before
+						// it ever reaches a shader and so cannot be uniforms.
 						getUniforms: () => valuesRef.current,
+						getJsParams: () => {
+							const out: Record<string, number> = {};
+							for (const k of JS_TUNABLES) out[k] = valuesRef.current[k];
+							return out as Partial<JsParams>;
+						},
 						getWidth: () => widthRef.current,
 						t0: CLOCK_ORIGIN,
 						input: busRef.current,
