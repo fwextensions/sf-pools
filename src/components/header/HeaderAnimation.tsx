@@ -52,8 +52,41 @@ const DRIP_MIN_GAP_MS = 6000; // random spacing between drips
 const DRIP_MAX_GAP_MS = 12000;
 const DRIP_AMP = 0.35;
 
+/**
+ * Shared input for the tuning harness. Two sims must receive IDENTICAL input or
+ * an A/B comparison is meaningless: p5 computes mouseX/mouseY per canvas from
+ * its own bounding rect, so only the pane the pointer is physically over would
+ * otherwise be stirred.
+ */
+export type InputBus = {
+	/** impulse for the next frame, in sim UV (y already flipped); amp 0 = none */
+	impulse: { x: number; y: number; prevX: number; prevY: number; amp: number };
+	/** synthetic scroll position, in px, shared by both instances */
+	scrollY: number;
+};
+
+export type SketchOptions = {
+	/** override the compiled shader sources (the harness promotes consts to uniforms) */
+	displaySrc?: string;
+	simSrc?: string;
+	/** live uniform values, read every frame; keys are shader constant names */
+	getUniforms?: () => Record<string, number>;
+	/**
+	 * Shared clock origin, in performance.now() ms. p5's millis() is stamped per
+	 * instance at ITS setup, so two instances booting milliseconds apart animate
+	 * the analytic swell permanently out of phase — which alone would invalidate
+	 * a side-by-side comparison of the caustics.
+	 */
+	t0?: number;
+	/** canvas width in CSS px; defaults to the viewport width */
+	getWidth?: () => number;
+	/** when present, replaces p5's own pointer/scroll handling and idle drips */
+	input?: InputBus;
+};
+
 function renderSFPools(
-	p: p5)
+	p: p5,
+	opts: SketchOptions = {})
 {
 	let displayShader: p5.Shader;
 	let simShader: p5.Shader;
@@ -140,6 +173,19 @@ function renderSFPools(
 		bandFade = [fade(17.0), fade(42.9)]; // peak |k| of wave groups B and C
 	}
 
+	function canvasWidth() {
+		return opts.getWidth ? opts.getWidth() : p.windowWidth;
+	}
+
+	// Seconds since the shared clock origin. Falls back to p5's per-instance
+	// millis() in production, where there is only one instance to be in phase
+	// with.
+	function nowSeconds() {
+		return opts.t0 !== undefined
+			? (performance.now() - opts.t0) / 1000
+			: p.millis() / 1000;
+	}
+
 	// p5 listens for mouse events window-wide, so ignore anything outside
 	// the canvas; otherwise a pointer near the header still stirs the water
 	function pointerInCanvas() {
@@ -165,12 +211,13 @@ function renderSFPools(
 			p.pmouseY >= 0 && p.pmouseY <= p.height;
 		impulsePrevX = prevInCanvas ? p.pmouseX / p.width : impulseX;
 		impulsePrevY = prevInCanvas ? 1.0 - p.pmouseY / p.height : impulseY;
-		lastInteractionTime = p.millis();
+		lastInteractionTime = nowSeconds() * 1000;
 	}
 
 	p.setup = () => {
 		p.pixelDensity(Math.min(window.devicePixelRatio || 1, MAX_PIXEL_DENSITY));
-		const canvas = p.createCanvas(p.windowWidth, headerHeightPx(p.windowWidth), p.WEBGL);
+		const w = canvasWidth();
+		const canvas = p.createCanvas(w, headerHeightPx(w), p.WEBGL);
 		// Stack the canvas over the SSR tile placeholder, and fade it in on the
 		// first drawn frame so it doesn't pop over the static placeholder.
 		canvasEl = (canvas as any).elt as HTMLElement;
@@ -180,8 +227,8 @@ function renderSFPools(
 		canvasEl.style.zIndex = "1";
 		canvasEl.style.opacity = "0";
 		canvasEl.style.transition = "opacity 300ms ease";
-		displayShader = p.createShader(vertShader, displayFragShader);
-		simShader = p.createShader(vertShader, simFragShader);
+		displayShader = p.createShader(vertShader, opts.displaySrc ?? displayFragShader);
+		simShader = p.createShader(vertShader, opts.simSrc ?? simFragShader);
 		createSimBuffers();
 		lastScrollY = window.scrollY;
 
@@ -195,7 +242,7 @@ function renderSFPools(
 			impulsePrevX = impulseX; // point dent, no sweep
 			impulsePrevY = impulseY;
 			impulseAmp = 1.2; // clicks splash harder than moves
-			lastInteractionTime = p.millis();
+			lastInteractionTime = nowSeconds() * 1000;
 		};
 
 		//@ts-ignore
@@ -207,30 +254,48 @@ function renderSFPools(
 
 	p.draw = () => {
 		const d = p.pixelDensity();
-		const time = p.millis() / 1000.0;
+		const time = nowSeconds();
 
 		p.noStroke();
+
+		// The harness feeds both instances the same impulse; without this each
+		// pane would only respond to a pointer physically over it.
+		if (opts.input) {
+			const i = opts.input.impulse;
+			if (i.amp !== 0) {
+				impulseX = i.x;
+				impulseY = i.y;
+				impulsePrevX = i.prevX;
+				impulsePrevY = i.prevY;
+				impulseAmp = i.amp;
+			}
+		}
 
 		// --- scroll swell: how much did the scroll speed change? ---
 		// Accelerating downward shoves the pool up, piling water against the
 		// bottom edge; decelerating (or accelerating upward) piles it
 		// against the top.
-		const scrollDelta = window.scrollY - lastScrollY;
+		const scrollY = opts.input ? opts.input.scrollY : window.scrollY;
+		const scrollDelta = scrollY - lastScrollY;
 		const scrollJerk = scrollDelta - lastScrollDelta;
-		lastScrollY = window.scrollY;
+		lastScrollY = scrollY;
 		lastScrollDelta = scrollDelta;
 		let scrollAmp = 0.0;
 		let scrollEdge = 0.0; // sim UV y: 0 = bottom edge, 1 = top edge
-		if (scrollJerk !== 0 && p.millis() - lastSwellTime > SCROLL_COOLDOWN_MS) {
+		const nowMs = time * 1000;
+		if (scrollJerk !== 0 && nowMs - lastSwellTime > SCROLL_COOLDOWN_MS) {
 			scrollAmp = Math.min(SCROLL_AMP_MAX, Math.abs(scrollJerk) * SCROLL_AMP_PER_PX);
 			scrollEdge = scrollJerk > 0 ? 0.0 : 1.0;
-			lastSwellTime = p.millis();
-			lastInteractionTime = p.millis();
+			lastSwellTime = nowMs;
+			lastInteractionTime = nowMs;
 		}
 
 		// --- idle drips: an occasional drop lands while nobody's touching ---
-		const now = p.millis();
-		if (now - lastInteractionTime > DRIP_IDLE_DELAY_MS && now >= nextDripTime) {
+		// Suppressed under the harness: Math.random() is consumed in interleaved
+		// draw order, so two instances would drip at different times and places
+		// and the panes would diverge for reasons unrelated to the parameters.
+		const now = nowMs;
+		if (!opts.input && now - lastInteractionTime > DRIP_IDLE_DELAY_MS && now >= nextDripTime) {
 			impulseX = 0.1 + Math.random() * 0.8; // keep away from the walls
 			impulseY = 0.1 + Math.random() * 0.8;
 			impulsePrevX = impulseX; // point dent, no sweep
@@ -239,10 +304,19 @@ function renderSFPools(
 			nextDripTime = now + DRIP_MIN_GAP_MS + Math.random() * (DRIP_MAX_GAP_MS - DRIP_MIN_GAP_MS);
 		}
 
+		// Live tunables, present only under the harness (where the shader's
+		// `const float`s have been rewritten into uniforms). Setting a uniform
+		// that does not exist is a no-op in p5, so the same loop safely feeds
+		// both shaders every name.
+		const tunables = opts.getUniforms ? opts.getUniforms() : null;
+
 		// --- advance the wave simulation (ping-pong) ---
 		for (let step = 0; step < SIM_SUBSTEPS; step++) {
 			simWrite.begin();
 			p.shader(simShader);
+			if (tunables) {
+				for (const k in tunables) simShader.setUniform(k, tunables[k]);
+			}
 			simShader.setUniform("u_state", simRead);
 			simShader.setUniform("u_texel", simTexel);
 			simShader.setUniform("u_impulsePos", [impulseX, impulseY]);
@@ -261,6 +335,9 @@ function renderSFPools(
 
 		// --- render the pool ---
 		p.shader(displayShader);
+		if (tunables) {
+			for (const k in tunables) displayShader.setUniform(k, tunables[k]);
+		}
 		displayShader.setUniform("u_resolution", [p.width * d, p.height * d]);
 		displayShader.setUniform("u_time", time);
 		displayShader.setUniform("u_water", simRead);
@@ -283,12 +360,19 @@ function renderSFPools(
 		// expands during scrolling; recreating the sim then would blank
 		// the water mid-slosh. Only a width change matters to a
 		// fixed-height canvas.
-		if (p.windowWidth === p.width) return;
+		const w = canvasWidth();
+		if (w === p.width) return;
 
-		p.resizeCanvas(p.windowWidth, headerHeightPx(p.windowWidth));
+		p.resizeCanvas(w, headerHeightPx(w));
 		createSimBuffers(); // aspect changed, keep sim texels square on screen
 	};
+
+	// The harness resizes panes without a window resize (splitter drags, layout
+	// toggles), which p5's windowResized never sees.
+	(p as any).__resize = () => p.windowResized!();
 }
+
+export { renderSFPools };
 
 export default function HeaderAnimation()
 {
