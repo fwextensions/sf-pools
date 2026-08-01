@@ -59,8 +59,20 @@ const DRIP_AMP = 0.35;
  * otherwise be stirred.
  */
 export type InputBus = {
-	/** impulse for the next frame, in sim UV (y already flipped); amp 0 = none */
-	impulse: { x: number; y: number; prevX: number; prevY: number; amp: number };
+	/**
+	 * Impulse for the next frame, in sim UV (y already flipped).
+	 *
+	 * `seq` increments on every new pointer event and is what makes an impulse
+	 * fire ONCE PER INSTANCE. A plain amp flag cannot work here: leaving it set
+	 * re-injects the dent every frame, so it never decays and sits there warping
+	 * the water forever; clearing it on read means whichever instance draws
+	 * first consumes it and the other never sees it at all, which silently
+	 * defeats the point of sharing the bus. Each sketch remembers the last seq
+	 * it applied instead.
+	 */
+	impulse: {
+		x: number; y: number; prevX: number; prevY: number; amp: number; seq: number;
+	};
 	/** synthetic scroll position, in px, shared by both instances */
 	scrollY: number;
 };
@@ -122,6 +134,9 @@ function renderSFPools(
 
 	let lastInteractionTime = 0;
 	let nextDripTime = 0;
+	// Last harness impulse this instance applied, so a shared bus fires each
+	// event once here rather than every frame until the next one.
+	let lastImpulseSeq = -1;
 
 	function createSimBuffers() {
 		if (simRead) simRead.remove();
@@ -259,10 +274,12 @@ function renderSFPools(
 		p.noStroke();
 
 		// The harness feeds both instances the same impulse; without this each
-		// pane would only respond to a pointer physically over it.
+		// pane would only respond to a pointer physically over it. Each new
+		// event is applied exactly once per instance — see InputBus.impulse.
 		if (opts.input) {
 			const i = opts.input.impulse;
-			if (i.amp !== 0) {
+			if (i.seq !== lastImpulseSeq) {
+				lastImpulseSeq = i.seq;
 				impulseX = i.x;
 				impulseY = i.y;
 				impulsePrevX = i.prevX;

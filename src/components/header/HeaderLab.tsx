@@ -23,7 +23,7 @@ const CLOCK_ORIGIN = typeof performance !== "undefined" ? performance.now() : 0;
 
 function makeBus(): InputBus {
 	return {
-		impulse: { x: 0.5, y: 0.5, prevX: 0.5, prevY: 0.5, amp: 0 },
+		impulse: { x: 0.5, y: 0.5, prevX: 0.5, prevY: 0.5, amp: 0, seq: 0 },
 		scrollY: 0,
 	};
 }
@@ -230,6 +230,7 @@ export default function HeaderLab() {
 		i.x = x;
 		i.y = y;
 		i.amp = Math.min(1.0, 0.15 + speed * 0.01);
+		i.seq++; // fires this impulse once in each pane, then stops
 	};
 
 	const onClick = () => {
@@ -237,6 +238,7 @@ export default function HeaderLab() {
 		i.amp = 1.2;
 		i.prevX = i.x;
 		i.prevY = i.y;
+		i.seq++;
 	};
 
 	const copy = async (which: "a" | "b") => {
