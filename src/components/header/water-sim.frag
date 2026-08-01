@@ -62,6 +62,10 @@ void main() {
 
 	float laplacian = hN + hS + hE + hW - 4.0 * state.r;
 	float next = (2.0 * state.r - state.g + WAVE_SPEED * laplacian) * DAMPING;
+	// Height carried into the .g channel as next step's "previous". Injections
+	// below displace it alongside `next` so they add no velocity — see the
+	// note on the pointer dent.
+	float prev = state.r;
 
 	// press the pointer into the surface as a Gaussian dent; the wave
 	// equation turns it into an expanding, interfering ring on its own.
@@ -70,13 +74,25 @@ void main() {
 	// swept along the segment the pointer traveled since last frame — a
 	// fast swipe carves a continuous trough instead of stamping a dotted
 	// line of separate circles.
+	//
+	// The dent is pressed into BOTH height channels by the same weight. This
+	// scheme stores velocity implicitly as (height - prevHeight), so
+	// displacing only the height would hand the dent a velocity of roughly
+	// its own depth — every frame the pointer moves. Rapid back-and-forth
+	// re-dents the same water before it can radiate away, compounding those
+	// kicks until DAMPING can no longer drain them and the surface breaks up
+	// into checkerboard noise. Displacing both channels injects the dent at
+	// rest: it still radiates (its Laplacian is nonzero) but pumps no
+	// momentum, so the pool can only get as deep as the dent itself.
 	if (u_impulseAmp != 0.0) {
 		vec2 pt = uv / u_texel; // work in texel space, square on screen
 		vec2 a = u_impulsePrev / u_texel;
 		vec2 ab = u_impulsePos / u_texel - a;
 		float t = clamp(dot(pt - a, ab) / max(dot(ab, ab), 1e-6), 0.0, 1.0);
 		vec2 rel = (pt - (a + ab * t)) / u_impulseRadius;
-		next = mix(next, -u_impulseAmp, exp(-dot(rel, rel)));
+		float w = exp(-dot(rel, rel));
+		next = mix(next, -u_impulseAmp, w);
+		prev = mix(prev, -u_impulseAmp, w);
 	}
 
 	// scrolling shoves the whole pool; the water's inertia piles it up
@@ -95,8 +111,17 @@ void main() {
 		float jitterTexels = (smoothNoiseX(texelX, seed) - 0.5) * 1.6;
 		float amp = u_scrollAmp * (0.75 + 0.5 * smoothNoiseX(texelX, seed + 43.0));
 		float rel = (uv.y - u_scrollEdge) / (u_texel.y * u_scrollRadius) + jitterTexels / u_scrollRadius;
-		next = mix(next, amp, exp(-rel * rel));
+		float w = exp(-rel * rel);
+		// injected at rest, for the same reason as the pointer dent above
+		next = mix(next, amp, w);
+		prev = mix(prev, amp, w);
 	}
 
-	gl_FragColor = vec4(next, state.r, 0.0, 1.0);
+	// Backstop: the wave equation is stable at WAVE_SPEED = 0.1, but nothing
+	// else bounds the state, so any future injection bug can drive it to
+	// infinity rather than merely looking wrong. Waves live well inside +/-1.5.
+	next = clamp(next, -1.5, 1.5);
+	prev = clamp(prev, -1.5, 1.5);
+
+	gl_FragColor = vec4(next, prev, 0.0, 1.0);
 }
