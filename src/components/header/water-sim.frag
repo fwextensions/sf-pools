@@ -143,9 +143,10 @@ void main() {
 		prev = mix(prev, amp, w);
 	}
 
-	// Backstop: the wave equation is stable at WAVE_SPEED = 0.1, but nothing
-	// else bounds the state, so any future injection bug can drive it to
-	// infinity rather than merely looking wrong. Waves live well inside +/-1.5.
+	// Backstop: the wave equation is stable at the shipped WAVE_SPEED (0.0025,
+	// far below the 0.5 CFL limit), but nothing else bounds the state, so any
+	// future injection bug can drive it to infinity rather than merely looking
+	// wrong. Waves live well inside +/-1.5.
 	next = clamp(next, -1.5, 1.5);
 	prev = clamp(prev, -1.5, 1.5);
 
