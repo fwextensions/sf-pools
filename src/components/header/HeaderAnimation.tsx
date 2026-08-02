@@ -28,7 +28,7 @@ const vertShader = `
 const SIM_TEXEL_CSS_PX = 3;
 const SIM_MAX_WIDTH = 512;
 const SIM_MIN_WIDTH = 96;
-const SIM_SUBSTEPS = 2; // wave-equation steps per frame; more = faster waves
+const SIM_SUBSTEPS = 3; // wave-equation steps per frame; more = faster waves
 const SIM_IMPULSE_RADIUS = 3.0; // pointer dent radius, in sim texels
 
 // Pointer dent depth: IMPULSE_BASE for a slow drag, rising with pointer speed
@@ -48,9 +48,54 @@ const MAX_PIXEL_DENSITY = 1.5; // retina resolution is invisible on blurry water
 // the water sloshes when scrolling starts, stops, or jerks — a steady
 // scroll glides without pumping energy in every frame (a full-width line
 // source held for even a second visibly overdrives the pool).
-const SCROLL_WAVE_RADIUS = 2.5; // swell band half-width, in sim texels
+const SWELL_RADIUS = 2.5; // line-source band half-width, in sim texels
 const SCROLL_AMP_PER_PX = 0.006; // swell height per px/frame of speed change
 const SCROLL_AMP_MAX = 0.4;
+
+// Timed ambient swells: a line source fired off the left or right edge every
+// few seconds at an oblique heading, so the pool is stirred by discrete events
+// travelling across it rather than by a permanent analytic sea.
+//
+// SWELL_AMP = 0 disables them, which is the committed default — they were tried
+// and rejected. A full-width straight front that appears on a timer reads as
+// artificial no matter how it is roughened or where it starts, because nothing
+// on screen caused it. The identical mechanism driven by scrolling reads fine,
+// which is the tell: the problem was never the wavefront, it was that an
+// ambient one arrives without a cause. Circular drips do not have this problem
+// — a ring implies a point event the eye is happy to infer.
+//
+// Left in place because the scroll swell shares every line of it, and because
+// the sliders make it a two-second experiment if the question comes back.
+const SWELL_AMP = 0.0;
+const SWELL_PERIOD_S = 4.0; // mean seconds between swells
+// Heading spread off the horizontal, in degrees. At 90 every heading is equally
+// likely; below that fronts favour the long axis, which gives them the longest
+// run across the pool before they reach an edge.
+const SWELL_SPREAD_DEG = 60;
+// How far into the pool a front may start, as a fraction of the pool's width
+// along its own heading. 0 parks every front tangent to the edge, which reads
+// as mechanical once you notice it — the swells all arrive from outside, on
+// schedule. Starting some of them inside means a front can appear mid-pool and
+// radiate BOTH ways (a line injected at rest is symmetric), and the two halves
+// then reflect off opposite walls at different times.
+const SWELL_INSET = 0.35;
+
+// Ambient drips: point impulses on a timer, the circular-wavefront counterpart
+// to the line swells. These are what produce expanding rings that reflect off
+// the walls and interfere with each other — the character of the reference
+// demo's idle state. Deterministic from the clock, like the swells, so both
+// harness panes drip identically.
+//
+// Distinct from the idle drips below: those exist so an untouched page is not
+// dead, fire only after 6s of stillness, and are suppressed under the harness.
+// These run continuously and are part of the wave field's design.
+const DRIP_AMBIENT_AMP = 0.35; // 0 disables them entirely
+// Mean seconds between drips. Set against the ~3.7s decay time from DAMPING:
+// close enough that a new ring arrives while the previous one is still crossing
+// the pool, so there are usually two or three generations interfering, but far
+// enough apart that each one is still legible as a single expanding ring.
+const DRIP_PERIOD_S = 5.0;
+const DRIP_RADIUS = 3.0; // drip radius, in sim texels
 // Minimum time between swell injections. Scrubbing the scroll thumb up and
 // down flips the jerk sign every frame, and a full-width line source fired
 // at 60Hz pumps the pool into chaos; a cooldown turns that into a few
@@ -59,6 +104,12 @@ const SCROLL_COOLDOWN_MS = 180;
 
 // Idle drips: when nobody has touched or scrolled for a while, a drop
 // falls somewhere random — much gentler than a real click (amp 1.2).
+//
+// INACTIVE at the shipped values: the ambient drips above run continuously and
+// suppress these (see the guard in draw), because both writing to the impulse
+// channel would mean two uncoordinated drip schedules fighting for it. This
+// survives only as the fallback for DRIP_AMBIENT_AMP = 0, which is the one
+// configuration where an untouched page would otherwise be dead water.
 const DRIP_IDLE_DELAY_MS = 6000; // stillness required before dripping starts
 const DRIP_MIN_GAP_MS = 6000; // random spacing between drips
 const DRIP_MAX_GAP_MS = 12000;
@@ -98,6 +149,14 @@ export type JsParams = {
 	SIM_IMPULSE_RADIUS: number;
 	SIM_SUBSTEPS: number;
 	SCROLL_AMP_MAX: number;
+	SWELL_RADIUS: number;
+	SWELL_AMP: number;
+	SWELL_PERIOD_S: number;
+	SWELL_SPREAD_DEG: number;
+	SWELL_INSET: number;
+	DRIP_AMBIENT_AMP: number;
+	DRIP_PERIOD_S: number;
+	DRIP_RADIUS: number;
 };
 
 export const JS_PARAM_DEFAULTS: JsParams = {
@@ -108,6 +167,14 @@ export const JS_PARAM_DEFAULTS: JsParams = {
 	SIM_IMPULSE_RADIUS,
 	SIM_SUBSTEPS,
 	SCROLL_AMP_MAX,
+	SWELL_RADIUS,
+	SWELL_AMP,
+	SWELL_PERIOD_S,
+	SWELL_SPREAD_DEG,
+	SWELL_INSET,
+	DRIP_AMBIENT_AMP,
+	DRIP_PERIOD_S,
+	DRIP_RADIUS,
 };
 
 export type SketchOptions = {
@@ -133,6 +200,16 @@ export type SketchOptions = {
 	/** when present, replaces p5's own pointer/scroll handling and idle drips */
 	input?: InputBus;
 };
+
+/**
+ * Deterministic 0..1 hash of an integer. Used to scatter the ambient swell
+ * schedule, heading and strength: two harness panes must draw the SAME numbers
+ * for the comparison to mean anything, and Math.random() cannot give them that.
+ */
+function hash01(n: number): number {
+	const s = Math.sin(n * 12.9898) * 43758.5453;
+	return s - Math.floor(s);
+}
 
 function renderSFPools(
 	p: p5,
@@ -166,9 +243,26 @@ function renderSFPools(
 	let impulsePrevY = 0.5;
 	let impulseAmp = 0.0;
 
+	// Sim dimensions in texels, for placing a line source against the pool's
+	// edges. Texel space is square on screen, so these are also the pool's
+	// on-screen proportions.
+	let simDims = [SIM_MAX_WIDTH, SIM_MAX_WIDTH];
+
 	let lastScrollY = 0;
 	let lastScrollDelta = 0;
 	let lastSwellTime = -Infinity;
+	// Which SWELL_PERIOD_S bucket last fired an ambient swell. The schedule is
+	// derived from the clock rather than from Math.random() so that two harness
+	// panes, which share a clock origin, fire identically — the idle drips had
+	// to be suppressed under the harness for exactly the lack of this, since
+	// random draws get consumed in interleaved draw order and the panes diverge
+	// for reasons unrelated to the parameters being compared.
+	let lastSwellBucket = -1;
+	// Same scheme, own schedule, for the ambient drips.
+	let lastDripBucket = -1;
+	// Radius the sim should use for whatever is in the impulse channel this
+	// frame: the pointer dent and an ambient drip want different sizes.
+	let impulseRadius = SIM_IMPULSE_RADIUS;
 
 	let lastInteractionTime = 0;
 	let nextDripTime = 0;
@@ -204,6 +298,7 @@ function renderSFPools(
 		simRead = (p as any).createFramebuffer(options);
 		simWrite = (p as any).createFramebuffer(options);
 		simTexel = [1 / simWidth, 1 / simHeight];
+		simDims = [simWidth, simHeight];
 
 		// Linear filtering of FLOAT textures is a separate extension from float
 		// textures themselves, and it is missing on some mobile GPUs. Ask the
@@ -342,22 +437,94 @@ function renderSFPools(
 		const scrollJerk = scrollDelta - lastScrollDelta;
 		lastScrollY = scrollY;
 		lastScrollDelta = scrollDelta;
-		let scrollAmp = 0.0;
-		let scrollEdge = 0.0; // sim UV y: 0 = bottom edge, 1 = top edge
+		// The line source fires at most once per frame. Both the scroll swell and
+		// the timed ambient swell drive it, scroll winning: a swell the user
+		// caused should never be dropped in favour of one on a timer.
+		let lineAmp = 0.0;
+		let lineDir = [0, 1]; // unit normal, texel space, pointing where it travels
+		// 0 = tangent to the pool on the upwind side, 1 = all the way across
+		let lineInset = 0.0;
 		const nowMs = time * 1000;
 		if (scrollJerk !== 0 && nowMs - lastSwellTime > SCROLL_COOLDOWN_MS) {
-			scrollAmp = Math.min(js.SCROLL_AMP_MAX, Math.abs(scrollJerk) * SCROLL_AMP_PER_PX);
-			scrollEdge = scrollJerk > 0 ? 0.0 : 1.0;
+			lineAmp = Math.min(js.SCROLL_AMP_MAX, Math.abs(scrollJerk) * SCROLL_AMP_PER_PX);
+			// accelerating downward shoves the pool up, piling water against the
+			// bottom edge, and the front then travels upward; decelerating (or
+			// accelerating upward) piles it against the top
+			lineDir = scrollJerk > 0 ? [0, 1] : [0, -1];
 			lastSwellTime = nowMs;
 			lastInteractionTime = nowMs;
+		} else if (js.SWELL_AMP > 0 && js.SWELL_PERIOD_S > 0) {
+			// One swell per SWELL_PERIOD_S bucket, at a hashed moment inside it —
+			// so the spacing varies but the long-run rate does not, and no swell
+			// can be skipped by a dropped frame the way a "fire every N seconds"
+			// comparison against a moving deadline can.
+			const bucket = Math.floor(time / js.SWELL_PERIOD_S);
+			const fireAt = (bucket + hash01(bucket) * 0.9) * js.SWELL_PERIOD_S;
+			if (bucket !== lastSwellBucket && time >= fireAt) {
+				lastSwellBucket = bucket;
+				lineAmp = js.SWELL_AMP * (0.7 + 0.6 * hash01(bucket + 17));
+				// Heading: leftward or rightward, tilted up to SWELL_SPREAD_DEG off
+				// the long axis. At 90 the two halves meet and every heading is
+				// equally likely; below that fronts favour the axis with the most
+				// room to travel.
+				const side = hash01(bucket + 31) < 0.5 ? -1 : 1;
+				const spread = (js.SWELL_SPREAD_DEG * Math.PI) / 180;
+				const theta = (hash01(bucket + 53) * 2 - 1) * spread;
+				lineDir = [side * Math.cos(theta), Math.sin(theta)];
+				lineInset = hash01(bucket + 71) * js.SWELL_INSET;
+			}
+		}
+
+		// Place the front along its own normal. For a box, the support distance in
+		// direction d is |d.x|*W/2 + |d.y|*H/2, so -support is tangent to the
+		// pool on the upwind side and +support is tangent on the far side.
+		// Getting this from the box rather than assuming an edge is what lets the
+		// heading be arbitrary without the band landing half outside the pool and
+		// injecting nothing. lineInset slides it in from there, which is also
+		// what turns a one-way front into a symmetric pair (a line injected at
+		// rest radiates both ways; it just has nowhere to go when it starts on
+		// the wall).
+		const lineSupport =
+			Math.abs(lineDir[0]) * simDims[0] * 0.5 +
+			Math.abs(lineDir[1]) * simDims[1] * 0.5;
+		const lineOffset = lineSupport * (2.0 * lineInset - 1.0);
+
+		// --- ambient drips: expanding rings that reflect and interfere ---
+		// The point-source half of the ambient field. Hashed from the clock, so
+		// both harness panes drip identically — see lastSwellBucket.
+		impulseRadius = js.SIM_IMPULSE_RADIUS;
+		if (js.DRIP_AMBIENT_AMP > 0 && js.DRIP_PERIOD_S > 0) {
+			const bucket = Math.floor(time / js.DRIP_PERIOD_S);
+			const fireAt = (bucket + hash01(bucket + 101) * 0.9) * js.DRIP_PERIOD_S;
+			if (bucket !== lastDripBucket && time >= fireAt) {
+				lastDripBucket = bucket;
+				// Skipped rather than queued when the pointer already owns the
+				// impulse channel this frame — one lost drip while the user is
+				// actively stirring the water is not a drip anyone wanted.
+				if (impulseAmp === 0.0) {
+					// Deliberately allowed near the walls, unlike the idle drips: a
+					// ring breaking against a nearby edge and folding back over
+					// itself is most of what makes the reflections read.
+					impulseX = 0.04 + hash01(bucket + 211) * 0.92;
+					impulseY = 0.04 + hash01(bucket + 307) * 0.92;
+					impulsePrevX = impulseX; // point dent, no sweep
+					impulsePrevY = impulseY;
+					impulseAmp = js.DRIP_AMBIENT_AMP * (0.7 + 0.6 * hash01(bucket + 401));
+					impulseRadius = js.DRIP_RADIUS;
+				}
+			}
 		}
 
 		// --- idle drips: an occasional drop lands while nobody's touching ---
 		// Suppressed under the harness: Math.random() is consumed in interleaved
 		// draw order, so two instances would drip at different times and places
 		// and the panes would diverge for reasons unrelated to the parameters.
+		// Also suppressed once ambient drips are running, which supersede them:
+		// the idle drip's whole purpose is that an untouched page is not dead
+		// water, and ambient drips already guarantee that.
 		const now = nowMs;
-		if (!opts.input && now - lastInteractionTime > DRIP_IDLE_DELAY_MS && now >= nextDripTime) {
+		if (!opts.input && js.DRIP_AMBIENT_AMP === 0 &&
+			now - lastInteractionTime > DRIP_IDLE_DELAY_MS && now >= nextDripTime) {
 			impulseX = 0.1 + Math.random() * 0.8; // keep away from the walls
 			impulseY = 0.1 + Math.random() * 0.8;
 			impulsePrevX = impulseX; // point dent, no sweep
@@ -384,10 +551,11 @@ function renderSFPools(
 			simShader.setUniform("u_impulsePos", [impulseX, impulseY]);
 			simShader.setUniform("u_impulsePrev", [impulsePrevX, impulsePrevY]);
 			simShader.setUniform("u_impulseAmp", step === 0 ? impulseAmp : 0.0);
-			simShader.setUniform("u_impulseRadius", js.SIM_IMPULSE_RADIUS);
-			simShader.setUniform("u_scrollAmp", step === 0 ? scrollAmp : 0.0);
-			simShader.setUniform("u_scrollEdge", scrollEdge);
-			simShader.setUniform("u_scrollRadius", SCROLL_WAVE_RADIUS);
+			simShader.setUniform("u_impulseRadius", impulseRadius);
+			simShader.setUniform("u_lineAmp", step === 0 ? lineAmp : 0.0);
+			simShader.setUniform("u_lineDir", lineDir);
+			simShader.setUniform("u_lineOffset", lineOffset);
+			simShader.setUniform("u_lineRadius", js.SWELL_RADIUS);
 			simShader.setUniform("u_time", time);
 			p.quad(-1, -1, 1, -1, 1, 1, -1, 1);
 			simWrite.end();

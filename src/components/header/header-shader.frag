@@ -46,15 +46,42 @@ const float SIM_SLOPE_GAIN = 12.0;
 // Sim curvature gain — the only knob balancing simulated against ambient
 // curvature inside the caustic determinant. Measured reference: the ambient
 // spectrum peaks at |laplacian| ~48, and a fresh pointer dent contributes ~968
-// before this gain, so 0.08 makes a dent about 1.6x the ambient peak — clearly
-// the dominant lens where you touch, without swamping the whole header. Raise
-// it for more dramatic flares; past ~0.3 dents fold far enough that their
-// centres go dark (see the caveat in focusGain).
-const float SIM_CURV_GAIN = 0.08;
+// before this gain.
+//
+// This was 0.08 when the analytic spectrum was the primary lens and the sim
+// only added flares where you touched. Now the sim carries the field: waves are
+// slow (WAVE_SPEED 0.0025) and long-lived, so drip rings are broad, gentle
+// curvature rather than sharp dents, and they need ~7x the gain to fold light at
+// all. The old "past ~0.3 dent centres go dark" caveat was measured against a
+// fresh full-depth pointer dent, which is far sharper than anything the ambient
+// drips make; it still applies to a hard click, which is why CLICK_AMP and the
+// pointer dent depths are held low.
+const float SIM_CURV_GAIN = 0.600;
 
 // --- Ambient spectrum ---
 // Weight of the analytic swell relative to the (SIM_*_GAIN-scaled) simulation.
-const float AMBIENT_WEIGHT = 0.8;
+// Dropped from 0.8 when the ambient drips took over as the main wave source:
+// the analytic field is no longer what you are mostly looking at, it is the
+// fine background texture the drips ride on. It still earns its place — it is
+// the only thing carrying wave group C (|k| 29-43, ~10 sim texels per
+// wavelength), which the simulation cannot resolve and which gives the caustic
+// determinant its fine structure.
+const float AMBIENT_WEIGHT = 0.30;
+// Gusting: how far each of the twelve waves' amplitude swings around its
+// nominal value. 0.0 is the stationary sea (every wave at a fixed amplitude
+// forever); 1.0 lets a wave fade to nothing and come back at double. The
+// envelope is centred on 1.0, so the mean amplitude — and therefore the balance
+// against the simulation — is unchanged whatever this is set to.
+//
+// This is the cheap half of "impulses rather than a constant swell": because a
+// caustic filament runs perpendicular to its wave's k, fading wave groups in
+// and out swings the web's dominant ORIENTATION over time, which is most of
+// what reads as weather. Costs one sin() per wave.
+const float GUST_DEPTH = 0.60;
+// Envelope frequency, in cycles per second, before the per-wave spread below.
+// 0.05 is a 20s cycle — slow enough to read as drifting conditions rather than
+// as a pulsing effect.
+const float GUST_RATE = 0.05;
 
 // --- Caustics ---
 // THE master dial: how far below the surface the floor sits, times the
@@ -167,8 +194,28 @@ float tiles(vec2 st, float gridScale) {
 // ~12x and the caustic would collapse into uniform fizz.
 // ============================================================================
 
+// Slow amplitude envelope for wave `idx`, centred on 1.0.
+//
+// Golden-angle phases and an irrational rate spread, for the same reason the
+// headings use the golden angle: any rational relationship between the twelve
+// envelopes lets whole groups fade in and out together, and the caustic web
+// visibly breathes as one. The RATE spread does most of that work — equal rates
+// with staggered phases still re-align on a fixed period.
+//
+// The early-out is on a compile-time const, so setting GUST_DEPTH back to 0.0
+// costs nothing at all: the branch folds and this whole function inlines to
+// 1.0. At the shipped 0.60 it is live and production pays one sin() per wave.
+// Under the tuning harness GUST_DEPTH is a uniform, so it becomes a
+// fully-coherent branch instead.
+float gustEnvelope(float t, float idx) {
+	if (GUST_DEPTH == 0.0) return 1.0;
+	float rate = GUST_RATE * (0.6 + 0.8 * fract(idx * 0.6180339887));
+	return 1.0 + GUST_DEPTH * sin(TAU * rate * t + idx * 2.39996);
+}
+
 void addWave(vec2 p, float t, vec2 k, float amp, float omega, float phase,
-             inout float h, inout vec2 grad, inout vec3 hess) {
+             float idx, inout float h, inout vec2 grad, inout vec3 hess) {
+	amp *= gustEnvelope(t, idx);
 	float a = dot(k, p) + omega * t + phase;
 	float s = sin(a);
 	float c = cos(a);
@@ -206,19 +253,19 @@ void ambientSpectrum(vec2 p, float t, out float h, out vec2 grad,
 	// keep their exact character; only the curvature field becomes isotropic.
 
 	// --- Group A: swell, |k| 3.5-8.5.
-	addWave(p, t, vec2(  3.500,  0.000), 0.400,  0.9, 0.0, h, grad, hess);
-	addWave(p, t, vec2( -3.687,  3.377), 0.300, -1.1, 0.0, h, grad, hess);
-	addWave(p, t, vec2( -0.495,  5.635), 0.250,  0.7, 0.0, h, grad, hess);
-	addWave(p, t, vec2(  5.163,  6.734), 0.150, -0.8, 0.0, h, grad, hess);
+	addWave(p, t, vec2(  3.500,  0.000), 0.400,  0.9, 0.0,  0.0, h, grad, hess);
+	addWave(p, t, vec2( -3.687,  3.377), 0.300, -1.1, 0.0,  1.0, h, grad, hess);
+	addWave(p, t, vec2( -0.495,  5.635), 0.250,  0.7, 0.0,  2.0, h, grad, hess);
+	addWave(p, t, vec2(  5.163,  6.734), 0.150, -0.8, 0.0,  3.0, h, grad, hess);
 
 	// --- Group B: chop, |k| 11-17 (~3x the swell). Drift speeds follow the
 	// deep-water relation w = 0.42*sqrt(|k|), so short waves outrun long ones
 	// and the twelve components stay permanently out of step. The per-wave
 	// phase offsets keep them from all aligning at the origin.
-	addWave(p, t, vec2( 12.787,  2.262), 0.0475 * fadeB,  1.51, 1.7, h, grad, hess);
-	addWave(p, t, vec2(-12.661,  8.054), 0.0355 * fadeB, -1.63, 3.9, h, grad, hess);
-	addWave(p, t, vec2( -4.412, 16.411), 0.0277 * fadeB,  1.73, 5.2, h, grad, hess);
-	addWave(p, t, vec2(  5.070,  9.763), 0.0661 * fadeB, -1.39, 2.4, h, grad, hess);
+	addWave(p, t, vec2( 12.787,  2.262), 0.0475 * fadeB,  1.51, 1.7,  4.0, h, grad, hess);
+	addWave(p, t, vec2(-12.661,  8.054), 0.0355 * fadeB, -1.63, 3.9,  5.0, h, grad, hess);
+	addWave(p, t, vec2( -4.412, 16.411), 0.0277 * fadeB,  1.73, 5.2,  6.0, h, grad, hess);
+	addWave(p, t, vec2(  5.070,  9.763), 0.0661 * fadeB, -1.39, 2.4,  7.0, h, grad, hess);
 
 	// The glint raises surface slope to the 64th power, so feeding it the
 	// finest ripples turns the header into crawling white speckle. Snapshot the
@@ -228,10 +275,10 @@ void ambientSpectrum(vec2 p, float t, out float h, out vec2 grad,
 	// --- Group C: ripple, |k| 29-43 (~2.5x again). Amplitudes are 0.4%-2% of
 	// the swell, so these are invisible in the height field and barely present
 	// in the slope — they exist purely to give the determinant fine structure.
-	addWave(p, t, vec2( 29.137, 10.641), 0.00832 * fadeC,  2.34, 0.8, h, grad, hess);
-	addWave(p, t, vec2(-34.167, 14.103), 0.00586 * fadeC, -2.55, 4.6, h, grad, hess);
-	addWave(p, t, vec2(-12.309, 26.303), 0.00949 * fadeC,  2.26, 3.1, h, grad, hess);
-	addWave(p, t, vec2( 12.853, 40.978), 0.00434 * fadeC, -2.75, 1.2, h, grad, hess);
+	addWave(p, t, vec2( 29.137, 10.641), 0.00832 * fadeC,  2.34, 0.8,  8.0, h, grad, hess);
+	addWave(p, t, vec2(-34.167, 14.103), 0.00586 * fadeC, -2.55, 4.6,  9.0, h, grad, hess);
+	addWave(p, t, vec2(-12.309, 26.303), 0.00949 * fadeC,  2.26, 3.1, 10.0, h, grad, hess);
+	addWave(p, t, vec2( 12.853, 40.978), 0.00434 * fadeC, -2.75, 1.2, 11.0, h, grad, hess);
 }
 
 // ============================================================================
@@ -421,7 +468,7 @@ void main() {
 	float tileMask = tiles(tileUV, tileCountV);
 	vec3 grout = vec3(0.28, 0.48, 0.58);
 	vec3 tileBase = vec3(0.459, 0.776, 0.894) * colorVar;
-	vec3 textTile = vec3(0.89, 0.89, 1.0);
+	vec3 textTile = vec3(0.95, 0.95, 1.0);
 	vec3 color = mix(grout, mix(tileBase, textTile, isText), tileMask);
 
 	// --- Tile Bevel ---

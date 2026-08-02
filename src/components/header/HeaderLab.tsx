@@ -22,6 +22,86 @@ type Values = Record<string, number>;
 // shared bus only the pane the pointer is physically over gets stirred.
 const CLOCK_ORIGIN = typeof performance !== "undefined" ? performance.now() : 0;
 
+// ============================================================================
+// Presets
+//
+// Starting points for the "impulses rather than a constant swell" question, so
+// the interesting configuration is one click away instead of eight sliders.
+// Each is a partial overlay on PARAM_DEFAULTS, so anything not named here stays
+// at whatever production compiles.
+//
+// The speed/damping pairs are not free choices. A front travels
+// sqrt(WAVE_SPEED) texels/step * substeps * 60 fps * 3 CSS px, and its
+// amplitude e-folds in 1/((1 - DAMPING) * substeps * 60) seconds. Multiply the
+// two and you get how far a swell gets before it fades — which has to be a
+// decent fraction of the header's ~1500 px or the front never reads as
+// crossing anything.
+// ============================================================================
+
+const PRESETS: { label: string; hint: string; values: Values }[] = [
+	{
+		label: "Slow drips",
+		hint:
+			"Slow, lingering water: speed 0.008 (~48 px/s) with damping 0.9985 " +
+			"(~3.7s, ~180 px) so rings outlive the gap between drips and reach the " +
+			"walls. Drips every 1.5s are the only injected energy; direction comes " +
+			"from the gusting analytic field instead of from line swells. Lens gain " +
+			"0.60 to read a much gentler curvature field.",
+		values: {
+			WAVE_SPEED: 0.008,
+			DAMPING: 0.9985,
+			SIM_SUBSTEPS: 3,
+			SIM_CURV_GAIN: 0.6,
+			AMBIENT_WEIGHT: 0.3,
+			GUST_DEPTH: 0.6,
+			GUST_RATE: 0.05,
+			DRIP_AMBIENT_AMP: 0.35,
+			DRIP_PERIOD_S: 1.5,
+			DRIP_RADIUS: 3.0,
+			SWELL_AMP: 0.0,
+		},
+	},
+	{
+		label: "Fast drips (rings travel)",
+		hint:
+			"The other end of the speed dial: 0.25 / damping 0.995 / 3 substeps, " +
+			"~270 px/s and a ~300 px decay length, so a ring visibly expands across " +
+			"the pane and reflects rather than sitting where it landed. Same drip " +
+			"source, faster water.",
+		values: {
+			GUST_DEPTH: 0.6,
+			GUST_RATE: 0.05,
+			AMBIENT_WEIGHT: 0.5,
+			SWELL_AMP: 0.0,
+			DRIP_AMBIENT_AMP: 0.3,
+			DRIP_PERIOD_S: 2.0,
+			DRIP_RADIUS: 3.0,
+			WAVE_SPEED: 0.25,
+			DAMPING: 0.995,
+			SIM_SUBSTEPS: 3,
+		},
+	},
+	{
+		label: "Sim only (threejs-caustics model)",
+		hint:
+			"The reference repo's model: no analytic field at all, so every caustic " +
+			"comes from the sim and the header goes to glass if the drips stop. " +
+			"Damping is pushed further and the sim curvature gain raised to make up " +
+			"for the ambient spectrum it no longer sums with.",
+		values: {
+			AMBIENT_WEIGHT: 0.0,
+			SIM_CURV_GAIN: 0.5,
+			DRIP_AMBIENT_AMP: 0.5,
+			DRIP_PERIOD_S: 1.25,
+			DRIP_RADIUS: 3.0,
+			SWELL_AMP: 0.0,
+			WAVE_SPEED: 0.02,
+			DAMPING: 0.9985,
+			SIM_SUBSTEPS: 3,
+		},
+	},
+];
+
 function makeBus(): InputBus {
 	return {
 		impulse: { x: 0.5, y: 0.5, prevX: 0.5, prevY: 0.5, amp: 0, seq: 0 },
@@ -362,6 +442,27 @@ export default function HeaderLab() {
 						{diffCount === 0
 							? "A and B are identical."
 							: `${diffCount} parameter${diffCount === 1 ? "" : "s"} differ — shown in blue.`}
+					</p>
+				</div>
+
+				{/* Presets load into B only, so A stays as the production baseline
+				    you are comparing against. */}
+				<div className="mt-3 rounded border border-slate-300 bg-white p-2">
+					<div className="text-xs font-medium text-slate-700">Load into B</div>
+					{PRESETS.map(preset => (
+						<button
+							key={preset.label}
+							type="button"
+							onClick={() => setB({ ...PARAM_DEFAULTS, ...preset.values })}
+							title={preset.hint}
+							className="mt-1 w-full rounded bg-slate-100 px-2 py-1 text-left text-xs hover:bg-slate-200"
+						>
+							{preset.label}
+						</button>
+					))}
+					<p className="mt-1.5 text-[11px] text-slate-500">
+						A stays at the committed defaults. Hover a preset for what it
+						assumes and why.
 					</p>
 				</div>
 
