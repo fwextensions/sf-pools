@@ -57,6 +57,34 @@ const float SIM_SLOPE_GAIN = 12.0;
 // drips make; it still applies to a hard click, which is why CLICK_AMP and the
 // pointer dent depths are held low.
 const float SIM_CURV_GAIN = 0.600;
+// Ceiling on the curvature the SIMULATION alone may put into the caustic lens.
+//
+// A settled ripple sits in the tens; a drip in the frame it lands contributes
+// ~580 after the gain above. That is far enough past the first fold that the
+// core sweeps from peak highlight to peak shadow within a couple of texels, and
+// the drip starts with a hard flash before relaxing into the ripple you
+// actually want.
+//
+// 30 comes from A/B in /header-lab against an unlimited pane, watching the same
+// drip land in both. It has to be this low to do anything: an analytic model of
+// the injected Gaussian suggested the darkest point stopped improving by ~100,
+// and that was simply wrong on screen — at 100 the flash is indistinguishable
+// from unlimited, and it only visibly softens around 30. Trust the panes over
+// the algebra here; the drip's real curvature is far past what the model said,
+// and the stencil, the quintic warp and the ambient sum all sit between the
+// injected dent and what the determinant finally sees.
+//
+// Also tempting and also wrong: 2/CAUSTIC_DEPTH (~42), where a radially
+// symmetric feature's determinant (1 + c*h)^2 reaches zero. Aiming AT the fold
+// maximises the area at peak brightness. The fold is a place to stay below.
+//
+// The settled field is unaffected at this value — an A/B of the whole header
+// with and without the limit is indistinguishable away from a fresh drip, which
+// is the property that matters: this should only bite where curvature is
+// extreme, and a drip in the frame it lands is the only thing that gets there.
+//
+// Raise it toward 500 to effectively disable the limit and get the old flash.
+const float SIM_CURV_MAX = 30.0;
 
 // --- Ambient spectrum ---
 // Weight of the analytic swell relative to the (SIM_*_GAIN-scaled) simulation.
@@ -336,6 +364,26 @@ void sampleWater(vec2 screenUV, out float height, out vec2 grad, out vec3 hess) 
 		(hN + hS - 2.0 * hC) * invss,
 		(hNE + hSW - hNW - hSE) * (0.25 * invss)
 	) * (SIM_CURV_GAIN * u_simLens);
+
+	// Soft-limit the curvature to SIM_CURV_MAX (see the note there). Three
+	// properties matter and all three come from applying ONE scalar to the whole
+	// Hessian rather than clamping its components:
+	//   - it is rotationally invariant, so the lens keeps its shape and
+	//     orientation and only loses strength;
+	//   - x/sqrt(1 + x^2) is flat near the origin (0.5% down at a fifth of the
+	//     ceiling), so settled ripples and their filaments are untouched — this
+	//     only bites in the few texels where a drip has just landed;
+	//   - it is smooth everywhere. A hard clamp would put a kink in the second
+	//     derivative, and this shader goes to some trouble upstream (the quintic
+	//     texel warp) to keep that field C2, because a kink in curvature shows
+	//     up as a visible crease running through every filament that crosses it.
+	// inversesqrt is a single GPU instruction, so this costs almost nothing.
+	//
+	// Only the lens is limited. The gradient above is left alone, so a fresh
+	// drip still refracts the tiles and drives the glint at full strength — the
+	// flash being fixed here is specific to the caustic determinant.
+	float lapMag = abs(hess.x + hess.y);
+	hess *= inversesqrt(1.0 + (lapMag * lapMag) / (SIM_CURV_MAX * SIM_CURV_MAX));
 }
 
 // ============================================================================

@@ -89,6 +89,11 @@ export const PARAM_SPECS: ParamSpec[] = [
 		hint: "Scales raw sim height into the crest/trough brightening. Purely a lighting term — does not affect the caustic lens.",
 	},
 	{
+		name: "SIM_CURV_MAX", domain: "display", group: "Wave field",
+		label: "Ripple lens ceiling", min: 5.0, max: 500.0, step: 5.0,
+		hint: "Ceiling on the curvature the simulation alone may put into the caustic lens — softens the bright-then-black flash in the frame a drip lands, without touching the settled field. It has to go LOW to do anything: at 100 the flash is indistinguishable from unlimited, and it only visibly softens around 30. Judge it by landing a drip in an A/B, not by the number. Raise toward 500 to disable.",
+	},
+	{
 		name: "AMBIENT_WEIGHT", domain: "display", group: "Wave field",
 		label: "Ambient swell weight", min: 0.0, max: 2.0, step: 0.02,
 		hint: "Weight of the 12-wave analytic swell relative to the simulation. Drop it to zero to see what user ripples alone do to the light.",
@@ -212,7 +217,7 @@ export const PARAM_SPECS: ParamSpec[] = [
 	{
 		name: "DRIP_RADIUS", domain: "js", group: "Ambient drips",
 		label: "Drip radius (texels)", min: 1.0, max: 12.0, step: 0.5,
-		hint: "Width of the Gaussian dent, independent of the pointer's. Small drips make tight, high-curvature rings that lens hard and lose their fine structure to damping quickly; broad ones spread into gentle swells.",
+		hint: "Width of the Gaussian dent, independent of the pointer's. This is the strongest lever on the initial flash, because peak curvature goes as depth/radius² while the water displaced — which is what sets the ripple that follows — goes as depth×radius². So you can trade one against the other: multiply this by k and divide Drip depth by k², and the ripple carries the same energy while the opening curvature drops by k⁴. Radius 3→5 with depth 0.35→0.13 is a 7.7x gentler start for the same wave.",
 	},
 ];
 
