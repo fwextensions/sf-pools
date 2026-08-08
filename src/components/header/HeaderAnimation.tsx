@@ -10,6 +10,12 @@ import {
 	headerHeightPx,
 	tileCssPx,
 } from "@/components/header/HeaderPlaceholder";
+import {
+	advanceSimClock,
+	createSimClock,
+	dueBucket,
+	hash01,
+} from "./wave-schedule";
 
 const vertShader = `
 	attribute vec3 aPosition;
@@ -201,16 +207,6 @@ export type SketchOptions = {
 	input?: InputBus;
 };
 
-/**
- * Deterministic 0..1 hash of an integer. Used to scatter the ambient swell
- * schedule, heading and strength: two harness panes must draw the SAME numbers
- * for the comparison to mean anything, and Math.random() cannot give them that.
- */
-function hash01(n: number): number {
-	const s = Math.sin(n * 12.9898) * 43758.5453;
-	return s - Math.floor(s);
-}
-
 function renderSFPools(
 	p: p5,
 	opts: SketchOptions = {})
@@ -247,6 +243,12 @@ function renderSFPools(
 	// edges. Texel space is square on screen, so these are also the pool's
 	// on-screen proportions.
 	let simDims = [SIM_MAX_WIDTH, SIM_MAX_WIDTH];
+
+	// Simulated seconds, advanced once per drawn frame. Everything time-driven
+	// reads this rather than wall clock, because the sim itself advances per
+	// frame — see wave-schedule.ts for why the two coming apart is what makes a
+	// backgrounded tab come back chaotic.
+	const simClock = createSimClock();
 
 	let lastScrollY = 0;
 	let lastScrollDelta = 0;
@@ -362,7 +364,7 @@ function renderSFPools(
 			p.pmouseY >= 0 && p.pmouseY <= p.height;
 		impulsePrevX = prevInCanvas ? p.pmouseX / p.width : impulseX;
 		impulsePrevY = prevInCanvas ? 1.0 - p.pmouseY / p.height : impulseY;
-		lastInteractionTime = nowSeconds() * 1000;
+		lastInteractionTime = simClock.simTime * 1000;
 	}
 
 	p.setup = () => {
@@ -393,7 +395,7 @@ function renderSFPools(
 			impulsePrevX = impulseX; // point dent, no sweep
 			impulsePrevY = impulseY;
 			impulseAmp = (opts.getJsParams?.().CLICK_AMP) ?? CLICK_AMP;
-			lastInteractionTime = nowSeconds() * 1000;
+			lastInteractionTime = simClock.simTime * 1000;
 		};
 
 		//@ts-ignore
@@ -405,7 +407,11 @@ function renderSFPools(
 
 	p.draw = () => {
 		const d = p.pixelDensity();
-		const time = nowSeconds();
+		// One frame of simulated time. `stalled` means the gap since the last
+		// frame was too long to be one — the tab was backgrounded, or the device
+		// could not keep up — so anything measured as a per-frame difference
+		// against the outside world is stale rather than a real change.
+		const { simTime: time, stalled } = advanceSimClock(simClock, nowSeconds());
 		// JS-side tunables. Production passes nothing and gets the constants.
 		const js: JsParams = opts.getJsParams
 			? { ...JS_PARAM_DEFAULTS, ...opts.getJsParams() }
@@ -432,9 +438,14 @@ function renderSFPools(
 		// Accelerating downward shoves the pool up, piling water against the
 		// bottom edge; decelerating (or accelerating upward) piles it
 		// against the top.
+		//
+		// Re-baselined after a stall rather than differenced: the page can be
+		// scrolled while the tab is in the background, and the whole distance
+		// would otherwise arrive as one frame's worth of acceleration and fire a
+		// capped swell the moment you come back.
 		const scrollY = opts.input ? opts.input.scrollY : window.scrollY;
-		const scrollDelta = scrollY - lastScrollY;
-		const scrollJerk = scrollDelta - lastScrollDelta;
+		const scrollDelta = stalled ? 0 : scrollY - lastScrollY;
+		const scrollJerk = stalled ? 0 : scrollDelta - lastScrollDelta;
 		lastScrollY = scrollY;
 		lastScrollDelta = scrollDelta;
 		// The line source fires at most once per frame. Both the scroll swell and
@@ -454,13 +465,10 @@ function renderSFPools(
 			lastSwellTime = nowMs;
 			lastInteractionTime = nowMs;
 		} else if (js.SWELL_AMP > 0 && js.SWELL_PERIOD_S > 0) {
-			// One swell per SWELL_PERIOD_S bucket, at a hashed moment inside it —
-			// so the spacing varies but the long-run rate does not, and no swell
-			// can be skipped by a dropped frame the way a "fire every N seconds"
-			// comparison against a moving deadline can.
-			const bucket = Math.floor(time / js.SWELL_PERIOD_S);
-			const fireAt = (bucket + hash01(bucket) * 0.9) * js.SWELL_PERIOD_S;
-			if (bucket !== lastSwellBucket && time >= fireAt) {
+			// One swell per SWELL_PERIOD_S window, at a hashed moment inside it —
+			// so the spacing varies but the long-run rate does not.
+			const bucket = dueBucket(time, js.SWELL_PERIOD_S, lastSwellBucket);
+			if (bucket !== null) {
 				lastSwellBucket = bucket;
 				lineAmp = js.SWELL_AMP * (0.7 + 0.6 * hash01(bucket + 17));
 				// Heading: leftward or rightward, tilted up to SWELL_SPREAD_DEG off
@@ -494,9 +502,9 @@ function renderSFPools(
 		// both harness panes drip identically — see lastSwellBucket.
 		impulseRadius = js.SIM_IMPULSE_RADIUS;
 		if (js.DRIP_AMBIENT_AMP > 0 && js.DRIP_PERIOD_S > 0) {
-			const bucket = Math.floor(time / js.DRIP_PERIOD_S);
-			const fireAt = (bucket + hash01(bucket + 101) * 0.9) * js.DRIP_PERIOD_S;
-			if (bucket !== lastDripBucket && time >= fireAt) {
+			// salted so drips and swells do not pick the same moment in a window
+			const bucket = dueBucket(time, js.DRIP_PERIOD_S, lastDripBucket, 101);
+			if (bucket !== null) {
 				lastDripBucket = bucket;
 				// Skipped rather than queued when the pointer already owns the
 				// impulse channel this frame — one lost drip while the user is
