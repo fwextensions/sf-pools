@@ -15,6 +15,19 @@ export const metadata: Metadata = {
 		"Every program on every San Francisco public pool weekly schedule.",
 };
 
+/**
+ * Only jump-nav labels longer than this are allowed to truncate. Flex shrink is
+ * proportional to a label's own width, so left alone it takes a slice off every
+ * chip at once — and two pixels is all it takes to turn "Balboa" into "Balbo…"
+ * while "North Beach (Warm)" stays readable. Short names are pinned to their
+ * natural width and the long ones give up the whole difference instead.
+ *
+ * The row needs ~1040px of viewport to show every label in full; between that
+ * and the 900px floor where labels appear at all, the two North Beach entries
+ * are what shortens. Below 900px the labels drop and the codes stand alone.
+ */
+const SHRINKABLE_LABEL_CHARS = 10;
+
 const DAYS: Array<ProgramEntry["dayOfWeek"]> = [
 	"Monday",
 	"Tuesday",
@@ -286,29 +299,44 @@ export default async function SchedulesPage() {
 				</div>
 			) : (
 				<>
-					{/* the pool codes double as the legend, same chips the grid uses */}
+					{/* The pool codes double as the legend, same chips the grid uses.
+					    Every chip stays on screen: the row never scrolls or wraps (its
+					    height is the anchor offset every section depends on), so the
+					    labels shrink and ellipsis instead. Short names rather than full
+					    ones both because they fit and because they are what the grid's
+					    legend calls these pools. Below the week grid's breakpoint the
+					    label is dropped entirely and the codes stand alone. */}
 					<nav
 						aria-label="Jump to a pool"
-						className="nav-scroller sticky top-0 z-10 flex h-[var(--schedule-nav-h)] flex-nowrap items-center gap-1 overflow-x-auto border-b border-[#e2e8ec] bg-white"
+						className="sticky top-0 z-10 flex h-[var(--schedule-nav-h)] items-center gap-0.5 overflow-hidden border-b border-[#e2e8ec] bg-white min-[900px]:gap-1"
 					>
-						{pools.map(({ pool, token }) => (
-							<a
-								key={pool.id}
-								href={`#pool-${pool.id}`}
-								className="flex flex-none items-center gap-1.5 border border-[#e2e8ec] bg-white py-1 pl-1 pr-1.5 sm:pr-2"
-							>
-								<span
-									aria-hidden
-									className="flex h-[16px] w-[26px] flex-none items-center justify-center plex-mono text-[10px] font-semibold text-white"
-									style={{ background: token?.color ?? "#5a707c" }}
+						{pools.map(({ pool, token }) => {
+							const label = token?.name ?? pool.shortName ?? toTitleCase(pool.name);
+							const shrink =
+								label.length > SHRINKABLE_LABEL_CHARS ? "shrink" : "shrink-0";
+							return (
+								<a
+									key={pool.id}
+									href={`#pool-${pool.id}`}
+									title={label}
+									// below the label breakpoint the ten codes divide the row
+									// evenly (basis-0 + grow), so they fit any width instead of
+									// overflowing; above it each chip sizes to its own label
+									className={`flex min-w-0 grow basis-0 items-center gap-1.5 border border-[#e2e8ec] bg-white px-0 py-1 min-[900px]:grow-0 min-[900px]:basis-auto min-[900px]:pl-1 min-[900px]:pr-2 ${shrink}`}
 								>
-									{token?.code ?? "—"}
-								</span>
-								<span className="hidden text-[12px] font-medium text-[#37474f] sm:inline">
-									{toTitleCase(pool.name)}
-								</span>
-							</a>
-						))}
+									<span
+										aria-hidden
+										className="flex h-[16px] w-full flex-none items-center justify-center plex-mono text-[10px] font-semibold text-white min-[900px]:w-[26px]"
+										style={{ background: token?.color ?? "#5a707c" }}
+									>
+										{token?.code ?? "—"}
+									</span>
+									<span className="hidden min-w-0 truncate text-[12px] font-medium text-[#37474f] min-[900px]:block">
+										{label}
+									</span>
+								</a>
+							);
+						})}
 					</nav>
 
 					{pools.map(({ pool, token }) => {
