@@ -91,23 +91,18 @@ function MetaLine({ parts }: { parts: React.ReactNode[] }) {
 }
 
 /**
- * `time` differs by layout: the stacked stack has no shared axis so it prints the
- * full range, while the time-aligned grid already names the start in its gutter
- * and only needs the end.
+ * The block repeats its start time even in the time-aligned grid, where the row
+ * gutter already names it: the eye lands in the middle of a grid this size and
+ * reads outward, so a block that only carried its end time would send you back
+ * to the axis to find out when it began.
  */
-function SessionBlock({
-	program,
-	color,
-	time,
-}: {
-	program: ProgramEntry;
-	color: string;
-	time: string;
-}) {
+function SessionBlock({ program, color }: { program: ProgramEntry; color: string }) {
 	const qualifier = programLocationQualifier(program.programNameOriginal);
 	return (
 		<div className="border-l-[3px] bg-[#f7fafb] px-2 py-1.5" style={{ borderColor: color }}>
-			<div className="plex-mono text-[11px] font-medium text-[#5a707c]">{time}</div>
+			<div className="plex-mono text-[11px] font-medium text-[#5a707c]">
+				{program.startTime}–{program.endTime}
+			</div>
 			<div className="mt-0.5 text-[13px] font-medium leading-snug text-[#0e2733]">
 				<ProgramName name={program.programName} />
 			</div>
@@ -149,12 +144,7 @@ function DayColumn({
 			{programs.length ? (
 				<div className="mt-1 flex flex-col gap-[3px]">
 					{programs.map((program, i) => (
-						<SessionBlock
-							key={i}
-							program={program}
-							color={color}
-							time={`${program.startTime}–${program.endTime}`}
-						/>
+						<SessionBlock key={i} program={program} color={color} />
 					))}
 				</div>
 			) : (
@@ -257,12 +247,7 @@ function WeekGrid({
 						className="flex min-w-0 flex-col gap-[3px] pt-[5px]"
 					>
 						{programs.map((program, i) => (
-							<SessionBlock
-								key={i}
-								program={program}
-								color={color}
-								time={`–${program.endTime}`}
-							/>
+							<SessionBlock key={i} program={program} color={color} />
 						))}
 					</div>
 				);
