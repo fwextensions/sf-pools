@@ -8,6 +8,9 @@
 	/* derived tints for subtle borders and backgrounds */
 	--accent-border: color-mix(in srgb, var(--accent-color) 40%, white);
 	--accent-muted: color-mix(in srgb, var(--accent-color) 12%, white);
+	/* height of the schedules page's pinned pool jump nav; sections offset
+	   their scroll anchor by exactly this so a jump never lands under it */
+	--schedule-nav-h: 47px;
 }
 
 /* basic typography */
@@ -212,6 +215,26 @@ input[type="radio"] {
 	content: "";
 	position: absolute;
 	inset: -6px 0;
+}
+
+/* the pool jump nav is a fixed-height single row so section scroll anchors can
+   offset by exactly --schedule-nav-h; the scrollbar stays visible (it is the
+   only hint that more pools sit off-screen) but is thinned to match the rules */
+.nav-scroller {
+	scrollbar-width: thin;
+	scrollbar-color: #c4d2d9 transparent;
+}
+
+.nav-scroller::-webkit-scrollbar {
+	height: 4px;
+}
+
+.nav-scroller::-webkit-scrollbar-thumb {
+	background: #c4d2d9;
+}
+
+.nav-scroller::-webkit-scrollbar-track {
+	background: transparent;
 }
 
 /* small square checkboxes for the program picker's raw-name list */

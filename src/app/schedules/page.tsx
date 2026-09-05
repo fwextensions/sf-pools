@@ -1,21 +1,20 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { PoolSchedule } from "@/lib/pdf-processor";
+import type { Metadata } from "next";
+import Link from "next/link";
+import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import ClosureNotice from "@/components/ClosureNotice";
 import { toTitleCase, programLocationQualifier } from "@/lib/program-taxonomy";
-import { CalendarIcon, ClockIcon, MapPinIcon } from "@/components/icons";
+import { POOL_TOKENS, getPoolToken, type PoolToken } from "@/lib/pool-tokens";
 import { parseTimeToMinutes } from "@/lib/utils";
 
-function getProgramTypeClass(programName: string): string {
-	const lower = programName.toLowerCase();
-	if (lower.includes("lap") || lower.includes("adult swim")) return "program-lap";
-	if (lower.includes("lesson") || lower.includes("learn")) return "program-lessons";
-	if (lower.includes("aerobic") || lower.includes("exercise") || lower.includes("fitness")) return "program-aerobics";
-	if (lower.includes("recreation") || lower.includes("open") || lower.includes("family") || lower.includes("free")) return "program-recreation";
-	return "program-default";
-}
+export const metadata: Metadata = {
+	title: "Full schedules — SF Pools",
+	description:
+		"Every program on every San Francisco public pool weekly schedule.",
+};
 
-const DAYS: Array<PoolSchedule["programs"][number]["dayOfWeek"]> = [
+const DAYS: Array<ProgramEntry["dayOfWeek"]> = [
 	"Monday",
 	"Tuesday",
 	"Wednesday",
@@ -45,97 +44,242 @@ function formatDate(d?: string | null): string {
 	});
 }
 
-function byStartTime(a: string, b: string): number {
-	return parseTimeToMinutes(a) - parseTimeToMinutes(b);
+function byStartTime(a: ProgramEntry, b: ProgramEntry): number {
+	return parseTimeToMinutes(a.startTime) - parseTimeToMinutes(b.startTime);
+}
+
+/**
+ * Pools are listed in POOL_TOKENS order (BAL→SAV) so this page walks the pools
+ * in the same fixed order the availability grid stacks its lanes in. Anything
+ * without a token still renders, appended in file order.
+ */
+function orderPools(
+	schedules: PoolSchedule[]
+): Array<{ pool: PoolSchedule; token: PoolToken | null }> {
+	const byId = new Map(schedules.map((p) => [p.id, p]));
+	const out: Array<{ pool: PoolSchedule; token: PoolToken | null }> = [];
+	for (const token of POOL_TOKENS) {
+		const pool = byId.get(token.id);
+		if (pool) {
+			out.push({ pool, token });
+			byId.delete(token.id);
+		}
+	}
+	for (const pool of byId.values()) out.push({ pool, token: getPoolToken(pool.id) });
+	return out;
+}
+
+/** meta line pieces, joined with a mono interpunct */
+function MetaLine({ parts }: { parts: React.ReactNode[] }) {
+	const shown = parts.filter(Boolean);
+	if (!shown.length) return null;
+	return (
+		<div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 plex-mono text-[11px] font-medium tracking-[.06em] text-[#8a9aa4]">
+			{shown.map((part, i) => (
+				<span key={i} className="flex items-center gap-2">
+					{i > 0 ? (
+						<span aria-hidden className="text-[#c4d2d9]">
+							·
+						</span>
+					) : null}
+					{part}
+				</span>
+			))}
+		</div>
+	);
+}
+
+function SessionBlock({ program, color }: { program: ProgramEntry; color: string }) {
+	const qualifier = programLocationQualifier(program.programNameOriginal);
+	return (
+		<div className="border-l-[3px] bg-[#f7fafb] px-2 py-1.5" style={{ borderColor: color }}>
+			<div className="plex-mono text-[11px] font-medium text-[#5a707c]">
+				{program.startTime}–{program.endTime}
+			</div>
+			<div className="mt-0.5 text-[13px] font-medium leading-snug text-[#0e2733]">
+				{program.programName}
+			</div>
+			{qualifier || program.lanes ? (
+				<div className="mt-1 flex flex-wrap gap-1">
+					{qualifier ? (
+						<span className="border border-[#c4d2d9] bg-white px-1 py-px plex-mono text-[10px] font-medium text-[#5a707c]">
+							{qualifier}
+						</span>
+					) : null}
+					{program.lanes ? (
+						<span className="border border-[#c4d2d9] bg-white px-1 py-px plex-mono text-[10px] font-medium text-[#5a707c]">
+							{program.lanes} LN
+						</span>
+					) : null}
+				</div>
+			) : null}
+			{program.notes ? (
+				<div className="mt-1 text-[11px] leading-snug text-[#8a9aa4]">{program.notes}</div>
+			) : null}
+		</div>
+	);
+}
+
+function DayColumn({
+	day,
+	programs,
+	color,
+}: {
+	day: ProgramEntry["dayOfWeek"];
+	programs: ProgramEntry[];
+	color: string;
+}) {
+	return (
+		<div className="min-w-0">
+			<div className="border-b border-[#e2e8ec] pb-1 plex-mono text-[10px] font-semibold tracking-[.1em] text-[#5a707c]">
+				{day.slice(0, 3).toUpperCase()}
+			</div>
+			{programs.length ? (
+				<div className="mt-1 flex flex-col gap-[3px]">
+					{programs.map((program, i) => (
+						<SessionBlock key={i} program={program} color={color} />
+					))}
+				</div>
+			) : (
+				// mirrors an empty cell in the week grid rather than collapsing the
+				// column, so the seven-day rhythm survives a quiet day
+				<div className="mt-1 flex h-[22px] items-center justify-center bg-[#f5f8f9] plex-mono text-[11px] text-[#c4d2d9]">
+					—
+				</div>
+			)}
+		</div>
+	);
 }
 
 export default async function SchedulesPage() {
 	const schedules = await readSchedules();
+	const pools = schedules?.length ? orderPools(schedules) : [];
 
 	return (
-		<main className="container py-8">
-			<h1 className="text-3xl font-semibold accent-left pl-3">SF Pools — Schedules</h1>
+		<main className="plex-sans container py-8 text-[#0e2733]">
+			<header className="border-b-2 border-[#0e2733] pb-3">
+				<div className="plex-mono text-[11px] font-semibold tracking-[.14em] text-[#8a9aa4]">
+					SF PUBLIC POOLS
+				</div>
+				<div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+					<h1 className="text-[26px] font-semibold leading-tight">Full schedules</h1>
+					<Link
+						href="/"
+						className="plex-mono text-[12px] font-medium text-[#5a707c] underline underline-offset-2"
+					>
+						← WEEK GRID
+					</Link>
+				</div>
+				<p className="mt-1.5 max-w-[62ch] text-[14px] text-[#5a707c]">
+					Every program on every pool&rsquo;s weekly schedule. Times are Pacific.
+				</p>
+			</header>
 
-			{!schedules || schedules.length === 0 ? (
-				<div className="mt-8 rounded border accent-border bg-white p-4">
-					<p className="text-slate-700">
-						No schedule data found
-					</p>
+			{!pools.length ? (
+				<div className="mt-6 border-l-[3px] border-[#c4d2d9] bg-[#f7fafb] px-3 py-2.5 text-[14px] text-[#5a707c]">
+					No schedule data found.
 				</div>
 			) : (
-				<div className="mt-8 space-y-8">
-					{schedules.map((pool) => (
-						<section key={pool.name} className="rounded-xl border accent-border bg-white p-5 shadow-sm">
-							<header className="mb-5">
-								<h2 className="text-2xl font-semibold text-slate-800 mb-3">{toTitleCase(pool.name)}</h2>
-								<div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500">
-									{(pool.scheduleSeason || pool.scheduleStartDate || pool.scheduleEndDate) ? (
-										<span className="inline-flex items-center gap-1.5">
-											<CalendarIcon className="h-4 w-4 icon-water" />
-											{pool.scheduleSeason ? `${pool.scheduleSeason} ` : ""}
-											{pool.scheduleStartDate ? formatDate(pool.scheduleStartDate) : ""}
-											{pool.scheduleEndDate ? ` – ${formatDate(pool.scheduleEndDate)}` : ""}
+				<>
+					{/* the pool codes double as the legend, same chips the grid uses */}
+					<nav
+						aria-label="Jump to a pool"
+						className="nav-scroller sticky top-0 z-10 flex h-[var(--schedule-nav-h)] flex-nowrap items-center gap-1 overflow-x-auto border-b border-[#e2e8ec] bg-white"
+					>
+						{pools.map(({ pool, token }) => (
+							<a
+								key={pool.id}
+								href={`#pool-${pool.id}`}
+								className="flex flex-none items-center gap-1.5 border border-[#e2e8ec] bg-white py-1 pl-1 pr-1.5 sm:pr-2"
+							>
+								<span
+									aria-hidden
+									className="flex h-[16px] w-[26px] flex-none items-center justify-center plex-mono text-[10px] font-semibold text-white"
+									style={{ background: token?.color ?? "#5a707c" }}
+								>
+									{token?.code ?? "—"}
+								</span>
+								<span className="hidden text-[12px] font-medium text-[#37474f] sm:inline">
+									{toTitleCase(pool.name)}
+								</span>
+							</a>
+						))}
+					</nav>
+
+					{pools.map(({ pool, token }) => {
+						const color = token?.color ?? "#5a707c";
+						const all = pool.programs || [];
+						const byDay = DAYS.map((day) => ({
+							day,
+							programs: all.filter((p) => p.dayOfWeek === day).sort(byStartTime),
+						}));
+						const period = [
+							pool.scheduleSeason,
+							pool.scheduleStartDate ? formatDate(pool.scheduleStartDate) : null,
+							pool.scheduleEndDate ? `– ${formatDate(pool.scheduleEndDate)}` : null,
+						]
+							.filter(Boolean)
+							.join(" ");
+
+						return (
+							<section key={pool.id} id={`pool-${pool.id}`} className="scroll-mt-[var(--schedule-nav-h)] pt-7">
+								<header className="border-t-[3px] pt-2.5" style={{ borderColor: color }}>
+									<div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+										<span
+											className="px-1.5 py-[3px] plex-mono text-[11px] font-semibold text-white"
+											style={{ background: color }}
+										>
+											{token?.code ?? "—"}
 										</span>
-									) : null}
-									{pool.address ? (
-										<span className="inline-flex items-center gap-1.5"><MapPinIcon className="h-4 w-4 icon-water" />{pool.address}</span>
-									) : null}
-									{pool.lanes ? (
-										<span className="lane-badge inline-flex items-center rounded-full px-2.5 py-0.5 text-xs">{pool.lanes} lanes</span>
-									) : null}
-								</div>
-								{pool.pdfScheduleUrl ? (
-									<a
-										href={pool.pdfScheduleUrl}
-										target="_blank"
-										rel="noreferrer"
-										className="mt-3 inline-block text-sm link-accent font-medium py-1"
-									>
-										View source PDF
-									</a>
+										<h2 className="text-[20px] font-semibold leading-tight">
+											{toTitleCase(pool.name)}
+										</h2>
+										<span className="plex-mono text-[11px] font-medium text-[#8a9aa4]">
+											{all.length} SESSION{all.length === 1 ? "" : "S"}
+										</span>
+									</div>
+									<MetaLine
+										parts={[
+											period ? <span className="uppercase">{period}</span> : null,
+											pool.address ? <span className="uppercase">{pool.address}</span> : null,
+											pool.lanes ? <span>{pool.lanes} LANES</span> : null,
+											pool.pdfScheduleUrl ? (
+												<a
+													href={pool.pdfScheduleUrl}
+													target="_blank"
+													rel="noreferrer"
+													className="text-[#5a707c] underline underline-offset-2"
+												>
+													SOURCE PDF ↗
+												</a>
+											) : null,
+										]}
+									/>
+								</header>
+
+								{pool.closure ? (
+									<div className="mt-3">
+										<ClosureNotice closure={pool.closure} poolName={toTitleCase(pool.name)} />
+									</div>
 								) : null}
-							</header>
 
-							{pool.closure ? (
-								<ClosureNotice closure={pool.closure} poolName={toTitleCase(pool.name)} />
-							) : null}
-
-							<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-								{DAYS.map((day) => {
-									const items = (pool.programs || []).filter((p) => p.dayOfWeek === day);
-									if (items.length === 0) return null;
-									const sorted = [...items].sort((a, b) => byStartTime(a.startTime, b.startTime));
-									return (
-										<div key={day} className="rounded-lg border accent-border overflow-hidden">
-											<div className={`day-header day-${day.toLowerCase()} accent-muted-bg px-3 py-2.5 font-medium`}>{day}</div>
-											<ul className="divide-y divide-slate-100">
-												{sorted.map((p, idx) => (
-													<li key={idx} className={`session-card px-3 py-2.5 text-sm ${getProgramTypeClass(p.programName)}`}>
-														<div className="flex items-center justify-between gap-2">
-															<span className="font-medium text-slate-800">{p.programName}</span>
-															<span className="flex shrink-0 items-center gap-2">
-																{programLocationQualifier((p as any).programNameOriginal) ? (
-																		<span className="lane-badge whitespace-nowrap rounded-full px-2 py-0.5 text-xs text-slate-600">{programLocationQualifier((p as any).programNameOriginal)}</span>
-																	) : null}
-																	{(p as any).lanes ? (
-																	<span className="lane-badge whitespace-nowrap rounded-full px-2 py-0.5 text-xs text-slate-600">{(p as any).lanes} lanes</span>
-																) : null}
-																<span className="text-slate-500 inline-flex items-center gap-1 font-medium"><ClockIcon className="h-4 w-4 icon-water" />{p.startTime} – {p.endTime}</span>
-															</span>
-														</div>
-														{p.notes ? (
-															<div className="mt-1.5 text-slate-500 text-xs italic">{p.notes}</div>
-														) : null}
-													</li>
-												))}
-											</ul>
-										</div>
-									);
-								})}
-							</div>
-						</section>
-					))}
-				</div>
+								{all.length ? (
+									// one markup, two shapes: stacked days on narrow screens,
+									// the grid's seven columns at the same breakpoint it uses
+									<div className="mt-3 grid grid-cols-1 gap-x-[3px] gap-y-4 min-[900px]:grid-cols-7 min-[900px]:gap-y-0">
+										{byDay.map(({ day, programs }) => (
+											<DayColumn key={day} day={day} programs={programs} color={color} />
+										))}
+									</div>
+								) : !pool.closure ? (
+									<div className="mt-3 border-l-[3px] border-[#c4d2d9] bg-[#f7fafb] px-3 py-2.5 text-[14px] text-[#5a707c]">
+										No programs listed for this pool.
+									</div>
+								) : null}
+							</section>
+						);
+					})}
+				</>
 			)}
 		</main>
 	);

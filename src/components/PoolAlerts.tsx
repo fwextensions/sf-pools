@@ -60,22 +60,26 @@ export default function PoolAlerts({ alerts, pools, selectedPools }: Props) {
 				) : (
 					<div
 						key={`pool-${i}`}
-						className="rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
+						className="plex-sans border-l-[3px] border-[#c0523c] bg-[#fbf0ee] px-3 py-2.5"
 					>
-						<span className="mr-2 font-medium">🛟</span>
-						<span className="font-medium">{alert.poolName}: </span>
-						{alert.documentUrl ? (
-							<a
-								href={alert.documentUrl}
-								target="_blank"
-								rel="noreferrer"
-								className="underline underline-offset-2"
-							>
-								{alert.alertText}
-							</a>
-						) : (
-							alert.alertText
-						)}
+						<div className="plex-mono text-[10px] font-semibold tracking-[.14em] text-[#a4432f]">
+							ALERT
+						</div>
+						<p className="mt-1 text-[14px] text-[#0e2733]">
+							<span className="font-medium">{alert.poolName}: </span>
+							{alert.documentUrl ? (
+								<a
+									href={alert.documentUrl}
+									target="_blank"
+									rel="noreferrer"
+									className="underline underline-offset-2"
+								>
+									{alert.alertText}
+								</a>
+							) : (
+								alert.alertText
+							)}
+						</p>
 					</div>
 				)
 			)}
