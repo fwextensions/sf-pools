@@ -95,6 +95,7 @@ export const CANONICAL_CATEGORIES = [
 	"Adult Swim Lessons",
 	"Adult Synchronized Swimming",
 	"Adult Water Polo",
+	"Camps",
 	"Family Swim",
 	"High School Swim Programs",
 	"Lap Swim",
@@ -106,6 +107,7 @@ export const CANONICAL_CATEGORIES = [
 	"Youth Swim Teams / Club Teams",
 	"Youth Synchronized Swimming",
 	"Pool Closure / Staff & Departmental Use",
+	"Rentals / Private Use",
 	"Special Olympics",
 ] as const;
 
@@ -115,12 +117,20 @@ export function findCanonicalProgram(raw: string): CanonicalCategory | null {
 	const s = (raw || "").trim().toLowerCase();
 	if (!s) return null;
 
-	// closures and non-program usage
-	if (/(closure|closed|maintenance|staff|training|department|dept|private|permit|reserved)/.test(s)) {
+	// the pool is shut, or the department has it
+	if (/(closure|closed|maintenance|staff|training|department|dept)/.test(s)) {
 		return "Pool Closure / Staff & Departmental Use";
 	}
 
+	// a group has the water and the public cannot join, whoever that group is —
+	// this has to beat the masters/synchro/team rules below, which would otherwise
+	// file "Rentals (Masters)" as a program you can show up for.
+	if (/\brentals?\b|private|permit|reserved/.test(s)) return "Rentals / Private Use";
+
 	if (s.includes("special olympics")) return "Special Olympics";
+
+	// sfrpd day camps occupying the pool
+	if (/\bcamps?\b/.test(s)) return "Camps";
 
 	// sfusd usage (school district programs)
 	if (s.includes("sfusd") || s.includes("unified school") || s.includes("school district")) {
@@ -153,7 +163,7 @@ export function findCanonicalProgram(raw: string): CanonicalCategory | null {
 
 	if (s.includes("family")) return "Family Swim";
 
-	if (s.includes("water exercise") || s.includes("water aerobics") || s.includes("aqua")) return "Water Exercise";
+	if (s.includes("water exercise") || s.includes("aerobic") || s.includes("aqua")) return "Water Exercise";
 
 	if (s.includes("synchronized") || s.includes("synchro")) {
 		if (s.includes("adult")) return "Adult Synchronized Swimming";
@@ -168,7 +178,8 @@ export function findCanonicalProgram(raw: string): CanonicalCategory | null {
 		return null;
 	}
 
-	if (s.includes("lesson")) {
+	// "LTS" is how the summer schedules write Learn To Swim ("Summer LTS")
+	if (s.includes("lesson") || /\blts\b/.test(s)) {
 		if (s.includes("adult")) return "Adult Swim Lessons";
 		return "Swim Lessons (General/Youth/Community)";
 	}
@@ -186,7 +197,8 @@ export function findCanonicalProgram(raw: string): CanonicalCategory | null {
 	}
 
 	// youth teams heuristics
-	if (s.includes("piranhas") || s.includes("junior piranhas") || (s.includes("junior") && s.includes("swim"))) {
+	// the club is written both "Piranhas" and "Piranha PC" across pools
+	if (s.includes("piranha") || (s.includes("junior") && s.includes("swim"))) {
 		return "Youth Swim Teams / Club Teams";
 	}
 
