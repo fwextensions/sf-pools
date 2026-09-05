@@ -1,5 +1,11 @@
 # Program taxonomy review — September 2026
 
+**Status:** steps 1 and 2 of the recommendations below are done — the missing rules and
+the rentals consolidation. That took the unmapped share from 9.7% to 0.7% across all
+revisions, and to 0% in the current schedules. The figures in the body of this document
+are the audit as it stood before those fixes, and are left as the record of what the
+PDFs actually contain. Steps 3–5 are still open.
+
 An audit of the program names coming out of the pool PDFs, against the buckets in
 `src/lib/program-taxonomy.ts`. Reproduce with:
 
@@ -127,9 +133,20 @@ instead of falling through when they can't tell adult from youth, which is how
 
 ## Recommended order of work
 
-1. Fix the leaks that cost the most coverage: `LTS`, camps, bare `aerobics`, singular
-   `piranha`. Four rules, ~440 historical sessions.
-2. Consolidate rentals into one category and stop routing them into program categories.
+1. ~~Fix the leaks that cost the most coverage: `LTS`, camps, bare `aerobics`, singular
+   `piranha`. Four rules, ~440 historical sessions.~~ Done. Camps became its own category;
+   the rest folded into existing ones. What is still unmapped is underwater hockey (32
+   sessions), `*SMALL POOL-NVPS CLASS` (12, still unidentified) and
+   `BAYVIEW SAFETY SWIM & SPLASH` (4) — all school-year names that will return in the
+   next Fall PDFs.
+2. ~~Consolidate rentals into one category and stop routing them into program categories.~~
+   Done, as `Rentals / Private Use`, and `private`/`permit`/`reserved` moved there from the
+   closure bucket. One consequence to watch: every Fall 2026 masters session is a rental,
+   so `Masters Swim Program` now has no sessions in the current schedules and drops out
+   of the filter list. That is right if a category means "a program you can join", but a
+   swimmer looking for masters practice will no longer find it by filter — only in the
+   session tooltip, which still shows `Rentals (Masters)`. If that trade is wrong, the fix
+   is to make "rented" a flag on a session rather than a category of its own.
 3. Add an explicit precedence table for multi-program slots (or multi-tag sessions),
    which fixes the family/lap, senior/SFUSD and parent/tot splits at the root.
 4. Make `CANONICAL_CATEGORIES` authoritative: have `findCanonicalProgram` return only its

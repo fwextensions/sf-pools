@@ -86,13 +86,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Rentals (synchro)",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Tuesday",
 				"startTime": "5:30p",
 				"endTime": "7:30p",
 				"notes": "",
 				"programNameOriginal": "Rentals (Synchro)",
-				"programNameCanonical": "Rentals (synchro)"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Lap Swim",
@@ -149,13 +149,13 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
 			},
 			{
-				"programName": "Rentals (synchro)",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Wednesday",
 				"startTime": "5:30p",
 				"endTime": "7:30p",
 				"notes": "",
 				"programNameOriginal": "Rentals (Synchro)",
-				"programNameCanonical": "Rentals (synchro)"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Lap Swim",
@@ -257,13 +257,13 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
 			},
 			{
-				"programName": "Masters Swim Program",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Friday",
 				"startTime": "6:00p",
 				"endTime": "7:30p",
 				"notes": "",
 				"programNameOriginal": "Rentals (Masters)",
-				"programNameCanonical": "Masters Swim Program"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Lap Swim",
@@ -383,13 +383,13 @@
 				"programNameCanonical": "Family Swim"
 			},
 			{
-				"programName": "Rentals (synchro)",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Tuesday",
 				"startTime": "4:30p",
 				"endTime": "7:00p",
 				"notes": "",
 				"programNameOriginal": "Rentals (Synchro)",
-				"programNameCanonical": "Rentals (synchro)"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Senior Swim / Therapy Swim",
@@ -502,13 +502,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Rentals (synchro)",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Thursday",
 				"startTime": "4:30p",
 				"endTime": "7:00p",
 				"notes": "",
 				"programNameOriginal": "Rentals (Synchro)",
-				"programNameCanonical": "Rentals (synchro)"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Senior Swim / Therapy Swim",
@@ -556,13 +556,13 @@
 				"programNameCanonical": "Adult Swim Lessons"
 			},
 			{
-				"programName": "Rentals (synchro)",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Friday",
 				"startTime": "5:30p",
 				"endTime": "7:00p",
 				"notes": "",
 				"programNameOriginal": "Rentals (Synchro)",
-				"programNameCanonical": "Rentals (synchro)"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Swim Lessons (General/Youth/Community)",
@@ -645,13 +645,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Masters Swim Program",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Wednesday",
 				"startTime": "6:45a",
 				"endTime": "8:15a",
 				"notes": "",
 				"programNameOriginal": "Rentals (Masters)",
-				"programNameCanonical": "Masters Swim Program"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Lap Swim",
@@ -925,40 +925,40 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Rentals (club)",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Tuesday",
 				"startTime": "4:00p",
 				"endTime": "6:00p",
 				"notes": "",
 				"programNameOriginal": "Rentals (Club)",
-				"programNameCanonical": "Rentals (club)"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
-				"programName": "Rentals (club)",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Wednesday",
 				"startTime": "4:00p",
 				"endTime": "6:00p",
 				"notes": "",
 				"programNameOriginal": "Rentals (Club)",
-				"programNameCanonical": "Rentals (club)"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
-				"programName": "Rentals (club)",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Thursday",
 				"startTime": "4:00p",
 				"endTime": "6:00p",
 				"notes": "",
 				"programNameOriginal": "Rentals (Club)",
-				"programNameCanonical": "Rentals (club)"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
-				"programName": "Rentals (club)",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Friday",
 				"startTime": "4:00p",
 				"endTime": "6:00p",
 				"notes": "",
 				"programNameOriginal": "Rentals (Club)",
-				"programNameCanonical": "Rentals (club)"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Parent & Child Swim",
@@ -970,13 +970,13 @@
 				"programNameCanonical": "Parent & Child Swim"
 			},
 			{
-				"programName": "Masters Swim Program",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Tuesday",
 				"startTime": "6:30p",
 				"endTime": "8:00p",
 				"notes": "",
 				"programNameOriginal": "Rentals (Masters)",
-				"programNameCanonical": "Masters Swim Program"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Lap Swim",
@@ -989,13 +989,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Masters Swim Program",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Thursday",
 				"startTime": "6:30p",
 				"endTime": "8:00p",
 				"notes": "",
 				"programNameOriginal": "Rentals (Masters)",
-				"programNameCanonical": "Masters Swim Program"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Family Swim",
@@ -1110,14 +1110,14 @@
 				"programNameCanonical": "Water Exercise"
 			},
 			{
-				"programName": "Rentals",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Tuesday",
 				"startTime": "7:00p",
 				"endTime": "8:30p",
 				"lanes": 10,
 				"notes": "MASTERS",
 				"programNameOriginal": "RENTALS",
-				"programNameCanonical": "Rentals"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Lap Swim",
@@ -1207,14 +1207,14 @@
 				"programNameCanonical": "Water Exercise"
 			},
 			{
-				"programName": "Rentals",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Wednesday",
 				"startTime": "6:00p",
 				"endTime": "8:00p",
 				"lanes": 10,
 				"notes": "SYNCHRO/HOCKEY",
 				"programNameOriginal": "RENTALS",
-				"programNameCanonical": "Rentals"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Lap Swim",
@@ -1296,14 +1296,14 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Rentals",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Thursday",
 				"startTime": "7:00p",
 				"endTime": "8:30p",
 				"lanes": 10,
 				"notes": "MASTERS",
 				"programNameOriginal": "RENTALS",
-				"programNameCanonical": "Rentals"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Senior Swim / Therapy Swim",
@@ -1374,14 +1374,14 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
 			},
 			{
-				"programName": "Rentals",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Friday",
 				"startTime": "6:00p",
 				"endTime": "8:00p",
 				"lanes": 10,
 				"notes": "YOUTH HOCKEY",
 				"programNameOriginal": "RENTALS",
-				"programNameCanonical": "Rentals"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Lap Swim",
@@ -1394,14 +1394,14 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Rentals",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Saturday",
 				"startTime": "9:00a",
 				"endTime": "11:00a",
 				"lanes": 7,
 				"notes": "MASTERS/SYNCHRO",
 				"programNameOriginal": "RENTALS",
-				"programNameCanonical": "Rentals"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Swim Lessons (General/Youth/Community)",
@@ -2431,14 +2431,14 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
 			},
 			{
-				"programName": "Rentals (club)",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Monday",
 				"startTime": "4:00p",
 				"endTime": "6:00p",
 				"lanes": null,
 				"notes": "",
 				"programNameOriginal": "Rentals (Club)",
-				"programNameCanonical": "Rentals (club)"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Adult Swim Lessons",
@@ -2491,14 +2491,14 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Rentals (club)",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Tuesday",
 				"startTime": "4:00p",
 				"endTime": "6:00p",
 				"lanes": null,
 				"notes": "",
 				"programNameOriginal": "Rentals (Club)",
-				"programNameCanonical": "Rentals (club)"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Lap Swim",
@@ -2581,14 +2581,14 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
 			},
 			{
-				"programName": "Rentals (club)",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Wednesday",
 				"startTime": "4:00p",
 				"endTime": "6:00p",
 				"lanes": null,
 				"notes": "",
 				"programNameOriginal": "Rentals (Club)",
-				"programNameCanonical": "Rentals (club)"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Adult Swim Lessons",
@@ -2641,14 +2641,14 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Rentals (club)",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Thursday",
 				"startTime": "4:00p",
 				"endTime": "6:00p",
 				"lanes": null,
 				"notes": "",
 				"programNameOriginal": "Rentals (Club)",
-				"programNameCanonical": "Rentals (club)"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Lap Swim",
@@ -2723,13 +2723,13 @@
 				"programNameCanonical": "Family Swim"
 			},
 			{
-				"programName": "Youth Swim Teams / Club Teams",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Tuesday",
 				"startTime": "5:30p",
 				"endTime": "7:00p",
 				"notes": "",
 				"programNameOriginal": "Rental (Youth Teams)",
-				"programNameCanonical": "Youth Swim Teams / Club Teams"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Special Olympics",
@@ -2795,13 +2795,13 @@
 				"programNameCanonical": "Adult Swim Lessons"
 			},
 			{
-				"programName": "Masters Swim Program",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Wednesday",
 				"startTime": "5:30p",
 				"endTime": "7:00p",
 				"notes": "",
 				"programNameOriginal": "Rental (Masters)",
-				"programNameCanonical": "Masters Swim Program"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Lap Swim",
@@ -2849,13 +2849,13 @@
 				"programNameCanonical": "Lap Swim"
 			},
 			{
-				"programName": "Youth Swim Teams / Club Teams",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Thursday",
 				"startTime": "5:30p",
 				"endTime": "7:00p",
 				"notes": "",
 				"programNameOriginal": "Rental (Youth Teams)",
-				"programNameCanonical": "Youth Swim Teams / Club Teams"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Lap Swim",
@@ -3145,14 +3145,14 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
 			},
 			{
-				"programName": "Masters Swim Program",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Tuesday",
 				"startTime": "5:30p",
 				"endTime": "7:00p",
 				"lanes": null,
 				"notes": "",
 				"programNameOriginal": "Rentals (Masters)",
-				"programNameCanonical": "Masters Swim Program"
+				"programNameCanonical": "Rentals / Private Use"
 			},
 			{
 				"programName": "Lap Swim",
@@ -3295,14 +3295,14 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)"
 			},
 			{
-				"programName": "Masters Swim Program",
+				"programName": "Rentals / Private Use",
 				"dayOfWeek": "Thursday",
 				"startTime": "5:30p",
 				"endTime": "7:00p",
 				"lanes": null,
 				"notes": "",
 				"programNameOriginal": "Rentals (Masters)",
-				"programNameCanonical": "Masters Swim Program"
+				"programNameCanonical": "Rentals / Private Use"
 			}
 		]
 	}
