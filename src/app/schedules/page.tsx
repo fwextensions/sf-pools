@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import ClosureNotice from "@/components/ClosureNotice";
+import ProgramName from "@/components/ProgramName";
 import { toTitleCase, programLocationQualifier } from "@/lib/program-taxonomy";
 import { POOL_TOKENS, getPoolToken, type PoolToken } from "@/lib/pool-tokens";
 import { parseTimeToMinutes } from "@/lib/utils";
@@ -89,15 +90,26 @@ function MetaLine({ parts }: { parts: React.ReactNode[] }) {
 	);
 }
 
-function SessionBlock({ program, color }: { program: ProgramEntry; color: string }) {
+/**
+ * `time` differs by layout: the stacked stack has no shared axis so it prints the
+ * full range, while the time-aligned grid already names the start in its gutter
+ * and only needs the end.
+ */
+function SessionBlock({
+	program,
+	color,
+	time,
+}: {
+	program: ProgramEntry;
+	color: string;
+	time: string;
+}) {
 	const qualifier = programLocationQualifier(program.programNameOriginal);
 	return (
 		<div className="border-l-[3px] bg-[#f7fafb] px-2 py-1.5" style={{ borderColor: color }}>
-			<div className="plex-mono text-[11px] font-medium text-[#5a707c]">
-				{program.startTime}–{program.endTime}
-			</div>
+			<div className="plex-mono text-[11px] font-medium text-[#5a707c]">{time}</div>
 			<div className="mt-0.5 text-[13px] font-medium leading-snug text-[#0e2733]">
-				{program.programName}
+				<ProgramName name={program.programName} />
 			</div>
 			{qualifier || program.lanes ? (
 				<div className="mt-1 flex flex-wrap gap-1">
@@ -137,7 +149,12 @@ function DayColumn({
 			{programs.length ? (
 				<div className="mt-1 flex flex-col gap-[3px]">
 					{programs.map((program, i) => (
-						<SessionBlock key={i} program={program} color={color} />
+						<SessionBlock
+							key={i}
+							program={program}
+							color={color}
+							time={`${program.startTime}–${program.endTime}`}
+						/>
 					))}
 				</div>
 			) : (
@@ -147,6 +164,109 @@ function DayColumn({
 					—
 				</div>
 			)}
+		</div>
+	);
+}
+
+/**
+ * The stacked-by-day layout gives each column its own independent run of blocks,
+ * so 9:00a on Monday sits at whatever height Monday's earlier sessions happen to
+ * push it to and lines up with nothing on Tuesday. This lays the week on a shared
+ * vertical axis instead: one row per distinct start time across the pool's week,
+ * so a given time is the same band in all seven columns and the eye can compare
+ * days by scanning across.
+ *
+ * Rows are keyed on the raw startTime string, ordered by parsed minutes. Keying
+ * on the string rather than the parsed value means a time this build cannot parse
+ * still gets its own row and its programs still render, instead of silently
+ * dropping out of the grid.
+ *
+ * The rows are the distinct times only, not a uniform hour scale — with 9-15 of
+ * them per pool a proportional 6a-9p axis would leave most of the page empty and
+ * squeeze each block far below a readable height. The home page's availability
+ * grid already carries the proportional view; this one trades exact spacing for
+ * legible text while keeping the alignment.
+ */
+function WeekGrid({
+	byDay,
+	color,
+}: {
+	byDay: Array<{ day: ProgramEntry["dayOfWeek"]; programs: ProgramEntry[] }>;
+	color: string;
+}) {
+	const times = Array.from(
+		new Set(byDay.flatMap(({ programs }) => programs.map((p) => p.startTime)))
+	).sort((a, b) => parseTimeToMinutes(a) - parseTimeToMinutes(b));
+	const rowOf = new Map(times.map((t, i) => [t, i]));
+
+	// several programs can share one day + start time (the extractor splits a
+	// time block that shows two programs across different lanes), so a cell
+	// holds a list rather than a single session
+	const cells = new Map<string, ProgramEntry[]>();
+	byDay.forEach(({ programs }, dayIndex) => {
+		for (const program of programs) {
+			const key = `${rowOf.get(program.startTime)}|${dayIndex}`;
+			const list = cells.get(key);
+			if (list) list.push(program);
+			else cells.set(key, [program]);
+		}
+	});
+
+	return (
+		<div
+			className="mt-3 hidden min-[900px]:grid"
+			style={{ gridTemplateColumns: "52px repeat(7, minmax(0, 1fr))", columnGap: 3 }}
+		>
+			{DAYS.map((day, i) => (
+				<div
+					key={day}
+					style={{ gridRow: 1, gridColumn: i + 2 }}
+					className="border-b border-[#e2e8ec] pb-1 plex-mono text-[10px] font-semibold tracking-[.1em] text-[#5a707c]"
+				>
+					{day.slice(0, 3).toUpperCase()}
+				</div>
+			))}
+
+			{/* a rule spanning the day columns, so a row still reads across the full
+			    width where no day has a session at that time */}
+			{times.map((time, r) => (
+				<div
+					key={`rule-${time}`}
+					aria-hidden
+					style={{ gridRow: r + 2, gridColumn: "2 / -1" }}
+					className="border-t border-[#edf1f3]"
+				/>
+			))}
+
+			{times.map((time, r) => (
+				<div
+					key={`time-${time}`}
+					style={{ gridRow: r + 2, gridColumn: 1 }}
+					className="border-t border-[#edf1f3] pr-2 pt-[5px] text-right plex-mono text-[10px] font-medium text-[#8a9aa4]"
+				>
+					{time}
+				</div>
+			))}
+
+			{Array.from(cells.entries()).map(([key, programs]) => {
+				const [r, c] = key.split("|").map(Number);
+				return (
+					<div
+						key={key}
+						style={{ gridRow: r! + 2, gridColumn: c! + 2 }}
+						className="flex min-w-0 flex-col gap-[3px] pt-[5px]"
+					>
+						{programs.map((program, i) => (
+							<SessionBlock
+								key={i}
+								program={program}
+								color={color}
+								time={`–${program.endTime}`}
+							/>
+						))}
+					</div>
+				);
+			})}
 		</div>
 	);
 }
@@ -264,13 +384,16 @@ export default async function SchedulesPage() {
 								) : null}
 
 								{all.length ? (
-									// one markup, two shapes: stacked days on narrow screens,
-									// the grid's seven columns at the same breakpoint it uses
-									<div className="mt-3 grid grid-cols-1 gap-x-[3px] gap-y-4 min-[900px]:grid-cols-7 min-[900px]:gap-y-0">
-										{byDay.map(({ day, programs }) => (
-											<DayColumn key={day} day={day} programs={programs} color={color} />
-										))}
-									</div>
+									<>
+										<WeekGrid byDay={byDay} color={color} />
+										{/* narrow screens show one day at a time, where aligning
+										    across days buys nothing and seven columns will not fit */}
+										<div className="mt-3 flex flex-col gap-4 min-[900px]:hidden">
+											{byDay.map(({ day, programs }) => (
+												<DayColumn key={day} day={day} programs={programs} color={color} />
+											))}
+										</div>
+									</>
 								) : !pool.closure ? (
 									<div className="mt-3 border-l-[3px] border-[#c4d2d9] bg-[#f7fafb] px-3 py-2.5 text-[14px] text-[#5a707c]">
 										No programs listed for this pool.

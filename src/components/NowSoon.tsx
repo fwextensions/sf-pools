@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import { toTitleCase } from "@/lib/program-taxonomy";
 import { getPoolToken } from "@/lib/pool-tokens";
+import ProgramName from "@/components/ProgramName";
 import { parseTimeToMinutes } from "@/lib/utils";
 
 type Props = {
@@ -141,7 +142,9 @@ function SessionLine({ time, name }: { time: string; name: string }) {
 	return (
 		<div className="flex gap-2 text-[13px] leading-snug">
 			<span className="flex-none plex-mono text-[11px] font-medium text-[#5a707c]">{time}</span>
-			<span className="min-w-0 text-[#37474f]">{name}</span>
+			<span className="min-w-0 text-[#37474f]">
+				<ProgramName name={name} />
+			</span>
 		</div>
 	);
 }

@@ -7,6 +7,7 @@ import { validatePoolId } from "@/lib/pool-mapping";
 import { POOL_TOKENS } from "@/lib/pool-tokens";
 import { parseTimeToMinutes } from "@/lib/utils";
 import PoolAlerts from "@/components/PoolAlerts";
+import ProgramName from "@/components/ProgramName";
 import type { AlertsData } from "../../scripts/scrape-alerts";
 
 const DAYS: Array<ProgramEntry["dayOfWeek"]> = [
@@ -481,7 +482,9 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						>
 							{d.code}
 						</span>
-						<span className="flex-1 font-medium text-[#0e2733]">{d.programName}</span>
+						<span className="min-w-0 flex-1 font-medium text-[#0e2733]">
+							<ProgramName name={d.programName} />
+						</span>
 						<span className="plex-mono text-[13px] font-medium text-[#5a707c]">
 							{d.startTime}–{d.endTime}
 						</span>
