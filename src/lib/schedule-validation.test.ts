@@ -1,6 +1,10 @@
 // tests for schedule-validation.ts
 import { describe, it, expect } from "@jest/globals";
-import { parseTimeToMinutes, detectScheduleAnomalies } from "./schedule-validation";
+import {
+	parseTimeToMinutes,
+	detectScheduleAnomalies,
+	detectRegressionAnomalies,
+} from "./schedule-validation";
 import type { PoolSchedule, ProgramEntry } from "./pdf-processor";
 
 function program(overrides: Partial<ProgramEntry> = {}): ProgramEntry {
@@ -125,5 +129,88 @@ describe("detectScheduleAnomalies", () => {
 		];
 		const programs = days.map((d) => program({ dayOfWeek: d }));
 		expect(detectScheduleAnomalies(schedule(programs))).toEqual([]);
+	});
+});
+
+describe("detectRegressionAnomalies", () => {
+	// a full week, repeated, to give a baseline worth judging against
+	const days: ProgramEntry["dayOfWeek"][] = [
+		"Monday",
+		"Tuesday",
+		"Wednesday",
+		"Thursday",
+		"Friday",
+		"Saturday",
+		"Sunday",
+	];
+	function weekOf(perDay: number): ProgramEntry[] {
+		return days.flatMap((d) =>
+			Array.from({ length: perDay }, (_, i) =>
+				program({ dayOfWeek: d, startTime: `${i + 6}:00a`, endTime: `${i + 7}:00a` })
+			)
+		);
+	}
+	const baseline = schedule(weekOf(3)); // 21 programs across 7 days
+
+	it("returns nothing when there is no previous schedule", () => {
+		expect(detectRegressionAnomalies(schedule([]), undefined)).toEqual([]);
+	});
+
+	it("ignores a previous schedule too small to judge against", () => {
+		const tiny = schedule([program()]);
+		expect(detectRegressionAnomalies(schedule([]), tiny)).toEqual([]);
+	});
+
+	it("treats an established pool losing every program as an error", () => {
+		const anomalies = detectRegressionAnomalies(schedule([]), baseline);
+		const hit = anomalies.find((a) => /programs disappeared/i.test(a.message));
+		expect(hit).toBeDefined();
+		expect(hit!.severity).toBe("error");
+	});
+
+	it("flags a program count collapse as an error", () => {
+		// 21 -> 7 is a 67% drop
+		const anomalies = detectRegressionAnomalies(schedule(weekOf(1)), baseline);
+		const hit = anomalies.find((a) => /program count fell/i.test(a.message));
+		expect(hit).toBeDefined();
+		expect(hit!.severity).toBe("error");
+	});
+
+	it("does not flag a season rollover that replaces programs wholesale", () => {
+		// every program differs from the baseline, but the corpus is the same size
+		// and shape — this is the case that used to fail the build
+		const rollover = schedule(
+			days.flatMap((d) =>
+				Array.from({ length: 3 }, (_, i) =>
+					program({
+						dayOfWeek: d,
+						programName: "Water Exercise",
+						startTime: `${i + 1}:00p`,
+						endTime: `${i + 2}:00p`,
+					})
+				)
+			)
+		);
+		expect(detectRegressionAnomalies(rollover, baseline)).toEqual([]);
+	});
+
+	it("does not flag growth", () => {
+		expect(detectRegressionAnomalies(schedule(weekOf(6)), baseline)).toEqual([]);
+	});
+
+	it("flags a large loss of day coverage as a warning", () => {
+		// keep the program count healthy but collapse from 7 days to 2
+		const narrowed = schedule([
+			...Array.from({ length: 8 }, (_, i) =>
+				program({ dayOfWeek: "Monday", startTime: `${i + 6}:00a`, endTime: `${i + 7}:00a` })
+			),
+			...Array.from({ length: 8 }, (_, i) =>
+				program({ dayOfWeek: "Tuesday", startTime: `${i + 6}:00a`, endTime: `${i + 7}:00a` })
+			),
+		]);
+		const anomalies = detectRegressionAnomalies(narrowed, baseline);
+		const hit = anomalies.find((a) => /day coverage fell/i.test(a.message));
+		expect(hit).toBeDefined();
+		expect(hit!.severity).toBe("warning");
 	});
 });

@@ -198,6 +198,42 @@ export async function notifyBuildFailed(changelog?: ChangelogEntry | null): Prom
 	});
 }
 
+/**
+ * Sent when healthy pools shipped but one or more were held back. This is the
+ * parse-failure signal: the site stays current while a human checks why a
+ * specific pool's extract looked corrupt. No-ops when nothing was quarantined.
+ */
+export async function notifyReviewRequired(changelog?: ChangelogEntry | null): Promise<boolean> {
+	const entry = changelog ?? (await loadLatestChangelog());
+	const quarantined = entry?.quarantinedPools ?? [];
+	if (!entry || quarantined.length === 0) return true;
+
+	const lines: string[] = [
+		`${quarantined.length} pool(s) held at previous data: ${quarantined.join(", ")}`,
+		"Other pools published normally.",
+	];
+
+	// the anomaly warnings say *why* each pool was held back
+	const reasons = entry.warnings.filter((w) => w.startsWith("anomaly:"));
+	if (reasons.length > 0) {
+		lines.push("");
+		for (const w of reasons.slice(0, 5)) {
+			lines.push(`• ${w.replace(/^anomaly: /, "").slice(0, 100)}`);
+		}
+		if (reasons.length > 5) {
+			lines.push(`  …and ${reasons.length - 5} more`);
+		}
+	}
+
+	return sendNotification({
+		title: "⚠️ Pool Schedule Needs Review",
+		message: lines.join("\n"),
+		priority: 1,
+		url: `https://github.com/${GITHUB_REPO}/tree/main/${GITHUB_CHANGELOG_PATH}`,
+		urlTitle: "View Changelog",
+	});
+}
+
 export async function notifyError(error: string): Promise<boolean> {
 	return sendNotification({
 		title: "⚠️ Pool Schedule Update Failed",
@@ -266,6 +302,11 @@ if (import.meta.main) {
 		notifyBuildFailed().then((ok) => {
 			process.exit(ok ? 0 : 1);
 		});
+	} else if (type === "review-required") {
+		// no-ops unless the latest run quarantined a pool
+		notifyReviewRequired().then((ok) => {
+			process.exit(ok ? 0 : 1);
+		});
 	} else if (type === "error") {
 		const message = args.slice(1).join(" ");
 		notifyError(message || "An error occurred during schedule update.").then((ok) => {
@@ -284,7 +325,7 @@ if (import.meta.main) {
 		});
 	} else {
 		console.log(
-			"Usage: tsx scripts/notify.ts <update|no-changes|build-failed|error|alerts> [message]"
+			"Usage: tsx scripts/notify.ts <update|no-changes|build-failed|review-required|error|alerts> [message]"
 		);
 		process.exit(1);
 	}

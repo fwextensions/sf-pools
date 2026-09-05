@@ -84,3 +84,74 @@ export function detectScheduleAnomalies(schedule: PoolSchedule): Anomaly[] {
 
 	return anomalies;
 }
+
+/**
+ * A pool whose previous run had fewer than this many programs doesn't have a
+ * baseline solid enough to judge a regression against — a small schedule can
+ * legitimately halve week to week.
+ */
+export const REGRESSION_MIN_BASELINE = 5;
+
+/** a drop to below this fraction of the previous program count is a red flag */
+export const REGRESSION_COUNT_RATIO = 0.5;
+
+/** losing at least this many days of coverage is a red flag */
+export const REGRESSION_DAY_DROP = 3;
+
+/**
+ * Detect problems visible only by comparing a schedule against the previous
+ * run. This is the signal that separates a season rollover from a parse
+ * failure: a rollover *replaces* programs, so the corpus stays roughly the same
+ * size and shape, while a PDF whose layout the extractor no longer understands
+ * loses programs without replacing them.
+ *
+ * Deliberately one-sided — growth is never suspicious, only collapse is.
+ * Returns an empty array when there's no previous schedule, or when the
+ * previous one was too small to judge against.
+ */
+export function detectRegressionAnomalies(
+	current: PoolSchedule,
+	previous: PoolSchedule | undefined
+): Anomaly[] {
+	if (!previous) return [];
+
+	const anomalies: Anomaly[] = [];
+	const currPrograms = current.programs ?? [];
+	const prevPrograms = previous.programs ?? [];
+	if (prevPrograms.length < REGRESSION_MIN_BASELINE) return [];
+
+	// an established pool losing every program is the signature failure mode of a
+	// changed PDF layout. It can also be a real long-term closure, but the two are
+	// indistinguishable from the data alone, so treat it as corrupt and let a
+	// human confirm.
+	if (currPrograms.length === 0) {
+		anomalies.push({
+			severity: "error",
+			message: `all ${prevPrograms.length} programs disappeared`,
+		});
+		// the count and coverage checks below would only restate this
+		return anomalies;
+	}
+
+	if (currPrograms.length < prevPrograms.length * REGRESSION_COUNT_RATIO) {
+		const pct = Math.round((1 - currPrograms.length / prevPrograms.length) * 100);
+		anomalies.push({
+			severity: "error",
+			message: `program count fell ${pct}% (${prevPrograms.length} → ${currPrograms.length})`,
+		});
+	}
+
+	// a schedule that quietly stops covering half the week usually means the
+	// extractor read only part of the PDF. Warning rather than error: pools do
+	// genuinely drop days between seasons.
+	const currDays = new Set(currPrograms.map((p) => p.dayOfWeek));
+	const prevDays = new Set(prevPrograms.map((p) => p.dayOfWeek));
+	if (prevDays.size - currDays.size >= REGRESSION_DAY_DROP) {
+		anomalies.push({
+			severity: "warning",
+			message: `day coverage fell from ${prevDays.size} to ${currDays.size} day(s)`,
+		});
+	}
+
+	return anomalies;
+}

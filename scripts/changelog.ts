@@ -35,6 +35,14 @@ export type ChangelogEntry = {
 	scheduleStartDate: string | null;
 	scheduleEndDate: string | null;
 	scheduleSeason: string | null;
+	/**
+	 * true when the source PDFs themselves declare a new season or a later start
+	 * date than the previous run. High churn plus this is a rollover the city
+	 * announced; high churn without it is unexplained and worth a closer look.
+	 */
+	seasonChanged: boolean;
+	/** pools held back at their previous data because this run's extract failed health checks */
+	quarantinedPools: string[];
 	pools: PoolChange[];
 	warnings: string[];
 };
@@ -213,6 +221,22 @@ export function computeChangelog(
 		}
 	}
 
+	// compare against the previous run's season metadata: the source documents
+	// announcing a new season is positive evidence that a big diff is a rollover
+	let prevStartDate: string | null = null;
+	let prevSeason: string | null = null;
+	for (const s of oldSchedules) {
+		if (s.scheduleStartDate && (!prevStartDate || s.scheduleStartDate < prevStartDate)) {
+			prevStartDate = s.scheduleStartDate;
+		}
+		if (s.scheduleSeason && !prevSeason) {
+			prevSeason = s.scheduleSeason;
+		}
+	}
+	const seasonChanged =
+		(!!scheduleSeason && !!prevSeason && scheduleSeason !== prevSeason) ||
+		(!!scheduleStartDate && !!prevStartDate && scheduleStartDate > prevStartDate);
+
 	// calculate total changes and severity
 	const totalAdded = poolChanges.reduce((sum, p) => sum + p.programsAdded, 0);
 	const totalRemoved = poolChanges.reduce((sum, p) => sum + p.programsRemoved, 0);
@@ -246,6 +270,9 @@ export function computeChangelog(
 		scheduleStartDate,
 		scheduleEndDate,
 		scheduleSeason,
+		seasonChanged,
+		// filled in by the caller, which is what decides to hold a pool back
+		quarantinedPools: [],
 		pools: poolChanges,
 		warnings,
 	};

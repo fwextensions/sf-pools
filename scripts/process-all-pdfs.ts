@@ -6,7 +6,7 @@ import { extractScheduleFromPdf, type PoolSchedule } from "@/lib/pdf-processor";
 import { findCanonicalProgram, normalizeProgramName } from "@/lib/program-taxonomy";
 import { getPoolIdFromName, getPoolById } from "@/lib/pool-mapping";
 import { toTitleCase } from "@/lib/program-taxonomy";
-import { detectScheduleAnomalies } from "@/lib/schedule-validation";
+import { detectScheduleAnomalies, detectRegressionAnomalies } from "@/lib/schedule-validation";
 import type { PoolEntry, DiscoveredPool } from "./downloadPdf";
 import {
 	computeChangelog,
@@ -85,6 +85,12 @@ export type ProcessResult = {
 	skippedCount: number;
 	preservedCount: number;
 	anomalies: string[];
+	/** pools held back at their previous data because this run's extract looked corrupt */
+	quarantinedPools: string[];
+	/** pools dropped entirely — extract looked corrupt and there was no previous data */
+	droppedPools: string[];
+	/** true when a human should look, even though healthy pools still shipped */
+	reviewRequired: boolean;
 };
 
 export async function main(): Promise<ProcessResult> {
@@ -133,7 +139,11 @@ export async function main(): Promise<ProcessResult> {
 	let skippedCount = 0;
 	let preservedCount = 0;
 	const anomalies: string[] = [];
-	let anomalyErrorCount = 0;
+	const quarantinedPools: string[] = [];
+	const droppedPools: string[] = [];
+	let healthCheckedCount = 0;
+	// escape hatch for local dev: ship extracts even when they fail health checks
+	const allowUnhealthy = process.env.ALLOW_UNHEALTHY === "1";
 
 	// track which pool names we've processed (to preserve unprocessed ones)
 	const processedPoolNames = new Set<string>();
@@ -241,15 +251,43 @@ export async function main(): Promise<ProcessResult> {
 					p.programNameCanonical = canonical;
 				}
 
-				// flag intrinsic data-quality problems that suggest a misread PDF
-				for (const a of detectScheduleAnomalies(s)) {
-					const msg = `${s.shortName || s.name}: ${a.message}`;
+				// health-check the extract: intrinsic problems that suggest a misread
+				// PDF, plus regressions against the previous run. Volume of change is
+				// deliberately not part of this — a season rollover churns most of the
+				// corpus and is perfectly healthy.
+				const label = s.shortName || s.name;
+				const previous = previousByName.get(s.name);
+				const poolAnomalies = [
+					...detectScheduleAnomalies(s),
+					...detectRegressionAnomalies(s, previous),
+				];
+				for (const a of poolAnomalies) {
+					const msg = `${label}: ${a.message}`;
 					anomalies.push(msg);
-					if (a.severity === "error") anomalyErrorCount++;
 					console.warn(`⚠️  anomaly (${a.severity}):`, msg);
 				}
+				healthCheckedCount++;
 
 				const { programs, ...rest } = s;
+				const unhealthy = poolAnomalies.some((a) => a.severity === "error");
+
+				if (unhealthy && !allowUnhealthy) {
+					// hold this pool at its last known good data so the other pools can
+					// still ship. Nothing is lost: the PDF hash isn't recorded for a
+					// quarantined pool, so the next run re-extracts it.
+					if (previous) {
+						quarantinedPools.push(label);
+						aggregated.push(previous);
+						console.warn(`⛔ quarantined ${label} — keeping previous data`);
+					} else {
+						// no known-good data to fall back on, so publish nothing for it
+						droppedPools.push(label);
+						console.warn(`⛔ dropped ${label} — corrupt extract and no previous data`);
+					}
+					delete extractedManifest[base];
+					continue;
+				}
+
 				aggregated.push({ ...rest, programs });
 			}
 		} catch (err) {
@@ -278,8 +316,15 @@ export async function main(): Promise<ProcessResult> {
 	// compute and save changelog before writing new data; fold extraction
 	// anomalies into its warnings so they're persisted and surfaced by notify
 	const changelog = computeChangelog(previousSchedules, aggregated);
+	changelog.quarantinedPools = quarantinedPools;
 	if (anomalies.length > 0) {
 		changelog.warnings.push(...anomalies.map((a) => `anomaly: ${a}`));
+	}
+	for (const name of quarantinedPools) {
+		changelog.warnings.push(`quarantined: ${name} held at previous data`);
+	}
+	for (const name of droppedPools) {
+		changelog.warnings.push(`dropped: ${name} had no usable data`);
 	}
 	const changelogPath = await saveChangelog(changelog);
 	if (changelogPath) {
@@ -287,23 +332,44 @@ export async function main(): Promise<ProcessResult> {
 	}
 	console.log(formatChangelogSummary(changelog));
 
-	// check for problems that should fail the build (overridable for local dev):
-	// severe changes for manual review, and corrupt extractions that must not ship
-	const failOnLargeChanges = process.env.FAIL_ON_LARGE_CHANGES !== "false";
-	const severeChange =
-		changelog.changeSeverity === "major" || changelog.changeSeverity === "wholesale";
-	const shouldFail = failOnLargeChanges && (severeChange || anomalyErrorCount > 0);
+	// Failure policy. The size of a change no longer fails anything: a seasonal
+	// rollover legitimately churns most of the corpus, and blocking on volume
+	// meant every changeover needed a manual override. Health is the gate
+	// instead, and it acts per pool — an unhealthy pool is quarantined above so
+	// the healthy ones still ship. The run as a whole only fails when nothing
+	// usable came out of it, which is the systemic case (a site-wide PDF layout
+	// change) rather than one bad document.
+	const reviewRequired = quarantinedPools.length > 0 || droppedPools.length > 0;
+	const nothingToShip = aggregated.length === 0;
+	const everyExtractFailed =
+		healthCheckedCount > 0 &&
+		quarantinedPools.length + droppedPools.length === healthCheckedCount;
+	const shouldFail = nothingToShip || everyExtractFailed;
+
 	if (shouldFail) {
-		if (severeChange) {
-			console.error(`\n❌ Build failed: ${changelog.changeSeverity} change detected`);
+		if (nothingToShip) {
+			console.error("\n❌ Build failed: no usable schedules to publish");
+		} else {
+			console.error(
+				`\n❌ Build failed: every extracted pool (${healthCheckedCount}) failed health checks — ` +
+					`the PDF format has probably changed`
+			);
 		}
-		if (anomalyErrorCount > 0) {
-			console.error(`\n❌ Build failed: ${anomalyErrorCount} corrupt extraction(s) detected`);
-		}
-		console.error("Review the changelog and manually approve if this is expected.");
-	} else if (!failOnLargeChanges && (severeChange || anomalyErrorCount > 0)) {
+	} else if (reviewRequired) {
 		console.warn(
-			`\n⚠️  Build-blocking issue(s) detected (failure disabled via FAIL_ON_LARGE_CHANGES=false)`
+			`\n⚠️  Review required: ${quarantinedPools.length} quarantined, ` +
+				`${droppedPools.length} dropped (healthy pools still published)`
+		);
+	}
+
+	// volume of change is reported, never enforced — the season metadata says
+	// whether a big diff is the rollover the source documents announced
+	if (changelog.changeSeverity === "wholesale" || changelog.changeSeverity === "major") {
+		console.log(
+			`\nℹ️  ${changelog.changeSeverity} change: ${changelog.totalChanges} programs touched` +
+				(changelog.seasonChanged
+					? " — source PDFs declare a new season, consistent with a rollover"
+					: " — no new season declared by the source PDFs")
 		);
 	}
 
@@ -325,6 +391,9 @@ export async function main(): Promise<ProcessResult> {
 		skippedCount,
 		preservedCount,
 		anomalies,
+		quarantinedPools,
+		droppedPools,
+		reviewRequired,
 	};
 }
 
