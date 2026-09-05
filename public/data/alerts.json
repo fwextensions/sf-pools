@@ -2,6 +2,14 @@
 	"siteWideAlerts": [
 		"Please note that all Swimming Pools will be closed on Friday, June 19 in observance of Juneteenth and"
 	],
-	"poolAlerts": [],
-	"lastUpdated": "2026-08-14T20:18:38.195Z"
+	"poolAlerts": [
+		{
+			"poolId": "garfield",
+			"poolName": "Garfield",
+			"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Garfield-Pool-214",
+			"alertText": "Garfield Pool Maintenance Closure 8-14_9-7 2026",
+			"scrapedAt": "2026-09-05T02:16:42.659Z"
+		}
+	],
+	"lastUpdated": "2026-09-05T02:16:54.187Z"
 }
