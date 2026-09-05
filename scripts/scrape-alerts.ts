@@ -2,25 +2,25 @@
 import { writeFile, readFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { load } from "cheerio";
-import { getPoolIdFromName } from "../src/lib/pool-mapping";
+import type { PoolEntry } from "./downloadPdf";
+import { fetchText } from "./http";
 
 const LIST_URL = "https://sfrecpark.org/482/Swimming-Pools";
 const OUT_DIR = path.join(process.cwd(), "public", "data");
 const OUT_FILE = path.join(OUT_DIR, "alerts.json");
-const DISCOVERED_FILE = path.join(OUT_DIR, "discovered_pool_schedules.json");
+const POOLS_FILE = path.join(process.cwd(), "data", "pools.json");
 
 function sleep(ms: number) {
 	return new Promise((res) => setTimeout(res, ms));
 }
 
-async function fetchText(url: string): Promise<string> {
-	const res = await fetch(url, {
-		headers: {
-			"user-agent": "Mozilla/5.0 (compatible; sf-pools-schedule-viewer/0.1)",
-		},
-	});
-	if (!res.ok) throw new Error(`request failed ${res.status} ${res.statusText} for ${url}`);
-	return res.text();
+async function loadPools(): Promise<PoolEntry[]> {
+	try {
+		const raw = await readFile(POOLS_FILE, "utf-8");
+		return JSON.parse(raw);
+	} catch {
+		return [];
+	}
 }
 
 export type PoolAlert = {
@@ -68,6 +68,11 @@ const EXCLUDE_PATTERNS = [
 	"pre-registration required",
 ];
 
+// text-length bounds for candidate alerts
+const MIN_PROSE_LEN = 20;
+const MIN_DOC_TITLE_LEN = 8;
+const MAX_ALERT_LEN = 500;
+
 function isRealAlert(text: string): boolean {
 	const lower = text.toLowerCase();
 	// must contain an alert keyword
@@ -105,7 +110,7 @@ async function scrapeSiteWideAlerts(): Promise<string[]> {
 		$el.find("li, p").each((_j, item) => {
 			const text = cleanText($(item).text());
 			// skip very short or very long text
-			if (text.length < 20 || text.length > 500) return;
+			if (text.length < MIN_PROSE_LEN || text.length > MAX_ALERT_LEN) return;
 			// check for alert keywords
 			if (isRealAlert(text)) {
 				// avoid duplicates
@@ -119,59 +124,98 @@ async function scrapeSiteWideAlerts(): Promise<string[]> {
 	return alerts;
 }
 
+type CheerioApi = ReturnType<typeof load>;
+
+/** alert text from prose in the page's main content area */
+function collectProseAlerts($page: CheerioApi): string[] {
+	const found: string[] = [];
+
+	$page(".editorContent.fr-view, .fr-view").each((_i, el) => {
+		const $el = $page(el);
+		// skip footer/navigation
+		if ($el.closest(".footer, .nav, .header, .cp-Splash").length) return;
+
+		// check paragraphs for alert content
+		$el.find("p, strong, span").each((_j, item) => {
+			const text = cleanText($page(item).text());
+			// skip very short or very long text
+			if (text.length < MIN_PROSE_LEN || text.length > MAX_ALERT_LEN) return;
+			if (isRealAlert(text)) found.push(text);
+		});
+	});
+
+	return found;
+}
+
+/**
+ * alert text from the facility page's Documents table. closures are often
+ * posted only as a linked PDF whose title carries the notice (e.g. "Garfield
+ * Pool Maintenance Closure 8-14_9-7 2026") with no matching prose on the page.
+ */
+function collectDocumentAlerts($page: CheerioApi): string[] {
+	const found: string[] = [];
+
+	$page("th").each((_i, th) => {
+		if (cleanText($page(th).text()).toLowerCase() !== "documents") return;
+
+		$page(th)
+			.siblings("td")
+			.find("a")
+			.each((_j, a) => {
+				const title = cleanText($page(a).text());
+				// document titles are terser than prose, so allow shorter text
+				if (title.length < MIN_DOC_TITLE_LEN || title.length > MAX_ALERT_LEN) return;
+				if (isRealAlert(title)) found.push(title);
+			});
+	});
+
+	return found;
+}
+
 async function scrapePoolAlerts(): Promise<PoolAlert[]> {
-	// load discovered pools
-	let discovered: Array<{ poolName: string; pageUrl: string }> = [];
-	try {
-		const raw = await readFile(DISCOVERED_FILE, "utf-8");
-		discovered = JSON.parse(raw);
-	} catch {
-		console.warn("Could not load discovered pools, run scrape first");
+	// pools.json is the source of truth for facility page URLs
+	const pools = await loadPools();
+	if (pools.length === 0) {
+		console.warn("Could not load pools.json, skipping pool alerts");
 		return [];
 	}
 
 	const alerts: PoolAlert[] = [];
 	const now = new Date().toISOString();
+	// several pools can share one facility page (North Beach warm + cool), so
+	// fetch each distinct page once and attribute its alerts to every pool on it
+	const pageCache = new Map<string, CheerioApi>();
 
-	for (const pool of discovered) {
+	for (const pool of pools) {
 		try {
-			await sleep(400);
-			console.log("Checking alerts for:", pool.poolName);
-			const html = await fetchText(pool.pageUrl);
-			const $ = load(html);
+			let $page = pageCache.get(pool.pageUrl);
+			if (!$page) {
+				await sleep(400);
+				console.log("Checking alerts for:", pool.shortName);
+				$page = load(await fetchText(pool.pageUrl));
+				pageCache.set(pool.pageUrl, $page);
+			} else {
+				console.log("Checking alerts for:", pool.shortName, "(cached page)");
+			}
 
-			// look in the main content area
-			$(".editorContent.fr-view, .fr-view").each((_i, el) => {
-				const $el = $(el);
-				// skip footer/navigation
-				if ($el.closest(".footer, .nav, .header, .cp-Splash").length) return;
-
-				// check paragraphs for alert content
-				$el.find("p, strong, span").each((_j, item) => {
-					const text = cleanText($(item).text());
-					// skip very short or very long text
-					if (text.length < 20 || text.length > 500) return;
-					// check for alert keywords
-					if (isRealAlert(text)) {
-						// avoid duplicates for this pool
-						const existing = alerts.find(
-							(a) => a.poolName === pool.poolName && a.alertText === text
-						);
-						if (!existing) {
-							const poolId = getPoolIdFromName(pool.poolName) ?? "unknown";
-							alerts.push({
-								poolId,
-								poolName: pool.poolName,
-								pageUrl: pool.pageUrl,
-								alertText: text,
-								scrapedAt: now,
-							});
-						}
-					}
+			const texts = [...collectProseAlerts($page), ...collectDocumentAlerts($page)];
+			for (const alertText of texts) {
+				// avoid duplicates for this pool (a notice can appear as both prose
+				// and a document title)
+				const existing = alerts.find(
+					(a) => a.poolId === pool.id && a.alertText === alertText
+				);
+				if (existing) continue;
+				alerts.push({
+					poolId: pool.id,
+					poolName: pool.shortName,
+					pageUrl: pool.pageUrl,
+					alertText,
+					scrapedAt: now,
 				});
-			});
+			}
 		} catch (err) {
-			console.warn("Failed to check alerts for", pool.poolName, err);
+			console.warn("Failed to check alerts for", pool.shortName, err);
 		}
 	}
 
