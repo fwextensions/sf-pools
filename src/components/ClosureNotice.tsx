@@ -23,6 +23,7 @@ export default function ClosureNotice({ closure, poolName }: Props) {
 					<p className="font-medium">
 						{poolName ? `${poolName} is closed` : "Closed"}
 						{period ? ` ${period}` : ""}
+						{closure.reason ? ` for ${closure.reason}` : ""}
 					</p>
 					{closure.endDate ? (
 						<p className="mt-0.5 text-sm">

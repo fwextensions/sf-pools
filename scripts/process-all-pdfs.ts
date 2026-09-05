@@ -94,7 +94,10 @@ async function loadActiveClosures(today: string): Promise<Map<string, Closure>> 
 		};
 		for (const alert of data.poolAlerts ?? []) {
 			const closure = alert.closure;
-			if (!closure || !isClosureActive(closure, today)) continue;
+			// suppressPrograms is the single gate on hiding a schedule: a partial
+			// closure, or one the model flagged as unsafe to act on, stays an alert
+			if (!closure || !closure.suppressPrograms) continue;
+			if (!isClosureActive(closure, today)) continue;
 			// when a pool has several notices, keep the one that runs longest
 			const existing = byPool.get(alert.poolId);
 			if (existing) {

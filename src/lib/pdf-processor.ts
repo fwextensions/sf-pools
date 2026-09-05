@@ -1,6 +1,7 @@
 import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
+import { ClosureSchema } from "./closures";
 
 export const DayOfWeek = z.enum([
 	"Monday",
@@ -29,14 +30,6 @@ export const ProgramSchema = z.object({
 	// m7 fields: optional to avoid breaking existing extractor responses
 	programNameOriginal: z.string().optional().nullable(),
 	programNameCanonical: z.string().optional().nullable(),
-});
-
-const ClosureSchema = z.object({
-	summary: z.string(),
-	startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
-	endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
-	indefinite: z.boolean(),
-	sourceUrl: z.string().url().nullable(),
 });
 
 export const PoolScheduleSchema = z.object({

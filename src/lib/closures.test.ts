@@ -5,6 +5,9 @@ import {
 	parseDateRange,
 	isClosureActive,
 	formatClosurePeriod,
+	checkClosureSanity,
+	mergeClosure,
+	type ClosureEnrichment,
 } from "./closures";
 
 const opts = { referenceDate: "2026-09-04" };
@@ -161,5 +164,120 @@ describe("formatClosurePeriod", () => {
 		expect(formatClosurePeriod(detectClosure("Closed until further notice", opts)!)).toBe(
 			"until further notice"
 		);
+	});
+});
+
+describe("checkClosureSanity", () => {
+	const base = detectClosure("Pool Closure 8-14_9-7 2026", opts)!;
+
+	it("accepts a normal closure", () => {
+		expect(checkClosureSanity(base, "2026-09-04")).toBeNull();
+	});
+
+	it("accepts an indefinite closure without dates", () => {
+		expect(checkClosureSanity(detectClosure("Closed until further notice", opts)!, "2026-09-04"))
+			.toBeNull();
+	});
+
+	it("rejects a range that ends before it starts", () => {
+		expect(
+			checkClosureSanity({ ...base, startDate: "2026-09-07", endDate: "2026-08-14" }, "2026-09-04")
+		).toMatch(/ends before/);
+	});
+
+	it("rejects an implausibly long closure", () => {
+		expect(
+			checkClosureSanity({ ...base, startDate: "2026-01-01", endDate: "2028-01-01" }, "2026-09-04")
+		).toMatch(/spans/);
+	});
+
+	it("rejects a closure ending years in the future", () => {
+		expect(
+			checkClosureSanity({ ...base, startDate: null, endDate: "2031-01-01" }, "2026-09-04")
+		).toMatch(/implausibly far off/);
+	});
+
+	it("rejects a closure that ended long ago", () => {
+		expect(
+			checkClosureSanity({ ...base, startDate: null, endDate: "2020-01-01" }, "2026-09-04")
+		).toMatch(/long past/);
+	});
+});
+
+describe("mergeClosure", () => {
+	const mergeOpts = { today: "2026-09-04", rawText: "Pool Closure 8-14_9-7 2026" };
+	const pattern = detectClosure("Pool Closure 8-14_9-7 2026", opts)!;
+
+	function enrichment(overrides: Partial<ClosureEnrichment> = {}): ClosureEnrichment {
+		return {
+			isClosure: true,
+			scope: "whole-pool",
+			startDate: "2026-08-14",
+			endDate: "2026-09-07",
+			indefinite: false,
+			reason: "maintenance",
+			summary: "Closed for maintenance until September 7.",
+			confidence: 0.95,
+			...overrides,
+		};
+	}
+
+	it("keeps the pattern reading when there is no enrichment", () => {
+		expect(mergeClosure(pattern, null, mergeOpts)).toBe(pattern);
+	});
+
+	it("adds the reason and summary without moving the dates", () => {
+		const merged = mergeClosure(pattern, enrichment(), mergeOpts)!;
+		expect(merged.startDate).toBe("2026-08-14");
+		expect(merged.endDate).toBe("2026-09-07");
+		expect(merged.reason).toBe("maintenance");
+		expect(merged.summary).toMatch(/maintenance/);
+		expect(merged.source).toBe("pattern+model");
+		expect(merged.suppressPrograms).toBe(true);
+	});
+
+	it("keeps the pattern's dates when the model disagrees, and records it", () => {
+		const merged = mergeClosure(pattern, enrichment({ endDate: "2026-10-31" }), mergeOpts)!;
+		// the pattern read text we can point at; the model's date does not win
+		expect(merged.endDate).toBe("2026-09-07");
+		expect(merged.disagreement).toMatch(/2026-10-31/);
+		expect(merged.suppressPrograms).toBe(true);
+	});
+
+	it("lets the model veto suppression by reading a closure as partial", () => {
+		const merged = mergeClosure(pattern, enrichment({ scope: "partial" }), mergeOpts)!;
+		expect(merged.suppressPrograms).toBe(false);
+		expect(merged.disagreement).toMatch(/partial/);
+	});
+
+	it("lets the model veto suppression by rejecting the closure entirely", () => {
+		const merged = mergeClosure(pattern, enrichment({ isClosure: false }), mergeOpts)!;
+		expect(merged.suppressPrograms).toBe(false);
+	});
+
+	it("accepts a confident model-only closure the patterns missed", () => {
+		const merged = mergeClosure(null, enrichment(), mergeOpts)!;
+		expect(merged.source).toBe("model");
+		expect(merged.suppressPrograms).toBe(true);
+		expect(merged.endDate).toBe("2026-09-07");
+	});
+
+	it("refuses a model-only closure below the confidence bar", () => {
+		expect(mergeClosure(null, enrichment({ confidence: 0.5 }), mergeOpts)).toBeNull();
+	});
+
+	it("refuses a model-only partial closure", () => {
+		expect(mergeClosure(null, enrichment({ scope: "partial" }), mergeOpts)).toBeNull();
+	});
+
+	it("keeps a model-only closure visible but harmless when its dates fail sanity", () => {
+		// a hallucinated range must never blank a schedule
+		const merged = mergeClosure(
+			null,
+			enrichment({ startDate: "2026-09-07", endDate: "2026-08-14" }),
+			mergeOpts
+		)!;
+		expect(merged.suppressPrograms).toBe(false);
+		expect(merged.disagreement).toMatch(/sanity/);
 	});
 });

@@ -234,6 +234,63 @@ export async function notifyReviewRequired(changelog?: ChangelogEntry | null): P
 	});
 }
 
+export type ClosureNotificationInput = {
+	kind: "new" | "changed";
+	detail: string;
+	alert: { poolName: string; documentUrl: string | null };
+	closure: {
+		summary: string;
+		rawText: string;
+		startDate: string | null;
+		endDate: string | null;
+		indefinite: boolean;
+		reason: string | null;
+		source: string;
+		suppressPrograms: boolean;
+		confidence: number | null;
+		disagreement: string | null;
+	};
+};
+
+/**
+ * Sent when a closure is first seen or when its dates move — not every week for
+ * the length of the closure. Carries the notice link and the text it was read
+ * from, since a pool's programs get hidden on the strength of this.
+ */
+export async function notifyClosureChange(
+	changes: ClosureNotificationInput[]
+): Promise<boolean> {
+	if (changes.length === 0) return true;
+
+	const lines: string[] = [];
+	for (const { kind, detail, alert, closure } of changes) {
+		const period = closure.indefinite
+			? "until further notice"
+			: [closure.startDate, closure.endDate].filter(Boolean).join(" to ") || "dates unclear";
+		lines.push(`${alert.poolName} — ${kind === "new" ? "closure found" : detail}`);
+		lines.push(`  ${period}${closure.reason ? ` (${closure.reason})` : ""}`);
+		lines.push(`  "${closure.rawText.slice(0, 120)}"`);
+		lines.push(
+			`  read by ${closure.source}` +
+				(closure.confidence !== null ? `, confidence ${closure.confidence.toFixed(2)}` : "")
+		);
+		lines.push(`  programs ${closure.suppressPrograms ? "HIDDEN" : "still shown"}`);
+		if (closure.disagreement) lines.push(`  ⚠ ${closure.disagreement}`);
+		lines.push("");
+	}
+
+	// link the notice itself when there's exactly one, so the alert is tappable
+	const singleDoc = changes.length === 1 ? changes[0]!.alert.documentUrl ?? undefined : undefined;
+
+	return sendNotification({
+		title: `🚧 Pool Closure ${changes.length > 1 ? "Updates" : "Update"}`,
+		message: lines.join("\n").trim(),
+		priority: 1,
+		url: singleDoc ?? `https://github.com/${GITHUB_REPO}/tree/main/${GITHUB_CHANGELOG_PATH}`,
+		urlTitle: singleDoc ? "Open closure notice" : "View Changelog",
+	});
+}
+
 export async function notifyError(error: string): Promise<boolean> {
 	return sendNotification({
 		title: "⚠️ Pool Schedule Update Failed",

@@ -8,16 +8,23 @@
 			"poolName": "Garfield",
 			"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Garfield-Pool-214",
 			"alertText": "Garfield Pool Maintenance Closure 8-14_9-7 2026",
-			"scrapedAt": "2026-09-05T08:11:06.554Z",
+			"scrapedAt": "2026-09-05T08:40:20.508Z",
 			"documentUrl": "https://sfrecpark.org/DocumentCenter/View/29808",
 			"closure": {
-				"summary": "Garfield Pool Maintenance Closure 8-14_9-7 2026",
+				"summary": "Garfield Pool is closed for maintenance from August 14, 2026, through September 7, 2026.",
+				"rawText": "Garfield Pool Maintenance Closure 8-14_9-7 2026",
 				"startDate": "2026-08-14",
 				"endDate": "2026-09-07",
 				"indefinite": false,
-				"sourceUrl": "https://sfrecpark.org/DocumentCenter/View/29808"
+				"sourceUrl": "https://sfrecpark.org/DocumentCenter/View/29808",
+				"reason": "maintenance",
+				"scope": "whole-pool",
+				"source": "pattern+model",
+				"suppressPrograms": true,
+				"confidence": 1,
+				"disagreement": null
 			}
 		}
 	],
-	"lastUpdated": "2026-09-05T08:11:15.890Z"
+	"lastUpdated": "2026-09-05T08:40:30.334Z"
 }
