@@ -1,5 +1,6 @@
 import { AlertsData } from "../../scripts/scrape-alerts";
 import { PoolSchedule } from "@/lib/pdf-processor";
+import ClosureNotice from "@/components/ClosureNotice";
 
 type Props = {
 	alerts: AlertsData;
@@ -47,18 +48,37 @@ export default function PoolAlerts({ alerts, pools, selectedPools }: Props) {
 
 	return (
 		<div className="mt-3 space-y-2">
-			{relevantAlerts.map((
-				alert,
-				i) => (
-				<div
-					key={`pool-${i}`}
-					className="rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
-				>
-					<span className="mr-2 font-medium">🛟</span>
-					<span className="font-medium">{alert.poolName}: </span>
-					{alert.alertText}
-				</div>
-			))}
+			{relevantAlerts.map((alert, i) =>
+				// a parsed closure renders as its date range and linked notice; a
+				// plain alert still shows its text
+				alert.closure ? (
+					<ClosureNotice
+						key={`pool-${i}`}
+						closure={alert.closure}
+						poolName={alert.poolName}
+					/>
+				) : (
+					<div
+						key={`pool-${i}`}
+						className="rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
+					>
+						<span className="mr-2 font-medium">🛟</span>
+						<span className="font-medium">{alert.poolName}: </span>
+						{alert.documentUrl ? (
+							<a
+								href={alert.documentUrl}
+								target="_blank"
+								rel="noreferrer"
+								className="underline underline-offset-2"
+							>
+								{alert.alertText}
+							</a>
+						) : (
+							alert.alertText
+						)}
+					</div>
+				)
+			)}
 		</div>
 	);
 }

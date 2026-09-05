@@ -4,6 +4,7 @@ import path from "node:path";
 import { load } from "cheerio";
 import type { PoolEntry } from "./downloadPdf";
 import { fetchText } from "./http";
+import { detectClosure, type Closure } from "../src/lib/closures";
 
 const LIST_URL = "https://sfrecpark.org/482/Swimming-Pools";
 const OUT_DIR = path.join(process.cwd(), "public", "data");
@@ -29,6 +30,10 @@ export type PoolAlert = {
 	pageUrl: string;
 	alertText: string;
 	scrapedAt: string;
+	/** the notice PDF on sfrecpark.org, when the alert came from a document link */
+	documentUrl: string | null;
+	/** set when the text describes a whole-pool closure with a known duration */
+	closure: Closure | null;
 };
 
 export type AlertsData = {
@@ -126,9 +131,12 @@ async function scrapeSiteWideAlerts(): Promise<string[]> {
 
 type CheerioApi = ReturnType<typeof load>;
 
+/** a candidate alert, plus the notice PDF it came from when there is one */
+type AlertCandidate = { text: string; documentUrl: string | null };
+
 /** alert text from prose in the page's main content area */
-function collectProseAlerts($page: CheerioApi): string[] {
-	const found: string[] = [];
+function collectProseAlerts($page: CheerioApi): AlertCandidate[] {
+	const found: AlertCandidate[] = [];
 
 	$page(".editorContent.fr-view, .fr-view").each((_i, el) => {
 		const $el = $page(el);
@@ -140,7 +148,7 @@ function collectProseAlerts($page: CheerioApi): string[] {
 			const text = cleanText($page(item).text());
 			// skip very short or very long text
 			if (text.length < MIN_PROSE_LEN || text.length > MAX_ALERT_LEN) return;
-			if (isRealAlert(text)) found.push(text);
+			if (isRealAlert(text)) found.push({ text, documentUrl: null });
 		});
 	});
 
@@ -152,8 +160,8 @@ function collectProseAlerts($page: CheerioApi): string[] {
  * posted only as a linked PDF whose title carries the notice (e.g. "Garfield
  * Pool Maintenance Closure 8-14_9-7 2026") with no matching prose on the page.
  */
-function collectDocumentAlerts($page: CheerioApi): string[] {
-	const found: string[] = [];
+function collectDocumentAlerts($page: CheerioApi, pageUrl: string): AlertCandidate[] {
+	const found: AlertCandidate[] = [];
 
 	$page("th").each((_i, th) => {
 		if (cleanText($page(th).text()).toLowerCase() !== "documents") return;
@@ -165,7 +173,13 @@ function collectDocumentAlerts($page: CheerioApi): string[] {
 				const title = cleanText($page(a).text());
 				// document titles are terser than prose, so allow shorter text
 				if (title.length < MIN_DOC_TITLE_LEN || title.length > MAX_ALERT_LEN) return;
-				if (isRealAlert(title)) found.push(title);
+				if (!isRealAlert(title)) return;
+				// link the alert to the notice itself so a reader can open it
+				const href = $page(a).attr("href");
+				found.push({
+					text: title,
+					documentUrl: href ? new URL(href, pageUrl).toString() : null,
+				});
 			});
 	});
 
@@ -198,8 +212,11 @@ async function scrapePoolAlerts(): Promise<PoolAlert[]> {
 				console.log("Checking alerts for:", pool.shortName, "(cached page)");
 			}
 
-			const texts = [...collectProseAlerts($page), ...collectDocumentAlerts($page)];
-			for (const alertText of texts) {
+			const candidates = [
+				...collectProseAlerts($page),
+				...collectDocumentAlerts($page, pool.pageUrl),
+			];
+			for (const { text: alertText, documentUrl } of candidates) {
 				// avoid duplicates for this pool (a notice can appear as both prose
 				// and a document title)
 				const existing = alerts.find(
@@ -212,6 +229,11 @@ async function scrapePoolAlerts(): Promise<PoolAlert[]> {
 					pageUrl: pool.pageUrl,
 					alertText,
 					scrapedAt: now,
+					documentUrl,
+					closure: detectClosure(alertText, {
+						referenceDate: now,
+						sourceUrl: documentUrl,
+					}),
 				});
 			}
 		} catch (err) {

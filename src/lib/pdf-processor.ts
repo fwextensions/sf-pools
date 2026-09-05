@@ -31,6 +31,14 @@ export const ProgramSchema = z.object({
 	programNameCanonical: z.string().optional().nullable(),
 });
 
+const ClosureSchema = z.object({
+	summary: z.string(),
+	startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
+	endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
+	indefinite: z.boolean(),
+	sourceUrl: z.string().url().nullable(),
+});
+
 export const PoolScheduleSchema = z.object({
 	id: z.string(),
 	name: z.string(),
@@ -56,6 +64,12 @@ export const PoolScheduleSchema = z.object({
 		.optional()
 		.nullable(),
 	lanes: z.number().int().positive().optional().nullable(),
+	/**
+	 * Set by the pipeline (not the extractor) when a scraped alert says the pool
+	 * is shut. Programs are emptied while a closure is active, so every surface
+	 * hides them without having to know about closures itself.
+	 */
+	closure: ClosureSchema.optional().nullable(),
 	programs: z.array(ProgramSchema),
 });
 

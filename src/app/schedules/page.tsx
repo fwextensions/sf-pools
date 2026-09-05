@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { PoolSchedule } from "@/lib/pdf-processor";
+import ClosureNotice from "@/components/ClosureNotice";
 import { toTitleCase, programLocationQualifier } from "@/lib/program-taxonomy";
 import { CalendarIcon, ClockIcon, MapPinIcon } from "@/components/icons";
 import { parseTimeToMinutes } from "@/lib/utils";
@@ -94,6 +95,10 @@ export default async function SchedulesPage() {
 									</a>
 								) : null}
 							</header>
+
+							{pool.closure ? (
+								<ClosureNotice closure={pool.closure} poolName={toTitleCase(pool.name)} />
+							) : null}
 
 							<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 								{DAYS.map((day) => {

@@ -7,6 +7,7 @@ import { findCanonicalProgram, normalizeProgramName } from "@/lib/program-taxono
 import { getPoolIdFromName, getPoolById } from "@/lib/pool-mapping";
 import { toTitleCase } from "@/lib/program-taxonomy";
 import { detectScheduleAnomalies, detectRegressionAnomalies } from "@/lib/schedule-validation";
+import { isClosureActive, type Closure } from "@/lib/closures";
 import type { PoolEntry, DiscoveredPool } from "./downloadPdf";
 import {
 	computeChangelog,
@@ -21,6 +22,7 @@ const DISCOVERED_FILE = path.join(process.cwd(), "public", "data", "discovered_p
 const OUT_DIR = path.join(process.cwd(), "public", "data");
 const OUT_FILE = path.join(OUT_DIR, "all_schedules.json");
 const EXTRACTED_DIR = path.join(process.cwd(), "data", "extracted");
+const ALERTS_FILE = path.join(process.cwd(), "public", "data", "alerts.json");
 
 type ExtractedMeta = {
 	pdfHash: string;
@@ -78,11 +80,42 @@ async function loadDiscoveredPools(): Promise<DiscoveredPool[]> {
 	}
 }
 
+/**
+ * Active closures by pool id, read from the alerts scrape. A closure that has
+ * already ended is ignored, so a pool comes back on its own the day after it
+ * reopens even if nothing re-scrapes in between.
+ */
+async function loadActiveClosures(today: string): Promise<Map<string, Closure>> {
+	const byPool = new Map<string, Closure>();
+	try {
+		const raw = await readFile(ALERTS_FILE, "utf-8");
+		const data = JSON.parse(raw) as {
+			poolAlerts?: Array<{ poolId: string; closure?: Closure | null }>;
+		};
+		for (const alert of data.poolAlerts ?? []) {
+			const closure = alert.closure;
+			if (!closure || !isClosureActive(closure, today)) continue;
+			// when a pool has several notices, keep the one that runs longest
+			const existing = byPool.get(alert.poolId);
+			if (existing) {
+				if (existing.indefinite) continue;
+				if (!closure.indefinite && (existing.endDate ?? "") >= (closure.endDate ?? "")) continue;
+			}
+			byPool.set(alert.poolId, closure);
+		}
+	} catch {
+		// no alerts file yet - nothing is known to be closed
+	}
+	return byPool;
+}
+
 export type ProcessResult = {
 	success: boolean;
 	changelog: ReturnType<typeof computeChangelog>;
 	extractedCount: number;
 	skippedCount: number;
+	/** pools whose programs were hidden because an announced closure is running */
+	closedPools: string[];
 	preservedCount: number;
 	anomalies: string[];
 	/** pools held back at their previous data because this run's extract looked corrupt */
@@ -141,6 +174,8 @@ export async function main(): Promise<ProcessResult> {
 	const anomalies: string[] = [];
 	const quarantinedPools: string[] = [];
 	const droppedPools: string[] = [];
+	const closedPools: string[] = [];
+	const activeClosures = await loadActiveClosures(todayISO());
 	let healthCheckedCount = 0;
 	// escape hatch for local dev: ship extracts even when they fail health checks
 	const allowUnhealthy = process.env.ALLOW_UNHEALTHY === "1";
@@ -251,6 +286,22 @@ export async function main(): Promise<ProcessResult> {
 					p.programNameCanonical = canonical;
 				}
 
+				// A pool with an announced closure publishes no programs: a maintenance
+				// banner above a full schedule is too easy to read past. This also
+				// resolves the empty-extract ambiguity - when a closure explains why a
+				// PDF yielded nothing, the extract is not corrupt and must not be
+				// quarantined behind stale programs.
+				const closure = activeClosures.get(s.id);
+				if (closure) {
+					closedPools.push(s.shortName || s.name);
+					console.log(
+						`🚧 ${s.shortName || s.name} closed (${closure.startDate ?? "?"} -> ${closure.endDate ?? "indefinite"}) - hiding programs`
+					);
+					const { programs: _hidden, ...closedRest } = s;
+					aggregated.push({ ...closedRest, closure, programs: [] });
+					continue;
+				}
+
 				// health-check the extract: intrinsic problems that suggest a misread
 				// PDF, plus regressions against the previous run. Volume of change is
 				// deliberately not part of this — a season rollover churns most of the
@@ -288,7 +339,8 @@ export async function main(): Promise<ProcessResult> {
 					continue;
 				}
 
-				aggregated.push({ ...rest, programs });
+				// a pool that is no longer closed drops any closure it was carrying
+				aggregated.push({ ...rest, closure: null, programs });
 			}
 		} catch (err) {
 			console.warn("failed to process", file, err);
@@ -346,6 +398,11 @@ export async function main(): Promise<ProcessResult> {
 		quarantinedPools.length + droppedPools.length === healthCheckedCount;
 	const shouldFail = nothingToShip || everyExtractFailed;
 
+	if (closedPools.length > 0) {
+		console.log(`
+🚧 ${closedPools.length} pool(s) closed: ${closedPools.join(", ")}`);
+	}
+
 	if (shouldFail) {
 		if (nothingToShip) {
 			console.error("\n❌ Build failed: no usable schedules to publish");
@@ -389,6 +446,7 @@ export async function main(): Promise<ProcessResult> {
 		changelog,
 		extractedCount,
 		skippedCount,
+		closedPools,
 		preservedCount,
 		anomalies,
 		quarantinedPools,
