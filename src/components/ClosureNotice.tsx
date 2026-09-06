@@ -1,4 +1,5 @@
 import type { Closure } from "@/lib/closures";
+import { formatScheduleDate } from "@/lib/utils";
 import { formatClosurePeriod } from "@/lib/closures";
 
 type Props = {
@@ -45,10 +46,5 @@ export default function ClosureNotice({ closure, poolName }: Props) {
 }
 
 function formatReopenDate(endDate: string): string {
-	const [y, m, d] = endDate.split("-").map(Number);
-	return new Date(Date.UTC(y!, m! - 1, d!)).toLocaleDateString("en-US", {
-		month: "long",
-		day: "numeric",
-		timeZone: "UTC",
-	});
+	return formatScheduleDate(endDate, { month: "long", day: "numeric" });
 }

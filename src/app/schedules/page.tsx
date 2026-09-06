@@ -9,7 +9,7 @@ import ProgramName from "@/components/ProgramName";
 import { toTitleCase } from "@/lib/program-taxonomy";
 import { describeProgram } from "@/lib/program-display";
 import { POOL_TOKENS, getPoolToken, type PoolToken } from "@/lib/pool-tokens";
-import { parseTimeToMinutes } from "@/lib/utils";
+import { formatScheduleDate, parseTimeToMinutes } from "@/lib/utils";
 
 export const metadata: Metadata = {
 	title: "Full schedules — SF Pools",
@@ -51,13 +51,7 @@ async function readSchedules(): Promise<PoolSchedule[] | null> {
 }
 
 function formatDate(d?: string | null): string {
-	if (!d) return "";
-	return new Date(d).toLocaleDateString("en-US", {
-		year: "numeric",
-		month: "short",
-		day: "2-digit",
-		timeZone: "America/Los_Angeles",
-	});
+	return formatScheduleDate(d, { year: "numeric", month: "short", day: "2-digit" });
 }
 
 function byStartTime(a: ProgramEntry, b: ProgramEntry): number {
@@ -370,7 +364,20 @@ export default async function SchedulesPage() {
 
 						return (
 							<section key={pool.id} id={`pool-${pool.id}`} className="scroll-mt-[var(--schedule-nav-h)] pt-7">
-								<header className="border-t-[3px] pt-2.5" style={{ borderColor: color }}>
+								{/* the pool's name follows its programs down the page, pinned
+								    directly under the jump nav, so a session three screens into
+								    a schedule still says whose pool it is. Only the identity row
+								    sticks; the season, address and PDF link scroll away, since a
+								    third of the screen held down by chrome is worse than the
+								    question it answers. Below the nav's z-index, so the two never
+								    bleed into each other. */}
+								<header
+									// the hairline is drawn outside the box so it reads as the
+									// pinned bar's edge over the sessions passing under it,
+									// without adding a rule between the name and the meta line
+									className="sticky top-[var(--schedule-nav-h)] z-[5] border-t-[3px] bg-white pt-2.5 pb-2 shadow-[0_1px_0_#e2e8ec]"
+									style={{ borderColor: color }}
+								>
 									<div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
 										<span
 											className="px-1.5 py-[3px] plex-mono text-[11px] font-semibold text-white"
@@ -385,24 +392,24 @@ export default async function SchedulesPage() {
 											{all.length} SESSION{all.length === 1 ? "" : "S"}
 										</span>
 									</div>
-									<MetaLine
-										parts={[
-											period ? <span className="uppercase">{period}</span> : null,
-											pool.address ? <span className="uppercase">{pool.address}</span> : null,
-											pool.lanes ? <span>{pool.lanes} LANES</span> : null,
-											pool.pdfScheduleUrl ? (
-												<a
-													href={pool.pdfScheduleUrl}
-													target="_blank"
-													rel="noreferrer"
-													className="text-[#5a707c] underline underline-offset-2"
-												>
-													SOURCE PDF ↗
-												</a>
-											) : null,
-										]}
-									/>
 								</header>
+								<MetaLine
+									parts={[
+										period ? <span className="uppercase">{period}</span> : null,
+										pool.address ? <span className="uppercase">{pool.address}</span> : null,
+										pool.lanes ? <span>{pool.lanes} LANES</span> : null,
+										pool.pdfScheduleUrl ? (
+											<a
+												href={pool.pdfScheduleUrl}
+												target="_blank"
+												rel="noreferrer"
+												className="text-[#5a707c] underline underline-offset-2"
+											>
+												SOURCE PDF ↗
+											</a>
+										) : null,
+									]}
+								/>
 
 								{pool.closure ? (
 									<div className="mt-3">

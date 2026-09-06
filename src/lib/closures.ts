@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { formatScheduleDate } from "./utils";
 
 /**
  * Closure detection for scraped pool alerts.
@@ -252,14 +253,7 @@ export function isClosureActive(closure: Closure, today: string): boolean {
 export function formatClosurePeriod(closure: Closure): string {
 	if (closure.indefinite) return "until further notice";
 
-	const fmt = (d: string) => {
-		const [y, m, day] = d.split("-").map(Number);
-		return new Date(Date.UTC(y!, m! - 1, day!)).toLocaleDateString("en-US", {
-			month: "short",
-			day: "numeric",
-			timeZone: "UTC",
-		});
-	};
+	const fmt = (d: string) => formatScheduleDate(d, { month: "short", day: "numeric" });
 
 	if (closure.startDate && closure.endDate) {
 		return `${fmt(closure.startDate)} – ${fmt(closure.endDate)}`;
