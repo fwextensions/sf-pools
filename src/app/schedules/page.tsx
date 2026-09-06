@@ -218,7 +218,7 @@ function WeekGrid({
 
 	return (
 		<div
-			className="mt-3 hidden min-[900px]:grid"
+			className="hidden min-[900px]:grid"
 			style={{ gridTemplateColumns: "52px repeat(7, minmax(0, 1fr))", columnGap: 3 }}
 		>
 			{/* the day names ride down the page under the pool's pinned name, so a
@@ -234,7 +234,11 @@ function WeekGrid({
 				<div
 					key={day}
 					style={{ gridRow: 1, gridColumn: i + 2, top: "var(--schedule-day-row-top)" }}
-					className="sticky z-[4] border-b border-[#e2e8ec] bg-white pb-1 plex-mono text-[10px] font-semibold tracking-[.1em] text-[#5a707c]"
+					// the breathing room above the labels is padding on the pinned row
+					// itself, not a margin above the grid: a margin is outside the
+					// sticky box, so it collapses the moment the row pins and the
+					// sessions scroll up through the space it was holding
+					className="sticky z-[4] border-b border-[#e2e8ec] bg-white pt-3 pb-1 plex-mono text-[10px] font-semibold tracking-[.1em] text-[#5a707c]"
 				>
 					{day.slice(0, 3).toUpperCase()}
 				</div>

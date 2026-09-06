@@ -26,7 +26,10 @@
    from 900px up, and below that the offset is unused. */
 :root {
 	--schedule-pool-header-h: 49px;
-	--schedule-day-row-top: calc(var(--schedule-nav-h) + var(--schedule-pool-header-h));
+	/* the last pixel is an overlap, not a gap: at fractional scroll offsets the
+	   two pinned bars round apart and a sliver of the sessions passing between
+	   them shows through */
+	--schedule-day-row-top: calc(var(--schedule-nav-h) + var(--schedule-pool-header-h) - 1px);
 }
 
 /* Phone type scale: every size in the app is set in px on the element, so the
