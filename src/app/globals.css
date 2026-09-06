@@ -26,9 +26,14 @@
    from 900px up, and below that the offset is unused. */
 :root {
 	--schedule-pool-header-h: 49px;
-	/* the last pixel is an overlap, not a gap: at fractional scroll offsets the
-	   two pinned bars round apart and a sliver of the sessions passing between
-	   them shows through */
+	/* The pool row measures 48.5px — its identity row is baseline-aligned, so an
+	   11px code chip against a 25px-line-height name gives a fractional content
+	   box — and the 49px above is that rounded up. The last pixel makes the day
+	   row pin a hair high rather than a hair low, because the two directions are
+	   not symmetric: too low leaves a gap that the sessions show through, while
+	   too high tucks the row's top padding behind the header, which paints over
+	   it anyway. Biasing into the overlap survives the font metrics changing;
+	   naming the exact 48.5 would not. */
 	--schedule-day-row-top: calc(var(--schedule-nav-h) + var(--schedule-pool-header-h) - 1px);
 }
 
