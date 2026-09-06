@@ -1,10 +1,11 @@
 // re-apply the program taxonomy to public/data/all_schedules.json without
-// re-extracting PDFs. Recomputes programName/programNameCanonical from
-// programNameOriginal (falling back to the current programName), so taxonomy
-// changes in src/lib/program-taxonomy.ts can be rolled out to preserved data.
+// re-extracting PDFs. Recomputes programName/programNameCanonical, the display
+// title and the tags from programNameOriginal (falling back to the current
+// programName), so taxonomy changes in src/lib/program-taxonomy.ts can be
+// rolled out to preserved data.
 import fs from "node:fs/promises";
 import path from "node:path";
-import { findCanonicalProgram, normalizeProgramName } from "@/lib/program-taxonomy";
+import { cleanProgramTitle, deriveTags, findCanonicalProgram, normalizeProgramName } from "@/lib/program-taxonomy";
 
 async function main() {
 	const file = path.join(process.cwd(), "public", "data", "all_schedules.json");
@@ -19,6 +20,8 @@ async function main() {
 			p.programNameOriginal = original;
 			p.programName = canonical;
 			p.programNameCanonical = canonical;
+			p.title = cleanProgramTitle(original);
+			p.tags = deriveTags(original);
 		}
 	}
 

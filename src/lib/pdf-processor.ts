@@ -30,6 +30,10 @@ export const ProgramSchema = z.object({
 	// m7 fields: optional to avoid breaking existing extractor responses
 	programNameOriginal: z.string().optional().nullable(),
 	programNameCanonical: z.string().optional().nullable(),
+	// the PDF's own title, cleaned of footnote markers — what the UI shows
+	title: z.string().optional().nullable(),
+	// facets derived from the title: activity:*, audience:*, access:*
+	tags: z.array(z.string()).optional().default([]),
 });
 
 export const PoolScheduleSchema = z.object({

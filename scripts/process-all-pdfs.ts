@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { extractScheduleFromPdf, type PoolSchedule } from "@/lib/pdf-processor";
-import { findCanonicalProgram, normalizeProgramName } from "@/lib/program-taxonomy";
+import { cleanProgramTitle, deriveTags, findCanonicalProgram, normalizeProgramName } from "@/lib/program-taxonomy";
 import { getPoolIdFromName, getPoolById } from "@/lib/pool-mapping";
 import { toTitleCase } from "@/lib/program-taxonomy";
 import { detectScheduleAnomalies, detectRegressionAnomalies } from "@/lib/schedule-validation";
@@ -280,13 +280,16 @@ export async function main(): Promise<ProcessResult> {
 					s.pdfScheduleUrl = disc.pdfUrl;
 				}
 
-				// rewrite programName to canonical label, preserve original
+				// rewrite programName to canonical label, preserve original, and
+				// derive the display title and tags from what the PDF actually said
 				for (const p of s.programs || []) {
 					const original = p.programName;
 					const canonical = findCanonicalProgram(original) ?? normalizeProgramName(original);
 					p.programNameOriginal = original;
 					p.programName = canonical;
 					p.programNameCanonical = canonical;
+					p.title = cleanProgramTitle(original);
+					p.tags = deriveTags(original);
 				}
 
 				// A pool with an announced closure publishes no programs: a maintenance

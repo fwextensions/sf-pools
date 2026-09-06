@@ -26,18 +26,29 @@ export const ACRONYMS = new Set<string>([
 	"LGBTQ+",
 	"JCC",
 	"LTS",
+	"SFUSD",
+	"SFRPD",
+	"NVPS",
+	"HS",
+	"PC",
 ]);
 
 function capitalizeWord(w: string): string {
 	if (!w) return w;
-	const lower = w.toLowerCase();
-	// keep known acronyms	s
+	// a token can arrive wrapped in punctuation — "(Club)", "(Pre-registration" —
+	// and the letter to capitalize is the first one inside it, not the bracket
+	const m = w.match(/^([^\p{L}\p{N}]*)(.*?)([^\p{L}\p{N}]*)$/u);
+	const [, lead, core, trail] = m ?? ["", "", w, ""];
+	if (!core) return w;
+
+	const lower = core.toLowerCase();
+	// keep known acronyms
 	for (const ac of ACRONYMS) {
-		if (lower === ac.toLowerCase()) return ac;
+		if (lower === ac.toLowerCase()) return lead + ac + trail;
 	}
 	// keep single-letter words uppercase as-is (e.g., "A")
-	if (w.length === 1) return w.toUpperCase();
-	return lower.charAt(0).toUpperCase() + lower.slice(1);
+	if (core.length === 1) return lead + core.toUpperCase() + trail;
+	return lead + lower.charAt(0).toUpperCase() + lower.slice(1) + trail;
 }
 
 // pool name helpers
@@ -231,4 +242,116 @@ export function programLocationQualifier(raw: string | null | undefined): string
 
 export function normalizeProgramName(raw: string): string {
 	return toTitleCase(stripProgramQualifiers(raw));
+}
+
+// ---------------------------------------------------------------------------
+// tags
+//
+// A single canonical category cannot describe a slot that is genuinely two
+// things at once — "REC/FAMILY/LAP SWIM" is rec, family and lap water at the
+// same time, and 25% of the sessions we have ever scraped name more than one
+// program. Tags let a session carry all of them, in three facets:
+//
+//   activity:  what is happening in the water
+//   audience:  who it is for, when the PDF says
+//   access:    how you get in — the facet the footnote symbols encode
+//
+// The vocabulary is closed: derivation is regex over the raw PDF title, so a
+// name we have not seen yields fewer tags, never a new tag. See
+// docs/program-taxonomy-review.md.
+// ---------------------------------------------------------------------------
+
+export const ACTIVITY_TAGS = [
+	"lap", "family", "rec", "senior", "therapy", "self-guided", "water-exercise",
+	"lessons", "swim-team", "masters", "synchro", "water-polo", "hockey", "camp",
+	"parent-tot", "special-olympics",
+] as const;
+
+export const AUDIENCE_TAGS = ["adult", "youth", "senior", "parent-child", "high-school", "preschool"] as const;
+
+export const ACCESS_TAGS = ["drop-in", "registration", "rental", "school-group", "closed", "shared-pool", "contact-coach"] as const;
+
+export type ActivityTag = `activity:${typeof ACTIVITY_TAGS[number]}`;
+export type AudienceTag = `audience:${typeof AUDIENCE_TAGS[number]}`;
+export type AccessTag = `access:${typeof ACCESS_TAGS[number]}`;
+export type ProgramTag = ActivityTag | AudienceTag | AccessTag;
+
+const ACTIVITY_PATTERNS: Array<[typeof ACTIVITY_TAGS[number], RegExp]> = [
+	["lap", /\blap\b/],
+	["family", /\bfamily\b/],
+	["rec", /\brec\b|recreational/],
+	["senior", /\bsenior\b/],
+	["therapy", /therapy|therapeutic|access swim/],
+	["self-guided", /self.?guided/],
+	// "expercise" is a standing typo in the Rossi and Garfield schedules
+	["water-exercise", /water exercise|water expercise|aerobic|aqua/],
+	["lessons", /lesson|\blts\b|learn.?to.?swim/],
+	["swim-team", /swim team|\bteams?\b|piranha|barracuda|gator|catfish/],
+	["masters", /master/],
+	["synchro", /synchro/],
+	["water-polo", /water polo/],
+	["hockey", /hockey/],
+	["camp", /\bcamps?\b/],
+	["parent-tot", /parent/],
+	["special-olympics", /special olympics/],
+];
+
+const AUDIENCE_PATTERNS: Array<[typeof AUDIENCE_TAGS[number], RegExp]> = [
+	["adult", /\badult\b/],
+	["youth", /\byouth\b|junior|\bjr\b|\btots?\b/],
+	["senior", /\bsenior\b/],
+	["parent-child", /parent/],
+	["high-school", /high school|\bhs\b/],
+	["preschool", /pre.?school/],
+];
+
+const ACCESS_PATTERNS: Array<[typeof ACCESS_TAGS[number], RegExp]> = [
+	["rental", /\brentals?\b|private|permit|reserved/],
+	["school-group", /sfusd|unified school|school district|nvps/],
+	["closed", /closure|closed|maintenance|staff training|department/],
+	["registration", /pre-?registration|registration req/],
+];
+
+// the footnote symbols the PDFs hang off program names. Each schedule prints
+// its own SYMBOL KEY and they do not all agree, so only the markers that mean
+// the same thing across the pools we have seen are mapped; the rest are
+// stripped from the title and carry no tag.
+const MARKER_TAGS: Array<[RegExp, AccessTag]> = [
+	[/\*\*/, "access:shared-pool"],
+	[/[♦◆]/, "access:contact-coach"],
+	[/\*/, "access:registration"],
+];
+
+export function deriveTags(raw: string): ProgramTag[] {
+	const s = (raw || "").trim().toLowerCase();
+	if (!s) return [];
+	const tags = new Set<ProgramTag>();
+
+	for (const [tag, re] of ACTIVITY_PATTERNS) if (re.test(s)) tags.add(`activity:${tag}`);
+	for (const [tag, re] of AUDIENCE_PATTERNS) if (re.test(s)) tags.add(`audience:${tag}`);
+	for (const [tag, re] of ACCESS_PATTERNS) if (re.test(s)) tags.add(`access:${tag}`);
+	for (const [re, tag] of MARKER_TAGS) if (re.test(raw)) { tags.add(tag); break; }
+
+	// a session nobody has to register, rent or be enrolled for is one you can
+	// walk in on — the distinction the ActiveNet drop-in calendar draws too
+	const restricted: AccessTag[] = ["access:rental", "access:school-group", "access:closed", "access:registration", "access:contact-coach"];
+	if (tags.size > 0 && !restricted.some((t) => tags.has(t))) tags.add("access:drop-in");
+
+	return [...tags].sort();
+}
+
+// the title as the PDF wrote it, minus the footnote markers and the stray
+// spacing — "Summer LTS^" -> "Summer LTS", "SMALL POOL-REC/FAMILY SWIM" ->
+// "Small Pool - Rec/Family Swim". This is what we show; the untouched string
+// stays in programNameOriginal.
+export function cleanProgramTitle(raw: string): string {
+	let s = (raw || "").trim();
+	s = s.replace(/[*^†‡♦◆+籠]/g, " ");
+	s = s.replace(/\s*\/\s*/g, "/");
+	// even out a hyphen the PDF spaced on one side only ("SMALL POOL- NVPS"),
+	// while leaving a genuinely hyphenated word ("Pre-registration") alone
+	s = s.replace(/(\S)-\s+/g, "$1 - ").replace(/\s+-(\S)/g, " - $1");
+	s = s.replace(/\s{2,}/g, " ").trim();
+	s = s.replace(/^[-\s]+|[-\s]+$/g, "");
+	return toTitleCase(s);
 }
