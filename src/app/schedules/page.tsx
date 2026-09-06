@@ -112,21 +112,26 @@ function SessionBlock({ program, color }: { program: ProgramEntry; color: string
 			<div className="plex-mono text-[11px] font-medium text-[#5a707c]">
 				{program.startTime}–{program.endTime}
 			</div>
-			<div className="mt-0.5 text-[13px] font-medium leading-snug text-[#0e2733]">
-				<ProgramName name={title} />
-			</div>
-			{badges.length ? (
-				<div className="mt-1 flex flex-wrap gap-1">
-					{badges.map((badge) => (
-						<span
-							key={badge}
-							className="border border-[#c4d2d9] bg-white px-1 py-px plex-mono text-[10px] font-medium text-[#5a707c]"
-						>
-							{badge}
-						</span>
-					))}
+			{/* the badges ride in the space beside the title rather than under it:
+			    a program name rarely fills its column, and a stacked badge row cost
+			    every session a line of height it did not need */}
+			<div className="mt-0.5 flex flex-wrap items-start justify-between gap-x-2 gap-y-1">
+				<div className="min-w-0 text-[13px] font-medium leading-snug text-[#0e2733]">
+					<ProgramName name={title} />
 				</div>
-			) : null}
+				{badges.length ? (
+					<div className="ml-auto flex shrink-0 flex-wrap justify-end gap-1">
+						{badges.map((badge) => (
+							<span
+								key={badge}
+								className="border border-[#c4d2d9] bg-white px-1 py-px plex-mono text-[10px] font-medium text-[#5a707c]"
+							>
+								{badge}
+							</span>
+						))}
+					</div>
+				) : null}
+			</div>
 			{notes.map((note) => (
 				<div key={note} className="mt-1 text-[11px] leading-snug text-[#8a9aa4]">
 					{note}
@@ -216,11 +221,20 @@ function WeekGrid({
 			className="mt-3 hidden min-[900px]:grid"
 			style={{ gridTemplateColumns: "52px repeat(7, minmax(0, 1fr))", columnGap: 3 }}
 		>
+			{/* the day names ride down the page under the pool's pinned name, so a
+			    session two screens into a schedule still has a column heading. The
+			    strip behind them spans the time gutter and the column gaps, which
+			    the seven cells alone would let the rows show through. */}
+			<div
+				aria-hidden
+				style={{ gridRow: 1, gridColumn: "1 / -1", top: "var(--schedule-day-row-top)" }}
+				className="sticky z-[3] bg-white"
+			/>
 			{DAYS.map((day, i) => (
 				<div
 					key={day}
-					style={{ gridRow: 1, gridColumn: i + 2 }}
-					className="border-b border-[#e2e8ec] pb-1 plex-mono text-[10px] font-semibold tracking-[.1em] text-[#5a707c]"
+					style={{ gridRow: 1, gridColumn: i + 2, top: "var(--schedule-day-row-top)" }}
+					className="sticky z-[4] border-b border-[#e2e8ec] bg-white pb-1 plex-mono text-[10px] font-semibold tracking-[.1em] text-[#5a707c]"
 				>
 					{day.slice(0, 3).toUpperCase()}
 				</div>

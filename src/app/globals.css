@@ -20,6 +20,15 @@
 	}
 }
 
+/* The week grid's day names pin directly below the pool's pinned identity row,
+   so the offset is the two stacked heights. The pool row is one line of 20px
+   type at every desktop width, hence a constant; the grid itself only exists
+   from 900px up, and below that the offset is unused. */
+:root {
+	--schedule-pool-header-h: 49px;
+	--schedule-day-row-top: calc(var(--schedule-nav-h) + var(--schedule-pool-header-h));
+}
+
 /* Phone type scale: every size in the app is set in px on the element, so the
    sizes are bumped two pixels each here rather than by scaling a root font
    size that nothing inherits from. Tailwind's utilities live in a layer, so
