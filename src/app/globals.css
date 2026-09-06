@@ -203,11 +203,11 @@ input[type="radio"] {
    =========================================== */
 
 .plex-sans {
-	font-family: var(--font-plex-sans), "IBM Plex Sans", system-ui, sans-serif;
+	font-family: var(--font-plex-sans), Chivo, system-ui, sans-serif;
 }
 
 .plex-mono {
-	font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+	font-family: var(--font-plex-mono), "Chivo Mono", monospace;
 }
 
 /* grid cells are short (15/19px), so expand the touch target invisibly */

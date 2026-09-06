@@ -1,14 +1,14 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { Chivo, Chivo_Mono } from "next/font/google";
 
-const plexSans = IBM_Plex_Sans({
+const plexSans = Chivo({
 	subsets: ["latin"],
 	weight: ["400", "500", "600", "700"],
 	variable: "--font-plex-sans",
 });
 
-const plexMono = IBM_Plex_Mono({
+const plexMono = Chivo_Mono({
 	subsets: ["latin"],
 	weight: ["400", "500", "600"],
 	variable: "--font-plex-mono",
