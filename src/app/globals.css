@@ -9,8 +9,39 @@
 	--accent-border: color-mix(in srgb, var(--accent-color) 40%, white);
 	--accent-muted: color-mix(in srgb, var(--accent-color) 12%, white);
 	/* height of the schedules page's pinned pool jump nav; sections offset
-	   their scroll anchor by exactly this so a jump never lands under it */
-	--schedule-nav-h: 47px;
+	   their scroll anchor by exactly this so a jump never lands under it.
+	   Two rows of five chips on a phone, one row of ten from 900px up. */
+	--schedule-nav-h: 76px;
+}
+
+@media (min-width: 900px) {
+	:root {
+		--schedule-nav-h: 47px;
+	}
+}
+
+/* Phone type scale: every size in the app is set in px on the element, so the
+   sizes are bumped two pixels each here rather than by scaling a root font
+   size that nothing inherits from. Tailwind's utilities live in a layer, so
+   these unlayered rules win without needing !important. */
+@media (max-width: 899px) {
+	.text-\[10px\] { font-size: 12px; }
+	.text-\[11px\] { font-size: 13px; }
+	.text-\[12px\] { font-size: 14px; }
+	.text-\[13px\] { font-size: 15px; }
+	.text-\[14px\] { font-size: 16px; }
+	.text-\[20px\] { font-size: 22px; }
+	.text-\[26px\] { font-size: 28px; }
+}
+
+/* Between 400px and the desktop breakpoint the jump nav shows pool names
+   rather than the colour-coded chips, so the chip's left edge carries the
+   pool's colour instead. Narrower than that the codes are back and the bar
+   would be the same colour twice. */
+@media (min-width: 400px) and (max-width: 899px) {
+	.pool-jump-chip {
+		border-left: 3px solid var(--pool-color);
+	}
 }
 
 /* basic typography */

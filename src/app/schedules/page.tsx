@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
@@ -301,18 +302,22 @@ export default async function SchedulesPage() {
 			) : (
 				<>
 					{/* The pool codes double as the legend, same chips the grid uses.
-					    Every chip stays on screen: the row never scrolls or wraps (its
-					    height is the anchor offset every section depends on), so the
-					    labels shrink and ellipsis instead. Short names rather than full
-					    ones both because they fit and because they are what the grid's
-					    legend calls these pools. Below the week grid's breakpoint the
-					    label is dropped entirely and the codes stand alone. */}
+					    Every chip stays on screen: the nav never scrolls (its height is
+					    the anchor offset every section depends on). On a phone that
+					    means two rows of five, which leaves each chip wide enough to
+					    carry its name; from 900px up the ten fit one row and the labels
+					    shrink and ellipsis instead. Short names rather than full ones
+					    both because they fit and because they are what the grid's
+					    legend calls these pools. */}
 					<nav
 						aria-label="Jump to a pool"
-						className="sticky top-0 z-10 flex h-[var(--schedule-nav-h)] items-center gap-0.5 overflow-hidden border-b border-[#e2e8ec] bg-white min-[900px]:gap-1"
+						className="sticky top-0 z-10 grid h-[var(--schedule-nav-h)] grid-cols-5 content-center gap-0.5 overflow-hidden border-b border-[#e2e8ec] bg-white min-[900px]:flex min-[900px]:items-center min-[900px]:gap-1"
 					>
 						{pools.map(({ pool, token }) => {
 							const label = token?.name ?? pool.shortName ?? toTitleCase(pool.name);
+							// five to a row leaves a phone chip about 60px of text, which
+							// fits every name but the two North Beach pools
+							const phoneLabel = label.replace(/^North Beach \((\w+)\)$/, "NB $1");
 							const shrink =
 								label.length > SHRINKABLE_LABEL_CHARS ? "shrink" : "shrink-0";
 							return (
@@ -320,17 +325,25 @@ export default async function SchedulesPage() {
 									key={pool.id}
 									href={`#pool-${pool.id}`}
 									title={label}
-									// below the label breakpoint the ten codes divide the row
-									// evenly (basis-0 + grow), so they fit any width instead of
-									// overflowing; above it each chip sizes to its own label
-									className={`flex min-w-0 grow basis-0 items-center gap-1.5 border border-[#e2e8ec] bg-white px-0 py-1 min-[900px]:grow-0 min-[900px]:basis-auto min-[900px]:pl-1 min-[900px]:pr-2 ${shrink}`}
+									// a grid cell on a phone, so five chips share the width
+									// evenly; from 900px up each chip sizes to its own label
+									className={`pool-jump-chip flex min-w-0 items-center gap-1 border border-[#e2e8ec] bg-white py-1 pl-1 pr-0.5 min-[900px]:grow-0 min-[900px]:basis-auto min-[900px]:gap-1.5 min-[900px]:pl-1 min-[900px]:pr-2 ${shrink}`}
+									style={{ "--pool-color": token?.color ?? "#5a707c" } as CSSProperties}
 								>
+									{/* the code chip is the legend the grid and the section
+									    headers use. On a phone the name is worth more than the
+									    code and the chip's left edge carries the colour — but
+									    below 400px five names to a row start clipping, so the
+									    narrowest phones get the codes back, two rows of five. */}
 									<span
 										aria-hidden
-										className="flex h-[16px] w-full flex-none items-center justify-center plex-mono text-[10px] font-semibold text-white min-[900px]:w-[26px]"
+										className="mx-auto flex h-[16px] w-[26px] flex-none items-center justify-center plex-mono text-[10px] font-semibold text-white min-[400px]:hidden min-[900px]:mx-0 min-[900px]:flex"
 										style={{ background: token?.color ?? "#5a707c" }}
 									>
 										{token?.code ?? "—"}
+									</span>
+									<span className="hidden min-w-0 truncate text-[11px] font-medium text-[#37474f] min-[400px]:block min-[900px]:hidden">
+										{phoneLabel}
 									</span>
 									<span className="hidden min-w-0 truncate text-[12px] font-medium text-[#37474f] min-[900px]:block">
 										{label}
