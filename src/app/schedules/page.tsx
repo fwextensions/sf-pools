@@ -90,7 +90,7 @@ function MetaLine({ parts }: { parts: React.ReactNode[] }) {
 	const shown = parts.filter(Boolean);
 	if (!shown.length) return null;
 	return (
-		<div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 plex-mono text-[11px] font-medium tracking-[.06em] text-[#8a9aa4]">
+		<div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 plex-mono text-caption font-medium tracking-[.06em] text-[#8a9aa4]">
 			{shown.map((part, i) => (
 				<span key={i} className="flex items-center gap-2">
 					{i > 0 ? (
@@ -115,10 +115,10 @@ function SessionBlock({ program, color }: { program: ProgramEntry; color: string
 	const { title, badges, notes } = describeProgram(program);
 	return (
 		<div className="border-l-[3px] bg-[#f7fafb] px-2 py-1.5" style={{ borderColor: color }}>
-			<div className="plex-mono text-[11px] font-medium text-[#5a707c]">
+			<div className="plex-mono text-caption font-medium text-[#5a707c]">
 				{program.startTime}–{program.endTime}
 			</div>
-			<div className="mt-0.5 text-[13px] font-medium leading-snug text-[#0e2733]">
+			<div className="mt-0.5 text-body font-medium leading-snug text-[#0e2733]">
 				<ProgramName name={title} />
 			</div>
 			{badges.length ? (
@@ -134,7 +134,7 @@ function SessionBlock({ program, color }: { program: ProgramEntry; color: string
 				</div>
 			) : null}
 			{notes.map((note) => (
-				<div key={note} className="mt-1 text-[11px] leading-snug text-[#8a9aa4]">
+				<div key={note} className="mt-1 text-caption leading-snug text-[#8a9aa4]">
 					{note}
 				</div>
 			))}
@@ -153,7 +153,7 @@ function DayColumn({
 }) {
 	return (
 		<div className="min-w-0">
-			<div className="border-b border-[#e2e8ec] pb-1 plex-mono text-[10px] font-semibold tracking-[.1em] text-[#5a707c]">
+			<div className="border-b border-[#e2e8ec] pb-1 plex-mono text-label font-semibold tracking-[.1em] text-[#5a707c]">
 				{day.slice(0, 3).toUpperCase()}
 			</div>
 			{programs.length ? (
@@ -165,7 +165,7 @@ function DayColumn({
 			) : (
 				// mirrors an empty cell in the week grid rather than collapsing the
 				// column, so the seven-day rhythm survives a quiet day
-				<div className="mt-1 flex h-[22px] items-center justify-center bg-[#f5f8f9] plex-mono text-[11px] text-[#c4d2d9]">
+				<div className="mt-1 flex h-[22px] items-center justify-center bg-[#f5f8f9] plex-mono text-caption text-[#c4d2d9]">
 					—
 				</div>
 			)}
@@ -226,7 +226,7 @@ function WeekGrid({
 				<div
 					key={day}
 					style={{ gridRow: 1, gridColumn: i + 2 }}
-					className="border-b border-[#e2e8ec] pb-1 plex-mono text-[10px] font-semibold tracking-[.1em] text-[#5a707c]"
+					className="border-b border-[#e2e8ec] pb-1 plex-mono text-label font-semibold tracking-[.1em] text-[#5a707c]"
 				>
 					{day.slice(0, 3).toUpperCase()}
 				</div>
@@ -247,7 +247,7 @@ function WeekGrid({
 				<div
 					key={`time-${time}`}
 					style={{ gridRow: r + 2, gridColumn: 1 }}
-					className="border-t border-[#edf1f3] pr-2 pt-[5px] text-right plex-mono text-[10px] font-medium text-[#8a9aa4]"
+					className="border-t border-[#edf1f3] pr-2 pt-[5px] text-right plex-mono text-label font-medium text-[#8a9aa4]"
 				>
 					{time}
 				</div>
@@ -278,25 +278,25 @@ export default async function SchedulesPage() {
 	return (
 		<main className="plex-sans container py-8 text-[#0e2733]">
 			<header className="border-b-2 border-[#0e2733] pb-3">
-				<div className="plex-mono text-[11px] font-semibold tracking-[.14em] text-[#8a9aa4]">
+				<div className="plex-mono text-caption font-semibold tracking-[.14em] text-[#8a9aa4]">
 					SF PUBLIC POOLS
 				</div>
 				<div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-					<h1 className="text-[26px] font-semibold leading-tight">Full schedules</h1>
+					<h1 className="text-heading-lg font-semibold leading-tight">Full schedules</h1>
 					<Link
 						href="/"
-						className="plex-mono text-[12px] font-medium text-[#5a707c] underline underline-offset-2"
+						className="plex-mono text-caption font-medium text-[#5a707c] underline underline-offset-2"
 					>
 						← WEEK GRID
 					</Link>
 				</div>
-				<p className="mt-1.5 max-w-[62ch] text-[14px] text-[#5a707c]">
+				<p className="mt-1.5 max-w-[62ch] text-body text-[#5a707c]">
 					Every program on every pool&rsquo;s weekly schedule. Times are Pacific.
 				</p>
 			</header>
 
 			{!pools.length ? (
-				<div className="mt-6 border-l-[3px] border-[#c4d2d9] bg-[#f7fafb] px-3 py-2.5 text-[14px] text-[#5a707c]">
+				<div className="mt-6 border-l-[3px] border-[#c4d2d9] bg-[#f7fafb] px-3 py-2.5 text-body text-[#5a707c]">
 					No schedule data found.
 				</div>
 			) : (
@@ -342,10 +342,10 @@ export default async function SchedulesPage() {
 									>
 										{token?.code ?? "—"}
 									</span>
-									<span className="hidden min-w-0 truncate text-[11px] font-medium text-[#37474f] min-[400px]:block min-[900px]:hidden">
+									<span className="hidden min-w-0 truncate text-caption font-medium text-[#37474f] min-[400px]:block min-[900px]:hidden">
 										{phoneLabel}
 									</span>
-									<span className="hidden min-w-0 truncate text-[12px] font-medium text-[#37474f] min-[900px]:block">
+									<span className="hidden min-w-0 truncate text-caption font-medium text-[#37474f] min-[900px]:block">
 										{label}
 									</span>
 								</a>
@@ -378,10 +378,10 @@ export default async function SchedulesPage() {
 										>
 											{token?.code ?? "—"}
 										</span>
-										<h2 className="text-[20px] font-semibold leading-tight">
+										<h2 className="text-heading-sm font-semibold leading-tight">
 											{toTitleCase(pool.name)}
 										</h2>
-										<span className="plex-mono text-[11px] font-medium text-[#8a9aa4]">
+										<span className="plex-mono text-caption font-medium text-[#8a9aa4]">
 											{all.length} SESSION{all.length === 1 ? "" : "S"}
 										</span>
 									</div>
@@ -422,7 +422,7 @@ export default async function SchedulesPage() {
 										</div>
 									</>
 								) : !pool.closure ? (
-									<div className="mt-3 border-l-[3px] border-[#c4d2d9] bg-[#f7fafb] px-3 py-2.5 text-[14px] text-[#5a707c]">
+									<div className="mt-3 border-l-[3px] border-[#c4d2d9] bg-[#f7fafb] px-3 py-2.5 text-body text-[#5a707c]">
 										No programs listed for this pool.
 									</div>
 								) : null}

@@ -308,10 +308,10 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 					<button
 						type="button"
 						onClick={() => toggleCategory(cat.names, cat.allSelected)}
-						className="flex-1 cursor-pointer text-left text-[14px] font-semibold text-[#0e2733]"
+						className="flex-1 cursor-pointer text-left text-body font-semibold text-[#0e2733]"
 					>
 						{cat.label}{" "}
-						<span className="plex-mono text-[12px] font-medium text-[#8a9aa4]">
+						<span className="plex-mono text-caption font-medium text-[#8a9aa4]">
 							({cat.names.length})
 						</span>
 					</button>
@@ -321,7 +321,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						onClick={() =>
 							setExpandedCats((prev) => ({ ...prev, [cat.id]: !prev[cat.id] }))
 						}
-						className="cursor-pointer px-2 py-1 plex-mono text-[13px] font-medium text-[#5a707c]"
+						className="cursor-pointer px-2 py-1 plex-mono text-body font-medium text-[#5a707c]"
 					>
 						{expandedCats[cat.id] ? "▴" : "▾"}
 					</button>
@@ -339,8 +339,8 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 									onChange={() => toggleProgram(name)}
 									className="picker-checkbox"
 								/>
-								<span className="flex-1 text-[14px] text-[#37474f]">{tagLabel(name)}</span>
-								<span className="plex-mono text-[12px] font-medium text-[#8a9aa4]">
+								<span className="flex-1 text-body text-[#37474f]">{tagLabel(name)}</span>
+								<span className="plex-mono text-caption font-medium text-[#8a9aa4]">
 									{tagCounts.get(name)}
 								</span>
 							</label>
@@ -373,10 +373,10 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 					>
 						{selectedPools.includes(token.id) ? "✓" : ""}
 					</span>
-					<span className="w-[34px] plex-mono text-[12px] font-semibold text-[#5a707c]">
+					<span className="w-[34px] plex-mono text-caption font-semibold text-[#5a707c]">
 						{token.code}
 					</span>
-					<span className="flex-1 text-[14px] font-medium text-[#0e2733]">{token.name}</span>
+					<span className="flex-1 text-body font-medium text-[#0e2733]">{token.name}</span>
 				</label>
 			);
 		});
@@ -387,7 +387,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			<button
 				type="button"
 				onClick={clearAll}
-				className="cursor-pointer border border-[#c4d2d9] bg-white px-2.5 py-1.5 plex-mono text-[12px] font-medium text-[#5a707c]"
+				className="cursor-pointer border border-[#c4d2d9] bg-white px-2.5 py-1.5 plex-mono text-caption font-medium text-[#5a707c]"
 			>
 				CLEAR
 			</button>
@@ -399,7 +399,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	function renderGrid(cellHeightClass: string) {
 		return (
 			<div className="pt-3">
-				<div className="grid grid-cols-[44px_repeat(7,1fr)] gap-x-[3px] plex-mono text-[10px] font-semibold text-[#5a707c]">
+				<div className="grid grid-cols-[44px_repeat(7,1fr)] gap-x-[3px] plex-mono text-label font-semibold text-[#5a707c]">
 					<span />
 					{DAYS.map((day) => (
 						<span
@@ -419,7 +419,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						className="grid grid-cols-[44px_repeat(7,1fr)] gap-x-[3px]"
 						style={{ marginTop: h === 12 || h === 17 ? 8 : 2 }}
 					>
-						<span className="self-center plex-mono text-[10px] font-medium text-[#8a9aa4]">
+						<span className="self-center plex-mono text-label font-medium text-[#8a9aa4]">
 							{h % 2 === 0 ? formatHour(h) : ""}
 						</span>
 						{DAYS.map((day) => {
@@ -477,13 +477,13 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		return (
 			<div className="mt-4 border-t-2 border-[#0e2733] pt-2.5">
 				<div className="flex items-baseline justify-between">
-					<span className="text-[14px] font-semibold text-[#0e2733]">
+					<span className="text-body font-semibold text-[#0e2733]">
 						{selectedCell
 							? `${selectedCell.day} · ${formatHour(selectedCell.hour)}–${formatHour(selectedCell.hour + 1)}`
 							: "Tap a cell for details"}
 					</span>
 					{detail ? (
-						<span className="plex-mono text-[11px] font-medium text-[#8a9aa4]">
+						<span className="plex-mono text-caption font-medium text-[#8a9aa4]">
 							{detail.length} SESSION{detail.length === 1 ? "" : "S"}
 						</span>
 					) : null}
@@ -491,7 +491,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 				{detail?.map((d, i) => (
 					<div
 						key={i}
-						className="flex items-center gap-2.5 border-b border-[#edf1f3] py-2 text-[14px]"
+						className="flex items-center gap-2.5 border-b border-[#edf1f3] py-2 text-body"
 					>
 						<span
 							className="px-1.5 py-[3px] plex-mono text-[11px] font-semibold text-white"
@@ -504,19 +504,19 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 							{[...d.badges, accessNote(d.tags)].filter(Boolean).map((note) => (
 								<span
 									key={note}
-									className="ml-1.5 whitespace-nowrap plex-mono text-[11px] font-medium uppercase text-[#8a9aa4]"
+									className="ml-1.5 whitespace-nowrap plex-mono text-caption font-medium uppercase text-[#8a9aa4]"
 								>
 									{note}
 								</span>
 							))}
 						</span>
-						<span className="plex-mono text-[13px] font-medium text-[#5a707c]">
+						<span className="plex-mono text-body font-medium text-[#5a707c]">
 							{d.startTime}–{d.endTime}
 						</span>
 					</div>
 				))}
 				{detail && detail.length === 0 ? (
-					<div className="py-3.5 text-[14px] text-[#8a9aa4]">
+					<div className="py-3.5 text-body text-[#8a9aa4]">
 						Nothing scheduled here — tap a colored cell in the grid.
 					</div>
 				) : null}
@@ -538,7 +538,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 					<button
 						type="button"
 						onClick={() => setOpenPanel(openPanel === "programs" ? null : "programs")}
-						className="cursor-pointer border-[1.5px] border-[#0e2733] px-2.5 py-2 plex-mono text-[12px] font-semibold"
+						className="cursor-pointer border-[1.5px] border-[#0e2733] px-2.5 py-2 plex-mono text-caption font-semibold"
 						style={{
 							background: selectedTags.length ? "#0e2733" : "#fff",
 							color: selectedTags.length ? "#fff" : "#0e2733",
@@ -549,7 +549,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 					<button
 						type="button"
 						onClick={() => setOpenPanel(openPanel === "pools" ? null : "pools")}
-						className="cursor-pointer border-[1.5px] border-[#0e2733] px-2.5 py-2 plex-mono text-[12px] font-semibold"
+						className="cursor-pointer border-[1.5px] border-[#0e2733] px-2.5 py-2 plex-mono text-caption font-semibold"
 						style={{
 							background: selectedPools.length ? "#0e2733" : "#fff",
 							color: selectedPools.length ? "#fff" : "#0e2733",
@@ -575,13 +575,13 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			<div className="mx-auto hidden max-w-[1020px] items-stretch min-[900px]:flex">
 				<div className="w-[280px] flex-none border-r border-[#e2e8ec] bg-[#fbfdfe]">
 					<div className="flex items-baseline justify-between px-4 pb-1.5 pt-4">
-						<span className="plex-mono text-[11px] font-semibold tracking-[.14em] text-[#8a9aa4]">
+						<span className="plex-mono text-caption font-semibold tracking-[.14em] text-[#8a9aa4]">
 							PROGRAMS
 						</span>
 						{hasAnyFilter ? renderClearButton() : null}
 					</div>
 					{renderCategoryRows(true)}
-					<div className="px-4 pb-1.5 pt-4 plex-mono text-[11px] font-semibold tracking-[.14em] text-[#8a9aa4]">
+					<div className="px-4 pb-1.5 pt-4 plex-mono text-caption font-semibold tracking-[.14em] text-[#8a9aa4]">
 						POOLS
 					</div>
 					{renderPoolRows()}

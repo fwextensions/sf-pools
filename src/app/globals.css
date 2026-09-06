@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+/* Named type scale. Badges (fixed-size color chips) size themselves to their
+   chip dimensions instead and stay on arbitrary text-[Npx] values. */
+@theme {
+	--text-label: 10px;
+	--text-caption: 12px;
+	--text-body: 14px;
+	--text-heading-sm: 20px;
+	--text-heading-lg: 26px;
+}
+
 /* base theme tokens */
 :root {
 	color-scheme: light;
@@ -25,13 +35,16 @@
    size that nothing inherits from. Tailwind's utilities live in a layer, so
    these unlayered rules win without needing !important. */
 @media (max-width: 899px) {
+	.text-label { font-size: 12px; }
+	.text-caption { font-size: 14px; }
+	.text-body { font-size: 16px; }
+	.text-heading-sm { font-size: 22px; }
+	.text-heading-lg { font-size: 28px; }
+
+	/* badges: fixed-size chips, still on arbitrary values outside the scale */
 	.text-\[10px\] { font-size: 12px; }
 	.text-\[11px\] { font-size: 13px; }
 	.text-\[12px\] { font-size: 14px; }
-	.text-\[13px\] { font-size: 15px; }
-	.text-\[14px\] { font-size: 16px; }
-	.text-\[20px\] { font-size: 22px; }
-	.text-\[26px\] { font-size: 28px; }
 }
 
 /* Between 400px and the desktop breakpoint the jump nav shows pool names

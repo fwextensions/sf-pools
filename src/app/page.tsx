@@ -39,20 +39,20 @@ export default async function HomePage() {
 			<nav className="flex flex-wrap justify-end gap-3 border-b border-[#e2e8ec] pb-2">
 				<Link
 					href="/now"
-					className="plex-mono text-[12px] font-medium text-[#5a707c] underline underline-offset-2"
+					className="plex-mono text-caption font-medium text-[#5a707c] underline underline-offset-2"
 				>
 					NOW &amp; SOON
 				</Link>
 				<Link
 					href="/schedules"
-					className="plex-mono text-[12px] font-medium text-[#5a707c] underline underline-offset-2"
+					className="plex-mono text-caption font-medium text-[#5a707c] underline underline-offset-2"
 				>
 					FULL SCHEDULES →
 				</Link>
 			</nav>
 			<Suspense
 				fallback={
-					<div className="plex-sans mt-4 border-l-[3px] border-[#c4d2d9] bg-[#f7fafb] px-3 py-2.5 text-[14px] text-[#5a707c]">
+					<div className="plex-sans mt-4 border-l-[3px] border-[#c4d2d9] bg-[#f7fafb] px-3 py-2.5 text-body text-[#5a707c]">
 						Loading…
 					</div>
 				}

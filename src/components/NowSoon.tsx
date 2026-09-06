@@ -87,7 +87,7 @@ function SourceLink({ href, children }: { href?: string | null; children: React.
 			href={href}
 			target="_blank"
 			rel="noreferrer"
-			className="plex-mono text-[11px] font-medium text-[#5a707c] underline underline-offset-2"
+			className="plex-mono text-caption font-medium text-[#5a707c] underline underline-offset-2"
 		>
 			{children}
 		</a>
@@ -117,7 +117,7 @@ function PoolBlock({
 				>
 					{token?.code ?? "—"}
 				</span>
-				<span className="min-w-0 flex-1 truncate text-[14px] font-semibold text-[#0e2733]">
+				<span className="min-w-0 flex-1 truncate text-body font-semibold text-[#0e2733]">
 					{poolLabel(pool)}
 				</span>
 				<span
@@ -141,8 +141,8 @@ function PoolBlock({
 /** one session line: mono time range, then the program name */
 function SessionLine({ time, name }: { time: string; name: string }) {
 	return (
-		<div className="flex gap-2 text-[13px] leading-snug">
-			<span className="flex-none plex-mono text-[11px] font-medium text-[#5a707c]">{time}</span>
+		<div className="flex gap-2 text-body leading-snug">
+			<span className="flex-none plex-mono text-caption font-medium text-[#5a707c]">{time}</span>
 			<span className="min-w-0 text-[#37474f]">
 				<ProgramName name={name} />
 			</span>
@@ -164,15 +164,15 @@ function Section({
 	return (
 		<section className="mt-6">
 			<div className="flex items-baseline justify-between border-t-2 border-[#0e2733] pt-2.5">
-				<span className="plex-mono text-[11px] font-semibold tracking-[.14em] text-[#0e2733]">
+				<span className="plex-mono text-caption font-semibold tracking-[.14em] text-[#0e2733]">
 					{label}
 				</span>
-				<span className="plex-mono text-[11px] font-medium text-[#8a9aa4]">
+				<span className="plex-mono text-caption font-medium text-[#8a9aa4]">
 					{count} POOL{count === 1 ? "" : "S"}
 				</span>
 			</div>
 			{count === 0 ? (
-				<p className="mt-2.5 text-[14px] text-[#8a9aa4]">{empty}</p>
+				<p className="mt-2.5 text-body text-[#8a9aa4]">{empty}</p>
 			) : (
 				<ul className="mt-2.5 grid gap-[3px] md:grid-cols-2">{children}</ul>
 			)}
@@ -236,12 +236,12 @@ export default function NowSoon({ all }: Props) {
 		<div className="plex-sans text-[#0e2733]">
 			<div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
 				<label className="flex items-center gap-2">
-					<span className="plex-mono text-[11px] font-semibold tracking-[.14em] text-[#8a9aa4]">
+					<span className="plex-mono text-caption font-semibold tracking-[.14em] text-[#8a9aa4]">
 						WINDOW
 					</span>
 					<input
 						type="number"
-						className="w-[68px] border border-[#c4d2d9] bg-white px-2 py-1 plex-mono text-[12px] font-medium text-[#0e2733] focus:border-[#0e2733] focus:outline-none"
+						className="w-[68px] border border-[#c4d2d9] bg-white px-2 py-1 plex-mono text-caption font-medium text-[#0e2733] focus:border-[#0e2733] focus:outline-none"
 						min={15}
 						max={360}
 						step={15}
@@ -250,9 +250,9 @@ export default function NowSoon({ all }: Props) {
 							setWindowMin(Math.max(15, Math.min(360, Number(e.target.value) || 0)))
 						}
 					/>
-					<span className="plex-mono text-[11px] font-medium text-[#8a9aa4]">MIN</span>
+					<span className="plex-mono text-caption font-medium text-[#8a9aa4]">MIN</span>
 				</label>
-				<span className="plex-mono text-[11px] font-medium text-[#8a9aa4]">
+				<span className="plex-mono text-caption font-medium text-[#8a9aa4]">
 					PACIFIC {now.display.toUpperCase()} · {now.day.slice(0, 3).toUpperCase()}
 				</span>
 			</div>
@@ -305,7 +305,7 @@ export default function NowSoon({ all }: Props) {
 							{later ? (
 								<SessionLine time={`later ${later.startTime}`} name={later.programName} />
 							) : (
-								<div className="text-[13px] text-[#8a9aa4]">No more sessions today.</div>
+								<div className="text-body text-[#8a9aa4]">No more sessions today.</div>
 							)}
 						</div>
 					</PoolBlock>
