@@ -1,10 +1,10 @@
 # Program taxonomy review — September 2026
 
-**Status:** steps 1 and 2 of the recommendations below are done — the missing rules and
-the rentals consolidation. That took the unmapped share from 9.7% to 0.7% across all
-revisions, and to 0% in the current schedules. The figures in the body of this document
-are the audit as it stood before those fixes, and are left as the record of what the
-PDFs actually contain. Steps 3–5 are still open.
+**Status:** steps 1-3 are done, and step 3 took a different shape than proposed —
+sessions are tagged by facet rather than ranked by a precedence table. See
+"Tags, not one category" at the end. Steps 4 and 5 are still open. The figures in the
+body of this document are the audit as it stood before any of it, and are left as the
+record of what the PDFs actually contain.
 
 An audit of the program names coming out of the pool PDFs, against the buckets in
 `src/lib/program-taxonomy.ts`. Reproduce with:
@@ -157,3 +157,49 @@ instead of falling through when they can't tell adult from youth, which is how
 Steps 1–3 change the data, so they need `npm run renormalize-programs` afterwards, and
 the changelog for that run will look like a wholesale rewrite — worth doing on its own
 commit so the diff is readable.
+
+## Tags, not one category
+
+Every session now carries `tags` in three facets, derived in code from the raw PDF
+title by `deriveTags()`:
+
+| Facet | What it answers | Examples |
+| --- | --- | --- |
+| `activity:` | what is happening in the water | `lap`, `family`, `rec`, `senior`, `therapy`, `lessons`, `swim-team`, `masters`, `synchro`, `parent-tot`, `camp` |
+| `audience:` | who it is for, when the PDF says | `adult`, `youth`, `senior`, `parent-child`, `high-school`, `preschool` |
+| `access:` | how you get in | `drop-in`, `registration`, `rental`, `school-group`, `shared-pool`, `contact-coach`, `closed` |
+
+The vocabulary is closed and the derivation is regex over the raw title, so an unseen
+name yields fewer tags, never a new one. What this fixes, from the audit above:
+
+- `REC/FAMILY/LAP SWIM` is `activity:rec` + `activity:family` + `activity:lap`, and
+  shows up under all three filters instead of only Lap Swim.
+- `SENIOR / THERAPY / SFUSD SWIM` keeps its senior and therapy tags alongside
+  `access:school-group`, rather than being filed as a high-school program.
+- `Rentals (Masters)` is `activity:masters` + `access:rental`. That resolves the trade
+  the rentals consolidation forced: the session is findable as masters swimming again,
+  and still marked as water the public cannot join.
+- The footnote symbols stop being thrown away. The schedules print a SYMBOL KEY — for
+  Garfield, `(*)` registration required, `(**)` shared pool, `(♦)` contact team coaches
+  — and those become access tags. Only the markers that agree across pools are mapped;
+  the per-PDF legends are still unread, which is the remaining work here.
+
+Filtering is OR within a facet and AND across facets, so "Lap swim" + "Drop in, no
+sign-up" means lap swim you can walk into.
+
+### Titles
+
+Each session also carries `title`: the PDF's own words with the markers and stray
+spacing cleaned up, `Summer LTS^` becomes `Summer LTS`, `SMALL POOL- NVPS CLASS`
+becomes `Small Pool - NVPS Class`. The UI shows that instead of the invented category
+name, so someone scanning for "LTS" or "Synchro" finds the words they are looking for.
+The untouched string stays in `programNameOriginal`, the category in `programName`.
+
+### The category field is still there
+
+`programName` / `programNameCanonical` stay for now: `scripts/changelog.ts` keys its
+diff on `programName`, `schedule-validation.ts` names it in error messages, and the
+grid reads it nowhere else since the picker moved to tags. Dropping it means giving the
+changelog a stable key that is not a category name — `title` plus day plus time is the
+obvious candidate — but the first run after the switch would report every session as
+changed, so it wants its own commit and a look at the changelog output either side of it.

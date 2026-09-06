@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import { validatePoolId } from "@/lib/pool-mapping";
@@ -8,6 +8,7 @@ import { POOL_TOKENS } from "@/lib/pool-tokens";
 import { parseTimeToMinutes } from "@/lib/utils";
 import PoolAlerts from "@/components/PoolAlerts";
 import ProgramName from "@/components/ProgramName";
+import { TAG_FACETS, tagFacet, tagLabel } from "@/lib/program-taxonomy";
 import type { AlertsData } from "../../scripts/scrape-alerts";
 
 const DAYS: Array<ProgramEntry["dayOfWeek"]> = [
@@ -25,31 +26,13 @@ const LAST_HOUR = 21;
 const HOURS: number[] = [];
 for (let h = FIRST_HOUR; h <= LAST_HOUR; h++) HOURS.push(h);
 
-// program names churn, so the picker groups raw programName values into
-// categories by regex, evaluated in order, first match wins
-// (order matters: "Adult Swim Lessons" must land in Lessons)
-const CATEGORIES: Array<{ id: string; label: string; test: (lower: string) => boolean }> = [
-	{ id: "lessons", label: "Lessons", test: (n) => /lesson|learn|lts|school/.test(n) },
-	{ id: "lap", label: "Lap Swim", test: (n) => /lap|adult swim/.test(n) },
-	{
-		id: "aerobics",
-		label: "Aerobics + Exercise",
-		test: (n) => /aerobic|exercise|fitness|aqua zumba|arthritis/.test(n),
-	},
-	{
-		id: "rec",
-		label: "Rec + Family",
-		test: (n) => /recreation|rec swim|open|family|free|play|parent/.test(n),
-	},
-	{ id: "other", label: "Other", test: () => true },
-];
-
-function categoryOf(programName: string): string {
-	const lower = programName.toLowerCase();
-	for (const cat of CATEGORIES) {
-		if (cat.test(lower)) return cat.id;
+// a session you cannot simply show up for says so on the card; drop-in is the
+// unremarkable case and stays unlabelled
+function accessNote(tags: string[]): string | null {
+	for (const tag of ["access:closed", "access:rental", "access:school-group", "access:registration"]) {
+		if (tags.includes(tag)) return tagLabel(tag);
 	}
-	return "other";
+	return null;
 }
 
 function formatHour(h: number): string {
@@ -61,13 +44,16 @@ function toMinutes(t: string): number | null {
 	return m === Number.MAX_SAFE_INTEGER ? null : m;
 }
 
-const STORAGE_KEY = "sfpools-grid-v1";
+// v2: selection moved from raw program names to tags, so a v1 payload would
+// restore a set of strings that now match nothing
+const STORAGE_KEY = "sfpools-grid-v2";
 
 type SelectedCell = { day: ProgramEntry["dayOfWeek"]; hour: number };
 
 type Session = {
 	poolId: string;
-	programName: string;
+	title: string;
+	tags: string[];
 	dayOfWeek: ProgramEntry["dayOfWeek"];
 	startTime: string;
 	endTime: string;
@@ -81,13 +67,13 @@ type Props = {
 };
 
 export default function AvailabilityGrid({ all, alerts }: Props) {
-	// selection state is a set of raw program names (not category ids) so it
-	// survives name churn gracefully: unknown saved names simply match nothing
-	const [selectedPrograms, setSelectedPrograms] = useState<string[]>([]);
+	// selection is a set of tag ids from the closed vocabulary in
+	// program-taxonomy, so it survives the churn in the PDFs' own wording
+	const [selectedTags, setSelectedTags] = useState<string[]>([]);
 	const [selectedPools, setSelectedPools] = useState<string[]>([]);
 	const [selectedCell, setSelectedCell] = useState<SelectedCell | null>(null);
 	const [openPanel, setOpenPanel] = useState<"programs" | "pools" | null>(null);
-	const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({});
+	const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({ activity: true });
 
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
@@ -98,22 +84,20 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	useEffect(() => {
 		if (didInit.current) return;
 
-		let saved: { programNames?: string[]; poolIds?: string[]; selectedCell?: SelectedCell | null } = {};
+		let saved: { tags?: string[]; poolIds?: string[]; selectedCell?: SelectedCell | null } = {};
 		try {
 			saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || "{}");
 		} catch {}
 
-		const qPrograms = searchParams.get("programs");
+		const qTags = searchParams.get("tags");
 		const qPools = searchParams.get("pools");
 
-		const programs = qPrograms
-			? qPrograms.split(",").filter(Boolean)
-			: (saved.programNames ?? []);
+		const tags = qTags ? qTags.split(",").filter(Boolean) : (saved.tags ?? []);
 		const pools = (qPools ? qPools.split(",") : (saved.poolIds ?? [])).filter((id) =>
 			validatePoolId(id)
 		);
 
-		setSelectedPrograms(programs);
+		setSelectedTags(tags);
 		setSelectedPools(pools);
 		if (
 			saved.selectedCell &&
@@ -136,16 +120,16 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		try {
 			window.localStorage.setItem(
 				STORAGE_KEY,
-				JSON.stringify({ programNames: selectedPrograms, poolIds: selectedPools, selectedCell })
+				JSON.stringify({ tags: selectedTags, poolIds: selectedPools, selectedCell })
 			);
 		} catch {}
 
 		const params = new URLSearchParams();
-		if (selectedPrograms.length) params.set("programs", selectedPrograms.join(","));
+		if (selectedTags.length) params.set("tags", selectedTags.join(","));
 		if (selectedPools.length) params.set("pools", selectedPools.join(","));
 		const qs = params.toString();
 		router.replace(qs ? `${pathname}?${qs}` : pathname);
-	}, [selectedPrograms, selectedPools, selectedCell, pathname, router]);
+	}, [selectedTags, selectedPools, selectedCell, pathname, router]);
 
 	const sessions: Session[] = useMemo(() => {
 		const out: Session[] = [];
@@ -153,7 +137,8 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			for (const p of pool.programs || []) {
 				out.push({
 					poolId: pool.id,
-					programName: p.programName,
+					title: p.title || p.programName,
+					tags: p.tags ?? [],
 					dayOfWeek: p.dayOfWeek,
 					startTime: p.startTime,
 					endTime: p.endTime,
@@ -165,13 +150,34 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		return out;
 	}, [all]);
 
-	const allProgramNames = useMemo(() => {
-		const set = new Set<string>();
-		for (const s of sessions) set.add(s.programName);
-		return Array.from(set).sort((a, b) => a.localeCompare(b));
+	// how many sessions carry each tag, so the picker can show real counts and
+	// hide tags no current schedule uses
+	const tagCounts = useMemo(() => {
+		const counts = new Map<string, number>();
+		for (const s of sessions) for (const t of s.tags) counts.set(t, (counts.get(t) ?? 0) + 1);
+		return counts;
 	}, [sessions]);
 
-	const programSet = useMemo(() => new Set(selectedPrograms), [selectedPrograms]);
+	// one set of wanted tags per facet the viewer picked in
+	const facetFilters = useMemo(() => {
+		const byFacet = new Map<string, Set<string>>();
+		for (const tag of selectedTags) {
+			const facet = tagFacet(tag);
+			if (!byFacet.has(facet)) byFacet.set(facet, new Set());
+			byFacet.get(facet)!.add(tag);
+		}
+		return [...byFacet.values()];
+	}, [selectedTags]);
+
+	// a session matches when it carries one of the selected tags in every facet
+	// that has a selection: OR within a facet, AND across facets. Picking "Lap
+	// swim" and "Drop in" means lap swim you can walk into, not either one.
+	const matchesTags = useCallback(
+		(s: Session) => facetFilters.every((wanted) => s.tags.some((t) => wanted.has(t))),
+		[facetFilters]
+	);
+
+	const tagSet = useMemo(() => new Set(selectedTags), [selectedTags]);
 	const poolSet = useMemo(
 		() => (selectedPools.length ? new Set(selectedPools) : null),
 		[selectedPools]
@@ -181,9 +187,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	// overlaps [h, h+1). pure derived render, memoized on [sessions, programSet]
 	const hitMatrix = useMemo(() => {
 		const hits = new Set<string>();
-		const progFiltered = programSet.size
-			? sessions.filter((s) => programSet.has(s.programName))
-			: sessions;
+		const progFiltered = sessions.filter(matchesTags);
 		for (const s of progFiltered) {
 			if (s.startMin == null || s.endMin == null) continue;
 			for (const h of HOURS) {
@@ -193,39 +197,44 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			}
 		}
 		return hits;
-	}, [sessions, programSet]);
+	}, [sessions, matchesTags]);
 
-	// program categories for the picker
+	// one picker group per facet, listing only the tags this season's schedules
+	// actually use, most common first
 	const categories = useMemo(() => {
-		return CATEGORIES.map((cat) => {
-			const names = allProgramNames.filter((n) => categoryOf(n) === cat.id);
+		return TAG_FACETS.map((facet) => {
+			const names = [...tagCounts.keys()]
+				.filter((t) => tagFacet(t) === facet.id)
+				.sort((a, b) => (tagCounts.get(b) ?? 0) - (tagCounts.get(a) ?? 0) || a.localeCompare(b));
 			if (!names.length) return null;
-			const selCount = names.filter((n) => programSet.has(n)).length;
+			const selCount = names.filter((n) => tagSet.has(n)).length;
 			return {
-				...cat,
+				id: facet.id,
+				label: facet.label,
 				names,
 				allSelected: selCount === names.length,
 				someSelected: selCount > 0,
 			};
 		}).filter((c): c is NonNullable<typeof c> => c != null);
-	}, [allProgramNames, programSet]);
+	}, [tagCounts, tagSet]);
 
 	// detail list for the selected cell, honoring both filters
 	const detail = useMemo(() => {
 		if (!selectedCell) return null;
-		const rows: Array<{ code: string; color: string; programName: string; startTime: string; endTime: string; startMin: number }> = [];
+		const rows: Array<{ code: string; color: string; title: string; tags: string[]; startTime: string; endTime: string; startMin: number }> = [];
 		for (const token of POOL_TOKENS) {
 			if (poolSet && !poolSet.has(token.id)) continue;
 			for (const s of sessions) {
 				if (s.poolId !== token.id) continue;
 				if (s.dayOfWeek !== selectedCell.day) continue;
-				if (programSet.size && !programSet.has(s.programName)) continue;
+				if (!matchesTags(s)) continue;
 				if (s.startMin == null || s.endMin == null) continue;
 				if (s.startMin >= (selectedCell.hour + 1) * 60 || s.endMin <= selectedCell.hour * 60) continue;
 				rows.push({
 					code: token.code,
 					color: token.color,
-					programName: s.programName,
+					title: s.title,
+					tags: s.tags,
 					startTime: s.startTime,
 					endTime: s.endTime,
 					startMin: s.startMin,
@@ -234,18 +243,18 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		}
 		rows.sort((a, b) => a.startMin - b.startMin);
 		return rows;
-	}, [selectedCell, sessions, programSet, poolSet]);
+	}, [selectedCell, sessions, matchesTags, poolSet]);
 
-	const hasAnyFilter = selectedPrograms.length > 0 || selectedPools.length > 0;
+	const hasAnyFilter = selectedTags.length > 0 || selectedPools.length > 0;
 
 	function toggleProgram(name: string) {
-		setSelectedPrograms((prev) =>
+		setSelectedTags((prev) =>
 			prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]
 		);
 	}
 
 	function toggleCategory(names: string[], allSelected: boolean) {
-		setSelectedPrograms((prev) =>
+		setSelectedTags((prev) =>
 			allSelected
 				? prev.filter((n) => !names.includes(n))
 				: Array.from(new Set([...prev, ...names]))
@@ -259,7 +268,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	}
 
 	function clearAll() {
-		setSelectedPrograms([]);
+		setSelectedTags([]);
 		setSelectedPools([]);
 	}
 
@@ -281,7 +290,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 				<div className={`flex items-center gap-2.5 ${compact ? "px-4 py-2" : "px-4 py-2.5"}`}>
 					<button
 						type="button"
-						aria-label={`Toggle all ${cat.label} programs`}
+						aria-label={`Toggle every ${cat.label} tag`}
 						aria-pressed={cat.allSelected}
 						onClick={() => toggleCategory(cat.names, cat.allSelected)}
 						className="flex h-[18px] w-[18px] flex-none cursor-pointer items-center justify-center border-2 border-[#0e2733] plex-mono text-[12px] font-bold text-white"
@@ -321,11 +330,14 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 							>
 								<input
 									type="checkbox"
-									checked={programSet.has(name)}
+									checked={tagSet.has(name)}
 									onChange={() => toggleProgram(name)}
 									className="picker-checkbox"
 								/>
-								<span className="text-[14px] text-[#37474f]">{name}</span>
+								<span className="flex-1 text-[14px] text-[#37474f]">{tagLabel(name)}</span>
+								<span className="plex-mono text-[12px] font-medium text-[#8a9aa4]">
+									{tagCounts.get(name)}
+								</span>
 							</label>
 						))}
 					</div>
@@ -483,7 +495,12 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 							{d.code}
 						</span>
 						<span className="min-w-0 flex-1 font-medium text-[#0e2733]">
-							<ProgramName name={d.programName} />
+							<ProgramName name={d.title} />
+							{accessNote(d.tags) ? (
+								<span className="ml-1.5 whitespace-nowrap plex-mono text-[11px] font-medium uppercase text-[#8a9aa4]">
+									{accessNote(d.tags)}
+								</span>
+							) : null}
 						</span>
 						<span className="plex-mono text-[13px] font-medium text-[#5a707c]">
 							{d.startTime}–{d.endTime}
@@ -515,11 +532,11 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						onClick={() => setOpenPanel(openPanel === "programs" ? null : "programs")}
 						className="cursor-pointer border-[1.5px] border-[#0e2733] px-2.5 py-2 plex-mono text-[12px] font-semibold"
 						style={{
-							background: selectedPrograms.length ? "#0e2733" : "#fff",
-							color: selectedPrograms.length ? "#fff" : "#0e2733",
+							background: selectedTags.length ? "#0e2733" : "#fff",
+							color: selectedTags.length ? "#fff" : "#0e2733",
 						}}
 					>
-						PROGRAMS · {selectedPrograms.length || "ALL"} {openPanel === "programs" ? "▴" : "▾"}
+						PROGRAMS · {selectedTags.length || "ALL"} {openPanel === "programs" ? "▴" : "▾"}
 					</button>
 					<button
 						type="button"

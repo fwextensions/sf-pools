@@ -117,7 +117,7 @@ function SessionBlock({ program, color }: { program: ProgramEntry; color: string
 				{program.startTime}–{program.endTime}
 			</div>
 			<div className="mt-0.5 text-[13px] font-medium leading-snug text-[#0e2733]">
-				<ProgramName name={program.programName} />
+				<ProgramName name={program.title || program.programName} />
 			</div>
 			{qualifier || program.lanes ? (
 				<div className="mt-1 flex flex-wrap gap-1">

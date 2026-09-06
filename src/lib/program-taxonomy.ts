@@ -355,3 +355,51 @@ export function cleanProgramTitle(raw: string): string {
 	s = s.replace(/^[-\s]+|[-\s]+$/g, "");
 	return toTitleCase(s);
 }
+
+// display labels and facet order for the filter UI. Keys are the full tag ids;
+// anything missing falls back to the tag's own slug.
+export const TAG_FACETS = [
+	{ id: "activity", label: "Program" },
+	{ id: "access", label: "Getting in" },
+	{ id: "audience", label: "Who it's for" },
+] as const;
+
+export const TAG_LABELS: Record<string, string> = {
+	"activity:lap": "Lap swim",
+	"activity:family": "Family swim",
+	"activity:rec": "Rec swim",
+	"activity:senior": "Senior swim",
+	"activity:therapy": "Therapy swim",
+	"activity:self-guided": "Self-guided exercise",
+	"activity:water-exercise": "Water exercise",
+	"activity:lessons": "Lessons",
+	"activity:swim-team": "Swim team",
+	"activity:masters": "Masters",
+	"activity:synchro": "Synchronized swimming",
+	"activity:water-polo": "Water polo",
+	"activity:hockey": "Underwater hockey",
+	"activity:camp": "Camps",
+	"activity:parent-tot": "Parent & tot",
+	"activity:special-olympics": "Special Olympics",
+	"audience:adult": "Adults",
+	"audience:youth": "Youth",
+	"audience:senior": "Seniors",
+	"audience:parent-child": "Parent & child",
+	"audience:high-school": "High school",
+	"audience:preschool": "Preschool",
+	"access:drop-in": "Drop in, no sign-up",
+	"access:registration": "Registration required",
+	"access:rental": "Rented — not public",
+	"access:school-group": "School group",
+	"access:closed": "Pool closed",
+	"access:shared-pool": "Shared pool",
+	"access:contact-coach": "Contact the coach",
+};
+
+export function tagLabel(tag: string): string {
+	return TAG_LABELS[tag] ?? toTitleCase(tag.split(":")[1]?.replace(/-/g, " ") ?? tag);
+}
+
+export function tagFacet(tag: string): string {
+	return tag.split(":")[0] ?? "";
+}

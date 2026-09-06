@@ -193,7 +193,7 @@ export default function NowSoon({ all }: Props) {
 			const todays: Session[] = (pool.programs || [])
 				.filter((p) => p.dayOfWeek === now.day)
 				.map((p) => ({
-					programName: p.programName,
+					programName: p.title || p.programName,
 					poolId: pool.id,
 					poolDisplayName: poolLabel(pool),
 					startTime: p.startTime,

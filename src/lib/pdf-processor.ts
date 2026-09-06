@@ -33,7 +33,7 @@ export const ProgramSchema = z.object({
 	// the PDF's own title, cleaned of footnote markers — what the UI shows
 	title: z.string().optional().nullable(),
 	// facets derived from the title: activity:*, audience:*, access:*
-	tags: z.array(z.string()).optional().default([]),
+	tags: z.array(z.string()).optional().nullable(),
 });
 
 export const PoolScheduleSchema = z.object({
