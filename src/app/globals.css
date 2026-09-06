@@ -8,6 +8,9 @@
 	/* derived tints for subtle borders and backgrounds */
 	--accent-border: color-mix(in srgb, var(--accent-color) 40%, white);
 	--accent-muted: color-mix(in srgb, var(--accent-color) 12%, white);
+	/* height of the schedules page's pinned pool jump nav; sections offset
+	   their scroll anchor by exactly this so a jump never lands under it */
+	--schedule-nav-h: 47px;
 }
 
 /* basic typography */
@@ -193,4 +196,42 @@ input[type="radio"] {
 /* Icon styling */
 .icon-water {
 	color: var(--accent-color);
+}
+
+/* ===========================================
+   Availability grid (home)
+   =========================================== */
+
+.plex-sans {
+	font-family: var(--font-plex-sans), "IBM Plex Sans", system-ui, sans-serif;
+}
+
+.plex-mono {
+	font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+}
+
+/* grid cells are short (15/19px), so expand the touch target invisibly */
+.grid-cell::after {
+	content: "";
+	position: absolute;
+	inset: -6px 0;
+}
+
+/* small square checkboxes for the program picker's raw-name list */
+.picker-checkbox {
+	appearance: none;
+	width: 14px;
+	height: 14px;
+	min-width: 14px;
+	min-height: 14px;
+	flex: none;
+	border: 1.5px solid #5a707c;
+	border-radius: 0;
+	background: #fff;
+	cursor: pointer;
+}
+
+.picker-checkbox:checked {
+	background: #0e2733;
+	border-color: #0e2733;
 }
