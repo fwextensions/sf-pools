@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
+import { describeProgram } from "@/lib/program-display";
 import { toTitleCase } from "@/lib/program-taxonomy";
 import { getPoolToken } from "@/lib/pool-tokens";
 import ProgramName from "@/components/ProgramName";
@@ -193,7 +194,7 @@ export default function NowSoon({ all }: Props) {
 			const todays: Session[] = (pool.programs || [])
 				.filter((p) => p.dayOfWeek === now.day)
 				.map((p) => ({
-					programName: p.title || p.programName,
+					programName: describeProgram(p).title,
 					poolId: pool.id,
 					poolDisplayName: poolLabel(pool),
 					startTime: p.startTime,

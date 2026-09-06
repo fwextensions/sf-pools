@@ -9,6 +9,7 @@ import { parseTimeToMinutes } from "@/lib/utils";
 import PoolAlerts from "@/components/PoolAlerts";
 import ProgramName from "@/components/ProgramName";
 import { TAG_FACETS, tagFacet, tagLabel } from "@/lib/program-taxonomy";
+import { describeProgram } from "@/lib/program-display";
 import type { AlertsData } from "../../scripts/scrape-alerts";
 
 const DAYS: Array<ProgramEntry["dayOfWeek"]> = [
@@ -53,6 +54,7 @@ type SelectedCell = { day: ProgramEntry["dayOfWeek"]; hour: number };
 type Session = {
 	poolId: string;
 	title: string;
+	badges: string[];
 	tags: string[];
 	dayOfWeek: ProgramEntry["dayOfWeek"];
 	startTime: string;
@@ -135,9 +137,11 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		const out: Session[] = [];
 		for (const pool of all) {
 			for (const p of pool.programs || []) {
+				const display = describeProgram(p);
 				out.push({
 					poolId: pool.id,
-					title: p.title || p.programName,
+					title: display.title,
+					badges: display.badges,
 					tags: p.tags ?? [],
 					dayOfWeek: p.dayOfWeek,
 					startTime: p.startTime,
@@ -221,7 +225,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	// detail list for the selected cell, honoring both filters
 	const detail = useMemo(() => {
 		if (!selectedCell) return null;
-		const rows: Array<{ code: string; color: string; title: string; tags: string[]; startTime: string; endTime: string; startMin: number }> = [];
+		const rows: Array<{ code: string; color: string; title: string; badges: string[]; tags: string[]; startTime: string; endTime: string; startMin: number }> = [];
 		for (const token of POOL_TOKENS) {
 			if (poolSet && !poolSet.has(token.id)) continue;
 			for (const s of sessions) {
@@ -234,6 +238,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 					code: token.code,
 					color: token.color,
 					title: s.title,
+					badges: s.badges,
 					tags: s.tags,
 					startTime: s.startTime,
 					endTime: s.endTime,
@@ -496,11 +501,14 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						</span>
 						<span className="min-w-0 flex-1 font-medium text-[#0e2733]">
 							<ProgramName name={d.title} />
-							{accessNote(d.tags) ? (
-								<span className="ml-1.5 whitespace-nowrap plex-mono text-[11px] font-medium uppercase text-[#8a9aa4]">
-									{accessNote(d.tags)}
+							{[...d.badges, accessNote(d.tags)].filter(Boolean).map((note) => (
+								<span
+									key={note}
+									className="ml-1.5 whitespace-nowrap plex-mono text-[11px] font-medium uppercase text-[#8a9aa4]"
+								>
+									{note}
 								</span>
-							) : null}
+							))}
 						</span>
 						<span className="plex-mono text-[13px] font-medium text-[#5a707c]">
 							{d.startTime}–{d.endTime}

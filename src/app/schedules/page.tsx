@@ -5,7 +5,8 @@ import Link from "next/link";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import ClosureNotice from "@/components/ClosureNotice";
 import ProgramName from "@/components/ProgramName";
-import { toTitleCase, programLocationQualifier } from "@/lib/program-taxonomy";
+import { toTitleCase } from "@/lib/program-taxonomy";
+import { describeProgram } from "@/lib/program-display";
 import { POOL_TOKENS, getPoolToken, type PoolToken } from "@/lib/pool-tokens";
 import { parseTimeToMinutes } from "@/lib/utils";
 
@@ -110,32 +111,32 @@ function MetaLine({ parts }: { parts: React.ReactNode[] }) {
  * to the axis to find out when it began.
  */
 function SessionBlock({ program, color }: { program: ProgramEntry; color: string }) {
-	const qualifier = programLocationQualifier(program.programNameOriginal);
+	const { title, badges, notes } = describeProgram(program);
 	return (
 		<div className="border-l-[3px] bg-[#f7fafb] px-2 py-1.5" style={{ borderColor: color }}>
 			<div className="plex-mono text-[11px] font-medium text-[#5a707c]">
 				{program.startTime}–{program.endTime}
 			</div>
 			<div className="mt-0.5 text-[13px] font-medium leading-snug text-[#0e2733]">
-				<ProgramName name={program.title || program.programName} />
+				<ProgramName name={title} />
 			</div>
-			{qualifier || program.lanes ? (
+			{badges.length ? (
 				<div className="mt-1 flex flex-wrap gap-1">
-					{qualifier ? (
-						<span className="border border-[#c4d2d9] bg-white px-1 py-px plex-mono text-[10px] font-medium text-[#5a707c]">
-							{qualifier}
+					{badges.map((badge) => (
+						<span
+							key={badge}
+							className="border border-[#c4d2d9] bg-white px-1 py-px plex-mono text-[10px] font-medium text-[#5a707c]"
+						>
+							{badge}
 						</span>
-					) : null}
-					{program.lanes ? (
-						<span className="border border-[#c4d2d9] bg-white px-1 py-px plex-mono text-[10px] font-medium text-[#5a707c]">
-							{program.lanes} LN
-						</span>
-					) : null}
+					))}
 				</div>
 			) : null}
-			{program.notes ? (
-				<div className="mt-1 text-[11px] leading-snug text-[#8a9aa4]">{program.notes}</div>
-			) : null}
+			{notes.map((note) => (
+				<div key={note} className="mt-1 text-[11px] leading-snug text-[#8a9aa4]">
+					{note}
+				</div>
+			))}
 		</div>
 	);
 }
