@@ -520,7 +520,10 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 					aria-label={focusMode ? "Leave full screen" : "Fill the screen to drag across the grid"}
 					aria-pressed={focusMode}
 					onClick={() => {
-						if (!focusMode) scrollBeforeFocusRef.current = window.scrollY;
+						if (!focusMode) {
+							scrollBeforeFocusRef.current = window.scrollY;
+							setOpenPanel(null);
+						}
 						setFocusMode((on) => !on);
 					}}
 					className="w-9 flex-none cursor-pointer border-[1.5px] border-[#0e2733] px-2.5 py-2 text-center plex-mono text-[12px] font-semibold"
@@ -548,20 +551,19 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		);
 	}
 
-	function renderMobilePanels() {
+	// on the page a panel is just tall and the rest scrolls past it. In focus
+	// mode nothing scrolls, so it takes the leftover space instead of a fixed
+	// height — otherwise it pushes the grid off a short screen with no way to
+	// scroll back to it
+	function renderMobilePanels(fill = false) {
+		const className = `overflow-y-auto overscroll-contain border-b-2 border-[#0e2733] bg-[#fbfdfe] ${
+			fill ? "min-h-0 flex-1" : "max-h-[340px] flex-none"
+		}`;
 		if (openPanel === "programs") {
-			return (
-				<div className="max-h-[340px] flex-none overflow-y-auto overscroll-contain border-b-2 border-[#0e2733] bg-[#fbfdfe]">
-					{renderCategoryRows(false)}
-				</div>
-			);
+			return <div className={className}>{renderCategoryRows(false)}</div>;
 		}
 		if (openPanel === "pools") {
-			return (
-				<div className="max-h-[340px] flex-none overflow-y-auto overscroll-contain border-b-2 border-[#0e2733] bg-[#fbfdfe]">
-					{renderPoolRows()}
-				</div>
-			);
+			return <div className={className}>{renderPoolRows()}</div>;
 		}
 		return null;
 	}
@@ -721,13 +723,19 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			    results keep their own native scroll */}
 			{focusMode ? (
 				<div className="fixed inset-0 z-50 flex flex-col bg-[#f7fafb] min-[900px]:hidden">
-					<div className="flex-none border-b border-[#e2e8ec] px-3.5 py-2.5">
-						{renderMobileChips()}
-					</div>
-					{renderMobilePanels()}
-					<div className="flex-none px-3.5">{renderGrid("h-[19px]", true)}</div>
-					<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3.5 pb-4">
-						{renderDetail(true)}
+					<div className="mx-auto flex h-full w-full max-w-[430px] flex-col px-3.5">
+						<div className="flex-none border-b border-[#e2e8ec] px-3.5 py-2.5">
+							{renderMobileChips()}
+						</div>
+						{renderMobilePanels(true)}
+						<div className="flex-none">{renderGrid("h-[19px]", true)}</div>
+						{/* while filtering, the grid itself is the live feedback; the
+						    list gives its space to the panel and comes back after */}
+						{openPanel ? null : (
+							<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4">
+								{renderDetail(true)}
+							</div>
+						)}
 					</div>
 				</div>
 			) : (
