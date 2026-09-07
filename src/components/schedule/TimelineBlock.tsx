@@ -41,9 +41,15 @@ export default function TimelineBlock({ program, color, compact, style }: Props)
 		if (!el) return;
 
 		const checkClipped = () => {
-			const overflowsVertically = el.scrollHeight - el.clientHeight > 1;
+			// SessionBlock's own root is `h-full` — fixed to this box's height,
+			// not sized to its content — and clips with its own overflow-hidden,
+			// so it is the true boundary; scrollHeight on the outer anchor here
+			// would just report that root's fixed height back, never revealing
+			// that the root's own children didn't fit inside it
+			const content = el.firstElementChild as HTMLElement | null;
+			const overflowsVertically = !!content && content.scrollHeight - content.clientHeight > 1;
 			// the compact label truncates with an ellipsis rather than overflowing
-			// its own box, so scrollHeight on the outer box won't catch it —
+			// its own box, so the scrollHeight check above won't catch it —
 			// check the truncated element itself for that case
 			const label = el.querySelector<HTMLElement>(".truncate");
 			const overflowsHorizontally = !!label && label.scrollWidth - label.clientWidth > 1;
@@ -51,9 +57,21 @@ export default function TimelineBlock({ program, color, compact, style }: Props)
 		};
 
 		checkClipped();
+		// the box's own size is fixed inline (top/height/width from the layout
+		// math), so ResizeObserver never fires just because the web font finishes
+		// loading and the text inside it reflows — recheck once that settles,
+		// or a block whose overflow only shows up in Chivo's metrics (not the
+		// fallback font it briefly renders in) can get stuck marked unclipped
+		let cancelled = false;
+		document.fonts?.ready.then(() => {
+			if (!cancelled) checkClipped();
+		});
 		const observer = new ResizeObserver(checkClipped);
 		observer.observe(el);
-		return () => observer.disconnect();
+		return () => {
+			cancelled = true;
+			observer.disconnect();
+		};
 	}, [program, compact]);
 
 	const anchorStyle: AnchorStyle = { ...style, anchorName };
