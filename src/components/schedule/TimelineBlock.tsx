@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import type { ProgramEntry } from "@/lib/pdf-processor";
+import { describeProgram } from "@/lib/program-display";
 import SessionBlock from "./SessionBlock";
 
 // anchor-name / position-anchor aren't in the shipped CSSProperties types yet
@@ -27,12 +28,23 @@ type Props = {
  * box carries an anchor-name, the tooltip a matching position-anchor plus a
  * preferred position-area, and position-try-fallbacks flips it when that
  * side would run off the viewport. See the `@supports (anchor-name: --a)`
- * guard in globals.css: browsers without the feature never see the tooltip,
- * rather than seeing one stuck at a wrong, unadjusted position.
+ * guard in globals.css: browsers without the feature never see the custom
+ * tooltip, rather than seeing one stuck at a wrong, unadjusted position —
+ * they fall back to a plain native `title` tooltip instead (unstyled and
+ * unpositioned, but still the full detail on hover).
  */
 export default function TimelineBlock({ program, color, compact, style }: Props) {
 	const boxRef = useRef<HTMLDivElement>(null);
 	const [clipped, setClipped] = useState(false);
+	// static for the life of the tab, and undetectable on the server — so this
+	// reads as "supported" (no title) for the SSR/hydration pass, same as
+	// getServerSnapshot, and only flips after hydration on a browser that
+	// actually lacks anchor positioning
+	const needsTitleFallback = useSyncExternalStore(
+		subscribeNever,
+		getNeedsTitleFallbackSnapshot,
+		() => false
+	);
 	// a stable, CSS-legal identifier for this instance's anchor-name
 	const anchorName = `--tt-${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
 
@@ -76,11 +88,18 @@ export default function TimelineBlock({ program, color, compact, style }: Props)
 
 	const anchorStyle: AnchorStyle = { ...style, anchorName };
 
+	// only built when it's actually needed: the native tooltip this feeds is
+	// plain text, so it can't reuse SessionBlock's badge/note markup the way
+	// the CSS tooltip does
+	const titleFallback =
+		clipped && needsTitleFallback ? describeProgramText(program) : undefined;
+
 	return (
 		<>
 			<div
 				ref={boxRef}
 				tabIndex={clipped ? 0 : undefined}
+				title={titleFallback}
 				className="tt-anchor absolute overflow-hidden outline-none"
 				style={anchorStyle}
 			>
@@ -99,4 +118,28 @@ export default function TimelineBlock({ program, color, compact, style }: Props)
 			) : null}
 		</>
 	);
+}
+
+// the answer never changes once the page has loaded, so useSyncExternalStore
+// never needs to notify of an update — it exists here purely to get a value
+// that's correct on the client without mismatching the server's render
+function subscribeNever() {
+	return () => {};
+}
+
+let cachedNeedsTitleFallback: boolean | undefined;
+function getNeedsTitleFallbackSnapshot(): boolean {
+	if (cachedNeedsTitleFallback === undefined) {
+		cachedNeedsTitleFallback = !(
+			typeof CSS !== "undefined" && CSS.supports("anchor-name: --a")
+		);
+	}
+	return cachedNeedsTitleFallback;
+}
+
+/** Plain-text stand-in for the CSS tooltip's card, for the native `title` fallback. */
+function describeProgramText(program: ProgramEntry): string {
+	const { title, badges, notes } = describeProgram(program);
+	const parts = [`${program.startTime}–${program.endTime}`, title, ...badges, ...notes];
+	return parts.join(" · ");
 }
