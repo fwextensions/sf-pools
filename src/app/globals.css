@@ -265,6 +265,14 @@ input[type="radio"] {
 	inset: -6px 0;
 }
 
+/* the long-press that starts a drag would otherwise trigger the browser's
+   text-selection callout ("Copy" / "Writing Tools") on the cells */
+.grid-cell {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
 /* small square checkboxes for the program picker's raw-name list */
 .picker-checkbox {
 	appearance: none;
