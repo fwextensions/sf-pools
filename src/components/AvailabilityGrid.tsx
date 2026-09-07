@@ -76,20 +76,16 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	const [selectedCell, setSelectedCell] = useState<SelectedCell | null>(null);
 	const [openPanel, setOpenPanel] = useState<"programs" | "pools" | null>(null);
 	const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({ activity: true });
+	// phones only: pins the whole thing to the viewport so the page itself
+	// stops scrolling, which frees the grid to take touch drags
+	const [focusMode, setFocusMode] = useState(false);
 
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
 	const router = useRouter();
 	const didInit = useRef(false);
 	const isDraggingRef = useRef(false);
-	const longPressTimerRef = useRef<number | null>(null);
-	const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
 	const suppressClickRef = useRef(false);
-	// touch-action can't be toggled mid-gesture, so cells stay "none" and we
-	// drive scrolling by hand until a long-press claims the gesture for
-	// dragging instead
-	const isScrollingRef = useRef(false);
-	const lastScrollYRef = useRef(0);
 
 	// init once: URL params win over localStorage
 	useEffect(() => {
@@ -141,6 +137,15 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		const qs = params.toString();
 		router.replace(qs ? `${pathname}?${qs}` : pathname);
 	}, [selectedTags, selectedPools, selectedCell, pathname, router]);
+
+	useEffect(() => {
+		if (!focusMode) return;
+		const previous = document.body.style.overflow;
+		document.body.style.overflow = "hidden";
+		return () => {
+			document.body.style.overflow = previous;
+		};
+	}, [focusMode]);
 
 	const sessions: Session[] = useMemo(() => {
 		const out: Session[] = [];
@@ -300,13 +305,10 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	// grid updates the selection to whatever cell is under the pointer, so the
 	// detail panel updates as you drag rather than only on release.
 	//
-	// mouse drags start immediately; touch has to wait for a long-press
-	// (LONG_PRESS_MS with the finger roughly still) before it takes over,
-	// since the grid fills most of the phone screen and an immediate drag
-	// would swallow ordinary vertical scrolling
-	const LONG_PRESS_MS = 400;
-	const LONG_PRESS_MOVE_TOLERANCE = 10;
-
+	// a mouse can always drag — it has no scroll gesture to collide with. A
+	// finger only gets to drag where the page underneath doesn't scroll at
+	// all, which is what focus mode is for; anywhere else touch is left
+	// entirely alone so scrolling stays native, and a tap still selects.
 	function cellAtPoint(x: number, y: number): SelectedCell | null {
 		const el = document.elementFromPoint(x, y)?.closest<HTMLElement>("[data-day][data-hour]");
 		if (!el) return null;
@@ -316,75 +318,29 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		return { day, hour };
 	}
 
-	function clearLongPressTimer() {
-		if (longPressTimerRef.current != null) {
-			window.clearTimeout(longPressTimerRef.current);
-			longPressTimerRef.current = null;
-		}
-	}
-
-	function startDrag(target: HTMLElement, pointerId: number, day: ProgramEntry["dayOfWeek"], hour: number) {
+	function handleCellPointerDown(
+		e: PointerEvent<HTMLDivElement>,
+		day: ProgramEntry["dayOfWeek"],
+		hour: number,
+		touchDrag: boolean
+	) {
+		if (e.pointerType !== "mouse" && !touchDrag) return;
 		isDraggingRef.current = true;
-		target.setPointerCapture(pointerId);
+		e.currentTarget.setPointerCapture(e.pointerId);
 		setSelectedCell({ day, hour });
-		navigator.vibrate?.(10);
-	}
-
-	function handleCellPointerDown(e: PointerEvent<HTMLDivElement>, day: ProgramEntry["dayOfWeek"], hour: number) {
-		if (e.pointerType === "mouse") {
-			startDrag(e.currentTarget, e.pointerId, day, hour);
-			return;
-		}
-		// touch/pen: cells block native panning (touch-action can't be
-		// switched mid-gesture), so arm a long-press instead of dragging right
-		// away, and hand-scroll below until either it fires or the finger
-		// moves enough to read as a swipe
-		pointerStartRef.current = { x: e.clientX, y: e.clientY };
-		isScrollingRef.current = false;
-		const target = e.currentTarget;
-		const pointerId = e.pointerId;
-		clearLongPressTimer();
-		longPressTimerRef.current = window.setTimeout(() => {
-			longPressTimerRef.current = null;
-			startDrag(target, pointerId, day, hour);
-		}, LONG_PRESS_MS);
 	}
 
 	function handleCellPointerMove(e: PointerEvent<HTMLDivElement>) {
-		if (isDraggingRef.current) {
-			e.preventDefault();
-			const cell = cellAtPoint(e.clientX, e.clientY);
-			if (!cell) return;
-			setSelectedCell((prev) =>
-				prev && prev.day === cell.day && prev.hour === cell.hour ? prev : cell
-			);
-			return;
-		}
-		if (isScrollingRef.current) {
-			// standing in for the native scroll touch-action:none turned off
-			e.preventDefault();
-			window.scrollBy(0, lastScrollYRef.current - e.clientY);
-			lastScrollYRef.current = e.clientY;
-			return;
-		}
-		// a long-press is still pending: moving before it fires means the
-		// finger is scrolling, not holding, so drop the pending drag and
-		// start scrolling by hand instead
-		if (longPressTimerRef.current != null && pointerStartRef.current) {
-			const dx = e.clientX - pointerStartRef.current.x;
-			const dy = e.clientY - pointerStartRef.current.y;
-			if (Math.hypot(dx, dy) > LONG_PRESS_MOVE_TOLERANCE) {
-				clearLongPressTimer();
-				isScrollingRef.current = true;
-				lastScrollYRef.current = e.clientY;
-				e.preventDefault();
-				window.scrollBy(0, pointerStartRef.current.y - e.clientY);
-			}
-		}
+		if (!isDraggingRef.current) return;
+		e.preventDefault();
+		const cell = cellAtPoint(e.clientX, e.clientY);
+		if (!cell) return;
+		setSelectedCell((prev) =>
+			prev && prev.day === cell.day && prev.hour === cell.hour ? prev : cell
+		);
 	}
 
 	function handleCellPointerUp(e: PointerEvent<HTMLDivElement>) {
-		clearLongPressTimer();
 		if (isDraggingRef.current) {
 			// a drag just decided the selection; ignore the click the browser
 			// synthesizes right after, or it'd snap the selection back to
@@ -392,7 +348,6 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			suppressClickRef.current = true;
 		}
 		isDraggingRef.current = false;
-		isScrollingRef.current = false;
 		if (e.currentTarget.hasPointerCapture(e.pointerId)) {
 			e.currentTarget.releasePointerCapture(e.pointerId);
 		}
@@ -513,9 +468,89 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		);
 	}
 
+	// ----- mobile chrome (shared by the scrolling page and focus mode) -----
+
+	function renderMobileChips() {
+		return (
+			<div className="flex items-start justify-between gap-1.5">
+				<div className="flex flex-wrap items-center gap-1.5">
+					<button
+						type="button"
+						onClick={() => setOpenPanel(openPanel === "programs" ? null : "programs")}
+						className="cursor-pointer border-[1.5px] border-[#0e2733] px-2.5 py-2 plex-mono text-[12px] font-semibold"
+						style={{
+							background: selectedTags.length ? "#0e2733" : "#fff",
+							color: selectedTags.length ? "#fff" : "#0e2733",
+						}}
+					>
+						PROGRAMS {selectedTags.length || "ALL"} {openPanel === "programs" ? "▴" : "▾"}
+					</button>
+					<button
+						type="button"
+						onClick={() => setOpenPanel(openPanel === "pools" ? null : "pools")}
+						className="cursor-pointer border-[1.5px] border-[#0e2733] px-2.5 py-2 plex-mono text-[12px] font-semibold"
+						style={{
+							background: selectedPools.length ? "#0e2733" : "#fff",
+							color: selectedPools.length ? "#fff" : "#0e2733",
+						}}
+					>
+						POOLS {selectedPools.length || "ALL"} {openPanel === "pools" ? "▴" : "▾"}
+					</button>
+					{hasAnyFilter ? renderClearButton() : null}
+				</div>
+				{/* the grid can only take a touch drag when the page behind it
+				    holds still, so this is the way into that mode */}
+				<button
+					type="button"
+					aria-label={focusMode ? "Leave full screen" : "Fill the screen to drag across the grid"}
+					aria-pressed={focusMode}
+					onClick={() => setFocusMode((on) => !on)}
+					className="flex flex-none cursor-pointer items-center justify-center self-start border-[1.5px] border-[#0e2733] px-2.5 py-2 plex-mono text-[12px] font-semibold leading-none"
+					style={{
+						background: focusMode ? "#0e2733" : "#fff",
+						color: focusMode ? "#fff" : "#0e2733",
+					}}
+				>
+					{focusMode ? (
+						"✕"
+					) : (
+						<svg
+							aria-hidden
+							viewBox="0 0 14 14"
+							className="h-[14px] w-[14px]"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+						>
+							<path d="M1 5V1h4M13 5V1H9M1 9v4h4M13 9v4H9" />
+						</svg>
+					)}
+				</button>
+			</div>
+		);
+	}
+
+	function renderMobilePanels() {
+		if (openPanel === "programs") {
+			return (
+				<div className="max-h-[340px] flex-none overflow-y-auto overscroll-contain border-b-2 border-[#0e2733] bg-[#fbfdfe]">
+					{renderCategoryRows(false)}
+				</div>
+			);
+		}
+		if (openPanel === "pools") {
+			return (
+				<div className="max-h-[340px] flex-none overflow-y-auto overscroll-contain border-b-2 border-[#0e2733] bg-[#fbfdfe]">
+					{renderPoolRows()}
+				</div>
+			);
+		}
+		return null;
+	}
+
 	// ----- grid -----
 
-	function renderGrid(cellHeightClass: string) {
+	function renderGrid(cellHeightClass: string, touchDrag = false) {
 		return (
 			<div className="pt-3">
 				<div className="grid grid-cols-[44px_repeat(7,1fr)] gap-x-[3px] plex-mono text-[10px] font-semibold text-[#5a707c]">
@@ -561,7 +596,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 											setSelectedCell({ day, hour: h });
 										}
 									}}
-									onPointerDown={(e) => handleCellPointerDown(e, day, h)}
+									onPointerDown={(e) => handleCellPointerDown(e, day, h, touchDrag)}
 									onPointerMove={handleCellPointerMove}
 									onPointerUp={handleCellPointerUp}
 									onPointerCancel={handleCellPointerUp}
@@ -569,11 +604,9 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 									style={{
 										outline: isSelected ? "2px solid #0e2733" : "none",
 										outlineOffset: -1.5,
-										// touch-action is fixed for the whole gesture, so it
-										// can't flip to "none" only once a long-press engages a
-										// drag — block native panning here and hand-scroll
-										// instead until then, see handleCellPointerMove
-										touchAction: "none",
+										// only claim the touch gesture where nothing behind the
+										// grid scrolls; elsewhere the browser keeps it
+										touchAction: touchDrag ? "none" : undefined,
 									}}
 								>
 									{POOL_TOKENS.map((token) => {
@@ -603,14 +636,16 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 
 	// ----- detail -----
 
-	function renderDetail() {
+	function renderDetail(canDrag = false) {
 		return (
 			<div className="mt-4 border-t-2 border-[#0e2733] pt-2.5">
 				<div className="flex items-baseline justify-between">
 					<span className="text-[14px] font-semibold text-[#0e2733]">
 						{selectedCell
 							? `${selectedCell.day} · ${formatHour(selectedCell.hour)}–${formatHour(selectedCell.hour + 1)}`
-							: "Tap a cell for details"}
+							: canDrag
+								? "Drag across the grid"
+								: "Tap a cell for details"}
 					</span>
 					{detail ? (
 						<span className="plex-mono text-[11px] font-medium text-[#8a9aa4]">
@@ -647,7 +682,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 				))}
 				{detail && detail.length === 0 ? (
 					<div className="py-3.5 text-[14px] text-[#8a9aa4]">
-						Nothing scheduled here — tap a colored cell in the grid.
+						Nothing scheduled here — {canDrag ? "drag across" : "tap a colored cell in"} the grid.
 					</div>
 				) : null}
 			</div>
@@ -662,44 +697,31 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 				<PoolAlerts alerts={alerts} pools={all} selectedPools={selectedPools} />
 			)}
 
-			{/* mobile: single column, sticky chip bar with accordion panels */}
-			<div className="mx-auto max-w-[430px] min-[900px]:hidden">
-				<div className="sticky top-0 z-10 flex flex-wrap gap-1.5 border-b border-[#e2e8ec] bg-[#f7fafb] px-3.5 py-2.5">
-					<button
-						type="button"
-						onClick={() => setOpenPanel(openPanel === "programs" ? null : "programs")}
-						className="cursor-pointer border-[1.5px] border-[#0e2733] px-2.5 py-2 plex-mono text-[12px] font-semibold"
-						style={{
-							background: selectedTags.length ? "#0e2733" : "#fff",
-							color: selectedTags.length ? "#fff" : "#0e2733",
-						}}
-					>
-						PROGRAMS · {selectedTags.length || "ALL"} {openPanel === "programs" ? "▴" : "▾"}
-					</button>
-					<button
-						type="button"
-						onClick={() => setOpenPanel(openPanel === "pools" ? null : "pools")}
-						className="cursor-pointer border-[1.5px] border-[#0e2733] px-2.5 py-2 plex-mono text-[12px] font-semibold"
-						style={{
-							background: selectedPools.length ? "#0e2733" : "#fff",
-							color: selectedPools.length ? "#fff" : "#0e2733",
-						}}
-					>
-						POOLS · {selectedPools.length || "ALL"} {openPanel === "pools" ? "▴" : "▾"}
-					</button>
-					{hasAnyFilter ? renderClearButton() : null}
-				</div>
-				{openPanel === "programs" ? (
-					<div className="max-h-[340px] overflow-y-auto border-b-2 border-[#0e2733] bg-[#fbfdfe]">
-						{renderCategoryRows(false)}
+			{/* mobile: single column, sticky chip bar with accordion panels. Focus
+			    mode pins those same pieces to the viewport instead, so the page
+			    stops scrolling and the grid is free to take touch drags while the
+			    results keep their own native scroll */}
+			{focusMode ? (
+				<div className="fixed inset-0 z-50 flex flex-col bg-[#f7fafb] min-[900px]:hidden">
+					<div className="flex-none border-b border-[#e2e8ec] px-3.5 py-2.5">
+						{renderMobileChips()}
 					</div>
-				) : null}
-				{openPanel === "pools" ? (
-					<div className="border-b-2 border-[#0e2733] bg-[#fbfdfe]">{renderPoolRows()}</div>
-				) : null}
-				{renderGrid("h-[15px]")}
-				{renderDetail()}
-			</div>
+					{renderMobilePanels()}
+					<div className="flex-none px-3.5">{renderGrid("h-[19px]", true)}</div>
+					<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3.5 pb-4">
+						{renderDetail(true)}
+					</div>
+				</div>
+			) : (
+				<div className="mx-auto max-w-[430px] min-[900px]:hidden">
+					<div className="sticky top-0 z-10 border-b border-[#e2e8ec] bg-[#f7fafb] px-3.5 py-2.5">
+						{renderMobileChips()}
+					</div>
+					{renderMobilePanels()}
+					{renderGrid("h-[15px]")}
+					{renderDetail()}
+				</div>
+			)}
 
 			{/* desktop: fixed sidebar (the pool list doubles as the legend) + main column */}
 			<div className="mx-auto hidden max-w-[1020px] items-stretch min-[900px]:flex">
