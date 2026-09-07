@@ -607,7 +607,10 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						style={{ marginTop: h === 12 || h === 17 ? 8 : 2 }}
 					>
 							<span
-							className="self-center pr-1.5 text-right plex-mono text-[10px] font-medium"
+							// leading-none keeps the label's line box under the cell
+							// height, so a labelled row isn't taller than an unlabelled
+							// one and the rows stay evenly pitched
+							className="self-center pr-1.5 text-right plex-mono text-[10px] font-medium leading-none"
 							style={{
 								color: selectedCell?.hour === h ? "#0e2733" : "#8a9aa4",
 								background: selectedCell?.hour === h ? SELECT_BAND : undefined,
