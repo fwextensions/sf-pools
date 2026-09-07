@@ -268,6 +268,10 @@ function layoutDay(programs: ProgramEntry[]): LaidOutProgram[] {
 
 const PX_PER_MIN = 1.15;
 const GUTTER_PX = 44;
+// a block ends this many px short of its true end time, so back-to-back
+// sessions (Learn to Swim into Rentals at the same 5:30 mark) get a hairline
+// of open track between them instead of two borders touching edge to edge
+const BLOCK_GAP_PX = 2;
 
 /**
  * A real time axis: block height is proportional to a session's duration, so
@@ -373,7 +377,10 @@ function WeekTimeline({
 
 					{items.map((item, i) => {
 						const top = (item.startMin - dayStart) * PX_PER_MIN;
-						const height = (item.endMin - item.startMin) * PX_PER_MIN;
+						const height = Math.max(
+							(item.endMin - item.startMin) * PX_PER_MIN - BLOCK_GAP_PX,
+							4
+						);
 						const widthPct = 100 / item.lanes;
 						return (
 							<div
