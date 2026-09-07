@@ -85,6 +85,11 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	const longPressTimerRef = useRef<number | null>(null);
 	const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
 	const suppressClickRef = useRef(false);
+	// touch-action can't be toggled mid-gesture, so cells stay "none" and we
+	// drive scrolling by hand until a long-press claims the gesture for
+	// dragging instead
+	const isScrollingRef = useRef(false);
+	const lastScrollYRef = useRef(0);
 
 	// init once: URL params win over localStorage
 	useEffect(() => {
@@ -330,9 +335,12 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			startDrag(e.currentTarget, e.pointerId, day, hour);
 			return;
 		}
-		// touch/pen: arm a long-press instead of dragging right away, so a
-		// normal swipe still scrolls the page
+		// touch/pen: cells block native panning (touch-action can't be
+		// switched mid-gesture), so arm a long-press instead of dragging right
+		// away, and hand-scroll below until either it fires or the finger
+		// moves enough to read as a swipe
 		pointerStartRef.current = { x: e.clientX, y: e.clientY };
+		isScrollingRef.current = false;
 		const target = e.currentTarget;
 		const pointerId = e.pointerId;
 		clearLongPressTimer();
@@ -344,8 +352,6 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 
 	function handleCellPointerMove(e: PointerEvent<HTMLDivElement>) {
 		if (isDraggingRef.current) {
-			// dragging already claimed this gesture; stop the browser from also
-			// trying to scroll the page underneath it
 			e.preventDefault();
 			const cell = cellAtPoint(e.clientX, e.clientY);
 			if (!cell) return;
@@ -354,13 +360,25 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			);
 			return;
 		}
+		if (isScrollingRef.current) {
+			// standing in for the native scroll touch-action:none turned off
+			e.preventDefault();
+			window.scrollBy(0, lastScrollYRef.current - e.clientY);
+			lastScrollYRef.current = e.clientY;
+			return;
+		}
 		// a long-press is still pending: moving before it fires means the
-		// finger is scrolling, not holding, so drop the pending drag
+		// finger is scrolling, not holding, so drop the pending drag and
+		// start scrolling by hand instead
 		if (longPressTimerRef.current != null && pointerStartRef.current) {
 			const dx = e.clientX - pointerStartRef.current.x;
 			const dy = e.clientY - pointerStartRef.current.y;
 			if (Math.hypot(dx, dy) > LONG_PRESS_MOVE_TOLERANCE) {
 				clearLongPressTimer();
+				isScrollingRef.current = true;
+				lastScrollYRef.current = e.clientY;
+				e.preventDefault();
+				window.scrollBy(0, pointerStartRef.current.y - e.clientY);
 			}
 		}
 	}
@@ -374,6 +392,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			suppressClickRef.current = true;
 		}
 		isDraggingRef.current = false;
+		isScrollingRef.current = false;
 		if (e.currentTarget.hasPointerCapture(e.pointerId)) {
 			e.currentTarget.releasePointerCapture(e.pointerId);
 		}
@@ -550,10 +569,11 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 									style={{
 										outline: isSelected ? "2px solid #0e2733" : "none",
 										outlineOffset: -1.5,
-										// vertical scroll stays native (page is mostly
-										// this grid); a long-press claims the gesture for
-										// dragging instead, see handleCellPointerDown
-										touchAction: "pan-y",
+										// touch-action is fixed for the whole gesture, so it
+										// can't flip to "none" only once a long-press engages a
+										// drag — block native panning here and hand-scroll
+										// instead until then, see handleCellPointerMove
+										touchAction: "none",
 									}}
 								>
 									{POOL_TOKENS.map((token) => {
