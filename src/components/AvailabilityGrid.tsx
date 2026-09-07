@@ -57,6 +57,15 @@ function toMinutes(t: string): number | null {
 // restore a set of strings that now match nothing
 const STORAGE_KEY = "sfpools-grid-v2";
 
+const CELL_BG = "#f5f8f9";
+// amber rather than the ink used elsewhere: it has to stay legible on top of
+// the pool colours, which the dark ring disappeared into. The band is a pale
+// wash of the same hue, run across the selected row and column so the day and
+// hour can be traced back to the axes
+const SELECT_RING = "#f0a202";
+const SELECT_CELL = "#ffe6a1";
+const SELECT_BAND = "#fdf4dc";
+
 type SelectedCell = { day: ProgramEntry["dayOfWeek"]; hour: number };
 
 type Session = {
@@ -575,17 +584,21 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			<div className="pt-3">
 				<div className="grid grid-cols-[44px_repeat(7,1fr)] gap-x-[3px] plex-mono text-[10px] font-semibold text-[#5a707c]">
 					<span />
-					{DAYS.map((day) => (
-						<span
-							key={day}
-							className="text-center"
-							style={{
-								color: selectedCell?.day === day ? "#0e2733" : "#5a707c",
-							}}
-						>
-							{day.slice(0, 3).toUpperCase()}
-						</span>
-					))}
+					{DAYS.map((day) => {
+						const isDayOfSelection = selectedCell?.day === day;
+						return (
+							<span
+								key={day}
+								className="text-center"
+								style={{
+									color: isDayOfSelection ? "#0e2733" : "#5a707c",
+									background: isDayOfSelection ? SELECT_BAND : undefined,
+								}}
+							>
+								{day.slice(0, 3).toUpperCase()}
+							</span>
+						);
+					})}
 				</div>
 				{HOURS.map((h) => (
 					<div
@@ -593,11 +606,20 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						className="grid grid-cols-[44px_repeat(7,1fr)] gap-x-[3px]"
 						style={{ marginTop: h === 12 || h === 17 ? 8 : 2 }}
 					>
-						<span className="self-center plex-mono text-[10px] font-medium text-[#8a9aa4]">
-							{h % 2 === 0 ? formatHour(h) : ""}
+							<span
+							className="self-center pr-1.5 text-right plex-mono text-[10px] font-medium"
+							style={{
+								color: selectedCell?.hour === h ? "#0e2733" : "#8a9aa4",
+								background: selectedCell?.hour === h ? SELECT_BAND : undefined,
+							}}
+						>
+							{h % 2 === 0 || selectedCell?.hour === h ? formatHour(h) : ""}
 						</span>
 						{DAYS.map((day) => {
 							const isSelected = selectedCell?.day === day && selectedCell?.hour === h;
+							const inBand =
+								selectedCell != null &&
+								(selectedCell.day === day || selectedCell.hour === h);
 							return (
 								// a div, not a <button>: Safari mangles flex layout inside
 								// buttons, collapsing the lane spans to zero height
@@ -620,9 +642,10 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 									onPointerMove={handleCellPointerMove}
 									onPointerUp={handleCellPointerUp}
 									onPointerCancel={handleCellPointerUp}
-									className={`grid-cell relative flex cursor-pointer bg-[#f5f8f9] ${cellHeightClass}`}
+										className={`grid-cell relative flex cursor-pointer ${cellHeightClass}`}
 									style={{
-										outline: isSelected ? "2px solid #0e2733" : "none",
+										background: isSelected ? SELECT_CELL : inBand ? SELECT_BAND : CELL_BG,
+										outline: isSelected ? `2px solid ${SELECT_RING}` : "none",
 										outlineOffset: -1.5,
 										// only claim the touch gesture where nothing behind the
 										// grid scrolls; elsewhere the browser keeps it
