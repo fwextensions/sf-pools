@@ -1,6 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
+import {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+	type PointerEvent,
+} from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import { validatePoolId } from "@/lib/pool-mapping";
@@ -86,6 +94,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	const didInit = useRef(false);
 	const isDraggingRef = useRef(false);
 	const suppressClickRef = useRef(false);
+	const scrollBeforeFocusRef = useRef<number | null>(null);
 
 	// init once: URL params win over localStorage
 	useEffect(() => {
@@ -138,13 +147,19 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		router.replace(qs ? `${pathname}?${qs}` : pathname);
 	}, [selectedTags, selectedPools, selectedCell, pathname, router]);
 
-	useEffect(() => {
-		if (!focusMode) return;
-		const previous = document.body.style.overflow;
-		document.body.style.overflow = "hidden";
-		return () => {
-			document.body.style.overflow = previous;
-		};
+	// focus mode takes the scrolling layout out of the flow, which collapses
+	// the document and clamps the page's scroll offset; stash it on the way in
+	// so leaving lands back where the reader was instead of at the top
+	useLayoutEffect(() => {
+		if (focusMode) {
+			document.body.style.overflow = "hidden";
+			return;
+		}
+		document.body.style.overflow = "";
+		if (scrollBeforeFocusRef.current != null) {
+			window.scrollTo(0, scrollBeforeFocusRef.current);
+			scrollBeforeFocusRef.current = null;
+		}
 	}, [focusMode]);
 
 	const sessions: Session[] = useMemo(() => {
@@ -472,7 +487,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 
 	function renderMobileChips() {
 		return (
-			<div className="flex items-start justify-between gap-1.5">
+			<div className="flex items-center justify-between gap-1.5">
 				<div className="flex flex-wrap items-center gap-1.5">
 					<button
 						type="button"
@@ -504,8 +519,11 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 					type="button"
 					aria-label={focusMode ? "Leave full screen" : "Fill the screen to drag across the grid"}
 					aria-pressed={focusMode}
-					onClick={() => setFocusMode((on) => !on)}
-					className="flex flex-none cursor-pointer items-center justify-center self-start border-[1.5px] border-[#0e2733] px-2.5 py-2 plex-mono text-[12px] font-semibold leading-none"
+					onClick={() => {
+						if (!focusMode) scrollBeforeFocusRef.current = window.scrollY;
+						setFocusMode((on) => !on);
+					}}
+					className="w-9 flex-none cursor-pointer border-[1.5px] border-[#0e2733] px-2.5 py-2 text-center plex-mono text-[12px] font-semibold"
 					style={{
 						background: focusMode ? "#0e2733" : "#fff",
 						color: focusMode ? "#fff" : "#0e2733",
@@ -517,7 +535,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						<svg
 							aria-hidden
 							viewBox="0 0 14 14"
-							className="h-[14px] w-[14px]"
+							className="inline-block h-[14px] w-[14px] align-middle"
 							fill="none"
 							stroke="currentColor"
 							strokeWidth="2"
