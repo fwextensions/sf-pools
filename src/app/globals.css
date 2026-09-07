@@ -283,3 +283,43 @@ input[type="radio"] {
 	background: #0e2733;
 	border-color: #0e2733;
 }
+
+/* ===========================================
+   Schedules timeline: clipped-block tooltips
+   =========================================== */
+
+/* Hidden unconditionally outside the @supports block below. Without anchor
+   positioning a `position: fixed` element with no inset falls back to its
+   static position — visible in the wrong place — so an unsupported browser
+   must never see this element at all rather than see it drawn somewhere
+   arbitrary. TimelineBlock only renders this node once a block's content is
+   actually clipped, so there is nothing to show here otherwise anyway. */
+.tt-tooltip {
+	display: none;
+}
+
+@supports (anchor-name: --a) {
+	.tt-tooltip {
+		display: block;
+		position: fixed;
+		margin: 0;
+		opacity: 0;
+		visibility: hidden;
+		pointer-events: none;
+		transition: opacity 0.1s ease;
+		z-index: 50;
+		width: max-content;
+		max-width: 220px;
+		/* prefer the right of the block; flip to the left, then above/below,
+		   whichever the browser finds room for near a viewport edge */
+		position-area: right center;
+		position-try-fallbacks: left center, block-start, block-end;
+		margin-inline: 6px;
+	}
+
+	.tt-anchor:hover + .tt-tooltip,
+	.tt-anchor:focus-visible + .tt-tooltip {
+		opacity: 1;
+		visibility: visible;
+	}
+}
