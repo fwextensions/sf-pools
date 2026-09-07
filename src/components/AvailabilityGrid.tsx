@@ -82,6 +82,9 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	const router = useRouter();
 	const didInit = useRef(false);
 	const isDraggingRef = useRef(false);
+	const longPressTimerRef = useRef<number | null>(null);
+	const pointerStartRef = useRef<{ x: number; y: number } | null>(null);
+	const suppressClickRef = useRef(false);
 
 	// init once: URL params win over localStorage
 	useEffect(() => {
@@ -290,7 +293,15 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 
 	// live-preview drag: pressing a cell and moving the pointer across the
 	// grid updates the selection to whatever cell is under the pointer, so the
-	// detail panel updates as you drag rather than only on release
+	// detail panel updates as you drag rather than only on release.
+	//
+	// mouse drags start immediately; touch has to wait for a long-press
+	// (LONG_PRESS_MS with the finger roughly still) before it takes over,
+	// since the grid fills most of the phone screen and an immediate drag
+	// would swallow ordinary vertical scrolling
+	const LONG_PRESS_MS = 400;
+	const LONG_PRESS_MOVE_TOLERANCE = 10;
+
 	function cellAtPoint(x: number, y: number): SelectedCell | null {
 		const el = document.elementFromPoint(x, y)?.closest<HTMLElement>("[data-day][data-hour]");
 		if (!el) return null;
@@ -300,26 +311,80 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		return { day, hour };
 	}
 
-	function handleCellPointerDown(e: PointerEvent<HTMLDivElement>, day: ProgramEntry["dayOfWeek"], hour: number) {
+	function clearLongPressTimer() {
+		if (longPressTimerRef.current != null) {
+			window.clearTimeout(longPressTimerRef.current);
+			longPressTimerRef.current = null;
+		}
+	}
+
+	function startDrag(target: HTMLElement, pointerId: number, day: ProgramEntry["dayOfWeek"], hour: number) {
 		isDraggingRef.current = true;
-		e.currentTarget.setPointerCapture(e.pointerId);
+		target.setPointerCapture(pointerId);
 		setSelectedCell({ day, hour });
+		navigator.vibrate?.(10);
+	}
+
+	function handleCellPointerDown(e: PointerEvent<HTMLDivElement>, day: ProgramEntry["dayOfWeek"], hour: number) {
+		if (e.pointerType === "mouse") {
+			startDrag(e.currentTarget, e.pointerId, day, hour);
+			return;
+		}
+		// touch/pen: arm a long-press instead of dragging right away, so a
+		// normal swipe still scrolls the page
+		pointerStartRef.current = { x: e.clientX, y: e.clientY };
+		const target = e.currentTarget;
+		const pointerId = e.pointerId;
+		clearLongPressTimer();
+		longPressTimerRef.current = window.setTimeout(() => {
+			longPressTimerRef.current = null;
+			startDrag(target, pointerId, day, hour);
+		}, LONG_PRESS_MS);
 	}
 
 	function handleCellPointerMove(e: PointerEvent<HTMLDivElement>) {
-		if (!isDraggingRef.current) return;
-		const cell = cellAtPoint(e.clientX, e.clientY);
-		if (!cell) return;
-		setSelectedCell((prev) =>
-			prev && prev.day === cell.day && prev.hour === cell.hour ? prev : cell
-		);
+		if (isDraggingRef.current) {
+			// dragging already claimed this gesture; stop the browser from also
+			// trying to scroll the page underneath it
+			e.preventDefault();
+			const cell = cellAtPoint(e.clientX, e.clientY);
+			if (!cell) return;
+			setSelectedCell((prev) =>
+				prev && prev.day === cell.day && prev.hour === cell.hour ? prev : cell
+			);
+			return;
+		}
+		// a long-press is still pending: moving before it fires means the
+		// finger is scrolling, not holding, so drop the pending drag
+		if (longPressTimerRef.current != null && pointerStartRef.current) {
+			const dx = e.clientX - pointerStartRef.current.x;
+			const dy = e.clientY - pointerStartRef.current.y;
+			if (Math.hypot(dx, dy) > LONG_PRESS_MOVE_TOLERANCE) {
+				clearLongPressTimer();
+			}
+		}
 	}
 
 	function handleCellPointerUp(e: PointerEvent<HTMLDivElement>) {
+		clearLongPressTimer();
+		if (isDraggingRef.current) {
+			// a drag just decided the selection; ignore the click the browser
+			// synthesizes right after, or it'd snap the selection back to
+			// wherever the gesture started
+			suppressClickRef.current = true;
+		}
 		isDraggingRef.current = false;
 		if (e.currentTarget.hasPointerCapture(e.pointerId)) {
 			e.currentTarget.releasePointerCapture(e.pointerId);
 		}
+	}
+
+	function handleCellClick(day: ProgramEntry["dayOfWeek"], hour: number) {
+		if (suppressClickRef.current) {
+			suppressClickRef.current = false;
+			return;
+		}
+		setSelectedCell({ day, hour });
 	}
 
 	// ----- shared picker sub-renders -----
@@ -470,7 +535,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 									aria-pressed={isSelected}
 									data-day={day}
 									data-hour={h}
-									onClick={() => setSelectedCell({ day, hour: h })}
+									onClick={() => handleCellClick(day, h)}
 									onKeyDown={(e) => {
 										if (e.key === "Enter" || e.key === " ") {
 											e.preventDefault();
@@ -485,7 +550,10 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 									style={{
 										outline: isSelected ? "2px solid #0e2733" : "none",
 										outlineOffset: -1.5,
-										touchAction: "none",
+										// vertical scroll stays native (page is mostly
+										// this grid); a long-press claims the gesture for
+										// dragging instead, see handleCellPointerDown
+										touchAction: "pan-y",
 									}}
 								>
 									{POOL_TOKENS.map((token) => {
