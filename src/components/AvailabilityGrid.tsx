@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import { validatePoolId } from "@/lib/pool-mapping";
@@ -81,6 +81,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	const pathname = usePathname();
 	const router = useRouter();
 	const didInit = useRef(false);
+	const isDraggingRef = useRef(false);
 
 	// init once: URL params win over localStorage
 	useEffect(() => {
@@ -287,6 +288,40 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			: `${day} ${time}: no sessions`;
 	}
 
+	// live-preview drag: pressing a cell and moving the pointer across the
+	// grid updates the selection to whatever cell is under the pointer, so the
+	// detail panel updates as you drag rather than only on release
+	function cellAtPoint(x: number, y: number): SelectedCell | null {
+		const el = document.elementFromPoint(x, y)?.closest<HTMLElement>("[data-day][data-hour]");
+		if (!el) return null;
+		const day = el.dataset.day as ProgramEntry["dayOfWeek"];
+		const hour = Number(el.dataset.hour);
+		if (!DAYS.includes(day) || Number.isNaN(hour)) return null;
+		return { day, hour };
+	}
+
+	function handleCellPointerDown(e: PointerEvent<HTMLDivElement>, day: ProgramEntry["dayOfWeek"], hour: number) {
+		isDraggingRef.current = true;
+		e.currentTarget.setPointerCapture(e.pointerId);
+		setSelectedCell({ day, hour });
+	}
+
+	function handleCellPointerMove(e: PointerEvent<HTMLDivElement>) {
+		if (!isDraggingRef.current) return;
+		const cell = cellAtPoint(e.clientX, e.clientY);
+		if (!cell) return;
+		setSelectedCell((prev) =>
+			prev && prev.day === cell.day && prev.hour === cell.hour ? prev : cell
+		);
+	}
+
+	function handleCellPointerUp(e: PointerEvent<HTMLDivElement>) {
+		isDraggingRef.current = false;
+		if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+			e.currentTarget.releasePointerCapture(e.pointerId);
+		}
+	}
+
 	// ----- shared picker sub-renders -----
 
 	function renderCategoryRows(compact: boolean) {
@@ -433,6 +468,8 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 									tabIndex={0}
 									aria-label={cellAriaLabel(day, h)}
 									aria-pressed={isSelected}
+									data-day={day}
+									data-hour={h}
 									onClick={() => setSelectedCell({ day, hour: h })}
 									onKeyDown={(e) => {
 										if (e.key === "Enter" || e.key === " ") {
@@ -440,10 +477,15 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 											setSelectedCell({ day, hour: h });
 										}
 									}}
+									onPointerDown={(e) => handleCellPointerDown(e, day, h)}
+									onPointerMove={handleCellPointerMove}
+									onPointerUp={handleCellPointerUp}
+									onPointerCancel={handleCellPointerUp}
 									className={`grid-cell relative flex cursor-pointer bg-[#f5f8f9] ${cellHeightClass}`}
 									style={{
 										outline: isSelected ? "2px solid #0e2733" : "none",
 										outlineOffset: -1.5,
+										touchAction: "none",
 									}}
 								>
 									{POOL_TOKENS.map((token) => {
