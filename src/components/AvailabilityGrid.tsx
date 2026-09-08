@@ -623,6 +623,10 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 							const inBand =
 								selectedCell != null &&
 								(selectedCell.day === day || selectedCell.hour === h);
+							// with a cell picked, the rest of the grid steps back so the
+							// selection is the brightest thing on screen: the row and
+							// column it sits in fade a little, everything else more
+							const dim = selectedCell == null || isSelected ? 1 : inBand ? 0.6 : 0.4;
 							return (
 								// a div, not a <button>: Safari mangles flex layout inside
 								// buttons, collapsing the lane spans to zero height
@@ -648,8 +652,11 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 										className={`grid-cell relative flex cursor-pointer ${cellHeightClass}`}
 									style={{
 										background: isSelected ? SELECT_CELL : inBand ? SELECT_BAND : CELL_BG,
-										outline: isSelected ? `2px solid ${SELECT_RING}` : "none",
-										outlineOffset: -1.5,
+										outline: isSelected ? `3px solid ${SELECT_RING}` : "none",
+										outlineOffset: -1,
+										// the ring is drawn inside the cell, so it would be
+										// painted over by the next cell's background without this
+										zIndex: isSelected ? 1 : undefined,
 										// only claim the touch gesture where nothing behind the
 										// grid scrolls; elsewhere the browser keeps it
 										touchAction: touchDrag ? "none" : undefined,
@@ -666,7 +673,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 													background: hit ? token.color : "transparent",
 													// unselected pools fade rather than vanish, so
 													// "my pools" still read in context
-													opacity: hit && unselected ? 0.13 : 1,
+													opacity: hit && unselected ? 0.13 * dim : dim,
 												}}
 											/>
 										);
