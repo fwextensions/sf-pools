@@ -1,0 +1,317 @@
+{
+	"date": "2026-09-11",
+	"timestamp": "2026-09-11T22:04:48.697Z",
+	"poolsChanged": 5,
+	"totalProgramsAdded": 9,
+	"totalProgramsRemoved": 5,
+	"totalProgramsModified": 25,
+	"totalChanges": 39,
+	"changeSeverity": "moderate",
+	"scheduleStartDate": "2026-08-16",
+	"scheduleEndDate": "2026-12-12",
+	"scheduleSeason": "Fall 2026",
+	"seasonChanged": true,
+	"quarantinedPools": [],
+	"pools": [
+		{
+			"poolName": "Coffman Aquatics Center",
+			"programsAdded": 0,
+			"programsRemoved": 1,
+			"programsModified": 0,
+			"changes": [
+				{
+					"type": "removed",
+					"program": "Parent & Child Swim",
+					"day": "Saturday",
+					"oldTime": "1:00p–2:00p"
+				}
+			]
+		},
+		{
+			"poolName": "Garfield Aquatic Center",
+			"programsAdded": 8,
+			"programsRemoved": 2,
+			"programsModified": 20,
+			"changes": [
+				{
+					"type": "modified",
+					"program": "Family Swim",
+					"day": "Monday",
+					"oldTime": "1:15p–3:15p",
+					"newTime": "7:00a–8:45a"
+				},
+				{
+					"type": "modified",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Monday",
+					"oldTime": "11:30a–12:45p",
+					"newTime": "9:00a–10:45a"
+				},
+				{
+					"type": "modified",
+					"program": "Lap Swim",
+					"day": "Monday",
+					"oldTime": "7:00a–8:30a",
+					"newTime": "11:00a–1:00p"
+				},
+				{
+					"type": "modified",
+					"program": "Lap Swim",
+					"day": "Monday",
+					"oldTime": "5:30p–7:00p",
+					"newTime": "2:00p–3:45p"
+				},
+				{
+					"type": "modified",
+					"program": "Family Swim",
+					"day": "Monday",
+					"oldTime": "5:30p–7:00p",
+					"newTime": "2:00p–3:45p"
+				},
+				{
+					"type": "modified",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Monday",
+					"oldTime": "3:45p–5:15p",
+					"newTime": "4:00p–5:15p"
+				},
+				{
+					"type": "modified",
+					"program": "Family Swim",
+					"day": "Tuesday",
+					"oldTime": "1:15p–3:15p",
+					"newTime": "7:00a–8:45a"
+				},
+				{
+					"type": "modified",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Tuesday",
+					"oldTime": "11:30a–12:45p",
+					"newTime": "9:00a–10:45a"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Tuesday",
+					"newTime": "9:00a–10:45a"
+				},
+				{
+					"type": "modified",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"oldTime": "7:00a–8:30a",
+					"newTime": "11:00a–1:00p"
+				},
+				{
+					"type": "modified",
+					"program": "Water Exercise",
+					"day": "Tuesday",
+					"oldTime": "11:30a–12:30p",
+					"newTime": "11:15a–12:15p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Tuesday",
+					"newTime": "2:00p–3:30p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Tuesday",
+					"newTime": "2:00p–3:30p"
+				},
+				{
+					"type": "modified",
+					"program": "Family Swim",
+					"day": "Wednesday",
+					"oldTime": "1:15p–3:15p",
+					"newTime": "7:00a–8:45a"
+				},
+				{
+					"type": "modified",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Wednesday",
+					"oldTime": "11:30a–12:45p",
+					"newTime": "9:00a–10:45a"
+				},
+				{
+					"type": "modified",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"oldTime": "7:00a–8:30a",
+					"newTime": "11:00a–1:00p"
+				},
+				{
+					"type": "modified",
+					"program": "Family Swim",
+					"day": "Wednesday",
+					"oldTime": "5:30p–7:00p",
+					"newTime": "11:00a–1:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Wednesday",
+					"newTime": "2:00p–3:45p"
+				},
+				{
+					"type": "modified",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Wednesday",
+					"oldTime": "9:00a–11:00a",
+					"newTime": "4:00p–5:15p"
+				},
+				{
+					"type": "modified",
+					"program": "Family Swim",
+					"day": "Thursday",
+					"oldTime": "1:15p–3:15p",
+					"newTime": "7:00a–8:45a"
+				},
+				{
+					"type": "modified",
+					"program": "Senior Swim / Therapy Swim",
+					"day": "Thursday",
+					"oldTime": "11:30a–12:45p",
+					"newTime": "9:00a–10:45a"
+				},
+				{
+					"type": "modified",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Thursday",
+					"oldTime": "9:00a–11:00a",
+					"newTime": "9:30a–10:45a"
+				},
+				{
+					"type": "modified",
+					"program": "Water Exercise",
+					"day": "Thursday",
+					"oldTime": "11:30a–12:30p",
+					"newTime": "9:30a–10:30a"
+				},
+				{
+					"type": "modified",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"oldTime": "7:00a–8:30a",
+					"newTime": "11:00a–1:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Thursday",
+					"newTime": "11:00a–1:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Thursday",
+					"newTime": "2:00p–3:30p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Thursday",
+					"newTime": "2:00p–3:30p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Sunday",
+					"newTime": "12:30p–2:00p"
+				},
+				{
+					"type": "removed",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Tuesday",
+					"oldTime": "9:00a–11:00a"
+				},
+				{
+					"type": "removed",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Wednesday",
+					"oldTime": "3:45p–5:15p"
+				}
+			]
+		},
+		{
+			"poolName": "Hamilton Aquatic Center",
+			"programsAdded": 0,
+			"programsRemoved": 1,
+			"programsModified": 1,
+			"changes": [
+				{
+					"type": "modified",
+					"program": "Rentals / Private Use",
+					"day": "Thursday",
+					"oldTime": "4:00p–6:00p",
+					"newTime": "6:45a–8:15a"
+				},
+				{
+					"type": "removed",
+					"program": "Rentals / Private Use",
+					"day": "Wednesday",
+					"oldTime": "6:45a–8:15a"
+				}
+			]
+		},
+		{
+			"poolName": "Martin Luther King Jr. Swimming Pool",
+			"programsAdded": 1,
+			"programsRemoved": 1,
+			"programsModified": 1,
+			"changes": [
+				{
+					"type": "added",
+					"program": "Water Exercise",
+					"day": "Thursday",
+					"newTime": "6:00p–7:00p"
+				},
+				{
+					"type": "modified",
+					"program": "Lap Swim",
+					"day": "Friday",
+					"oldTime": "9:00a–12:00p",
+					"newTime": "7:30a–9:00a"
+				},
+				{
+					"type": "removed",
+					"program": "Water Exercise",
+					"day": "Wednesday",
+					"oldTime": "6:00p–7:00p"
+				}
+			]
+		},
+		{
+			"poolName": "Sava Pool",
+			"programsAdded": 0,
+			"programsRemoved": 0,
+			"programsModified": 3,
+			"changes": [
+				{
+					"type": "modified",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"oldTime": "7:00p–8:30p",
+					"newTime": "2:30p–3:30p"
+				},
+				{
+					"type": "modified",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Friday",
+					"oldTime": "4:00p–5:30p",
+					"newTime": "11:30a–12:00p"
+				},
+				{
+					"type": "modified",
+					"program": "Lap Swim",
+					"day": "Friday",
+					"oldTime": "12:00p–3:00p",
+					"newTime": "12:00p–3:30p"
+				}
+			]
+		}
+	],
+	"warnings": []
+}
