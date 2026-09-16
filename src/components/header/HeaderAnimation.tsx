@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import type p5 from "p5";
 import displayFragShader from "./header-shader.frag";
 import simFragShader from "./water-sim.frag";
 import {
@@ -17,12 +16,15 @@ import {
 	hash01,
 } from "./wave-schedule";
 
+// Both passes draw one full-target quad through this. The fragment shaders are
+// GLSL ES 1.00 (texture2D, varying, gl_FragColor), which a WebGL2 context still
+// accepts, so one vertex shader serves either context.
 const vertShader = `
-	attribute vec3 aPosition;
+	attribute vec2 aPosition;
 	varying vec2 vTexCoord;
 	void main() {
-		vTexCoord = aPosition.xy * 0.5 + 0.5;
-		gl_Position = vec4(aPosition, 1.0);
+		vTexCoord = aPosition * 0.5 + 0.5;
+		gl_Position = vec4(aPosition, 0.0, 1.0);
 	}
 `;
 
@@ -123,9 +125,8 @@ const DRIP_AMP = 0.35;
 
 /**
  * Shared input for the tuning harness. Two sims must receive IDENTICAL input or
- * an A/B comparison is meaningless: p5 computes mouseX/mouseY per canvas from
- * its own bounding rect, so only the pane the pointer is physically over would
- * otherwise be stirred.
+ * an A/B comparison is meaningless: each canvas only hears about a pointer that
+ * is physically over it, so only that pane would otherwise be stirred.
  */
 export type InputBus = {
 	/**
@@ -190,10 +191,10 @@ export type SketchOptions = {
 	/** live uniform values, read every frame; keys are shader constant names */
 	getUniforms?: () => Record<string, number>;
 	/**
-	 * Shared clock origin, in performance.now() ms. p5's millis() is stamped per
-	 * instance at ITS setup, so two instances booting milliseconds apart animate
-	 * the analytic swell permanently out of phase — which alone would invalidate
-	 * a side-by-side comparison of the caustics.
+	 * Shared clock origin, in performance.now() ms. Each sketch otherwise
+	 * stamps its own origin at creation, so two instances booting milliseconds
+	 * apart animate the analytic swell permanently out of phase — which alone
+	 * would invalidate a side-by-side comparison of the caustics.
 	 */
 	t0?: number;
 	/** canvas width in CSS px; defaults to the viewport width */
@@ -203,28 +204,263 @@ export type SketchOptions = {
 	 * uniforms: they shape the impulse BEFORE it reaches the shader.
 	 */
 	getJsParams?: () => Partial<JsParams>;
-	/** when present, replaces p5's own pointer/scroll handling and idle drips */
+	/** when present, replaces the sketch's own pointer/scroll handling and idle drips */
 	input?: InputBus;
 };
 
-function renderSFPools(
-	p: p5,
-	opts: SketchOptions = {})
+/** Handle on a running sketch. */
+export type WaterSketch = {
+	/**
+	 * Start or stop the frame loop. The sketch always draws one frame after
+	 * creation regardless, so a sketch that is never started still shows the
+	 * lit pool as a still image.
+	 */
+	setLooping: (on: boolean) => void;
+	/** re-read the width and rebuild the canvas and sim if it changed */
+	resize: () => void;
+	/** tear down the canvas, the GL context, and every listener */
+	remove: () => void;
+};
+
+// ============================================================================
+// WebGL plumbing
+//
+// Everything the sketch needs from a graphics library is here: two programs,
+// two float render targets, one quad. It replaces p5, which cost ~3MB of
+// JavaScript across a dozen lazy chunks — most of a second of parse and
+// evaluate before the first frame — and attached non-passive pointermove and
+// wheel listeners to the WINDOW, which made every scroll and pointer move on
+// the whole page wait on JavaScript. The listeners here are on the canvas and
+// passive.
+// ============================================================================
+
+type GL = WebGLRenderingContext | WebGL2RenderingContext;
+
+class Program {
+	readonly prog: WebGLProgram;
+	private locs = new Map<string, WebGLUniformLocation | null>();
+	readonly aPosition: number;
+
+	constructor(private gl: GL, vertSrc: string, fragSrc: string) {
+		const vs = this.compile(gl.VERTEX_SHADER, vertSrc);
+		const fs = this.compile(gl.FRAGMENT_SHADER, fragSrc);
+		const prog = gl.createProgram();
+		if (!prog) throw new Error("createProgram failed");
+		gl.attachShader(prog, vs);
+		gl.attachShader(prog, fs);
+		gl.linkProgram(prog);
+		if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+			throw new Error(`shader link failed: ${gl.getProgramInfoLog(prog)}`);
+		}
+		gl.deleteShader(vs);
+		gl.deleteShader(fs);
+		this.prog = prog;
+		this.aPosition = gl.getAttribLocation(prog, "aPosition");
+	}
+
+	private compile(type: number, src: string) {
+		const gl = this.gl;
+		const sh = gl.createShader(type);
+		if (!sh) throw new Error("createShader failed");
+		gl.shaderSource(sh, src);
+		gl.compileShader(sh);
+		if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+			const log = gl.getShaderInfoLog(sh);
+			gl.deleteShader(sh);
+			throw new Error(`shader compile failed: ${log}`);
+		}
+		return sh;
+	}
+
+	// Unknown names resolve to a null location, which WebGL treats as a no-op —
+	// the harness feeds both programs every tunable by name and relies on this.
+	private loc(name: string) {
+		let l = this.locs.get(name);
+		if (l === undefined) {
+			l = this.gl.getUniformLocation(this.prog, name);
+			this.locs.set(name, l);
+		}
+		return l;
+	}
+
+	use() {
+		this.gl.useProgram(this.prog);
+	}
+	set1f(name: string, v: number) {
+		this.gl.uniform1f(this.loc(name), v);
+	}
+	set2f(name: string, a: number, b: number) {
+		this.gl.uniform2f(this.loc(name), a, b);
+	}
+	setTexture(name: string, tex: WebGLTexture, unit: number) {
+		const gl = this.gl;
+		gl.activeTexture(gl.TEXTURE0 + unit);
+		gl.bindTexture(gl.TEXTURE_2D, tex);
+		gl.uniform1i(this.loc(name), unit);
+	}
+	dispose() {
+		this.gl.deleteProgram(this.prog);
+	}
+}
+
+/** A float texture with a framebuffer to render into it. */
+type Target = { tex: WebGLTexture; fbo: WebGLFramebuffer };
+
+/**
+ * The texel format the sim can render to on this GPU, best first: 32-bit
+ * float, then 16-bit. `linear` says whether it can also be sampled with
+ * LINEAR filtering, which is a separate extension for float textures and
+ * missing on some mobile GPUs; the display shader falls back gracefully when
+ * it is (see u_simLens).
+ *
+ * 16-bit is a real step down for this sim: heights near 1 only resolve to
+ * ~0.001, which is the size of one step's damping. It is here so a phone
+ * without renderable 32-bit float still gets moving water rather than none.
+ */
+type SimFormat = {
+	internal: number; format: number; type: number; linear: boolean;
+};
+
+function pickSimFormat(gl: GL): SimFormat | null {
+	const candidates: SimFormat[] = [];
+	if (typeof WebGL2RenderingContext !== "undefined" && gl instanceof WebGL2RenderingContext) {
+		if (gl.getExtension("EXT_color_buffer_float")) {
+			candidates.push({
+				internal: gl.RGBA32F, format: gl.RGBA, type: gl.FLOAT,
+				linear: !!gl.getExtension("OES_texture_float_linear"),
+			});
+		}
+		if (gl.getExtension("EXT_color_buffer_half_float")) {
+			candidates.push({
+				internal: gl.RGBA16F, format: gl.RGBA, type: gl.HALF_FLOAT,
+				linear: !!gl.getExtension("OES_texture_half_float_linear"),
+			});
+		}
+	} else {
+		if (gl.getExtension("OES_texture_float")) {
+			candidates.push({
+				internal: gl.RGBA, format: gl.RGBA, type: gl.FLOAT,
+				linear: !!gl.getExtension("OES_texture_float_linear"),
+			});
+		}
+		const half = gl.getExtension("OES_texture_half_float");
+		if (half) {
+			candidates.push({
+				internal: gl.RGBA, format: gl.RGBA, type: half.HALF_FLOAT_OES,
+				linear: !!gl.getExtension("OES_texture_half_float_linear"),
+			});
+		}
+	}
+	// Extensions advertise the format; only a completeness check proves the
+	// GPU will render to it.
+	for (const fmt of candidates) {
+		const probe = createTarget(gl, 4, 4, fmt);
+		if (!probe) continue;
+		gl.deleteTexture(probe.tex);
+		gl.deleteFramebuffer(probe.fbo);
+		return fmt;
+	}
+	return null;
+}
+
+function createTarget(gl: GL, w: number, h: number, fmt: SimFormat): Target | null {
+	const tex = gl.createTexture();
+	const fbo = gl.createFramebuffer();
+	if (!tex || !fbo) return null;
+	gl.bindTexture(gl.TEXTURE_2D, tex);
+	// Clamped edges are what make the pool's walls reflect (the sim samples
+	// past the border and gets the border back).
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	const filter = fmt.linear ? gl.LINEAR : gl.NEAREST;
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+	gl.texImage2D(gl.TEXTURE_2D, 0, fmt.internal, w, h, 0, fmt.format, fmt.type, null);
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+	const ok = gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE;
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	gl.bindTexture(gl.TEXTURE_2D, null);
+	if (!ok) {
+		gl.deleteTexture(tex);
+		gl.deleteFramebuffer(fbo);
+		return null;
+	}
+	// A fresh texture's contents are undefined until written; the sim reads
+	// its first frame from one, so zero it.
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+	gl.clearColor(0, 0, 0, 0);
+	gl.clear(gl.COLOR_BUFFER_BIT);
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	return { tex, fbo };
+}
+
+// ============================================================================
+// The sketch
+// ============================================================================
+
+/**
+ * Mount the water into `host` (which should be positioned; the canvas is
+ * absolutely placed over its top-left). Returns null when the GPU cannot run
+ * it — no WebGL, or no renderable float texture — in which case the host's
+ * static placeholder is all the visitor sees, which is the intended fallback.
+ */
+function createWaterSketch(
+	host: HTMLElement,
+	opts: SketchOptions = {}): WaterSketch | null
 {
-	let displayShader: p5.Shader;
-	let simShader: p5.Shader;
-	// p5.Framebuffer isn't in the (1.x) type definitions yet
-	let simRead: any;
-	let simWrite: any;
+	const canvas = document.createElement("canvas");
+	const gl = (canvas.getContext("webgl2", GL_OPTIONS) ??
+		canvas.getContext("webgl", GL_OPTIONS)) as GL | null;
+	if (!gl) return null;
+	const simFormat = pickSimFormat(gl);
+	if (!simFormat) {
+		gl.getExtension("WEBGL_lose_context")?.loseContext();
+		return null;
+	}
+
+	// Stack the canvas over the SSR tile placeholder, and fade it in on the
+	// first drawn frame so it doesn't pop over the static placeholder.
+	canvas.style.position = "absolute";
+	canvas.style.top = "0";
+	canvas.style.left = "0";
+	canvas.style.zIndex = "1";
+	canvas.style.opacity = "0";
+	canvas.style.transition = "opacity 300ms ease";
+	// Touch pans start on the header too, and the browser must own them; the
+	// pointer events it delivers before taking over still stir the water.
+	canvas.style.touchAction = "pan-y";
+	host.appendChild(canvas);
+
+	const density = Math.min(window.devicePixelRatio || 1, MAX_PIXEL_DENSITY);
+	let width = 0; // CSS px
+	let height = 0;
+
+	let displayShader: Program;
+	let simShader: Program;
+	try {
+		displayShader = new Program(gl, vertShader, opts.displaySrc ?? displayFragShader);
+		simShader = new Program(gl, vertShader, opts.simSrc ?? simFragShader);
+	} catch (error) {
+		console.error("Error building the header water shaders:", error);
+		host.removeChild(canvas);
+		return null;
+	}
+
+	const quad = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+
+	let simRead: Target | null = null;
+	let simWrite: Target | null = null;
 	let simTexel = [1 / SIM_MAX_WIDTH, 1 / SIM_MAX_WIDTH];
 
-	let canvasEl: HTMLElement;
 	let firstFrame = true;
 	// 1.0 when the GPU can linearly filter the float sim texture, 0.0 otherwise.
 	// Feeds u_simLens: without linear filtering the sim's second derivative is
 	// meaningless, so the caustic lens falls back to the analytic field alone
 	// rather than rendering per-texel blocks.
-	let simLens = 1.0;
+	const simLens = simFormat.linear ? 1.0 : 0.0;
 	// Antialias fade for ambient wave groups B and C, recomputed on resize. A
 	// band whose wavelength approaches a few device pixels is faded out rather
 	// than left to alias into crawling speckle. Frame-invariant, so it is
@@ -272,49 +508,36 @@ function renderSFPools(
 	// event once here rather than every frame until the next one.
 	let lastImpulseSeq = -1;
 
+	const startMs = performance.now();
+
 	function createSimBuffers() {
-		if (simRead) simRead.remove();
-		if (simWrite) simWrite.remove();
+		if (simRead) {
+			gl!.deleteTexture(simRead.tex);
+			gl!.deleteFramebuffer(simRead.fbo);
+		}
+		if (simWrite) {
+			gl!.deleteTexture(simWrite.tex);
+			gl!.deleteFramebuffer(simWrite.fbo);
+		}
 
 		const simWidth = Math.min(
 			SIM_MAX_WIDTH,
-			Math.max(SIM_MIN_WIDTH, Math.round(p.width / SIM_TEXEL_CSS_PX))
+			Math.max(SIM_MIN_WIDTH, Math.round(width / SIM_TEXEL_CSS_PX))
 		);
 		// derive height from the clamped width so texels stay square on
 		// screen even when the width clamp changes the effective texel size
-		const simHeight = Math.max(32, Math.round((simWidth * p.height) / p.width));
-		const options = {
-			width: simWidth,
-			height: simHeight,
-			format: "float",
-			depth: false,
-			antialias: false,
-			density: 1,
-			// The display shader reconstructs a smooth second derivative of this
-			// texture for the caustic lens, which needs interpolated samples —
-			// with NEAREST the Hessian collapses to zero inside a texel and a
-			// spike on each boundary, and the caustics break into 3-CSS-px
-			// blocks. Requires OES_texture_float_linear; see simLinearFiltering.
-			textureFiltering: (p as any).LINEAR,
-		};
-		simRead = (p as any).createFramebuffer(options);
-		simWrite = (p as any).createFramebuffer(options);
+		const simHeight = Math.max(32, Math.round((simWidth * height) / width));
+		simRead = createTarget(gl!, simWidth, simHeight, simFormat!);
+		simWrite = createTarget(gl!, simWidth, simHeight, simFormat!);
 		simTexel = [1 / simWidth, 1 / simHeight];
 		simDims = [simWidth, simHeight];
-
-		// Linear filtering of FLOAT textures is a separate extension from float
-		// textures themselves, and it is missing on some mobile GPUs. Ask the
-		// real context rather than assuming the option above took effect.
-		const gl = (p as any)._renderer?.GL as WebGLRenderingContext | undefined;
-		simLens = gl && (gl.getExtension("OES_texture_float_linear") ||
-			gl.getExtension("EXT_color_buffer_float")) ? 1.0 : 0.0;
 
 		// One uv unit spans u_resolution.y device px, so a wave of magnitude k
 		// has wavelength TAU * height / k. Fade a band out below AA_CUTOFF_PX
 		// device px. At the header's real size nothing fades; this is insurance
 		// for a very short canvas.
 		const AA_CUTOFF_PX = 8.0;
-		const heightPx = p.height * p.pixelDensity();
+		const heightPx = height * density;
 		const fade = (k: number) => {
 			const lambdaPx = (Math.PI * 2 * heightPx) / k;
 			const t = Math.min(Math.max((lambdaPx - AA_CUTOFF_PX) / AA_CUTOFF_PX, 0), 1);
@@ -324,118 +547,106 @@ function renderSFPools(
 	}
 
 	function canvasWidth() {
-		return opts.getWidth ? opts.getWidth() : p.windowWidth;
+		return opts.getWidth ? opts.getWidth() : window.innerWidth;
 	}
 
-	// Seconds since the shared clock origin. Falls back to p5's per-instance
-	// millis() in production, where there is only one instance to be in phase
-	// with.
+	function setSize(w: number) {
+		width = w;
+		height = headerHeightPx(w);
+		canvas.width = Math.round(width * density);
+		canvas.height = Math.round(height * density);
+		canvas.style.width = `${width}px`;
+		canvas.style.height = `${height}px`;
+		createSimBuffers();
+	}
+
+	// Seconds since the shared clock origin, or since this sketch was created
+	// in production, where there is only one instance to be in phase with.
 	function nowSeconds() {
 		return opts.t0 !== undefined
 			? (performance.now() - opts.t0) / 1000
-			: p.millis() / 1000;
+			: (performance.now() - startMs) / 1000;
 	}
 
-	// p5 listens for mouse events window-wide, so ignore anything outside
-	// the canvas; otherwise a pointer near the header still stirs the water
-	function pointerInCanvas() {
-		return (
-			p.mouseX >= 0 && p.mouseX <= p.width &&
-			p.mouseY >= 0 && p.mouseY <= p.height
-		);
-	}
+	// --- pointer -------------------------------------------------------------
 
-	// Where the pointer was at its last move INSIDE the canvas, in CSS px, or
+	// Where the pointer was at its last move over the canvas, in CSS px, or
 	// null when it has since left (or never arrived). This is the anchor the
-	// dent is swept from, and it is tracked here rather than read from p5's
-	// pmouseX/pmouseY because those are only refreshed once per drawn frame,
-	// from events: leave the window through its edge and no more events
-	// arrive, so the "previous" point freezes at the exit — and the next entry
-	// sweeps a trough from there to wherever the pointer comes back in. The
-	// same happens after any spell with the loop stopped, and on the very first
-	// move, when p5's previous point is simply wherever it was initialised.
+	// dent is swept from. It is cleared on pointerleave — which also fires when
+	// the pointer leaves through the window's edge — and after any gap between
+	// moves long enough to mean the pointer was away (over an element that
+	// swallowed events, or the tab hidden), so a return never sweeps a trough
+	// from wherever it left.
 	let sweepFrom: { x: number; y: number; t: number } | null = null;
-	// A gap longer than this between moves means the pointer was away
-	// (outside the window, over another element that swallowed events, or the
-	// tab was hidden) even if nothing told us so; don't sweep across it.
 	const SWEEP_MAX_GAP_MS = 150;
 
 	function clearSweep() {
 		sweepFrom = null;
 	}
 
-	function handlePointerMove() {
-		if (!pointerInCanvas()) {
-			clearSweep();
-			return;
-		}
+	function pointerPos(e: PointerEvent | MouseEvent) {
+		const rect = canvas.getBoundingClientRect();
+		return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+	}
 
+	function handlePointerMove(e: PointerEvent) {
+		const { x, y } = pointerPos(e);
 		const now = performance.now();
 		const from =
 			sweepFrom && now - sweepFrom.t <= SWEEP_MAX_GAP_MS ? sweepFrom : null;
-		const speedPx = from ? Math.hypot(p.mouseX - from.x, p.mouseY - from.y) : 0;
+		const speedPx = from ? Math.hypot(x - from.x, y - from.y) : 0;
 
-		impulseX = p.mouseX / p.width;
-		impulseY = 1.0 - p.mouseY / p.height;
+		impulseX = x / width;
+		impulseY = 1.0 - y / height;
 		const jp = opts.getJsParams
 			? { ...JS_PARAM_DEFAULTS, ...opts.getJsParams() }
 			: JS_PARAM_DEFAULTS;
 		impulseAmp = Math.min(jp.IMPULSE_MAX, jp.IMPULSE_BASE + speedPx * jp.IMPULSE_PER_PX);
 
-		// sweep the dent from the last in-canvas position, unless the pointer
-		// just arrived — then it is a point dent where it landed
-		impulsePrevX = from ? from.x / p.width : impulseX;
-		impulsePrevY = from ? 1.0 - from.y / p.height : impulseY;
-		sweepFrom = { x: p.mouseX, y: p.mouseY, t: now };
+		// sweep the dent from the last position, unless the pointer just
+		// arrived — then it is a point dent where it landed
+		impulsePrevX = from ? from.x / width : impulseX;
+		impulsePrevY = from ? 1.0 - from.y / height : impulseY;
+		sweepFrom = { x, y, t: now };
 		lastInteractionTime = simClock.simTime * 1000;
 	}
 
-	p.setup = () => {
-		p.pixelDensity(Math.min(window.devicePixelRatio || 1, MAX_PIXEL_DENSITY));
-		const w = canvasWidth();
-		const canvas = p.createCanvas(w, headerHeightPx(w), p.WEBGL);
-		// Stack the canvas over the SSR tile placeholder, and fade it in on the
-		// first drawn frame so it doesn't pop over the static placeholder.
-		canvasEl = (canvas as any).elt as HTMLElement;
-		canvasEl.style.position = "absolute";
-		canvasEl.style.top = "0";
-		canvasEl.style.left = "0";
-		canvasEl.style.zIndex = "1";
-		canvasEl.style.opacity = "0";
-		canvasEl.style.transition = "opacity 300ms ease";
-		displayShader = p.createShader(vertShader, opts.displaySrc ?? displayFragShader);
-		simShader = p.createShader(vertShader, opts.simSrc ?? simFragShader);
-		createSimBuffers();
-		lastScrollY = window.scrollY;
+	function handleClick(e: MouseEvent) {
+		const { x, y } = pointerPos(e);
+		impulseX = x / width;
+		impulseY = 1.0 - y / height;
+		impulsePrevX = impulseX; // point dent, no sweep
+		impulsePrevY = impulseY;
+		sweepFrom = { x, y, t: performance.now() };
+		impulseAmp = (opts.getJsParams?.().CLICK_AMP) ?? CLICK_AMP;
+		lastInteractionTime = simClock.simTime * 1000;
+	}
 
-		p.mouseMoved = p.mouseDragged = handlePointerMove;
-		// p5 listens on the window, so it never tells us the pointer left the
-		// canvas; the canvas itself does. This also fires when the pointer leaves
-		// through the window edge, which is the case the move handler's
-		// in-canvas check cannot see (no further moves arrive to check).
-		canvasEl.addEventListener("pointerleave", clearSweep);
+	// The harness feeds its own input through the bus, so the canvas listens
+	// only in production. Passive: nothing here ever prevents a default.
+	const ownInput = !opts.input;
+	if (ownInput) {
+		canvas.addEventListener("pointermove", handlePointerMove, { passive: true });
+		canvas.addEventListener("pointerleave", clearSweep, { passive: true });
+		canvas.addEventListener("click", handleClick, { passive: true });
+	}
 
-		p.mouseClicked = () => {
-			if (!pointerInCanvas()) return;
+	// --- one full-target pass ------------------------------------------------
 
-			impulseX = p.mouseX / p.width;
-			impulseY = 1.0 - p.mouseY / p.height;
-			impulsePrevX = impulseX; // point dent, no sweep
-			impulsePrevY = impulseY;
-			sweepFrom = { x: p.mouseX, y: p.mouseY, t: performance.now() };
-			impulseAmp = (opts.getJsParams?.().CLICK_AMP) ?? CLICK_AMP;
-			lastInteractionTime = simClock.simTime * 1000;
-		};
+	function drawQuad(prog: Program, target: Target | null, w: number, h: number) {
+		gl!.bindFramebuffer(gl!.FRAMEBUFFER, target ? target.fbo : null);
+		gl!.viewport(0, 0, w, h);
+		gl!.bindBuffer(gl!.ARRAY_BUFFER, quad);
+		gl!.enableVertexAttribArray(prog.aPosition);
+		gl!.vertexAttribPointer(prog.aPosition, 2, gl!.FLOAT, false, 0, 0);
+		gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
+	}
 
-		//@ts-ignore
-		p.touchMoved = () => {
-			handlePointerMove();
-			return false;
-		};
-	};
+	// --- the frame -----------------------------------------------------------
 
-	p.draw = () => {
-		const d = p.pixelDensity();
+	function draw() {
+		if (!simRead || !simWrite) return;
+		const d = density;
 		// One frame of simulated time. `stalled` means the gap since the last
 		// frame was too long to be one — the tab was backgrounded, or the device
 		// could not keep up — so anything measured as a per-frame difference
@@ -445,8 +656,6 @@ function renderSFPools(
 		const js: JsParams = opts.getJsParams
 			? { ...JS_PARAM_DEFAULTS, ...opts.getJsParams() }
 			: JS_PARAM_DEFAULTS;
-
-		p.noStroke();
 
 		// The harness feeds both instances the same impulse; without this each
 		// pane would only respond to a pointer physically over it. Each new
@@ -571,89 +780,144 @@ function renderSFPools(
 		}
 
 		// Live tunables, present only under the harness (where the shader's
-		// `const float`s have been rewritten into uniforms). Setting a uniform
-		// that does not exist is a no-op in p5, so the same loop safely feeds
-		// both shaders every name.
+		// `const float`s have been rewritten into uniforms). A name that does
+		// not exist in a program resolves to a null location and is ignored, so
+		// the same loop safely feeds both shaders every name.
 		const tunables = opts.getUniforms ? opts.getUniforms() : null;
 
 		// --- advance the wave simulation (ping-pong) ---
+		simShader.use();
+		if (tunables) {
+			for (const k in tunables) simShader.set1f(k, tunables[k]);
+		}
+		simShader.set2f("u_texel", simTexel[0], simTexel[1]);
+		simShader.set2f("u_impulsePos", impulseX, impulseY);
+		simShader.set2f("u_impulsePrev", impulsePrevX, impulsePrevY);
+		simShader.set1f("u_impulseRadius", impulseRadius);
+		simShader.set2f("u_lineDir", lineDir[0], lineDir[1]);
+		simShader.set1f("u_lineOffset", lineOffset);
+		simShader.set1f("u_lineRadius", js.SWELL_RADIUS);
+		simShader.set1f("u_time", time);
 		for (let step = 0; step < js.SIM_SUBSTEPS; step++) {
-			simWrite.begin();
-			p.shader(simShader);
-			if (tunables) {
-				for (const k in tunables) simShader.setUniform(k, tunables[k]);
-			}
-			simShader.setUniform("u_state", simRead);
-			simShader.setUniform("u_texel", simTexel);
-			simShader.setUniform("u_impulsePos", [impulseX, impulseY]);
-			simShader.setUniform("u_impulsePrev", [impulsePrevX, impulsePrevY]);
-			simShader.setUniform("u_impulseAmp", step === 0 ? impulseAmp : 0.0);
-			simShader.setUniform("u_impulseRadius", impulseRadius);
-			simShader.setUniform("u_lineAmp", step === 0 ? lineAmp : 0.0);
-			simShader.setUniform("u_lineDir", lineDir);
-			simShader.setUniform("u_lineOffset", lineOffset);
-			simShader.setUniform("u_lineRadius", js.SWELL_RADIUS);
-			simShader.setUniform("u_time", time);
-			p.quad(-1, -1, 1, -1, 1, 1, -1, 1);
-			simWrite.end();
+			simShader.set1f("u_impulseAmp", step === 0 ? impulseAmp : 0.0);
+			simShader.set1f("u_lineAmp", step === 0 ? lineAmp : 0.0);
+			simShader.setTexture("u_state", simRead.tex, 0);
+			drawQuad(simShader, simWrite, simDims[0], simDims[1]);
 			[simRead, simWrite] = [simWrite, simRead];
 		}
 		impulseAmp = 0.0;
 
 		// --- render the pool ---
-		p.shader(displayShader);
+		displayShader.use();
 		if (tunables) {
-			for (const k in tunables) displayShader.setUniform(k, tunables[k]);
+			for (const k in tunables) displayShader.set1f(k, tunables[k]);
 		}
-		displayShader.setUniform("u_resolution", [p.width * d, p.height * d]);
-		displayShader.setUniform("u_time", time);
-		displayShader.setUniform("u_water", simRead);
-		displayShader.setUniform("u_waterTexel", simTexel);
-		displayShader.setUniform("u_bandFade", bandFade);
-		displayShader.setUniform("u_simLens", simLens);
+		displayShader.set2f("u_resolution", width * d, height * d);
+		displayShader.set1f("u_time", time);
+		displayShader.setTexture("u_water", simRead.tex, 0);
+		displayShader.set2f("u_waterTexel", simTexel[0], simTexel[1]);
+		displayShader.set2f("u_bandFade", bandFade[0], bandFade[1]);
+		displayShader.set1f("u_simLens", simLens);
 		// integer-CSS-px tile edge, in device px; the CSS placeholder computes
 		// the identical value as min(22px, round(down, 100vw / 33, 1px))
-		displayShader.setUniform("u_tilePx", tileCssPx(p.width) * d);
-		p.quad(-1, -1, 1, -1, 1, 1, -1, 1);
+		displayShader.set1f("u_tilePx", tileCssPx(width) * d);
+		drawQuad(displayShader, null, canvas.width, canvas.height);
 
 		if (firstFrame) {
 			firstFrame = false;
-			canvasEl.style.opacity = "1";
+			canvas.style.opacity = "1";
 		}
-	};
+	}
 
-	p.windowResized = () => {
+	// --- the loop --------------------------------------------------------------
+
+	let looping = false;
+	let rafId = 0;
+	let drawnOnce = false;
+
+	function frame() {
+		rafId = 0;
+		draw();
+		drawnOnce = true;
+		if (looping) rafId = requestAnimationFrame(frame);
+	}
+
+	function setLooping(on: boolean) {
+		looping = on;
+		if (on) {
+			if (!rafId) rafId = requestAnimationFrame(frame);
+		} else if (rafId && drawnOnce) {
+			// The first frame is always allowed to land, so a sketch stopped
+			// before it draws (reduced motion) still shows the pool.
+			cancelAnimationFrame(rafId);
+			rafId = 0;
+		}
+	}
+
+	function resize() {
 		// iOS fires window resizes as the browser chrome collapses and
 		// expands during scrolling; recreating the sim then would blank
 		// the water mid-slosh. Only a width change matters to a
 		// fixed-height canvas.
 		const w = canvasWidth();
-		if (w === p.width) return;
+		if (w === width) return;
+		setSize(w);
+	}
 
-		p.resizeCanvas(w, headerHeightPx(w));
-		createSimBuffers(); // aspect changed, keep sim texels square on screen
-	};
+	function remove() {
+		looping = false;
+		if (rafId) cancelAnimationFrame(rafId);
+		rafId = 0;
+		window.removeEventListener("resize", resize);
+		if (ownInput) {
+			canvas.removeEventListener("pointermove", handlePointerMove);
+			canvas.removeEventListener("pointerleave", clearSweep);
+			canvas.removeEventListener("click", handleClick);
+		}
+		for (const t of [simRead, simWrite]) {
+			if (t) {
+				gl!.deleteTexture(t.tex);
+				gl!.deleteFramebuffer(t.fbo);
+			}
+		}
+		gl!.deleteBuffer(quad);
+		displayShader.dispose();
+		simShader.dispose();
+		// Give the context back now rather than when the GC gets to it; a
+		// browser only allows a handful at once.
+		gl!.getExtension("WEBGL_lose_context")?.loseContext();
+		canvas.remove();
+	}
 
-	// The harness resizes panes without a window resize (splitter drags, layout
-	// toggles), which p5's windowResized never sees.
-	(p as any).__resize = () => p.windowResized!();
+	setSize(canvasWidth());
+	lastScrollY = window.scrollY;
+	window.addEventListener("resize", resize);
+	// One frame regardless of looping — see setLooping.
+	rafId = requestAnimationFrame(frame);
+
+	return { setLooping, resize, remove };
 }
 
-export { renderSFPools };
+const GL_OPTIONS: WebGLContextAttributes = {
+	alpha: false, // opaque: it covers the placeholder completely
+	antialias: false, // a full-screen quad has no edges to smooth
+	depth: false,
+	stencil: false,
+	premultipliedAlpha: false,
+	preserveDrawingBuffer: false,
+	powerPreference: "low-power",
+};
+
+export { createWaterSketch };
 
 export default function HeaderAnimation()
 {
-	// 1. Type the Ref as an HTMLDivElement
 	const renderRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		let myP5: p5 | undefined;
-		// The p5 import is awaited, so cleanup can run while it is still pending
-		// — React StrictMode's dev double-invoke does exactly that. Without this
-		// flag the instance created after cleanup is never removed, leaking a
-		// canvas, a WebGL context, a RAF loop and two float framebuffers per
-		// mount; Chrome drops the oldest context after ~16.
-		let cancelled = false;
+		if (!renderRef.current) return;
+		const sketch = createWaterSketch(renderRef.current);
+		if (!sketch) return;
 
 		// Run the draw loop only while it can be seen. The header sits at the top
 		// of a long page, so it is scrolled away for most of a visit; without this
@@ -662,10 +926,9 @@ export default function HeaderAnimation()
 		// tabs already stop (the browser withholds animation frames), so this only
 		// has to cover the header leaving the viewport.
 		//
-		// prefers-reduced-motion stops the loop outright. p5 still draws ONE frame
-		// when noLoop is set before setup finishes, which is what we want: the
-		// lit, tiled pool as a still image over the flat CSS placeholder, rather
-		// than nothing at all.
+		// prefers-reduced-motion stops the loop outright. The sketch still draws
+		// its first frame, which is what we want: the lit, tiled pool as a still
+		// image over the flat CSS placeholder, rather than nothing at all.
 		//
 		// Resuming is safe for the simulation: the sim clock caps how much time one
 		// frame may represent, so a header that comes back after a minute picks up
@@ -673,41 +936,19 @@ export default function HeaderAnimation()
 		let visible = false;
 		const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 		const applyLoopState = () => {
-			if (!myP5) return;
-			if (visible && !reducedMotion.matches) myP5.loop();
-			else myP5.noLoop();
+			sketch.setLooping(visible && !reducedMotion.matches);
 		};
 		const observer = new IntersectionObserver((entries) => {
 			visible = entries[entries.length - 1].isIntersecting;
 			applyLoopState();
 		});
 		reducedMotion.addEventListener("change", applyLoopState);
-
-		(async () => {
-			try {
-				// Dynamically load p5 here, ensuring it ONLY happens in the browser
-				const p5Import = await import("p5");
-				const P5 = p5Import.default;
-
-				if (cancelled || !renderRef.current) return;
-				myP5 = new P5(renderSFPools, renderRef.current);
-				// Start stopped: the observer's first callback reports the real
-				// visibility and starts the loop if the header is on screen. p5's
-				// setup is async, so this lands before its first draw either way.
-				myP5.noLoop();
-				observer.observe(renderRef.current);
-			} catch (error) {
-				console.error("Error loading p5:", error);
-			}
-		})();
+		observer.observe(renderRef.current);
 
 		return () => {
-			cancelled = true;
 			observer.disconnect();
 			reducedMotion.removeEventListener("change", applyLoopState);
-			if (myP5) {
-				myP5.remove();
-			}
+			sketch.remove();
 		};
 	}, []);
 
