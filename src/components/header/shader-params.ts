@@ -136,6 +136,11 @@ export const PARAM_SPECS: ParamSpec[] = [
 		hint: "Energy retained per step, and the parameter that decides whether a travelling front can cross the header at all. At 0.985 with 2 substeps a wave e-folds in ~0.55s while moving ~114 CSS px/s, so it dies ~60px from where it was made — a line swell never gets across. ~0.995 with speed 0.4 and 3 substeps gives ~375px. Finer steps than the other sliders because the decay time is 1/(1-this): 0.995 vs 0.996 is a 20% difference.",
 	},
 	{
+		name: "VISCOSITY", domain: "sim", group: "Simulation",
+		label: "Viscosity", min: 0.0, max: 0.03, step: 0.0005,
+		hint: "Wavelength-selective damping, unlike Damping above which takes the same cut from everything. Scales with k²: the grid's checkerboard noise loses ~20x more per step than a 10-texel drip ring, so injection noise and stripes die in a few frames while rings survive. 0 is the old sim. Rings do lose a little extra — at 0.003 about 20% per second — so compensate with Damping, not by zeroing this. Keep well below 0.12 or the viscous step goes unstable.",
+	},
+	{
 		name: "JITTER_WAVELENGTH", domain: "sim", group: "Simulation",
 		label: "Swell front roughness (texels)", min: 1.0, max: 24.0, step: 1.0,
 		hint: "Texels per noise cell along the scroll swell's leading edge. At 1 this is white noise at the grid's Nyquist frequency, which the caustic lens amplifies into hard vertical stripes; higher keeps the front irregular but band-limited.",
