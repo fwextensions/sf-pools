@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { createWaterSketch, type InputBus, type JsParams, type WaterSketch } from "./HeaderAnimation";
+import { mountWater, type InputBus, type JsParams, type Water } from "./water";
 import { headerHeightPx } from "./HeaderPlaceholder";
 import {
 	PARAM_SPECS,
@@ -17,7 +17,7 @@ import {
 type Values = Record<string, number>;
 
 // Both panes share ONE clock origin and ONE input bus. Without the shared clock
-// the analytic swell in each pane runs at a different phase (each sketch stamps
+// the analytic swell in each pane runs at a different phase (each instance stamps
 // its own origin at creation) and the comparison is worthless; without the
 // shared bus only the pane the pointer is physically over gets stirred.
 const CLOCK_ORIGIN = typeof performance !== "undefined" ? performance.now() : 0;
@@ -125,7 +125,7 @@ function Pane({
 	width: number;
 }) {
 	const hostRef = useRef<HTMLDivElement>(null);
-	// Read through refs so slider moves never remount the sketch — the sim state
+	// Read through refs so slider moves never remount the water — the sim state
 	// (and any ripples in flight) has to survive a parameter change, or you
 	// cannot see what the change did.
 	const valuesRef = useRef(values);
@@ -137,10 +137,10 @@ function Pane({
 		widthRef.current = width;
 	}, [width]);
 
-	const sketchRef = useRef<WaterSketch | null>(null);
+	const waterRef = useRef<Water | null>(null);
 	useEffect(() => {
 		if (!hostRef.current) return;
-		const sketch = createWaterSketch(hostRef.current, {
+		const water = mountWater(hostRef.current, {
 			displaySrc: LAB_DISPLAY_SRC,
 			simSrc: LAB_SIM_SRC,
 			// Shader uniforms and JS-side numbers come from the same slider
@@ -156,22 +156,22 @@ function Pane({
 			t0: CLOCK_ORIGIN,
 			input: busRef.current,
 		});
-		sketchRef.current = sketch;
-		sketch?.setLooping(true);
+		waterRef.current = water;
+		water?.setLooping(true);
 
 		return () => {
-			sketch?.remove();
-			sketchRef.current = null;
+			water?.remove();
+			waterRef.current = null;
 		};
 		// Deliberately mount-once: everything live is read through a ref.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	// Resize without remounting — a remount would burn a WebGL context each time
-	// and Chrome drops the oldest after ~16. The sketch reads the live width
+	// and Chrome drops the oldest after ~16. The water reads the live width
 	// through getWidth() and no-ops if it is unchanged.
 	useEffect(() => {
-		sketchRef.current?.resize();
+		waterRef.current?.resize();
 	}, [width]);
 
 	return (
