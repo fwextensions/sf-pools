@@ -15,18 +15,7 @@ import {
 	dueBucket,
 	hash01,
 } from "./wave-schedule";
-
-// Both passes draw one full-target quad through this. The fragment shaders are
-// GLSL ES 1.00 (texture2D, varying, gl_FragColor), which a WebGL2 context still
-// accepts, so one vertex shader serves either context.
-const vertShader = `
-	attribute vec2 aPosition;
-	varying vec2 vTexCoord;
-	void main() {
-		vTexCoord = aPosition * 0.5 + 0.5;
-		gl_Position = vec4(aPosition, 0.0, 1.0);
-	}
-`;
+import { QuadRenderer, type Program, type Target } from "./webgl";
 
 // Size the simulation by CSS pixels, not a fixed texel count, so ripples
 // have the same on-screen wavelength, dent size, and speed on every device.
@@ -223,179 +212,6 @@ export type WaterSketch = {
 };
 
 // ============================================================================
-// WebGL plumbing
-//
-// Everything the sketch needs from a graphics library is here: two programs,
-// two float render targets, one quad. It replaces p5, which cost ~3MB of
-// JavaScript across a dozen lazy chunks — most of a second of parse and
-// evaluate before the first frame — and attached non-passive pointermove and
-// wheel listeners to the WINDOW, which made every scroll and pointer move on
-// the whole page wait on JavaScript. The listeners here are on the canvas and
-// passive.
-// ============================================================================
-
-type GL = WebGLRenderingContext | WebGL2RenderingContext;
-
-class Program {
-	readonly prog: WebGLProgram;
-	private locs = new Map<string, WebGLUniformLocation | null>();
-	readonly aPosition: number;
-
-	constructor(private gl: GL, vertSrc: string, fragSrc: string) {
-		const vs = this.compile(gl.VERTEX_SHADER, vertSrc);
-		const fs = this.compile(gl.FRAGMENT_SHADER, fragSrc);
-		const prog = gl.createProgram();
-		if (!prog) throw new Error("createProgram failed");
-		gl.attachShader(prog, vs);
-		gl.attachShader(prog, fs);
-		gl.linkProgram(prog);
-		if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-			throw new Error(`shader link failed: ${gl.getProgramInfoLog(prog)}`);
-		}
-		gl.deleteShader(vs);
-		gl.deleteShader(fs);
-		this.prog = prog;
-		this.aPosition = gl.getAttribLocation(prog, "aPosition");
-	}
-
-	private compile(type: number, src: string) {
-		const gl = this.gl;
-		const sh = gl.createShader(type);
-		if (!sh) throw new Error("createShader failed");
-		gl.shaderSource(sh, src);
-		gl.compileShader(sh);
-		if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
-			const log = gl.getShaderInfoLog(sh);
-			gl.deleteShader(sh);
-			throw new Error(`shader compile failed: ${log}`);
-		}
-		return sh;
-	}
-
-	// Unknown names resolve to a null location, which WebGL treats as a no-op —
-	// the harness feeds both programs every tunable by name and relies on this.
-	private loc(name: string) {
-		let l = this.locs.get(name);
-		if (l === undefined) {
-			l = this.gl.getUniformLocation(this.prog, name);
-			this.locs.set(name, l);
-		}
-		return l;
-	}
-
-	use() {
-		this.gl.useProgram(this.prog);
-	}
-	set1f(name: string, v: number) {
-		this.gl.uniform1f(this.loc(name), v);
-	}
-	set2f(name: string, a: number, b: number) {
-		this.gl.uniform2f(this.loc(name), a, b);
-	}
-	setTexture(name: string, tex: WebGLTexture, unit: number) {
-		const gl = this.gl;
-		gl.activeTexture(gl.TEXTURE0 + unit);
-		gl.bindTexture(gl.TEXTURE_2D, tex);
-		gl.uniform1i(this.loc(name), unit);
-	}
-	dispose() {
-		this.gl.deleteProgram(this.prog);
-	}
-}
-
-/** A float texture with a framebuffer to render into it. */
-type Target = { tex: WebGLTexture; fbo: WebGLFramebuffer };
-
-/**
- * The texel format the sim can render to on this GPU, best first: 32-bit
- * float, then 16-bit. `linear` says whether it can also be sampled with
- * LINEAR filtering, which is a separate extension for float textures and
- * missing on some mobile GPUs; the display shader falls back gracefully when
- * it is (see u_simLens).
- *
- * 16-bit is a real step down for this sim: heights near 1 only resolve to
- * ~0.001, which is the size of one step's damping. It is here so a phone
- * without renderable 32-bit float still gets moving water rather than none.
- */
-type SimFormat = {
-	internal: number; format: number; type: number; linear: boolean;
-};
-
-function pickSimFormat(gl: GL): SimFormat | null {
-	const candidates: SimFormat[] = [];
-	if (typeof WebGL2RenderingContext !== "undefined" && gl instanceof WebGL2RenderingContext) {
-		if (gl.getExtension("EXT_color_buffer_float")) {
-			candidates.push({
-				internal: gl.RGBA32F, format: gl.RGBA, type: gl.FLOAT,
-				linear: !!gl.getExtension("OES_texture_float_linear"),
-			});
-		}
-		if (gl.getExtension("EXT_color_buffer_half_float")) {
-			candidates.push({
-				internal: gl.RGBA16F, format: gl.RGBA, type: gl.HALF_FLOAT,
-				linear: !!gl.getExtension("OES_texture_half_float_linear"),
-			});
-		}
-	} else {
-		if (gl.getExtension("OES_texture_float")) {
-			candidates.push({
-				internal: gl.RGBA, format: gl.RGBA, type: gl.FLOAT,
-				linear: !!gl.getExtension("OES_texture_float_linear"),
-			});
-		}
-		const half = gl.getExtension("OES_texture_half_float");
-		if (half) {
-			candidates.push({
-				internal: gl.RGBA, format: gl.RGBA, type: half.HALF_FLOAT_OES,
-				linear: !!gl.getExtension("OES_texture_half_float_linear"),
-			});
-		}
-	}
-	// Extensions advertise the format; only a completeness check proves the
-	// GPU will render to it.
-	for (const fmt of candidates) {
-		const probe = createTarget(gl, 4, 4, fmt);
-		if (!probe) continue;
-		gl.deleteTexture(probe.tex);
-		gl.deleteFramebuffer(probe.fbo);
-		return fmt;
-	}
-	return null;
-}
-
-function createTarget(gl: GL, w: number, h: number, fmt: SimFormat): Target | null {
-	const tex = gl.createTexture();
-	const fbo = gl.createFramebuffer();
-	if (!tex || !fbo) return null;
-	gl.bindTexture(gl.TEXTURE_2D, tex);
-	// Clamped edges are what make the pool's walls reflect (the sim samples
-	// past the border and gets the border back).
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	const filter = fmt.linear ? gl.LINEAR : gl.NEAREST;
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
-	gl.texImage2D(gl.TEXTURE_2D, 0, fmt.internal, w, h, 0, fmt.format, fmt.type, null);
-	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
-	const ok = gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE;
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-	gl.bindTexture(gl.TEXTURE_2D, null);
-	if (!ok) {
-		gl.deleteTexture(tex);
-		gl.deleteFramebuffer(fbo);
-		return null;
-	}
-	// A fresh texture's contents are undefined until written; the sim reads
-	// its first frame from one, so zero it.
-	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-	gl.clearColor(0, 0, 0, 0);
-	gl.clear(gl.COLOR_BUFFER_BIT);
-	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-	return { tex, fbo };
-}
-
-// ============================================================================
 // The sketch
 // ============================================================================
 
@@ -410,14 +226,11 @@ function createWaterSketch(
 	opts: SketchOptions = {}): WaterSketch | null
 {
 	const canvas = document.createElement("canvas");
-	const gl = (canvas.getContext("webgl2", GL_OPTIONS) ??
-		canvas.getContext("webgl", GL_OPTIONS)) as GL | null;
-	if (!gl) return null;
-	const simFormat = pickSimFormat(gl);
-	if (!simFormat) {
-		gl.getExtension("WEBGL_lose_context")?.loseContext();
-		return null;
-	}
+	const created = QuadRenderer.create(canvas);
+	if (!created) return null;
+	// Aliased with an explicit type because TypeScript drops the narrowing above
+	// inside the closures below, and this reads better than a `!` on every call.
+	const renderer: QuadRenderer = created;
 
 	// Stack the canvas over the SSR tile placeholder, and fade it in on the
 	// first drawn frame so it doesn't pop over the static placeholder.
@@ -439,17 +252,14 @@ function createWaterSketch(
 	let displayShader: Program;
 	let simShader: Program;
 	try {
-		displayShader = new Program(gl, vertShader, opts.displaySrc ?? displayFragShader);
-		simShader = new Program(gl, vertShader, opts.simSrc ?? simFragShader);
+		displayShader = renderer.program(opts.displaySrc ?? displayFragShader);
+		simShader = renderer.program(opts.simSrc ?? simFragShader);
 	} catch (error) {
 		console.error("Error building the header water shaders:", error);
+		renderer.dispose();
 		host.removeChild(canvas);
 		return null;
 	}
-
-	const quad = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, quad);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
 
 	let simRead: Target | null = null;
 	let simWrite: Target | null = null;
@@ -460,7 +270,7 @@ function createWaterSketch(
 	// Feeds u_simLens: without linear filtering the sim's second derivative is
 	// meaningless, so the caustic lens falls back to the analytic field alone
 	// rather than rendering per-texel blocks.
-	const simLens = simFormat.linear ? 1.0 : 0.0;
+	const simLens = renderer.linearFilter ? 1.0 : 0.0;
 	// Antialias fade for ambient wave groups B and C, recomputed on resize. A
 	// band whose wavelength approaches a few device pixels is faded out rather
 	// than left to alias into crawling speckle. Frame-invariant, so it is
@@ -511,14 +321,8 @@ function createWaterSketch(
 	const startMs = performance.now();
 
 	function createSimBuffers() {
-		if (simRead) {
-			gl!.deleteTexture(simRead.tex);
-			gl!.deleteFramebuffer(simRead.fbo);
-		}
-		if (simWrite) {
-			gl!.deleteTexture(simWrite.tex);
-			gl!.deleteFramebuffer(simWrite.fbo);
-		}
+		renderer.deleteTarget(simRead);
+		renderer.deleteTarget(simWrite);
 
 		const simWidth = Math.min(
 			SIM_MAX_WIDTH,
@@ -527,8 +331,8 @@ function createWaterSketch(
 		// derive height from the clamped width so texels stay square on
 		// screen even when the width clamp changes the effective texel size
 		const simHeight = Math.max(32, Math.round((simWidth * height) / width));
-		simRead = createTarget(gl!, simWidth, simHeight, simFormat!);
-		simWrite = createTarget(gl!, simWidth, simHeight, simFormat!);
+		simRead = renderer.createTarget(simWidth, simHeight);
+		simWrite = renderer.createTarget(simWidth, simHeight);
 		simTexel = [1 / simWidth, 1 / simHeight];
 		simDims = [simWidth, simHeight];
 
@@ -629,17 +433,6 @@ function createWaterSketch(
 		canvas.addEventListener("pointermove", handlePointerMove, { passive: true });
 		canvas.addEventListener("pointerleave", clearSweep, { passive: true });
 		canvas.addEventListener("click", handleClick, { passive: true });
-	}
-
-	// --- one full-target pass ------------------------------------------------
-
-	function drawQuad(prog: Program, target: Target | null, w: number, h: number) {
-		gl!.bindFramebuffer(gl!.FRAMEBUFFER, target ? target.fbo : null);
-		gl!.viewport(0, 0, w, h);
-		gl!.bindBuffer(gl!.ARRAY_BUFFER, quad);
-		gl!.enableVertexAttribArray(prog.aPosition);
-		gl!.vertexAttribPointer(prog.aPosition, 2, gl!.FLOAT, false, 0, 0);
-		gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
 	}
 
 	// --- the frame -----------------------------------------------------------
@@ -802,7 +595,7 @@ function createWaterSketch(
 			simShader.set1f("u_impulseAmp", step === 0 ? impulseAmp : 0.0);
 			simShader.set1f("u_lineAmp", step === 0 ? lineAmp : 0.0);
 			simShader.setTexture("u_state", simRead.tex, 0);
-			drawQuad(simShader, simWrite, simDims[0], simDims[1]);
+			renderer.draw(simShader, simWrite, simDims[0], simDims[1]);
 			[simRead, simWrite] = [simWrite, simRead];
 		}
 		impulseAmp = 0.0;
@@ -821,7 +614,7 @@ function createWaterSketch(
 		// integer-CSS-px tile edge, in device px; the CSS placeholder computes
 		// the identical value as min(22px, round(down, 100vw / 33, 1px))
 		displayShader.set1f("u_tilePx", tileCssPx(width) * d);
-		drawQuad(displayShader, null, canvas.width, canvas.height);
+		renderer.draw(displayShader, null, canvas.width, canvas.height);
 
 		if (firstFrame) {
 			firstFrame = false;
@@ -874,18 +667,11 @@ function createWaterSketch(
 			canvas.removeEventListener("pointerleave", clearSweep);
 			canvas.removeEventListener("click", handleClick);
 		}
-		for (const t of [simRead, simWrite]) {
-			if (t) {
-				gl!.deleteTexture(t.tex);
-				gl!.deleteFramebuffer(t.fbo);
-			}
-		}
-		gl!.deleteBuffer(quad);
+		renderer.deleteTarget(simRead);
+		renderer.deleteTarget(simWrite);
 		displayShader.dispose();
 		simShader.dispose();
-		// Give the context back now rather than when the GC gets to it; a
-		// browser only allows a handful at once.
-		gl!.getExtension("WEBGL_lose_context")?.loseContext();
+		renderer.dispose();
 		canvas.remove();
 	}
 
@@ -897,16 +683,6 @@ function createWaterSketch(
 
 	return { setLooping, resize, remove };
 }
-
-const GL_OPTIONS: WebGLContextAttributes = {
-	alpha: false, // opaque: it covers the placeholder completely
-	antialias: false, // a full-screen quad has no edges to smooth
-	depth: false,
-	stencil: false,
-	premultipliedAlpha: false,
-	preserveDrawingBuffer: false,
-	powerPreference: "low-power",
-};
 
 export { createWaterSketch };
 
