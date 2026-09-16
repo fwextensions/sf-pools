@@ -626,6 +626,34 @@ export default function HeaderAnimation()
 		// mount; Chrome drops the oldest context after ~16.
 		let cancelled = false;
 
+		// Run the draw loop only while it can be seen. The header sits at the top
+		// of a long page, so it is scrolled away for most of a visit; without this
+		// the three sim passes and the display pass keep running every frame
+		// underneath the schedule grid the user is actually using. Backgrounded
+		// tabs already stop (the browser withholds animation frames), so this only
+		// has to cover the header leaving the viewport.
+		//
+		// prefers-reduced-motion stops the loop outright. p5 still draws ONE frame
+		// when noLoop is set before setup finishes, which is what we want: the
+		// lit, tiled pool as a still image over the flat CSS placeholder, rather
+		// than nothing at all.
+		//
+		// Resuming is safe for the simulation: the sim clock caps how much time one
+		// frame may represent, so a header that comes back after a minute picks up
+		// where it left off instead of catching up on a minute of drips.
+		let visible = false;
+		const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+		const applyLoopState = () => {
+			if (!myP5) return;
+			if (visible && !reducedMotion.matches) myP5.loop();
+			else myP5.noLoop();
+		};
+		const observer = new IntersectionObserver((entries) => {
+			visible = entries[entries.length - 1].isIntersecting;
+			applyLoopState();
+		});
+		reducedMotion.addEventListener("change", applyLoopState);
+
 		(async () => {
 			try {
 				// Dynamically load p5 here, ensuring it ONLY happens in the browser
@@ -634,6 +662,11 @@ export default function HeaderAnimation()
 
 				if (cancelled || !renderRef.current) return;
 				myP5 = new P5(renderSFPools, renderRef.current);
+				// Start stopped: the observer's first callback reports the real
+				// visibility and starts the loop if the header is on screen. p5's
+				// setup is async, so this lands before its first draw either way.
+				myP5.noLoop();
+				observer.observe(renderRef.current);
 			} catch (error) {
 				console.error("Error loading p5:", error);
 			}
@@ -641,6 +674,8 @@ export default function HeaderAnimation()
 
 		return () => {
 			cancelled = true;
+			observer.disconnect();
+			reducedMotion.removeEventListener("change", applyLoopState);
 			if (myP5) {
 				myP5.remove();
 			}
