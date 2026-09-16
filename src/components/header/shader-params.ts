@@ -81,7 +81,7 @@ export const PARAM_SPECS: ParamSpec[] = [
 	{
 		name: "SIM_SLOPE_GAIN", domain: "display", group: "Wave field",
 		label: "Ripple slope gain", min: 0.0, max: 40.0, step: 0.5,
-		hint: "How hard simulated ripples refract the tiles and drive the glint. Independent of the lens gain above.",
+		hint: "How hard simulated ripples drive the glint. Independent of the lens gain above; the tile refraction now follows the lens gain, so this no longer moves the tiles.",
 	},
 	{
 		name: "SIM_HEIGHT_SCALE", domain: "display", group: "Wave field",
@@ -114,9 +114,14 @@ export const PARAM_SPECS: ParamSpec[] = [
 		hint: "MUST stay a whole number — the sub-texel smoothing is only valid when every tap sits an integer number of texels away. 2 also nulls the grid's Nyquist mode exactly; at 1 the sim's sharp impulses stripe.",
 	},
 	{
-		name: "GRADIENT_SCALE", domain: "display", group: "Wave field",
-		label: "Gradient scale", min: 0.0, max: 0.02, step: 0.0005,
-		hint: "Converts wave gradients into the range the tile refraction and glint are tuned against.",
+		name: "REFRACT_SCALE", domain: "display", group: "Wave field",
+		label: "Tile refraction (x lens)", min: 0.0, max: 2.0, step: 0.05,
+		hint: "How far the tiles are displaced, as a multiple of what the caustic lens implies. At 1.0 the refraction and the caustics are the same map, so bright filaments land where the tiles look most compressed. Anything else is a deliberate departure from the physics — 0 leaves the tiles still under a live caustic web.",
+	},
+	{
+		name: "GLINT_SLOPE", domain: "display", group: "Wave field",
+		label: "Glint slope scale", min: 0.0, max: 1.0, step: 0.01,
+		hint: "Converts wave slope into the normal's tilt for the specular glint. 1.0 is physical, but these slopes are far steeper than a real pool's, so lower values keep the glint to the steeper flanks. The glint peaks where the normal meets the light/view half-vector, ~20 degrees off vertical.",
 	},
 
 	// --- Simulation ---------------------------------------------------------
