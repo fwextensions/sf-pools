@@ -44,7 +44,16 @@ const float WAVE_SPEED = 0.0025;
 // reach the long walls and reflect. Together with WAVE_SPEED this is what
 // decides whether rings from successive drips ever overlap; drop it back toward
 // 0.985 and each one dies where it lands.
-const float DAMPING = 0.9985;
+const float DAMPING = 0.9995;
+// Viscous damping coefficient, applied to the Laplacian of the velocity. Per
+// step a mode of wavenumber k loses roughly VISCOSITY * k^2 of its velocity,
+// with k^2 in texel units: 8 for the checkerboard, ~0.4 for a 10-texel ring,
+// ~0.1 for a 20-texel one. At 0.003 the checkerboard e-folds in ~40 steps
+// (a quarter second at 3 substeps and 60fps) while a drip ring loses an extra
+// ~20% per second on top of DAMPING — enough to matter, so if rings stop
+// reaching the walls, raise DAMPING a touch rather than lowering this. Must
+// stay well below 1/8 (~0.12) or the viscous step itself goes unstable.
+const float VISCOSITY = 0.003;
 
 float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -68,14 +77,24 @@ void main() {
 	vec2 uv = vTexCoord;
 	vec2 state = texture2D(u_state, uv).rg;
 
-	// clamped edge sampling makes borders reflect like pool walls
-	float hN = texture2D(u_state, uv + vec2(0.0, u_texel.y)).r;
-	float hS = texture2D(u_state, uv - vec2(0.0, u_texel.y)).r;
-	float hE = texture2D(u_state, uv + vec2(u_texel.x, 0.0)).r;
-	float hW = texture2D(u_state, uv - vec2(u_texel.x, 0.0)).r;
+	// clamped edge sampling makes borders reflect like pool walls. Both
+	// channels are read: the viscous term below needs the neighbours' previous
+	// heights too, and they come from the same four fetches.
+	vec2 sN = texture2D(u_state, uv + vec2(0.0, u_texel.y)).rg;
+	vec2 sS = texture2D(u_state, uv - vec2(0.0, u_texel.y)).rg;
+	vec2 sE = texture2D(u_state, uv + vec2(u_texel.x, 0.0)).rg;
+	vec2 sW = texture2D(u_state, uv - vec2(u_texel.x, 0.0)).rg;
 
-	float laplacian = hN + hS + hE + hW - 4.0 * state.r;
-	float next = (2.0 * state.r - state.g + WAVE_SPEED * laplacian) * DAMPING;
+	vec2 lap2 = sN + sS + sE + sW - 4.0 * state; // (laplacian of h, of hPrev)
+	float laplacian = lap2.x;
+	// Viscosity: damp the Laplacian of the VELOCITY (h - hPrev), which is what
+	// a viscous fluid does. Unlike DAMPING, which takes the same fraction from
+	// every wavelength, this scales with k^2: the grid's checkerboard mode
+	// (k^2 = 8 here) loses ~20x more per step than a 10-texel drip ring
+	// (k^2 ~ 0.4), so injection noise and the stripes it seeds die in a few
+	// frames while the rings barely notice. See VISCOSITY for the numbers.
+	float viscous = VISCOSITY * (lap2.x - lap2.y);
+	float next = (2.0 * state.r - state.g + WAVE_SPEED * laplacian + viscous) * DAMPING;
 	// Height carried into the .g channel as next step's "previous". Injections
 	// below displace it alongside `next` so they add no velocity — see the
 	// note on the pointer dent.
