@@ -151,11 +151,15 @@ const float CAUSTIC_SHADOW = 0.45;
 // p is the same q — the tile refraction and the caustics are one map, and the
 // bright filaments must land where the tiles look most compressed. At 1.0 they
 // do. The old code used an unrelated constant that worked out to ~1/300 of the
-// lens, so the ambient swell bent light hard and moved the tiles not at all;
-// this dial is here so the two can still be traded off by eye, but anything
-// other than 1.0 is an aesthetic departure from the physics and should be
-// treated as one.
-const float REFRACT_SCALE = 1.0;
+// lens, so the ambient swell bent light hard and moved the tiles not at all.
+//
+// Shipped at 0.3, not 1.0. At 1.0 the grid turns to jelly and the logo warps
+// enough to be distracting on a page whose point is the schedule below — the
+// honest reading of which is that the ambient slopes are ~10x steeper than a
+// real pool's, and the caustic web was tuned to those slopes. Reducing the
+// swell instead would be the physically consistent fix, but it would also
+// dismantle that web, so the departure is taken here, openly, on one dial.
+const float REFRACT_SCALE = 0.3;
 // --- Glint ---
 // Converts the wave slope into the normal's tilt for the specular highlight.
 // Physically this would be 1.0 (the normal of z = h(x,y) is (-grad, 1)), but
