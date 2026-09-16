@@ -345,10 +345,35 @@ function renderSFPools(
 		);
 	}
 
-	function handlePointerMove() {
-		if (!pointerInCanvas()) return;
+	// Where the pointer was at its last move INSIDE the canvas, in CSS px, or
+	// null when it has since left (or never arrived). This is the anchor the
+	// dent is swept from, and it is tracked here rather than read from p5's
+	// pmouseX/pmouseY because those are only refreshed once per drawn frame,
+	// from events: leave the window through its edge and no more events
+	// arrive, so the "previous" point freezes at the exit — and the next entry
+	// sweeps a trough from there to wherever the pointer comes back in. The
+	// same happens after any spell with the loop stopped, and on the very first
+	// move, when p5's previous point is simply wherever it was initialised.
+	let sweepFrom: { x: number; y: number; t: number } | null = null;
+	// A gap longer than this between moves means the pointer was away
+	// (outside the window, over another element that swallowed events, or the
+	// tab was hidden) even if nothing told us so; don't sweep across it.
+	const SWEEP_MAX_GAP_MS = 150;
 
-		const speedPx = Math.hypot(p.mouseX - p.pmouseX, p.mouseY - p.pmouseY);
+	function clearSweep() {
+		sweepFrom = null;
+	}
+
+	function handlePointerMove() {
+		if (!pointerInCanvas()) {
+			clearSweep();
+			return;
+		}
+
+		const now = performance.now();
+		const from =
+			sweepFrom && now - sweepFrom.t <= SWEEP_MAX_GAP_MS ? sweepFrom : null;
+		const speedPx = from ? Math.hypot(p.mouseX - from.x, p.mouseY - from.y) : 0;
 
 		impulseX = p.mouseX / p.width;
 		impulseY = 1.0 - p.mouseY / p.height;
@@ -357,13 +382,11 @@ function renderSFPools(
 			: JS_PARAM_DEFAULTS;
 		impulseAmp = Math.min(jp.IMPULSE_MAX, jp.IMPULSE_BASE + speedPx * jp.IMPULSE_PER_PX);
 
-		// sweep the dent from last frame's position, unless the pointer
-		// just entered the canvas (a segment from outside would streak)
-		const prevInCanvas =
-			p.pmouseX >= 0 && p.pmouseX <= p.width &&
-			p.pmouseY >= 0 && p.pmouseY <= p.height;
-		impulsePrevX = prevInCanvas ? p.pmouseX / p.width : impulseX;
-		impulsePrevY = prevInCanvas ? 1.0 - p.pmouseY / p.height : impulseY;
+		// sweep the dent from the last in-canvas position, unless the pointer
+		// just arrived — then it is a point dent where it landed
+		impulsePrevX = from ? from.x / p.width : impulseX;
+		impulsePrevY = from ? 1.0 - from.y / p.height : impulseY;
+		sweepFrom = { x: p.mouseX, y: p.mouseY, t: now };
 		lastInteractionTime = simClock.simTime * 1000;
 	}
 
@@ -386,6 +409,11 @@ function renderSFPools(
 		lastScrollY = window.scrollY;
 
 		p.mouseMoved = p.mouseDragged = handlePointerMove;
+		// p5 listens on the window, so it never tells us the pointer left the
+		// canvas; the canvas itself does. This also fires when the pointer leaves
+		// through the window edge, which is the case the move handler's
+		// in-canvas check cannot see (no further moves arrive to check).
+		canvasEl.addEventListener("pointerleave", clearSweep);
 
 		p.mouseClicked = () => {
 			if (!pointerInCanvas()) return;
@@ -394,6 +422,7 @@ function renderSFPools(
 			impulseY = 1.0 - p.mouseY / p.height;
 			impulsePrevX = impulseX; // point dent, no sweep
 			impulsePrevY = impulseY;
+			sweepFrom = { x: p.mouseX, y: p.mouseY, t: performance.now() };
 			impulseAmp = (opts.getJsParams?.().CLICK_AMP) ?? CLICK_AMP;
 			lastInteractionTime = simClock.simTime * 1000;
 		};
