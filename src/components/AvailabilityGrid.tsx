@@ -8,6 +8,7 @@ import {
 	useRef,
 	useState,
 	type PointerEvent,
+	type ReactNode,
 } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
@@ -84,6 +85,47 @@ type Props = {
 	all: PoolSchedule[];
 	alerts?: AlertsData | null;
 };
+
+// The detail list sits under the grid, so a shorter list pulls everything
+// below it upward — pick a sparse cell while scrolled down and the page
+// shifts under you. Hold the tallest list rendered so far as a floor: the
+// space can grow but never shrink, so switching cells never moves the page.
+// Changing the filters is the one time a smaller list is expected, so the
+// floor resets there rather than stranding a gap for the rest of the session.
+// Focus mode opts out: the page doesn't scroll there and the list has its
+// own scroller, so a floor would only add one.
+function HeightRatchet({
+	enabled,
+	resetKey,
+	children,
+}: {
+	enabled: boolean;
+	resetKey: string;
+	children: ReactNode;
+}) {
+	const inner = useRef<HTMLDivElement>(null);
+	const [floor, setFloor] = useState(0);
+
+	useLayoutEffect(() => {
+		setFloor(0);
+	}, [resetKey, enabled]);
+
+	// every commit, not just when the content changes: fonts and wrapping can
+	// settle a row later. offsetHeight is 0 while this copy of the grid is
+	// display:none (the layout keeps both the mobile and desktop trees
+	// mounted), which leaves the floor alone rather than crushing it
+	useLayoutEffect(() => {
+		if (!enabled) return;
+		const h = inner.current?.offsetHeight ?? 0;
+		setFloor((prev) => (h > prev ? h : prev));
+	});
+
+	return (
+		<div style={{ minHeight: enabled && floor ? floor : undefined }}>
+			<div ref={inner}>{children}</div>
+		</div>
+	);
+}
 
 export default function AvailabilityGrid({ all, alerts }: Props) {
 	// selection is a set of tag ids from the closed vocabulary in
@@ -289,6 +331,8 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	}, [selectedCell, sessions, matchesTags, poolSet]);
 
 	const hasAnyFilter = selectedTags.length > 0 || selectedPools.length > 0;
+	// what the detail list's height floor resets on
+	const filterKey = `${selectedTags.join(",")}|${selectedPools.join(",")}`;
 
 	function toggleProgram(name: string) {
 		setSelectedTags((prev) =>
@@ -690,7 +734,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 
 	// ----- detail -----
 
-	function renderDetail(canDrag = false) {
+	function renderDetail(canDrag = false, ratchet = true) {
 		return (
 			<div className="mt-4 border-t-2 border-[#0e2733] pt-2.5">
 				<div className="flex items-baseline justify-between">
@@ -707,6 +751,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						</span>
 					) : null}
 				</div>
+				<HeightRatchet enabled={ratchet} resetKey={filterKey}>
 				{detail?.map((d, i) => (
 					<div
 						key={i}
@@ -739,6 +784,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						Nothing scheduled here — {canDrag ? "drag across" : "tap a colored cell in"} the grid.
 					</div>
 				) : null}
+				</HeightRatchet>
 			</div>
 		);
 	}
@@ -767,7 +813,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						    list gives its space to the panel and comes back after */}
 						{openPanel ? null : (
 							<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4">
-								{renderDetail(true)}
+								{renderDetail(true, false)}
 							</div>
 						)}
 					</div>
