@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type p5 from "p5";
-import { renderSFPools, type InputBus, type JsParams } from "./HeaderAnimation";
+
+import { createWaterSketch, type InputBus, type JsParams, type WaterSketch } from "./HeaderAnimation";
 import { headerHeightPx } from "./HeaderPlaceholder";
 import {
 	PARAM_SPECS,
@@ -17,8 +17,8 @@ import {
 type Values = Record<string, number>;
 
 // Both panes share ONE clock origin and ONE input bus. Without the shared clock
-// the analytic swell in each pane runs at a different phase (p5 stamps millis()
-// per instance at its own setup) and the comparison is worthless; without the
+// the analytic swell in each pane runs at a different phase (each sketch stamps
+// its own origin at creation) and the comparison is worthless; without the
 // shared bus only the pane the pointer is physically over gets stirred.
 const CLOCK_ORIGIN = typeof performance !== "undefined" ? performance.now() : 0;
 
@@ -137,49 +137,41 @@ function Pane({
 		widthRef.current = width;
 	}, [width]);
 
+	const sketchRef = useRef<WaterSketch | null>(null);
 	useEffect(() => {
-		let instance: p5 | undefined;
-		let cancelled = false;
-
-		(async () => {
-			const P5 = (await import("p5")).default;
-			if (cancelled || !hostRef.current) return;
-			instance = new P5(
-				(p: p5) =>
-					renderSFPools(p, {
-						displaySrc: LAB_DISPLAY_SRC,
-						simSrc: LAB_SIM_SRC,
-						// Shader uniforms and JS-side numbers come from the same slider
-						// state; split here because the JS ones shape the impulse before
-						// it ever reaches a shader and so cannot be uniforms.
-						getUniforms: () => valuesRef.current,
-						getJsParams: () => {
-							const out: Record<string, number> = {};
-							for (const k of JS_TUNABLES) out[k] = valuesRef.current[k];
-							return out as Partial<JsParams>;
-						},
-						getWidth: () => widthRef.current,
-						t0: CLOCK_ORIGIN,
-						input: busRef.current,
-					}),
-				hostRef.current
-			);
-		})();
+		if (!hostRef.current) return;
+		const sketch = createWaterSketch(hostRef.current, {
+			displaySrc: LAB_DISPLAY_SRC,
+			simSrc: LAB_SIM_SRC,
+			// Shader uniforms and JS-side numbers come from the same slider
+			// state; split here because the JS ones shape the impulse before
+			// it ever reaches a shader and so cannot be uniforms.
+			getUniforms: () => valuesRef.current,
+			getJsParams: () => {
+				const out: Record<string, number> = {};
+				for (const k of JS_TUNABLES) out[k] = valuesRef.current[k];
+				return out as Partial<JsParams>;
+			},
+			getWidth: () => widthRef.current,
+			t0: CLOCK_ORIGIN,
+			input: busRef.current,
+		});
+		sketchRef.current = sketch;
+		sketch?.setLooping(true);
 
 		return () => {
-			cancelled = true;
-			instance?.remove();
+			sketch?.remove();
+			sketchRef.current = null;
 		};
 		// Deliberately mount-once: everything live is read through a ref.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	// Resize without remounting — a remount would burn a WebGL context each time
-	// and Chrome drops the oldest after ~16. p5 only listens for window resize,
-	// which a layout toggle does not fire, so nudge it. The sketch reads the
-	// live width through getWidth() and no-ops if it is unchanged.
+	// and Chrome drops the oldest after ~16. The sketch reads the live width
+	// through getWidth() and no-ops if it is unchanged.
 	useEffect(() => {
-		window.dispatchEvent(new Event("resize"));
+		sketchRef.current?.resize();
 	}, [width]);
 
 	return (

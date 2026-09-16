@@ -3,7 +3,7 @@
 // ============================================================================
 // A pure-CSS tile grid the server paints on first load, so the header shows
 // tiles (and "SF POOLS") within the first paint instead of a blank box while
-// p5 downloads and boots. The opaque WebGL canvas is stacked on top and covers
+// the shaders compile. The opaque WebGL canvas is stacked on top and covers
 // this once its first frame draws. Layout mirrors header-shader.frag exactly so
 // the two line up:
 //   - The tile edge is a whole number of CSS px: min(22px, floor(width / 33))
