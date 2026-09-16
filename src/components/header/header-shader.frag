@@ -143,9 +143,26 @@ const float CAUSTIC_DISPERSION = 0.07;
 const float CAUSTIC_STRENGTH = 0.6;
 const float CAUSTIC_SHADOW = 0.45;
 
-// Converts wave gradients to the range the old finite-difference normals
-// produced (their sample spacing was eps = 0.004).
-const float GRADIENT_SCALE = 0.004;
+// --- Refraction ---
+// How far the tiles are displaced by the surface slope, as a multiple of what
+// the caustic lens implies. The caustics come from the map q = p + c*grad(h)
+// with c = CAUSTIC_DEPTH: a downward ray through the surface at p lands on the
+// floor at q. A viewing ray refracts by the same law, so the floor point SEEN at
+// p is the same q — the tile refraction and the caustics are one map, and the
+// bright filaments must land where the tiles look most compressed. At 1.0 they
+// do. The old code used an unrelated constant that worked out to ~1/300 of the
+// lens, so the ambient swell bent light hard and moved the tiles not at all;
+// this dial is here so the two can still be traded off by eye, but anything
+// other than 1.0 is an aesthetic departure from the physics and should be
+// treated as one.
+const float REFRACT_SCALE = 1.0;
+// --- Glint ---
+// Converts the wave slope into the normal's tilt for the specular highlight.
+// Physically this would be 1.0 (the normal of z = h(x,y) is (-grad, 1)), but
+// the slopes in this shader are ~10x steeper than any real pool, so the glint
+// would fire everywhere; this scales them back into a range where only the
+// steeper flanks catch the light.
+const float GLINT_SLOPE = 0.25;
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -358,7 +375,12 @@ void sampleWater(vec2 screenUV, out float height, out vec2 grad, out vec3 hess) 
 	float invss = 1.0 / (s * s);
 
 	height = hC * SIM_HEIGHT_SCALE;
-	grad   = vec2(hE - hW, hN - hS) * (inv2s * SIM_SLOPE_GAIN);
+	// The slope is returned UNSCALED — the same units as the Hessian below before
+	// its gain — because it feeds two things that want different gains: the
+	// tile refraction, which must use SIM_CURV_GAIN so that it is the gradient of
+	// the very field whose curvature drives the caustics, and the glint, which
+	// keeps its own SIM_SLOPE_GAIN. main() applies each.
+	grad   = vec2(hE - hW, hN - hS) * inv2s;
 	hess   = vec3(
 		(hE + hW - 2.0 * hC) * invss,
 		(hN + hS - 2.0 * hC) * invss,
@@ -381,7 +403,10 @@ void sampleWater(vec2 screenUV, out float height, out vec2 grad, out vec3 hess) 
 	//
 	// Only the lens is limited. The gradient above is left alone, so a fresh
 	// drip still refracts the tiles and drives the glint at full strength — the
-	// flash being fixed here is specific to the caustic determinant.
+	// flash being fixed here is specific to the caustic determinant. (This is
+	// the one place the tile refraction and the caustic lens part company: in
+	// the few texels where a drip has just landed, the lens is softened and the
+	// refraction is not.)
 	float lapMag = abs(hess.x + hess.y);
 	hess *= inversesqrt(1.0 + (lapMag * lapMag) / (SIM_CURV_MAX * SIM_CURV_MAX));
 }
@@ -441,17 +466,23 @@ void main() {
 	float simH; vec2 simGrad; vec3 simHess;
 	sampleWater(screenUV, simH, simGrad, simHess);
 
-	vec2 grad      = ambGrad * AMBIENT_WEIGHT + simGrad;
+	// Two slope fields from the same taps. `grad` is the gradient of exactly the
+	// field whose Hessian goes into the caustic determinant below (same weights,
+	// same gains), so the refraction it drives is the caustics' own map. The
+	// glint keeps a separately tuned slope, since it is a lighting effect, not a
+	// geometric one.
+	vec2 grad      = ambGrad * AMBIENT_WEIGHT + simGrad * SIM_CURV_GAIN;
 	vec3 hess      = ambHess * AMBIENT_WEIGHT + simHess;
-	vec2 glintGrad = coarseGrad * AMBIENT_WEIGHT + simGrad;
-
-	vec2 surfaceNormal = grad * GRADIENT_SCALE;
+	vec2 glintGrad = coarseGrad * AMBIENT_WEIGHT + simGrad * SIM_SLOPE_GAIN;
 
 	// --- Tile UV Distortion ---
-	// 0.035 = how far wave slopes refract the tile pattern (the main "looking
-	// through water" effect). The two tiny sin/cos terms add a slow independent
-	// shimmer so even dead-calm water isn't static.
-	vec2 tileUV = uv + surfaceNormal * 0.035;
+	// The floor point seen through the surface at p is q = p + c*grad(h), the
+	// same map the caustics are the Jacobian of (see REFRACT_SCALE). uv is in
+	// aspect-corrected units where one unit is the header's height on both
+	// axes, which is what the gradient is taken in, so no per-axis correction
+	// is needed. The two tiny sin/cos terms are the old independent shimmer,
+	// kept so dead-calm water isn't static.
+	vec2 tileUV = uv + grad * (CAUSTIC_DEPTH * REFRACT_SCALE);
 	tileUV.x += sin(uv.y * 6.0 + tCaustic * 10.0) * 0.005;
 	tileUV.y += cos(uv.x * 3.0 + tCaustic * 11.0) * 0.005;
 
@@ -481,9 +512,6 @@ void main() {
 	// shadow are two halves of one conserved quantity.
 	float causticShadow = max(1.0 - gain.g, 0.0);
 	causticShadow *= causticShadow;
-
-	// bright caustics shrink the tile UV a hair, faking light focusing
-	tileUV *= (1.0 - causticRGB.g * 0.012);
 
 	// --- Tile Grid Layout ---
 	// The tile edge length arrives as a uniform so JS, this shader, and the
@@ -558,20 +586,23 @@ void main() {
 	color = mix(color, color * rippleShadow, 0.3 * trough / (1.0 + trough));
 
 	// --- Specular Glint ---
-	// Flat water reflects nothing (dot^64 vanishes); only wave slopes tilted
-	// toward the light produce sparkles. The pow makes brightness stay saturated
-	// until the slope drops below alignment, so also scale by the local ripple
-	// strength to fade the glint with the wave height. Reads glintGrad (wave
-	// groups A+B only) so the finest ripples cannot turn dot^64 into crawling
-	// speckle. 0.25 converts wave gradient to normal tilt: higher = milder
-	// slopes already glint. lightDir points toward the (off-screen upper-right)
-	// light; 64 is the glint tightness (higher = smaller, sharper sparkles);
-	// 0.05 sets how much sim gradient counts as "full-strength" ripple; 0.4 is
-	// the overall glint brightness.
-	vec3 surfN = normalize(vec3(-glintGrad * 0.25, 1.0));
+	// Blinn-Phong: a facet reflects the light into the eye when its normal lies
+	// along the HALF-VECTOR between the light and view directions, not along the
+	// light itself. The viewer looks straight down, so with the light at ~41
+	// degrees off vertical the half-vector sits at ~20 — and the old dot(N, L)
+	// form peaked at a 41-degree tilt, which no ripple here reaches, so the
+	// glint only ever saw the shoulder of its own lobe. Flat water still
+	// reflects nothing: dot(up, H)^64 is ~0.01. Reads glintGrad (wave groups
+	// A+B only) so the finest ripples cannot turn pow 64 into crawling speckle,
+	// and fades with the local ripple strength so the ambient swell alone does
+	// not sparkle. lightDir points toward the off-screen upper-right light; 64
+	// is the glint tightness (higher = smaller, sharper sparkles); 0.05 sets how
+	// much sim slope counts as "full-strength" ripple; 0.4 is the brightness.
+	vec3 surfN = normalize(vec3(-glintGrad * GLINT_SLOPE, 1.0));
 	vec3 lightDir = normalize(vec3(0.35, 0.55, 0.75));
-	float spec = pow(max(dot(surfN, lightDir), 0.0), 64.0);
-	float rippleEnergy = min(length(simGrad) * 0.05, 1.0);
+	vec3 halfVec = normalize(lightDir + vec3(0.0, 0.0, 1.0));
+	float spec = pow(max(dot(surfN, halfVec), 0.0), 64.0);
+	float rippleEnergy = min(length(simGrad * SIM_SLOPE_GAIN) * 0.05, 1.0);
 	color += vec3(1.0, 0.98, 0.92) * spec * rippleEnergy * 0.4;
 
 	// --- Output ---
