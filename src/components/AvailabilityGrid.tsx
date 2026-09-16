@@ -151,7 +151,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	useEffect(() => {
 		if (didInit.current) return;
 
-		let saved: { tags?: string[]; poolIds?: string[]; selectedCell?: SelectedCell | null } = {};
+		let saved: { tags?: string[]; poolIds?: string[] } = {};
 		try {
 			saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || "{}");
 		} catch {}
@@ -166,15 +166,9 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 
 		setSelectedTags(tags);
 		setSelectedPools(pools);
-		if (
-			saved.selectedCell &&
-			DAYS.includes(saved.selectedCell.day) &&
-			typeof saved.selectedCell.hour === "number" &&
-			saved.selectedCell.hour >= FIRST_HOUR &&
-			saved.selectedCell.hour <= LAST_HOUR
-		) {
-			setSelectedCell(saved.selectedCell);
-		}
+		// the cell is deliberately not restored: filters are a standing
+		// preference, but a highlighted cell on arrival reads as a claim the
+		// page is making rather than one the reader made
 
 		didInit.current = true;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -187,7 +181,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		try {
 			window.localStorage.setItem(
 				STORAGE_KEY,
-				JSON.stringify({ tags: selectedTags, poolIds: selectedPools, selectedCell })
+				JSON.stringify({ tags: selectedTags, poolIds: selectedPools })
 			);
 		} catch {}
 
@@ -196,7 +190,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		if (selectedPools.length) params.set("pools", selectedPools.join(","));
 		const qs = params.toString();
 		router.replace(qs ? `${pathname}?${qs}` : pathname);
-	}, [selectedTags, selectedPools, selectedCell, pathname, router]);
+	}, [selectedTags, selectedPools, pathname, router]);
 
 	// focus mode takes the scrolling layout out of the flow, which collapses
 	// the document and clamps the page's scroll offset; stash it on the way in
