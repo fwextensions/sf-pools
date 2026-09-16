@@ -1,6 +1,6 @@
 import displayFragShader from "./header-shader.frag";
 import simFragShader from "./water-sim.frag";
-import { JS_PARAM_DEFAULTS } from "./HeaderAnimation";
+import { JS_PARAM_DEFAULTS } from "./water";
 
 // ============================================================================
 // TUNABLE SHADER PARAMETERS
@@ -251,7 +251,7 @@ export const PARAM_DEFAULTS: Record<string, number> = (() => {
 	const out: Record<string, number> = {};
 	for (const spec of PARAM_SPECS) {
 		if (spec.domain === "js") {
-			// JS-side numbers live in HeaderAnimation.tsx, not in a shader.
+			// JS-side numbers live in water.ts, not in a shader.
 			const v = (JS_PARAM_DEFAULTS as Record<string, number>)[spec.name];
 			if (v === undefined) {
 				console.warn(`[shader-params] no JS default for ${spec.name}`);
@@ -308,9 +308,9 @@ export function toGlsl(values: Record<string, number>): string {
 		const v = values[spec.name];
 		if (v === undefined || v === PARAM_DEFAULTS[spec.name]) continue;
 		if (spec.domain === "js") {
-			if (!groups.has("HeaderAnimation.tsx")) groups.set("HeaderAnimation.tsx", []);
+			if (!groups.has("water.ts")) groups.set("water.ts", []);
 			const dec = Math.max(0, -Math.floor(Math.log10(spec.step)));
-			groups.get("HeaderAnimation.tsx")!.push(`const ${spec.name} = ${v.toFixed(dec)};`);
+			groups.get("water.ts")!.push(`const ${spec.name} = ${v.toFixed(dec)};`);
 			continue;
 		}
 		const file = spec.domain === "sim" ? "water-sim.frag" : "header-shader.frag";
