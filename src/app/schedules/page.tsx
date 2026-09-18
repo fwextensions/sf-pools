@@ -5,9 +5,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import ClosureNotice from "@/components/ClosureNotice";
-import ProgramName from "@/components/ProgramName";
+import SessionBlock from "@/components/schedule/SessionBlock";
+import TimelineBlock from "@/components/schedule/TimelineBlock";
 import { toTitleCase } from "@/lib/program-taxonomy";
-import { describeProgram } from "@/lib/program-display";
 import { POOL_TOKENS, getPoolToken, type PoolToken } from "@/lib/pool-tokens";
 import { formatScheduleDate, parseTimeToMinutes } from "@/lib/utils";
 
@@ -99,48 +99,6 @@ function MetaLine({ parts }: { parts: React.ReactNode[] }) {
 	);
 }
 
-/**
- * The block repeats its start time even in the time-aligned grid, where the row
- * gutter already names it: the eye lands in the middle of a grid this size and
- * reads outward, so a block that only carried its end time would send you back
- * to the axis to find out when it began.
- */
-function SessionBlock({ program, color }: { program: ProgramEntry; color: string }) {
-	const { title, badges, notes } = describeProgram(program);
-	return (
-		<div className="border-l-[3px] bg-[#f7fafb] px-2 py-1.5" style={{ borderColor: color }}>
-			<div className="plex-mono text-[11px] font-medium text-[#5a707c]">
-				{program.startTime}–{program.endTime}
-			</div>
-			{/* the badges ride in the space beside the title rather than under it:
-			    a program name rarely fills its column, and a stacked badge row cost
-			    every session a line of height it did not need */}
-			<div className="mt-0.5 flex flex-wrap items-start justify-between gap-x-2 gap-y-1">
-				<div className="min-w-0 text-[13px] font-medium leading-snug text-[#0e2733]">
-					<ProgramName name={title} />
-				</div>
-				{badges.length ? (
-					<div className="ml-auto flex shrink-0 flex-wrap justify-end gap-1">
-						{badges.map((badge) => (
-							<span
-								key={badge}
-								className="border border-[#c4d2d9] bg-white px-1 py-px plex-mono text-[10px] font-medium text-[#5a707c]"
-							>
-								{badge}
-							</span>
-						))}
-					</div>
-				) : null}
-			</div>
-			{notes.map((note) => (
-				<div key={note} className="mt-1 text-[11px] leading-snug text-[#8a9aa4]">
-					{note}
-				</div>
-			))}
-		</div>
-	);
-}
-
 function DayColumn({
 	day,
 	programs,
@@ -172,54 +130,129 @@ function DayColumn({
 	);
 }
 
+/** Minutes since midnight, rounded outward to a half-hour, or null if unparseable. */
+function floorHalfHour(min: number): number {
+	return Math.floor(min / 30) * 30;
+}
+function ceilHalfHour(min: number): number {
+	return Math.ceil(min / 30) * 30;
+}
+
+function minutesToClock(min: number): string {
+	const h = Math.floor(min / 60) % 24;
+	const m = min % 60;
+	const suffix = h >= 12 ? "p" : "a";
+	const h12 = h % 12 === 0 ? 12 : h % 12;
+	return m === 0 ? `${h12}${suffix}` : `${h12}:${String(m).padStart(2, "0")}${suffix}`;
+}
+
+type TimedProgram = { program: ProgramEntry; startMin: number; endMin: number };
+
+/** A program a whole day column, laid alongside its overlapping neighbors. */
+type LaidOutProgram = TimedProgram & { lane: number; lanes: number };
+
 /**
- * The stacked-by-day layout gives each column its own independent run of blocks,
- * so 9:00a on Monday sits at whatever height Monday's earlier sessions happen to
- * push it to and lines up with nothing on Tuesday. This lays the week on a shared
- * vertical axis instead: one row per distinct start time across the pool's week,
- * so a given time is the same band in all seven columns and the eye can compare
- * days by scanning across.
- *
- * Rows are keyed on the raw startTime string, ordered by parsed minutes. Keying
- * on the string rather than the parsed value means a time this build cannot parse
- * still gets its own row and its programs still render, instead of silently
- * dropping out of the grid.
- *
- * The rows are the distinct times only, not a uniform hour scale — with 9-15 of
- * them per pool a proportional 6a-9p axis would leave most of the page empty and
- * squeeze each block far below a readable height. The home page's availability
- * grid already carries the proportional view; this one trades exact spacing for
- * legible text while keeping the alignment.
+ * Greedy interval-graph coloring: sweep events by start time, drop each into
+ * the first lane whose last occupant has already ended, opening a new lane
+ * only when none is free. Events that never overlap anything end up alone in
+ * lane 0 of a cluster of one, so the common case (no overlap) costs nothing —
+ * only an actual double-booking (e.g. Family Swim run alongside Senior Swim)
+ * pushes a program into a narrower side-by-side lane.
  */
-function WeekGrid({
+function layoutDay(programs: ProgramEntry[]): LaidOutProgram[] {
+	const timed: TimedProgram[] = [];
+	for (const program of programs) {
+		const startMin = parseTimeToMinutes(program.startTime);
+		const endMin = parseTimeToMinutes(program.endTime);
+		if (startMin === Number.MAX_SAFE_INTEGER || endMin === Number.MAX_SAFE_INTEGER) continue;
+		timed.push({ program, startMin, endMin: Math.max(endMin, startMin + 15) });
+	}
+	timed.sort((a, b) => a.startMin - b.startMin || b.endMin - a.endMin);
+
+	const out: LaidOutProgram[] = [];
+	let cluster: LaidOutProgram[] = [];
+	let laneEnds: number[] = [];
+
+	function flush() {
+		if (!cluster.length) return;
+		for (const item of cluster) item.lanes = laneEnds.length;
+		out.push(...cluster);
+		cluster = [];
+		laneEnds = [];
+	}
+
+	for (const item of timed) {
+		if (cluster.length && item.startMin >= Math.max(...laneEnds)) flush();
+
+		let lane = laneEnds.findIndex((end) => end <= item.startMin);
+		if (lane === -1) {
+			lane = laneEnds.length;
+			laneEnds.push(item.endMin);
+		} else {
+			laneEnds[lane] = item.endMin;
+		}
+		cluster.push({ ...item, lane, lanes: 1 });
+	}
+	flush();
+
+	return out;
+}
+
+const PX_PER_MIN = 1.15;
+const GUTTER_PX = 44;
+// a block ends this many px short of its true end time, so back-to-back
+// sessions (Learn to Swim into Rentals at the same 5:30 mark) get a hairline
+// of open track between them instead of two borders touching edge to edge
+const BLOCK_GAP_PX = 2;
+
+/**
+ * A real time axis: block height is proportional to a session's duration, so
+ * a 2-hour Rentals block reads twice as tall as a 1-hour Rec Swim, and the
+ * gaps where the pool is unstaffed are visibly empty instead of implied by
+ * row spacing. All seven days share one [dayStart, dayEnd) range for the
+ * pool, so a given clock time is the same pixel row in every column and
+ * times still compare across days at a glance.
+ *
+ * Two programs at the same pool can genuinely overlap (a rental alongside a
+ * lap lane, or two blocks the extractor split out of one schedule cell), and
+ * a real calendar can't just stack them without lying about the hour — so an
+ * overlapping cluster splits into side-by-side lanes (layoutDay) instead of
+ * one ever-taller single column. Most cells never overlap and stay full width.
+ */
+function WeekTimeline({
 	byDay,
 	color,
 }: {
 	byDay: Array<{ day: ProgramEntry["dayOfWeek"]; programs: ProgramEntry[] }>;
 	color: string;
 }) {
-	const times = Array.from(
-		new Set(byDay.flatMap(({ programs }) => programs.map((p) => p.startTime)))
-	).sort((a, b) => parseTimeToMinutes(a) - parseTimeToMinutes(b));
-	const rowOf = new Map(times.map((t, i) => [t, i]));
+	const laidOutByDay = byDay.map(({ day, programs }) => ({ day, items: layoutDay(programs) }));
 
-	// several programs can share one day + start time (the extractor splits a
-	// time block that shows two programs across different lanes), so a cell
-	// holds a list rather than a single session
-	const cells = new Map<string, ProgramEntry[]>();
-	byDay.forEach(({ programs }, dayIndex) => {
-		for (const program of programs) {
-			const key = `${rowOf.get(program.startTime)}|${dayIndex}`;
-			const list = cells.get(key);
-			if (list) list.push(program);
-			else cells.set(key, [program]);
-		}
-	});
+	const allMinutes = laidOutByDay.flatMap(({ items }) => items.flatMap((i) => [i.startMin, i.endMin]));
+	if (!allMinutes.length) return null;
+
+	const dayStart = floorHalfHour(Math.min(...allMinutes));
+	const dayEnd = ceilHalfHour(Math.max(...allMinutes));
+	const totalMin = Math.max(dayEnd - dayStart, 30);
+	const heightPx = totalMin * PX_PER_MIN;
+
+	const ticks: number[] = [];
+	for (let t = dayStart; t <= dayEnd; t += 30) ticks.push(t);
+
+	// unparseable times can't be placed on an axis; they still render, listed
+	// beneath that day's column rather than silently dropped
+	const unplacedByDay = byDay.map(({ programs }) =>
+		programs.filter(
+			(p) =>
+				parseTimeToMinutes(p.startTime) === Number.MAX_SAFE_INTEGER ||
+				parseTimeToMinutes(p.endTime) === Number.MAX_SAFE_INTEGER
+		)
+	);
 
 	return (
 		<div
 			className="hidden min-[900px]:grid"
-			style={{ gridTemplateColumns: "52px repeat(7, minmax(0, 1fr))", columnGap: 3 }}
+			style={{ gridTemplateColumns: `${GUTTER_PX}px repeat(7, minmax(0, 1fr))`, columnGap: 3 }}
 		>
 			{/* the day names ride down the page under the pool's pinned name, so a
 			    session two screens into a schedule still has a column heading. The
@@ -244,41 +277,77 @@ function WeekGrid({
 				</div>
 			))}
 
-			{/* a rule spanning the day columns, so a row still reads across the full
-			    width where no day has a session at that time */}
-			{times.map((time, r) => (
-				<div
-					key={`rule-${time}`}
-					aria-hidden
-					style={{ gridRow: r + 2, gridColumn: "2 / -1" }}
-					className="border-t border-[#edf1f3]"
-				/>
-			))}
+			{/* time gutter */}
+			<div style={{ gridRow: 2, gridColumn: 1, height: heightPx }} className="relative">
+				{ticks.map((t) => (
+					<div
+						key={t}
+						className="absolute right-2 -translate-y-1/2 plex-mono text-[10px] font-medium text-[#8a9aa4]"
+						style={{ top: (t - dayStart) * PX_PER_MIN }}
+					>
+						{minutesToClock(t)}
+					</div>
+				))}
+			</div>
 
-			{times.map((time, r) => (
+			{laidOutByDay.map(({ day, items }, dayIndex) => (
 				<div
-					key={`time-${time}`}
-					style={{ gridRow: r + 2, gridColumn: 1 }}
-					className="border-t border-[#edf1f3] pr-2 pt-[5px] text-right plex-mono text-[10px] font-medium text-[#8a9aa4]"
+					key={day}
+					style={{ gridRow: 2, gridColumn: dayIndex + 2, height: heightPx }}
+					className="relative border-l border-[#edf1f3]"
 				>
-					{time}
+					{/* hour/half-hour rules, so a quiet stretch still reads as time
+					    passing rather than as empty space */}
+					{ticks.map((t) => (
+						<div
+							key={t}
+							aria-hidden
+							className={t % 60 === 0 ? "absolute inset-x-0 border-t border-[#edf1f3]" : "absolute inset-x-0 border-t border-dotted border-[#edf1f3]"}
+							style={{ top: (t - dayStart) * PX_PER_MIN }}
+						/>
+					))}
+
+					{items.map((item, i) => {
+						const top = (item.startMin - dayStart) * PX_PER_MIN;
+						const height = Math.max(
+							(item.endMin - item.startMin) * PX_PER_MIN - BLOCK_GAP_PX,
+							4
+						);
+						const widthPct = 100 / item.lanes;
+						return (
+							<TimelineBlock
+								key={i}
+								program={item.program}
+								color={color}
+								compact={height < 46}
+								style={{
+									top,
+									height,
+									left: `${item.lane * widthPct}%`,
+									width: `calc(${widthPct}% - 3px)`,
+								}}
+							/>
+						);
+					})}
+
+					{unplacedByDay[dayIndex]?.length ? (
+						<div className="absolute inset-x-0 flex flex-col gap-[3px]" style={{ top: heightPx + 6 }}>
+							{unplacedByDay[dayIndex].map((program, i) => (
+								<SessionBlock key={i} program={program} color={color} />
+							))}
+						</div>
+					) : null}
 				</div>
 			))}
 
-			{Array.from(cells.entries()).map(([key, programs]) => {
-				const [r, c] = key.split("|").map(Number);
-				return (
-					<div
-						key={key}
-						style={{ gridRow: r! + 2, gridColumn: c! + 2 }}
-						className="flex min-w-0 flex-col gap-[3px] pt-[5px]"
-					>
-						{programs.map((program, i) => (
-							<SessionBlock key={i} program={program} color={color} />
-						))}
-					</div>
-				);
-			})}
+			{unplacedByDay.some((u) => u.length) ? (
+				<div
+					style={{ gridRow: 3, gridColumn: "1 / -1" }}
+					className="mt-2 plex-mono text-[10px] font-medium text-[#c4d2d9]"
+				>
+					Sessions with times this page can&rsquo;t parse are listed below their day, off the axis.
+				</div>
+			) : null}
 		</div>
 	);
 }
@@ -437,7 +506,7 @@ export default async function SchedulesPage() {
 
 								{all.length ? (
 									<>
-										<WeekGrid byDay={byDay} color={color} />
+										<WeekTimeline byDay={byDay} color={color} />
 										{/* narrow screens show one day at a time, where aligning
 										    across days buys nothing and seven columns will not fit */}
 										<div className="mt-3 flex flex-col gap-4 min-[900px]:hidden">
