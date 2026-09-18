@@ -2,7 +2,6 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import ClosureNotice from "@/components/ClosureNotice";
 import SessionBlock from "@/components/schedule/SessionBlock";
@@ -357,20 +356,9 @@ export default async function SchedulesPage() {
 	const pools = schedules?.length ? orderPools(schedules) : [];
 
 	return (
-		<main className="plex-sans container py-8 text-[#0e2733]">
-			<header className="border-b-2 border-[#0e2733] pb-3">
-				<div className="plex-mono text-[11px] font-semibold tracking-[.14em] text-[#8a9aa4]">
-					SF PUBLIC POOLS
-				</div>
-				<div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-					<h1 className="text-[26px] font-semibold leading-tight">Full schedules</h1>
-					<Link
-						href="/"
-						className="plex-mono text-[12px] font-medium text-[#5a707c] underline underline-offset-2"
-					>
-						← WEEK GRID
-					</Link>
-				</div>
+		<main>
+			<header className="pt-6 pb-3">
+				<h1 className="text-[26px] font-semibold leading-tight">Full schedules</h1>
 				<p className="mt-1.5 max-w-[62ch] text-[14px] text-[#5a707c]">
 					Every program on every pool&rsquo;s weekly schedule. Times are Pacific.
 				</p>

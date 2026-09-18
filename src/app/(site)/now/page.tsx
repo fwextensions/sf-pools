@@ -1,7 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { PoolSchedule } from "@/lib/pdf-processor";
 import NowSoon from "@/components/NowSoon";
 
@@ -24,28 +23,9 @@ export default async function NowPage() {
 	const all = await readAllSchedules();
 
 	return (
-		<main className="plex-sans container py-8 text-[#0e2733]">
-			<header className="border-b-2 border-[#0e2733] pb-3">
-				<div className="plex-mono text-[11px] font-semibold tracking-[.14em] text-[#8a9aa4]">
-					SF PUBLIC POOLS
-				</div>
-				<div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-					<h1 className="text-[26px] font-semibold leading-tight">Now &amp; soon</h1>
-					<nav className="flex gap-3">
-						<Link
-							href="/"
-							className="plex-mono text-[12px] font-medium text-[#5a707c] underline underline-offset-2"
-						>
-							← WEEK GRID
-						</Link>
-						<Link
-							href="/schedules"
-							className="plex-mono text-[12px] font-medium text-[#5a707c] underline underline-offset-2"
-						>
-							FULL SCHEDULES
-						</Link>
-					</nav>
-				</div>
+		<main>
+			<header className="pt-6">
+				<h1 className="text-[26px] font-semibold leading-tight">Now &amp; soon</h1>
 				<p className="mt-1.5 max-w-[62ch] text-[14px] text-[#5a707c]">
 					What is running right now across the pools, and what starts soon. Times are Pacific.
 				</p>
