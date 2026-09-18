@@ -26,7 +26,13 @@ export default function SiteNav() {
 	const pathname = usePathname();
 
 	return (
-		<nav aria-label="Sections" className="flex gap-7 border-b border-[#e2e8ec]">
+		// on a phone the labels have to hold one line each or the strip doubles in
+		// height: they drop their tracking and spread across the width instead of
+		// sitting a fixed gap apart, which fits them down to a 320px screen
+		<nav
+			aria-label="Sections"
+			className="flex justify-between border-b border-[#e2e8ec] min-[500px]:justify-start min-[500px]:gap-7"
+		>
 			{SECTIONS.map(({ href, label }) => {
 				const current = isCurrent(pathname, href);
 				return (
@@ -34,7 +40,7 @@ export default function SiteNav() {
 						key={href}
 						href={href}
 						aria-current={current ? "page" : undefined}
-						className={`plex-mono -mb-px border-b-2 pb-3 pt-[15px] text-[12px] tracking-[.08em] ${
+						className={`plex-mono -mb-px whitespace-nowrap border-b-2 pb-3 pt-2 text-[12px] min-[500px]:tracking-[.08em] ${
 							current
 								? "border-[#0e2733] font-semibold text-[#0e2733]"
 								: "border-transparent font-medium text-[#5a707c] hover:text-[#0e2733]"

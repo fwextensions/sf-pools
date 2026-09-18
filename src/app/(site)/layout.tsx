@@ -11,7 +11,10 @@ import SiteNav from "@/components/SiteNav";
  */
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
 	return (
-		<div className="plex-sans container py-8 text-[#0e2733]">
+		<div className="plex-sans container pb-8 text-[#0e2733]">
+			{/* no top padding: the water is positioned from the top of the page,
+			    not from this box, so padding here would only push the space the
+			    header holds for it down below it, leaving a band above the tabs */}
 			<header style={{ height: HEADER_HEIGHT }}>
 				<HeaderAnimation />
 			</header>
