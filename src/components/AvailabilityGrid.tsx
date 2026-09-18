@@ -10,7 +10,7 @@ import {
 	type PointerEvent,
 	type ReactNode,
 } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import { validatePoolId } from "@/lib/pool-mapping";
 import { POOL_TOKENS } from "@/lib/pool-tokens";
@@ -165,7 +165,6 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
-	const router = useRouter();
 	const didInit = useRef(false);
 	// the state half of didInit. The effects below would otherwise run on
 	// the same commit as the init effect, before its state lands, and write
@@ -231,10 +230,12 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		if (selectedPools.length) params.set("pools", selectedPools.join(","));
 		if (urlCell) params.set("cell", formatCellParam(urlCell));
 		const qs = params.toString();
-		// scroll: false, or every drag that ends while the page is scrolled down
-		// jumps back to the top as if it were a fresh navigation
-		router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-	}, [initialized, selectedTags, selectedPools, urlCell, pathname, router]);
+		// the native history call, not router.replace: the router treats a new
+		// query as a navigation, fetching the page from the server and
+		// re-rendering it on every click, and scrolling to the top besides.
+		// Next keeps useSearchParams in step with replaceState on its own
+		window.history.replaceState(null, "", qs ? `${pathname}?${qs}` : pathname);
+	}, [initialized, selectedTags, selectedPools, urlCell, pathname]);
 
 	// focus mode takes the scrolling layout out of the flow, which collapses
 	// the document and clamps the page's scroll offset; stash it on the way in
