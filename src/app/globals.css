@@ -273,6 +273,69 @@ input[type="radio"] {
 	user-select: none;
 }
 
+/* the selection, painted without a re-render: AvailabilityGrid's
+   paintSelection marks the chosen cell data-selected, everything in its row
+   and column (the cells, the day heading, the hour label) data-band, and the
+   grid data-has-selection. With a cell picked the rest of the grid steps
+   back so the selection is the brightest thing on screen: its row and column
+   fade a little, everything else more. --dim is the fade the lane colours
+   take; they multiply it into their own opacity */
+.grid-cell {
+	--dim: 1;
+	background: #f5f8f9;
+}
+
+[data-has-selection] .grid-cell {
+	--dim: 0.4;
+}
+
+/* the band is a pale wash of the ring's amber, run across the selected row
+   and column so the day and hour can be traced back to the axes */
+[data-has-selection] .grid-cell[data-band] {
+	--dim: 0.6;
+	background: #fdf4dc;
+}
+
+/* amber rather than the ink used elsewhere: it has to stay legible on top of
+   the pool colours, which a dark ring disappeared into */
+[data-has-selection] .grid-cell[data-selected] {
+	--dim: 1;
+	background: #ffe6a1;
+	outline: 3px solid #f0a202;
+	outline-offset: -1px;
+	/* the ring is drawn inside the cell, so it would be painted over by the
+	   next cell's background without this */
+	z-index: 1;
+}
+
+.grid-ring {
+	display: none;
+	box-shadow: inset 0 0 0 1px #fff;
+}
+
+.grid-cell[data-selected] > .grid-ring {
+	display: block;
+}
+
+.grid-day {
+	color: #5a707c;
+}
+
+.grid-hour {
+	color: #8a9aa4;
+}
+
+.grid-day[data-band],
+.grid-hour[data-band] {
+	color: #0e2733;
+	background: #fdf4dc;
+}
+
+/* only the even hours are labelled, until the selection lands on an odd one */
+.grid-hour[data-odd]:not([data-band]) {
+	color: transparent;
+}
+
 /* small square checkboxes for the program picker's raw-name list */
 .picker-checkbox {
 	appearance: none;

@@ -1,12 +1,14 @@
 "use client";
 
 import {
+	memo,
 	useCallback,
 	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
+	useSyncExternalStore,
 	type PointerEvent,
 	type ReactNode,
 } from "react";
@@ -73,16 +75,80 @@ function toMinutes(t: string): number | null {
 // restore a set of strings that now match nothing
 const STORAGE_KEY = "sfpools-grid-v2";
 
-const CELL_BG = "#f5f8f9";
-// amber rather than the ink used elsewhere: it has to stay legible on top of
-// the pool colours, which the dark ring disappeared into. The band is a pale
-// wash of the same hue, run across the selected row and column so the day and
-// hour can be traced back to the axes
-const SELECT_RING = "#f0a202";
-const SELECT_CELL = "#ffe6a1";
-const SELECT_BAND = "#fdf4dc";
-
 type SelectedCell = { day: ProgramEntry["dayOfWeek"]; hour: number };
+
+function sameCell(a: SelectedCell | null, b: SelectedCell | null): boolean {
+	return a === b || (a != null && b != null && a.day === b.day && a.hour === b.hour);
+}
+
+// The selected cell lives outside React state. A drag moves it on every cell
+// the pointer crosses, and keeping it in state re-rendered the whole page each
+// time: both copies of the grid (mobile and desktop stay mounted), ~2,500
+// elements, all for a highlight. The grid paints it straight onto the DOM
+// instead (see paintSelection) and never re-renders for it; only the detail
+// list subscribes, since its contents really do depend on the cell
+type SelectionStore = {
+	get: () => SelectedCell | null;
+	set: (cell: SelectedCell | null) => void;
+	subscribe: (listener: () => void) => () => void;
+};
+
+function createSelectionStore(): SelectionStore {
+	let current: SelectedCell | null = null;
+	const listeners = new Set<() => void>();
+	return {
+		get: () => current,
+		set(cell) {
+			if (sameCell(cell, current)) return;
+			current = cell;
+			for (const listener of listeners) listener();
+		},
+		subscribe(listener) {
+			listeners.add(listener);
+			return () => {
+				listeners.delete(listener);
+			};
+		},
+	};
+}
+
+const noSelection = () => null;
+
+// Marks the selection with attributes that globals.css styles: data-selected
+// on the cell, data-band on everything in its row and column (the cells, the
+// day heading and the hour label), data-has-selection on the grid. A move
+// touches the dozen or so elements involved rather than re-rendering 2,500.
+// React never renders these attributes, so a re-render of the grid leaves
+// them alone; aria-pressed it renders once as false and never changes, so
+// that too stays as set here
+function paintSelection(root: HTMLElement, cell: SelectedCell | null) {
+	for (const el of root.querySelectorAll("[data-band]")) el.removeAttribute("data-band");
+	const prev = root.querySelector("[data-selected]");
+	if (prev) {
+		prev.removeAttribute("data-selected");
+		prev.setAttribute("aria-pressed", "false");
+	}
+	if (!cell) {
+		root.removeAttribute("data-has-selection");
+		return;
+	}
+	root.setAttribute("data-has-selection", "");
+	for (const el of root.querySelectorAll(`[data-day="${cell.day}"], [data-hour="${cell.hour}"]`)) {
+		el.setAttribute("data-band", "");
+	}
+	const selected = root.querySelector(`.grid-cell[data-day="${cell.day}"][data-hour="${cell.hour}"]`);
+	selected?.setAttribute("data-selected", "");
+	selected?.setAttribute("aria-pressed", "true");
+}
+
+function cellAtPoint(x: number, y: number): SelectedCell | null {
+	const el = document.elementFromPoint(x, y)?.closest<HTMLElement>("[data-day][data-hour]");
+	if (!el) return null;
+	const day = el.dataset.day as ProgramEntry["dayOfWeek"];
+	const hour = Number(el.dataset.hour);
+	if (!DAYS.includes(day) || Number.isNaN(hour)) return null;
+	return { day, hour };
+}
 
 type Session = {
 	poolId: string;
@@ -147,16 +213,273 @@ function HeightRatchet({
 	);
 }
 
+type GridHandlers = {
+	pointerDown: (
+		e: PointerEvent<HTMLDivElement>,
+		day: ProgramEntry["dayOfWeek"],
+		hour: number,
+		touchDrag: boolean
+	) => void;
+	pointerMove: (e: PointerEvent<HTMLDivElement>) => void;
+	pointerUp: (e: PointerEvent<HTMLDivElement>) => void;
+	click: (day: ProgramEntry["dayOfWeek"], hour: number) => void;
+	choose: (day: ProgramEntry["dayOfWeek"], hour: number) => void;
+};
+
+// Memoized, and none of its props change with the selection, so a click or a
+// drag never re-renders it: the selection is painted onto its DOM by
+// paintSelection. It re-renders only when the filters change what it shows
+const GridBody = memo(function GridBody({
+	store,
+	hitMatrix,
+	poolSet,
+	cellHeightClass,
+	touchDrag,
+	handlers,
+}: {
+	store: SelectionStore;
+	hitMatrix: Set<string>;
+	poolSet: Set<string> | null;
+	cellHeightClass: string;
+	touchDrag: boolean;
+	handlers: GridHandlers;
+}) {
+	const root = useRef<HTMLDivElement>(null);
+
+	// on mount as well as on every change: focus mode mounts a fresh copy of
+	// the grid, which has to come up showing the current selection
+	useLayoutEffect(() => {
+		const el = root.current;
+		if (!el) return;
+		const paint = () => paintSelection(el, store.get());
+		paint();
+		return store.subscribe(paint);
+	}, [store]);
+
+	function cellAriaLabel(day: string, hour: number): string {
+		const poolNames = POOL_TOKENS.filter((t) => hitMatrix.has(`${day}|${hour}|${t.id}`)).map(
+			(t) => t.name
+		);
+		const time = formatHour(hour).replace("a", "am").replace("p", "pm");
+		return poolNames.length
+			? `${day} ${time}: ${poolNames.join(", ")}`
+			: `${day} ${time}: no sessions`;
+	}
+
+	return (
+		<div ref={root} className="pt-3">
+			<div className="grid grid-cols-[44px_repeat(7,1fr)] gap-x-[3px] plex-mono text-[10px] font-semibold">
+				<span />
+				{DAYS.map((day) => (
+					<span key={day} data-day={day} className="grid-day text-center">
+						{day.slice(0, 3).toUpperCase()}
+					</span>
+				))}
+			</div>
+			{HOURS.map((h) => (
+				<div
+					key={h}
+					className="grid grid-cols-[44px_repeat(7,1fr)] gap-x-[3px]"
+					style={{ marginTop: h === 12 || h === 17 ? 8 : 2 }}
+				>
+					<span
+						data-hour={h}
+						// every hour is labelled, and the odd ones hidden by CSS until
+						// the selection lands on one
+						data-odd={h % 2 === 1 ? "" : undefined}
+						// stretched rather than self-centred so the selected
+						// hour's wash fills the row, not just the text's line box.
+						// leading-none keeps that line box under the cell height, so
+						// the label can't push the row taller than an unlabelled one
+						className="grid-hour flex items-center justify-end pr-1.5 plex-mono text-[10px] font-medium leading-none"
+					>
+						{formatHour(h)}
+					</span>
+					{DAYS.map((day) => (
+						// a div, not a <button>: Safari mangles flex layout inside
+						// buttons, collapsing the lane spans to zero height
+						<div
+							key={day}
+							role="button"
+							tabIndex={0}
+							aria-label={cellAriaLabel(day, h)}
+							aria-pressed={false}
+							data-day={day}
+							data-hour={h}
+							onClick={() => handlers.click(day, h)}
+							onKeyDown={(e) => {
+								if (e.key === "Enter" || e.key === " ") {
+									e.preventDefault();
+									handlers.choose(day, h);
+								}
+							}}
+							onPointerDown={(e) => handlers.pointerDown(e, day, h, touchDrag)}
+							onPointerMove={handlers.pointerMove}
+							onPointerUp={handlers.pointerUp}
+							onPointerCancel={handlers.pointerUp}
+							className={`grid-cell relative flex cursor-pointer ${cellHeightClass}`}
+							style={{
+								// only claim the touch gesture where nothing behind the
+								// grid scrolls; elsewhere the browser keeps it
+								touchAction: touchDrag ? "none" : undefined,
+							}}
+						>
+							{POOL_TOKENS.map((token) => {
+								const hit = hitMatrix.has(`${day}|${h}|${token.id}`);
+								const unselected = poolSet != null && !poolSet.has(token.id);
+								return (
+									<span
+										key={token.id}
+										className="flex-1"
+										style={{
+											background: hit ? token.color : "transparent",
+											// --dim is the selection's fade, set in globals.css.
+											// Unselected pools fade rather than vanish, so "my
+											// pools" still read in context
+											opacity: hit && unselected ? "calc(var(--dim) * 0.13)" : "var(--dim)",
+										}}
+									/>
+								);
+							})}
+							{/* the ring's inner gutter, shown only on the selected cell.
+							    As an inset shadow on the cell it painted under the lane
+							    spans and only showed through where a cell was empty, so
+							    it has to be its own layer above them */}
+							<span aria-hidden className="grid-ring pointer-events-none absolute inset-[1px]" />
+						</div>
+					))}
+				</div>
+			))}
+		</div>
+	);
+});
+
+type DetailRow = {
+	code: string;
+	color: string;
+	title: string;
+	badges: string[];
+	tags: string[];
+	startTime: string;
+	endTime: string;
+	startMin: number;
+};
+
+// the one part of the page that does depend on the selected cell, so the one
+// part that re-renders as a drag moves it
+const DetailPanel = memo(function DetailPanel({
+	store,
+	sessions,
+	matchesTags,
+	poolSet,
+	filterKey,
+	canDrag,
+	ratchet,
+}: {
+	store: SelectionStore;
+	sessions: Session[];
+	matchesTags: (s: Session) => boolean;
+	poolSet: Set<string> | null;
+	filterKey: string;
+	canDrag: boolean;
+	ratchet: boolean;
+}) {
+	const selectedCell = useSyncExternalStore(store.subscribe, store.get, noSelection);
+
+	// detail list for the selected cell, honoring both filters
+	const detail = useMemo(() => {
+		if (!selectedCell) return null;
+		const rows: DetailRow[] = [];
+		for (const token of POOL_TOKENS) {
+			if (poolSet && !poolSet.has(token.id)) continue;
+			for (const s of sessions) {
+				if (s.poolId !== token.id) continue;
+				if (s.dayOfWeek !== selectedCell.day) continue;
+				if (!matchesTags(s)) continue;
+				if (s.startMin == null || s.endMin == null) continue;
+				if (s.startMin >= (selectedCell.hour + 1) * 60 || s.endMin <= selectedCell.hour * 60) continue;
+				rows.push({
+					code: token.code,
+					color: token.color,
+					title: s.title,
+					badges: s.badges,
+					tags: s.tags,
+					startTime: s.startTime,
+					endTime: s.endTime,
+					startMin: s.startMin,
+				});
+			}
+		}
+		rows.sort((a, b) => a.startMin - b.startMin);
+		return rows;
+	}, [selectedCell, sessions, matchesTags, poolSet]);
+
+	return (
+		<div className="mt-4 border-t-2 border-[#0e2733] pt-2.5">
+			<div className="flex items-baseline justify-between">
+				<span className="text-[14px] font-semibold text-[#0e2733]">
+					{selectedCell
+						? `${selectedCell.day} · ${formatHour(selectedCell.hour)}–${formatHour(selectedCell.hour + 1)}`
+						: canDrag
+							? "Drag across the grid"
+							: "Tap a cell for details"}
+				</span>
+				{detail ? (
+					<span className="plex-mono text-[11px] font-medium text-[#8a9aa4]">
+						{detail.length} SESSION{detail.length === 1 ? "" : "S"}
+					</span>
+				) : null}
+			</div>
+			<HeightRatchet enabled={ratchet} resetKey={filterKey}>
+			{detail?.map((d, i) => (
+				<div
+					key={i}
+					className="flex items-center gap-2.5 border-b border-[#edf1f3] py-2 text-[14px]"
+				>
+					<span
+						className="px-1.5 py-[3px] plex-mono text-[11px] font-semibold text-white"
+						style={{ background: d.color }}
+					>
+						{d.code}
+					</span>
+					<span className="min-w-0 flex-1 font-medium text-[#0e2733]">
+						<ProgramName name={d.title} />
+						{[...d.badges, accessNote(d.tags)].filter(Boolean).map((note) => (
+							<span
+								key={note}
+								className="ml-1.5 whitespace-nowrap plex-mono text-[11px] font-medium uppercase text-[#8a9aa4]"
+							>
+								{note}
+							</span>
+						))}
+					</span>
+					<span className="plex-mono text-[13px] font-medium text-[#5a707c]">
+						{d.startTime}–{d.endTime}
+					</span>
+				</div>
+			))}
+			{detail && detail.length === 0 ? (
+				<div className="py-3.5 text-[14px] text-[#8a9aa4]">
+					Nothing scheduled here — {canDrag ? "drag across" : "tap a colored cell in"} the grid.
+				</div>
+			) : null}
+			</HeightRatchet>
+		</div>
+	);
+});
+
 export default function AvailabilityGrid({ all, alerts }: Props) {
 	// selection is a set of tag ids from the closed vocabulary in
 	// program-taxonomy, so it survives the churn in the PDFs' own wording
 	const [selectedTags, setSelectedTags] = useState<string[]>([]);
 	const [selectedPools, setSelectedPools] = useState<string[]>([]);
-	const [selectedCell, setSelectedCell] = useState<SelectedCell | null>(null);
-	// what the URL says. It trails selectedCell: a drag repaints the grid on
-	// every cell it crosses, but only the cell the gesture settles on is worth
-	// a navigation
-	const [urlCell, setUrlCell] = useState<SelectedCell | null>(null);
+	const [store] = useState(createSelectionStore);
+	// what the URL says. It trails the store: a drag repaints the grid on every
+	// cell it crosses, but only the cell the gesture settles on goes in the url
+	const committedCellRef = useRef<SelectedCell | null>(null);
+	// the current filters, kept where writeUrl can read them when a gesture
+	// ends, not only when the filters themselves change
+	const filtersRef = useRef<{ tags: string[]; pools: string[] }>({ tags: [], pools: [] });
 	const [openPanel, setOpenPanel] = useState<"programs" | "pools" | null>(null);
 	const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({ activity: true });
 	// phones only: pins the whole thing to the viewport so the page itself
@@ -173,7 +496,6 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	const isDraggingRef = useRef(false);
 	const suppressClickRef = useRef(false);
 	const scrollBeforeFocusRef = useRef<number | null>(null);
-	const latestCellRef = useRef<SelectedCell | null>(null);
 
 	// init once: URL params win over localStorage
 	useEffect(() => {
@@ -199,9 +521,8 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		// cell on arrival reads as a claim the page is making rather than one
 		// the reader made
 		const cell = parseCellParam(searchParams.get("cell"));
-		setSelectedCell(cell);
-		setUrlCell(cell);
-		latestCellRef.current = cell;
+		store.set(cell);
+		committedCellRef.current = cell;
 
 		didInit.current = true;
 		setInitialized(true);
@@ -220,22 +541,26 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		} catch {}
 	}, [initialized, selectedTags, selectedPools]);
 
-	// keep the url shareable. urlCell rather than selectedCell: a drag would
-	// otherwise fire a navigation for every cell the pointer crosses
-	useEffect(() => {
-		if (!initialized) return;
-
+	// keep the url shareable
+	const writeUrl = useCallback(() => {
+		const { tags, pools } = filtersRef.current;
 		const params = new URLSearchParams();
-		if (selectedTags.length) params.set("tags", selectedTags.join(","));
-		if (selectedPools.length) params.set("pools", selectedPools.join(","));
-		if (urlCell) params.set("cell", formatCellParam(urlCell));
+		if (tags.length) params.set("tags", tags.join(","));
+		if (pools.length) params.set("pools", pools.join(","));
+		if (committedCellRef.current) params.set("cell", formatCellParam(committedCellRef.current));
 		const qs = params.toString();
 		// the native history call, not router.replace: the router treats a new
 		// query as a navigation, fetching the page from the server and
 		// re-rendering it on every click, and scrolling to the top besides.
 		// Next keeps useSearchParams in step with replaceState on its own
 		window.history.replaceState(null, "", qs ? `${pathname}?${qs}` : pathname);
-	}, [initialized, selectedTags, selectedPools, urlCell, pathname]);
+	}, [pathname]);
+
+	useEffect(() => {
+		filtersRef.current = { tags: selectedTags, pools: selectedPools };
+		if (!initialized) return;
+		writeUrl();
+	}, [initialized, selectedTags, selectedPools, writeUrl]);
 
 	// focus mode takes the scrolling layout out of the flow, which collapses
 	// the document and clamps the page's scroll offset; stash it on the way in
@@ -341,34 +666,6 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		}).filter((c): c is NonNullable<typeof c> => c != null);
 	}, [tagCounts, tagSet]);
 
-	// detail list for the selected cell, honoring both filters
-	const detail = useMemo(() => {
-		if (!selectedCell) return null;
-		const rows: Array<{ code: string; color: string; title: string; badges: string[]; tags: string[]; startTime: string; endTime: string; startMin: number }> = [];
-		for (const token of POOL_TOKENS) {
-			if (poolSet && !poolSet.has(token.id)) continue;
-			for (const s of sessions) {
-				if (s.poolId !== token.id) continue;
-				if (s.dayOfWeek !== selectedCell.day) continue;
-				if (!matchesTags(s)) continue;
-				if (s.startMin == null || s.endMin == null) continue;
-				if (s.startMin >= (selectedCell.hour + 1) * 60 || s.endMin <= selectedCell.hour * 60) continue;
-				rows.push({
-					code: token.code,
-					color: token.color,
-					title: s.title,
-					badges: s.badges,
-					tags: s.tags,
-					startTime: s.startTime,
-					endTime: s.endTime,
-					startMin: s.startMin,
-				});
-			}
-		}
-		rows.sort((a, b) => a.startMin - b.startMin);
-		return rows;
-	}, [selectedCell, sessions, matchesTags, poolSet]);
-
 	const hasAnyFilter = selectedTags.length > 0 || selectedPools.length > 0;
 	// what the detail list's height floor resets on
 	const filterKey = `${selectedTags.join(",")}|${selectedPools.join(",")}`;
@@ -398,16 +695,6 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		setSelectedPools([]);
 	}
 
-	function cellAriaLabel(day: string, hour: number): string {
-		const poolNames = POOL_TOKENS.filter((t) => hitMatrix.has(`${day}|${hour}|${t.id}`)).map(
-			(t) => t.name
-		);
-		const time = formatHour(hour).replace("a", "am").replace("p", "pm");
-		return poolNames.length
-			? `${day} ${time}: ${poolNames.join(", ")}`
-			: `${day} ${time}: no sessions`;
-	}
-
 	// live-preview drag: pressing a cell and moving the pointer across the
 	// grid updates the selection to whatever cell is under the pointer, so the
 	// detail panel updates as you drag rather than only on release.
@@ -416,73 +703,60 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	// finger only gets to drag where the page underneath doesn't scroll at
 	// all, which is what focus mode is for; anywhere else touch is left
 	// entirely alone so scrolling stays native, and a tap still selects.
-	function cellAtPoint(x: number, y: number): SelectedCell | null {
-		const el = document.elementFromPoint(x, y)?.closest<HTMLElement>("[data-day][data-hour]");
-		if (!el) return null;
-		const day = el.dataset.day as ProgramEntry["dayOfWeek"];
-		const hour = Number(el.dataset.hour);
-		if (!DAYS.includes(day) || Number.isNaN(hour)) return null;
-		return { day, hour };
-	}
-
-	// the url trails the grid by a gesture: pick() paints, commitCell() is what
-	// the reader settled on and the only thing the address bar hears about
-	function pick(cell: SelectedCell) {
-		latestCellRef.current = cell;
-		setSelectedCell(cell);
-	}
-
-	function commitCell(cell: SelectedCell | null) {
-		setUrlCell((prev) =>
-			prev && cell && prev.day === cell.day && prev.hour === cell.hour ? prev : cell
-		);
-	}
-
-	function handleCellPointerDown(
-		e: PointerEvent<HTMLDivElement>,
-		day: ProgramEntry["dayOfWeek"],
-		hour: number,
-		touchDrag: boolean
-	) {
-		if (e.pointerType !== "mouse" && !touchDrag) return;
-		isDraggingRef.current = true;
-		e.currentTarget.setPointerCapture(e.pointerId);
-		pick({ day, hour });
-	}
-
-	function handleCellPointerMove(e: PointerEvent<HTMLDivElement>) {
-		if (!isDraggingRef.current) return;
-		e.preventDefault();
-		const cell = cellAtPoint(e.clientX, e.clientY);
-		if (!cell) return;
-		const prev = latestCellRef.current;
-		if (prev && prev.day === cell.day && prev.hour === cell.hour) return;
-		pick(cell);
-	}
-
-	function handleCellPointerUp(e: PointerEvent<HTMLDivElement>) {
-		if (isDraggingRef.current) {
-			// a drag just decided the selection; ignore the click the browser
-			// synthesizes right after, or it'd snap the selection back to
-			// wherever the gesture started
-			suppressClickRef.current = true;
-			// the gesture is over, so wherever it ended is the real selection
-			commitCell(latestCellRef.current);
+	//
+	// the url trails the grid by a gesture: store.set paints, commitCell is
+	// what the reader settled on and the only thing the address bar hears about
+	const handlers = useMemo<GridHandlers>(() => {
+		function commitCell(cell: SelectedCell | null) {
+			if (sameCell(committedCellRef.current, cell)) return;
+			committedCellRef.current = cell;
+			writeUrl();
 		}
-		isDraggingRef.current = false;
-		if (e.currentTarget.hasPointerCapture(e.pointerId)) {
-			e.currentTarget.releasePointerCapture(e.pointerId);
-		}
-	}
 
-	function handleCellClick(day: ProgramEntry["dayOfWeek"], hour: number) {
-		if (suppressClickRef.current) {
-			suppressClickRef.current = false;
-			return;
+		function pointerUp(e: PointerEvent<HTMLDivElement>) {
+			if (isDraggingRef.current) {
+				// a drag just decided the selection; ignore the click the browser
+				// synthesizes right after, or it'd snap the selection back to
+				// wherever the gesture started
+				suppressClickRef.current = true;
+				// the gesture is over, so wherever it ended is the real selection
+				commitCell(store.get());
+			}
+			isDraggingRef.current = false;
+			if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+				e.currentTarget.releasePointerCapture(e.pointerId);
+			}
 		}
-		pick({ day, hour });
-		commitCell({ day, hour });
-	}
+
+		function choose(day: ProgramEntry["dayOfWeek"], hour: number) {
+			store.set({ day, hour });
+			commitCell({ day, hour });
+		}
+
+		return {
+			pointerDown(e, day, hour, touchDrag) {
+				if (e.pointerType !== "mouse" && !touchDrag) return;
+				isDraggingRef.current = true;
+				e.currentTarget.setPointerCapture(e.pointerId);
+				store.set({ day, hour });
+			},
+			pointerMove(e) {
+				if (!isDraggingRef.current) return;
+				e.preventDefault();
+				const cell = cellAtPoint(e.clientX, e.clientY);
+				if (cell) store.set(cell);
+			},
+			pointerUp,
+			click(day, hour) {
+				if (suppressClickRef.current) {
+					suppressClickRef.current = false;
+					return;
+				}
+				choose(day, hour);
+			},
+			choose,
+		};
+	}, [store, writeUrl]);
 
 	// ----- shared picker sub-renders -----
 
@@ -680,186 +954,6 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		return null;
 	}
 
-	// ----- grid -----
-
-	function renderGrid(cellHeightClass: string, touchDrag = false) {
-		return (
-			<div className="pt-3">
-				<div className="grid grid-cols-[44px_repeat(7,1fr)] gap-x-[3px] plex-mono text-[10px] font-semibold text-[#5a707c]">
-					<span />
-					{DAYS.map((day) => {
-						const isDayOfSelection = selectedCell?.day === day;
-						return (
-							<span
-								key={day}
-								className="text-center"
-								style={{
-									color: isDayOfSelection ? "#0e2733" : "#5a707c",
-									background: isDayOfSelection ? SELECT_BAND : undefined,
-								}}
-							>
-								{day.slice(0, 3).toUpperCase()}
-							</span>
-						);
-					})}
-				</div>
-				{HOURS.map((h) => (
-					<div
-						key={h}
-						className="grid grid-cols-[44px_repeat(7,1fr)] gap-x-[3px]"
-						style={{ marginTop: h === 12 || h === 17 ? 8 : 2 }}
-					>
-							<span
-							// stretched rather than self-centred so the selected
-							// hour's wash fills the row, not just the text's line box.
-							// leading-none keeps that line box under the cell height, so
-							// the label can't push the row taller than an unlabelled one
-							className="flex items-center justify-end pr-1.5 plex-mono text-[10px] font-medium leading-none"
-							style={{
-								color: selectedCell?.hour === h ? "#0e2733" : "#8a9aa4",
-								background: selectedCell?.hour === h ? SELECT_BAND : undefined,
-							}}
-						>
-							{h % 2 === 0 || selectedCell?.hour === h ? formatHour(h) : ""}
-						</span>
-						{DAYS.map((day) => {
-							const isSelected = selectedCell?.day === day && selectedCell?.hour === h;
-							const inBand =
-								selectedCell != null &&
-								(selectedCell.day === day || selectedCell.hour === h);
-							// with a cell picked, the rest of the grid steps back so the
-							// selection is the brightest thing on screen: the row and
-							// column it sits in fade a little, everything else more
-							const dim = selectedCell == null || isSelected ? 1 : inBand ? 0.6 : 0.4;
-							return (
-								// a div, not a <button>: Safari mangles flex layout inside
-								// buttons, collapsing the lane spans to zero height
-								<div
-									key={day}
-									role="button"
-									tabIndex={0}
-									aria-label={cellAriaLabel(day, h)}
-									aria-pressed={isSelected}
-									data-day={day}
-									data-hour={h}
-									onClick={() => handleCellClick(day, h)}
-									onKeyDown={(e) => {
-										if (e.key === "Enter" || e.key === " ") {
-											e.preventDefault();
-											pick({ day, hour: h });
-											commitCell({ day, hour: h });
-										}
-									}}
-									onPointerDown={(e) => handleCellPointerDown(e, day, h, touchDrag)}
-									onPointerMove={handleCellPointerMove}
-									onPointerUp={handleCellPointerUp}
-									onPointerCancel={handleCellPointerUp}
-										className={`grid-cell relative flex cursor-pointer ${cellHeightClass}`}
-									style={{
-										background: isSelected ? SELECT_CELL : inBand ? SELECT_BAND : CELL_BG,
-										outline: isSelected ? `3px solid ${SELECT_RING}` : "none",
-										outlineOffset: -1,
-										// the ring is drawn inside the cell, so it would be
-										// painted over by the next cell's background without this
-										zIndex: isSelected ? 1 : undefined,
-										// only claim the touch gesture where nothing behind the
-										// grid scrolls; elsewhere the browser keeps it
-										touchAction: touchDrag ? "none" : undefined,
-									}}
-								>
-									{POOL_TOKENS.map((token) => {
-										const hit = hitMatrix.has(`${day}|${h}|${token.id}`);
-										const unselected = poolSet != null && !poolSet.has(token.id);
-										return (
-											<span
-												key={token.id}
-												className="flex-1"
-												style={{
-													background: hit ? token.color : "transparent",
-													// unselected pools fade rather than vanish, so
-													// "my pools" still read in context
-													opacity: hit && unselected ? 0.13 * dim : dim,
-												}}
-											/>
-										);
-									})}
-									{/* the ring's inner gutter. As an inset shadow on the
-									    cell it painted under the lane spans and only showed
-									    through where a cell was empty, so it has to be its
-									    own layer above them */}
-									{isSelected ? (
-										<span
-											aria-hidden
-											className="pointer-events-none absolute inset-[1px]"
-											style={{ boxShadow: "inset 0 0 0 1px #fff" }}
-										/>
-									) : null}
-								</div>
-							);
-						})}
-					</div>
-				))}
-			</div>
-		);
-	}
-
-	// ----- detail -----
-
-	function renderDetail(canDrag = false, ratchet = true) {
-		return (
-			<div className="mt-4 border-t-2 border-[#0e2733] pt-2.5">
-				<div className="flex items-baseline justify-between">
-					<span className="text-[14px] font-semibold text-[#0e2733]">
-						{selectedCell
-							? `${selectedCell.day} · ${formatHour(selectedCell.hour)}–${formatHour(selectedCell.hour + 1)}`
-							: canDrag
-								? "Drag across the grid"
-								: "Tap a cell for details"}
-					</span>
-					{detail ? (
-						<span className="plex-mono text-[11px] font-medium text-[#8a9aa4]">
-							{detail.length} SESSION{detail.length === 1 ? "" : "S"}
-						</span>
-					) : null}
-				</div>
-				<HeightRatchet enabled={ratchet} resetKey={filterKey}>
-				{detail?.map((d, i) => (
-					<div
-						key={i}
-						className="flex items-center gap-2.5 border-b border-[#edf1f3] py-2 text-[14px]"
-					>
-						<span
-							className="px-1.5 py-[3px] plex-mono text-[11px] font-semibold text-white"
-							style={{ background: d.color }}
-						>
-							{d.code}
-						</span>
-						<span className="min-w-0 flex-1 font-medium text-[#0e2733]">
-							<ProgramName name={d.title} />
-							{[...d.badges, accessNote(d.tags)].filter(Boolean).map((note) => (
-								<span
-									key={note}
-									className="ml-1.5 whitespace-nowrap plex-mono text-[11px] font-medium uppercase text-[#8a9aa4]"
-								>
-									{note}
-								</span>
-							))}
-						</span>
-						<span className="plex-mono text-[13px] font-medium text-[#5a707c]">
-							{d.startTime}–{d.endTime}
-						</span>
-					</div>
-				))}
-				{detail && detail.length === 0 ? (
-					<div className="py-3.5 text-[14px] text-[#8a9aa4]">
-						Nothing scheduled here — {canDrag ? "drag across" : "tap a colored cell in"} the grid.
-					</div>
-				) : null}
-				</HeightRatchet>
-			</div>
-		);
-	}
-
 	// ----- layout -----
 
 	return (
@@ -879,12 +973,12 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 							{renderMobileChips()}
 						</div>
 						{renderMobilePanels(true)}
-						<div className="flex-none">{renderGrid("h-[19px]", true)}</div>
+						<div className="flex-none"><GridBody store={store} hitMatrix={hitMatrix} poolSet={poolSet} cellHeightClass="h-[19px]" touchDrag handlers={handlers} /></div>
 						{/* while filtering, the grid itself is the live feedback; the
 						    list gives its space to the panel and comes back after */}
 						{openPanel ? null : (
 							<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4">
-								{renderDetail(true, false)}
+								<DetailPanel store={store} sessions={sessions} matchesTags={matchesTags} poolSet={poolSet} filterKey={filterKey} canDrag={true} ratchet={false} />
 							</div>
 						)}
 					</div>
@@ -895,8 +989,8 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						{renderMobileChips()}
 					</div>
 					{renderMobilePanels()}
-					{renderGrid("h-[15px]")}
-					{renderDetail()}
+					<GridBody store={store} hitMatrix={hitMatrix} poolSet={poolSet} cellHeightClass="h-[15px]" touchDrag={false} handlers={handlers} />
+					<DetailPanel store={store} sessions={sessions} matchesTags={matchesTags} poolSet={poolSet} filterKey={filterKey} canDrag={false} ratchet={true} />
 				</div>
 			)}
 
@@ -916,8 +1010,8 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 					{renderPoolRows()}
 				</div>
 				<div className="min-w-0 flex-1 pl-4">
-					{renderGrid("h-[19px]")}
-					{renderDetail()}
+					<GridBody store={store} hitMatrix={hitMatrix} poolSet={poolSet} cellHeightClass="h-[19px]" touchDrag={false} handlers={handlers} />
+					<DetailPanel store={store} sessions={sessions} matchesTags={matchesTags} poolSet={poolSet} filterKey={filterKey} canDrag={false} ratchet={true} />
 				</div>
 			</div>
 		</div>
