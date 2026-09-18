@@ -162,6 +162,10 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	const pathname = usePathname();
 	const router = useRouter();
 	const didInit = useRef(false);
+	// the state half of didInit. The effects below would otherwise run on
+	// the same commit as the init effect, before its state lands, and write
+	// the empty initial state out over the url the reader arrived on
+	const [initialized, setInitialized] = useState(false);
 	const isDraggingRef = useRef(false);
 	const suppressClickRef = useRef(false);
 	const scrollBeforeFocusRef = useRef<number | null>(null);
@@ -196,12 +200,13 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		latestCellRef.current = cell;
 
 		didInit.current = true;
+		setInitialized(true);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	// the filters are the standing preference worth carrying between visits
 	useEffect(() => {
-		if (!didInit.current) return;
+		if (!initialized) return;
 
 		try {
 			window.localStorage.setItem(
@@ -209,12 +214,12 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 				JSON.stringify({ tags: selectedTags, poolIds: selectedPools })
 			);
 		} catch {}
-	}, [selectedTags, selectedPools]);
+	}, [initialized, selectedTags, selectedPools]);
 
 	// keep the url shareable. urlCell rather than selectedCell: a drag would
 	// otherwise fire a navigation for every cell the pointer crosses
 	useEffect(() => {
-		if (!didInit.current) return;
+		if (!initialized) return;
 
 		const params = new URLSearchParams();
 		if (selectedTags.length) params.set("tags", selectedTags.join(","));
@@ -222,7 +227,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		if (urlCell) params.set("cell", formatCellParam(urlCell));
 		const qs = params.toString();
 		router.replace(qs ? `${pathname}?${qs}` : pathname);
-	}, [selectedTags, selectedPools, urlCell, pathname, router]);
+	}, [initialized, selectedTags, selectedPools, urlCell, pathname, router]);
 
 	// focus mode takes the scrolling layout out of the flow, which collapses
 	// the document and clamps the page's scroll offset; stash it on the way in
