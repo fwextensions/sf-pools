@@ -751,12 +751,6 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 										background: isSelected ? SELECT_CELL : inBand ? SELECT_BAND : CELL_BG,
 										outline: isSelected ? `3px solid ${SELECT_RING}` : "none",
 										outlineOffset: -1,
-										// a white gutter between the ring and the programme
-										// colours, so the ring reads as a ring rather than
-										// blending into whatever it happens to enclose. The
-										// outline paints over the outer 1px of this inset
-										// shadow, leaving 1px of white showing inside it
-										boxShadow: isSelected ? "inset 0 0 0 2px #fff" : undefined,
 										// the ring is drawn inside the cell, so it would be
 										// painted over by the next cell's background without this
 										zIndex: isSelected ? 1 : undefined,
@@ -781,6 +775,17 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 											/>
 										);
 									})}
+									{/* the ring's inner gutter. As an inset shadow on the
+									    cell it painted under the lane spans and only showed
+									    through where a cell was empty, so it has to be its
+									    own layer above them */}
+									{isSelected ? (
+										<span
+											aria-hidden
+											className="pointer-events-none absolute inset-[1px]"
+											style={{ boxShadow: "inset 0 0 0 1px #fff" }}
+										/>
+									) : null}
 								</div>
 							);
 						})}
