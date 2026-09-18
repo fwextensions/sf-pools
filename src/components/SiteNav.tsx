@@ -40,7 +40,7 @@ export default function SiteNav() {
 						key={href}
 						href={href}
 						aria-current={current ? "page" : undefined}
-						className={`plex-mono -mb-px whitespace-nowrap border-b-2 pb-3 pt-2 text-[12px] min-[500px]:tracking-[.08em] ${
+						className={`plex-mono -mb-px whitespace-nowrap border-b-2 pb-3 pt-2 text-[12px] min-[900px]:pt-6 min-[500px]:tracking-[.08em] ${
 							current
 								? "border-[#0e2733] font-semibold text-[#0e2733]"
 								: "border-transparent font-medium text-[#5a707c] hover:text-[#0e2733]"
