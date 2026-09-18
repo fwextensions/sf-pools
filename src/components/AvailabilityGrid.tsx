@@ -231,7 +231,9 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		if (selectedPools.length) params.set("pools", selectedPools.join(","));
 		if (urlCell) params.set("cell", formatCellParam(urlCell));
 		const qs = params.toString();
-		router.replace(qs ? `${pathname}?${qs}` : pathname);
+		// scroll: false, or every drag that ends while the page is scrolled down
+		// jumps back to the top as if it were a fresh navigation
+		router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
 	}, [initialized, selectedTags, selectedPools, urlCell, pathname, router]);
 
 	// focus mode takes the scrolling layout out of the flow, which collapses
