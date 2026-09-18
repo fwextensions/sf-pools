@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schedule Update Pipeline</title>
+<style>
+	:root {
+		--bg: #f7f8fa; --surface: #ffffff; --text: #1b1f24; --muted: #5b6470;
+		--border: #dde1e6; --accent: #0b6bcb; --accent-soft: #e5f0fb;
+		--ok: #1a7f37; --warn: #9a6700; --err: #cf222e; --code-bg: #eef1f4;
+	}
+	@media (prefers-color-scheme: dark) {
+		:root:not([data-theme="light"]) {
+			--bg: #0f1216; --surface: #171b21; --text: #e6e9ed; --muted: #9aa4b0;
+			--border: #2a3038; --accent: #5aa9f0; --accent-soft: #16273a;
+			--ok: #4ac26b; --warn: #d4a72c; --err: #ff7b72; --code-bg: #1f252d;
+		}
+	}
+	:root[data-theme="dark"] {
+		--bg: #0f1216; --surface: #171b21; --text: #e6e9ed; --muted: #9aa4b0;
+		--border: #2a3038; --accent: #5aa9f0; --accent-soft: #16273a;
+		--ok: #4ac26b; --warn: #d4a72c; --err: #ff7b72; --code-bg: #1f252d;
+	}
+	* { box-sizing: border-box; }
+	body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+	main { max-width: 860px; margin: 0 auto; padding: 40px 16px 80px; }
+	h1 { font-size: 2rem; margin: 0 0 8px; line-height: 1.2; }
+	h2 { font-size: 1.35rem; margin: 48px 0 12px; padding-top: 8px; border-top: 1px solid var(--border); }
+	h3 { font-size: 1.05rem; margin: 24px 0 6px; }
+	p.lede { color: var(--muted); font-size: 1.1rem; margin-top: 0; }
+	code { font: 0.88em ui-monospace, "Cascadia Code", Consolas, monospace; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+	a { color: var(--accent); }
+	.flow { display: grid; gap: 10px; margin: 24px 0; counter-reset: step; }
+	.step { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 8px; padding: 12px 16px; }
+	.step b { display: block; }
+	.step b::before { counter-increment: step; content: counter(step) ". "; color: var(--accent); }
+	.step span { color: var(--muted); font-size: 0.93rem; }
+	.arrow { text-align: center; color: var(--muted); line-height: 1; margin: -4px 0; }
+	table { width: 100%; border-collapse: collapse; font-size: 0.93rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+	th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+	th { background: var(--accent-soft); }
+	.tbl { overflow-x: auto; }
+	.pill { display: inline-block; font-size: 0.78rem; font-weight: 600; padding: 1px 8px; border-radius: 99px; border: 1px solid currentColor; }
+	.muted { color: var(--muted); } .err { color: var(--err); } .warn { color: var(--warn); } .ok { color: var(--ok); }
+	.note { background: var(--accent-soft); border-radius: 8px; padding: 12px 16px; margin: 16px 0; }
+	ul { padding-left: 22px; }
+	li { margin: 4px 0; }
+</style>
+</head>
+<body>
+<main>
+	<h1>Schedule Update Pipeline</h1>
+	<p class="lede">How SF Rec &amp; Park pool PDFs become the <code>all_schedules.json</code> the site renders: scraping, PDF extraction with Gemini, health checks, closures, changelogs, and the weekly GitHub Action that ties it together.</p>
+
+	<h2>At a glance</h2>
+	<p>Everything runs from one npm script, <code>npm run build-schedules</code>, which chains four stages:</p>
+	<div class="flow">
+		<div class="step"><b>Scrape pool pages</b><span><code>scripts/scrape-pool-info.ts</code> → finds each pool's current schedule PDF link</span></div>
+		<div class="arrow">↓</div>
+		<div class="step"><b>Download PDFs</b><span><code>scripts/downloadPdf.ts</code> → <code>data/pdfs/&lt;pool-id&gt;.pdf</code> + <code>data/pdf-manifest.json</code></span></div>
+		<div class="arrow">↓</div>
+		<div class="step"><b>Scrape alerts &amp; closures</b><span><code>scripts/scrape-alerts.ts --notify</code> → <code>public/data/alerts.json</code></span></div>
+		<div class="arrow">↓</div>
+		<div class="step"><b>Extract, normalize, validate, publish</b><span><code>scripts/process-all-pdfs.ts</code> → <code>public/data/all_schedules.json</code> + <code>data/changelog/&lt;date&gt;.json</code></span></div>
+	</div>
+	<p>Alerts are scraped <em>before</em> processing on purpose: an active closure needs to be known when the schedules are assembled so the closed pool's programs can be hidden.</p>
+
+	<h2>1. Discovering the PDFs</h2>
+	<p><code>scrape-pool-info.ts</code> starts at the <a href="https://sfrecpark.org/482/Swimming-Pools">Swimming Pools listing</a>, visits each pool page, and picks the schedule link from the page's <em>Documents</em> row (<code>/DocumentCenter/View/…</code> links). Results go to <code>public/data/discovered_pool_schedules.json</code>.</p>
+	<p>When a page has only one document, the first link wins. When it has several (e.g. North Beach's <em>warm</em> and <em>cool</em> pool schedules), <code>pickBestPdfLink</code> scores every candidate:</p>
+	<ul>
+		<li><strong>+</strong> link text mentions "schedule" (+4), "pool", ends in pdf, or matches tokens from the pool's slug</li>
+		<li><strong>+10 / −10</strong> for the requested variant keyword vs. its sibling, so "warm" never resolves to the "cool" PDF</li>
+		<li><strong>−</strong> "citywide", "rules", "party", unrelated "mission", or no slug-token match at all</li>
+	</ul>
+	<p>The canonical list of pools (ids, names, addresses, page URLs) lives in <code>data/pools.json</code>.</p>
+
+	<h2>2. Downloading</h2>
+	<p><code>downloadPdf.ts</code> fetches each discovered PDF, SHA-256 hashes the bytes, and saves it as <code>data/pdfs/&lt;sanitized-pool-id&gt;.pdf</code>. <code>data/pdf-manifest.json</code> records the URL and hash per pool; if the hash matches, the file is left as-is (only the URL is refreshed if it moved).</p>
+
+	<h2>3. Alerts and closures</h2>
+	<p><code>scrape-alerts.ts</code> collects site-wide banners and per-pool notices (both prose on the page and linked notice documents). Anything that mentions a closure is <em>enriched</em>: the notice PDF is downloaded and read by the model together with the alert text to produce a structured <code>Closure</code> (start/end dates, indefinite flag, summary, and <code>suppressPrograms</code>).</p>
+	<ul>
+		<li><code>suppressPrograms</code> is the single gate on hiding a schedule. Partial closures, or ones the model flagged as unsafe to act on, remain alerts only.</li>
+		<li>With <code>--notify</code>, new alerts and new/changed closures trigger Pushover notifications.</li>
+	</ul>
+
+	<h2>4. Processing the PDFs</h2>
+	<p><code>process-all-pdfs.ts</code> does the real work. For every pool in <code>pools.json</code> with a PDF on disk:</p>
+
+	<h3>4a. Cache check</h3>
+	<p>It hashes the PDF and compares it with <code>data/extracted/_manifest.json</code>. Unchanged PDFs reuse the cached extract in <code>data/extracted/&lt;pool&gt;.json</code> — no API call. Set <code>REFRESH_EXTRACT=1</code> to force re-extraction.</p>
+
+	<h3>4b. Extraction with Gemini</h3>
+	<p><code>extractScheduleFromPdf</code> (<code>src/lib/pdf-processor.ts</code>) sends the raw PDF to <code>gemini-3.1-flash-lite</code> via the Vercel AI SDK with structured output bound to a Zod schema (<code>PoolScheduleSchema</code>). Settings: <code>temperature: 0</code> for deterministic reads, <code>maxRetries: 3</code> for transient failures. The prompt enforces:</p>
+	<ul>
+		<li>times as <code>h:mm[a|p]</code> (e.g. <code>9:00a</code>), Pacific time, full weekday names</li>
+		<li>program names verbatim — normalization happens later</li>
+		<li>stacked programs in one time block split into separate entries, each with its own lane count parsed from <code>"Lap Swim (8)"</code></li>
+		<li>season name and start/end dates when the PDF states them</li>
+		<li>the expected pool name as a hint, so the model doesn't mislabel the pool</li>
+	</ul>
+	<p>The output is validated again with <code>AllSchedulesSchema.parse</code> before being cached.</p>
+
+	<h3>4c. Identity and enrichment</h3>
+	<ul>
+		<li><strong>Pool identity</strong> comes from <code>pools.json</code>, not from the PDF text — the PDF can't distinguish pools that share a name (North Beach warm vs. cool). Name matching via <code>pool-mapping.ts</code> is only a fallback.</li>
+		<li>Address, Rec &amp; Park URL, and PDF URL are filled from <code>pools.json</code> and the discovery file.</li>
+		<li><strong>Program taxonomy</strong> (<code>program-taxonomy.ts</code>): each program keeps its <code>programNameOriginal</code>, gets a canonical <code>programName</code>, a cleaned display <code>title</code>, and derived <code>tags</code> (<code>activity:*</code>, <code>audience:*</code>, <code>access:*</code>).</li>
+	</ul>
+
+	<h3>4d. Closures</h3>
+	<p>If the pool has an active, program-suppressing closure, it's published with <code>programs: []</code> and the <code>closure</code> object attached. This also means an empty extract caused by a closure notice isn't mistaken for a broken PDF. A closure that has ended is ignored automatically, so the pool returns the day after reopening.</p>
+
+	<h3>4e. Health checks and quarantine</h3>
+	<p>Each extract is checked by <code>src/lib/schedule-validation.ts</code>, both on its own and against the previous published data:</p>
+	<div class="tbl"><table>
+		<tr><th>Check</th><th>Severity</th></tr>
+		<tr><td>Unparseable start/end time</td><td><span class="pill err">error</span></td></tr>
+		<tr><td>End time at or before start time</td><td><span class="pill err">error</span></td></tr>
+		<tr><td>All previous programs disappeared (baseline ≥ 5)</td><td><span class="pill err">error</span></td></tr>
+		<tr><td>Program count fell by more than 50%</td><td><span class="pill err">error</span></td></tr>
+		<tr><td>No programs extracted</td><td><span class="pill warn">warning</span></td></tr>
+		<tr><td>Schedule covers only one day</td><td><span class="pill warn">warning</span></td></tr>
+		<tr><td>Day coverage dropped by 3+ days</td><td><span class="pill warn">warning</span></td></tr>
+	</table></div>
+	<p>Any <span class="err">error</span> makes the pool unhealthy:</p>
+	<ul>
+		<li><strong>Quarantined</strong> — previous data exists, so the pool is held at its last known-good schedule.</li>
+		<li><strong>Dropped</strong> — no previous data, so nothing is published for it.</li>
+	</ul>
+	<p>Either way the pool's hash is removed from the extract manifest, so the next run re-extracts it. <code>ALLOW_UNHEALTHY=1</code> bypasses this locally.</p>
+	<div class="note">Volume of change is deliberately <em>not</em> a health signal. A season rollover changes most programs and is perfectly healthy. Large diffs are reported (with whether the PDFs declared a new season) but never block publishing.</div>
+
+	<h3>4f. Preservation</h3>
+	<p>Pools that weren't processed this run (e.g. PDF missing) keep their previous entry, unless the pool no longer exists in <code>pools.json</code> — that prevents renamed or split pools from leaving stale entries.</p>
+
+	<h3>4g. Changelog and output</h3>
+	<p><code>scripts/changelog.ts</code> diffs the previous <code>all_schedules.json</code> against the new set (added/removed/changed programs, change severity, season change). Anomalies, quarantines, and drops are appended as warnings, and the entry is written to <code>data/changelog/</code>. Then the new <code>public/data/all_schedules.json</code> is written.</p>
+
+	<h3>Failure policy</h3>
+	<p>The run fails only when nothing usable came out:</p>
+	<ul>
+		<li>no schedules at all to publish, or</li>
+		<li>every extracted pool failed health checks (likely a site-wide PDF format change).</li>
+	</ul>
+	<p>One bad PDF never blocks the rest — it sets <code>reviewRequired</code> instead.</p>
+
+	<h2>5. The weekly GitHub Action</h2>
+	<p><code>.github/workflows/update-schedules.yml</code> runs <strong>every Friday at 20:00 UTC</strong> (noon Pacific standard time) and can also be triggered manually.</p>
+	<div class="tbl"><table>
+		<tr><th>Step</th><th>What happens</th></tr>
+		<tr><td>Run pipeline</td><td><code>npm run build-schedules</code> with the Gemini key and Pushover secrets. Marked <code>continue-on-error</code> so the later steps can report.</td></tr>
+		<tr><td>Check for changes</td><td><code>git diff</code> over <code>public/data/</code> and <code>data/changelog/</code>.</td></tr>
+		<tr><td>Commit &amp; push</td><td>Only if changed <em>and</em> the build succeeded: commits as <code>github-actions[bot]</code> with "Update pool schedules YYYY-MM-DD".</td></tr>
+		<tr><td>Notify</td><td><code>scripts/notify.ts</code> sends a Pushover message: <code>update</code>, <code>no-changes</code>, <code>review-required</code> (only if something was quarantined/dropped), or <code>build-failed</code>.</td></tr>
+		<tr><td>Fail</td><td>On pipeline failure, the job exits 1; a separate <code>notify-failure</code> job sends an error notification.</td></tr>
+	</table></div>
+	<p>The deployed site picks up the committed JSON on its next build.</p>
+
+	<h2>Files reference</h2>
+	<div class="tbl"><table>
+		<tr><th>File</th><th>Role</th><th>Committed?</th></tr>
+		<tr><td><code>data/pools.json</code></td><td>Canonical pool list</td><td class="ok">yes</td></tr>
+		<tr><td><code>public/data/discovered_pool_schedules.json</code></td><td>PDF URL per pool</td><td class="ok">yes</td></tr>
+		<tr><td><code>data/pdf-manifest.json</code></td><td>Download URL + hash</td><td class="ok">yes</td></tr>
+		<tr><td><code>data/pdfs/*.pdf</code></td><td>Downloaded PDFs</td><td class="muted">no</td></tr>
+		<tr><td><code>data/extracted/*.json</code></td><td>Cached raw extractions + hash manifest</td><td class="muted">no</td></tr>
+		<tr><td><code>public/data/alerts.json</code></td><td>Alerts and closures</td><td class="ok">yes</td></tr>
+		<tr><td><code>public/data/all_schedules.json</code></td><td>What the site renders</td><td class="ok">yes</td></tr>
+		<tr><td><code>data/changelog/*.json</code></td><td>Per-run diffs and warnings</td><td class="ok">yes</td></tr>
+	</table></div>
+
+	<h2>Running it locally</h2>
+	<p>Needs <code>GOOGLE_GENERATIVE_AI_API_KEY</code> in <code>.env</code> (Pushover keys optional).</p>
+	<ul>
+		<li><code>npm run build-schedules</code> — full pipeline</li>
+		<li><code>npm run process-all-pdfs</code> — just re-process PDFs already on disk</li>
+		<li><code>REFRESH_EXTRACT=1 npm run process-all-pdfs</code> — ignore the extraction cache</li>
+		<li><code>ALLOW_UNHEALTHY=1 …</code> — publish extracts that fail health checks</li>
+		<li><code>npm run renormalize-programs</code> — re-apply the program taxonomy without re-extracting</li>
+	</ul>
+</main>
+</body>
+</html>
