@@ -510,7 +510,11 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						onClick={() =>
 							setExpandedCats((prev) => ({ ...prev, [cat.id]: !prev[cat.id] }))
 						}
-						className="cursor-pointer px-2 py-1 plex-mono text-[13px] font-medium text-[#5a707c]"
+						// the glyph is small inside its em box, so it needs roughly
+						// double the label's size to carry the same weight as the
+						// checkbox and text it sits with. leading-none keeps that off
+						// the row height
+						className="cursor-pointer px-2 py-1 plex-mono text-[26px] font-medium leading-none text-[#5a707c]"
 					>
 						{expandedCats[cat.id] ? "▴" : "▾"}
 					</button>
