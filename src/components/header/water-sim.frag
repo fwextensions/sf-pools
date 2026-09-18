@@ -2,8 +2,8 @@ precision highp float;
 
 // ============================================================================
 // WATER HEIGHTFIELD SIMULATION (ping-pong pass)
-// Discrete 2D wave equation over a small float texture:
-//   next = h + damping * (h - hPrev) + c^2 * laplacian(h) + viscosity
+// Stylized discrete 2D wave equation over a small float texture:
+//   next = (2h - hPrev + c^2 * laplacian(h) + viscosity) * damping
 // r = current height, g = previous height. Texels are square in screen
 // space (the JS side sizes the texture to the canvas aspect), so the
 // Laplacian propagates waves isotropically.
@@ -38,7 +38,8 @@ varying vec2 vTexCoord;
 // reads as heavy, barely-moving water where a drip ring takes several seconds
 // to reach a wall, rather than as a pond being pelted.
 const float WAVE_SPEED = 0.0025;
-// Velocity retained per simulation step. Uniform height is not damped.
+// Retention factor on the full height update. This also adds a weak restoring
+// force toward zero, intentionally preserving the original springy ripple wake.
 // For an oscillating mode, amplitude decays approximately as sqrt(DAMPING)
 // per step: 0.9995 at 180 steps/s gives a ~22s e-folding time before viscosity.
 // Viscosity adds wavelength-dependent decay, so visible rings fade sooner.
@@ -92,10 +93,12 @@ void main() {
 	// (k^2 ~ 0.4), so injection noise and the stripes it seeds die in a few
 	// frames while the rings barely notice. See VISCOSITY for the numbers.
 	float viscous = VISCOSITY * (lap2.x - lap2.y);
-	// Damp velocity, not absolute height. Uniform still water must stay still:
-	// multiplying the entire next height adds an artificial restoring force.
-	float velocity = (state.r - state.g) * DAMPING;
-	float next = state.r + velocity + WAVE_SPEED * laplacian + viscous;
+	// Applying damping to the whole update provides both energy loss and a
+	// weak restoring force. Velocity-only damping was more physically faithful,
+	// but removed the recoil that makes a gesture leave a bright, readable wake.
+	// Keep this deliberate stylization; the fixed clock makes it refresh-rate
+	// independent, and the injection/clamp guards below still bound the state.
+	float next = (2.0 * state.r - state.g + WAVE_SPEED * laplacian + viscous) * DAMPING;
 	// Height carried into the .g channel as next step's "previous". Injections
 	// below displace it alongside `next` so they add no velocity — see the
 	// note on the pointer dent.

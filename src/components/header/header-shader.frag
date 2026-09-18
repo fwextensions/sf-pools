@@ -395,10 +395,12 @@ void sampleWater(vec2 screenUV, out float height, out vec2 grad, out vec3 hess) 
 	// the one place the tile refraction and the caustic lens part company: in
 	// the few texels where a drip has just landed, the lens is softened and the
 	// refraction is not.)
-	// sqrt(2) times the Frobenius norm matches the old trace magnitude for
-	// circular dents, but also bounds saddle curvature where the trace is zero.
-	float curvatureSq = 2.0 * (hess.x * hess.x + hess.y * hess.y + 2.0 * hess.z * hess.z);
-	hess *= inversesqrt(1.0 + curvatureSq / (SIM_CURV_MAX * SIM_CURV_MAX));
+	// Limit the trace, not the full Hessian norm. Opposing principal curvatures
+	// along a wake are what produce its bright caustic folds. Bounding all
+	// curvature at this ceiling suppresses those folds and dulls the interaction.
+	// The trace still softens the concentrated flash at a fresh circular dent.
+	float lapMag = abs(hess.x + hess.y);
+	hess *= inversesqrt(1.0 + (lapMag * lapMag) / (SIM_CURV_MAX * SIM_CURV_MAX));
 }
 
 // ============================================================================

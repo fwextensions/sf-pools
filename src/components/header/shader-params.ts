@@ -91,7 +91,7 @@ export const PARAM_SPECS: ParamSpec[] = [
 	{
 		name: "SIM_CURV_MAX", domain: "display", group: "Wave field",
 		label: "Ripple lens ceiling", min: 5.0, max: 500.0, step: 5.0,
-		hint: "Ceiling on the curvature the simulation alone may put into the caustic lens — softens the bright-then-black flash in the frame a drip lands, without touching the settled field. It has to go LOW to do anything: at 100 the flash is indistinguishable from unlimited, and it only visibly softens around 30. Judge it by landing a drip in an A/B, not by the number. Raise toward 500 to disable.",
+		hint: "Soft limit on the curvature trace: reduces the flash at a fresh dent while preserving opposing curvatures that make the wake's bright folds. It has to go LOW to do anything: at 100 the flash is indistinguishable from unlimited, and it only visibly softens around 30. Judge it by landing a drip in an A/B, not by the number. Raise toward 500 to disable.",
 	},
 	{
 		name: "AMBIENT_WEIGHT", domain: "display", group: "Wave field",
@@ -133,7 +133,7 @@ export const PARAM_SPECS: ParamSpec[] = [
 	{
 		name: "DAMPING", domain: "sim", group: "Simulation",
 		label: "Damping", min: 0.95, max: 1.0, step: 0.0005,
-		hint: "Velocity retained per physics step. Larger values keep waves moving longer without pulling their height toward zero. At 0.9995 and 180 steps/s, oscillating amplitudes have an approximately 22-second decay time before wavelength-dependent viscosity. Uniform still water is unaffected.",
+		hint: "Retention on the full height update, combining energy loss with a weak restoring force that gives the wake its springy recoil. Larger values reduce both damping and recoil. At 0.9995 and 180 steps/s, oscillating amplitudes have an approximately 22-second decay time before wavelength-dependent viscosity.",
 	},
 	{
 		name: "VISCOSITY", domain: "sim", group: "Simulation",
