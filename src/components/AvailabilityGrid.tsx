@@ -36,6 +36,21 @@ const LAST_HOUR = 21;
 const HOURS: number[] = [];
 for (let h = FIRST_HOUR; h <= LAST_HOUR; h++) HOURS.push(h);
 
+// ?cell=thu-14 — the three-letter day the grid already labels its columns
+// with, and the hour the selection starts on
+function formatCellParam(cell: SelectedCell): string {
+	return `${cell.day.slice(0, 3).toLowerCase()}-${cell.hour}`;
+}
+
+function parseCellParam(raw: string | null): SelectedCell | null {
+	if (!raw) return null;
+	const [abbr, rest] = raw.toLowerCase().split("-");
+	const day = DAYS.find((d) => d.slice(0, 3).toLowerCase() === abbr);
+	const hour = Number(rest);
+	if (!day || !Number.isInteger(hour) || hour < FIRST_HOUR || hour > LAST_HOUR) return null;
+	return { day, hour };
+}
+
 // a session you cannot simply show up for says so on the card; drop-in is the
 // unremarkable case and stays unlabelled
 function accessNote(tags: string[]): string | null {
@@ -133,6 +148,10 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	const [selectedTags, setSelectedTags] = useState<string[]>([]);
 	const [selectedPools, setSelectedPools] = useState<string[]>([]);
 	const [selectedCell, setSelectedCell] = useState<SelectedCell | null>(null);
+	// what the URL says. It trails selectedCell: a drag repaints the grid on
+	// every cell it crosses, but only the cell the gesture settles on is worth
+	// a navigation
+	const [urlCell, setUrlCell] = useState<SelectedCell | null>(null);
 	const [openPanel, setOpenPanel] = useState<"programs" | "pools" | null>(null);
 	const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({ activity: true });
 	// phones only: pins the whole thing to the viewport so the page itself
@@ -146,6 +165,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	const isDraggingRef = useRef(false);
 	const suppressClickRef = useRef(false);
 	const scrollBeforeFocusRef = useRef<number | null>(null);
+	const latestCellRef = useRef<SelectedCell | null>(null);
 
 	// init once: URL params win over localStorage
 	useEffect(() => {
@@ -166,15 +186,20 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 
 		setSelectedTags(tags);
 		setSelectedPools(pools);
-		// the cell is deliberately not restored: filters are a standing
-		// preference, but a highlighted cell on arrival reads as a claim the
-		// page is making rather than one the reader made
+		// only a cell someone linked to. It is deliberately not restored from
+		// localStorage: filters are a standing preference, but a highlighted
+		// cell on arrival reads as a claim the page is making rather than one
+		// the reader made
+		const cell = parseCellParam(searchParams.get("cell"));
+		setSelectedCell(cell);
+		setUrlCell(cell);
+		latestCellRef.current = cell;
 
 		didInit.current = true;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// persist + sync url when filters change
+	// the filters are the standing preference worth carrying between visits
 	useEffect(() => {
 		if (!didInit.current) return;
 
@@ -184,13 +209,20 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 				JSON.stringify({ tags: selectedTags, poolIds: selectedPools })
 			);
 		} catch {}
+	}, [selectedTags, selectedPools]);
+
+	// keep the url shareable. urlCell rather than selectedCell: a drag would
+	// otherwise fire a navigation for every cell the pointer crosses
+	useEffect(() => {
+		if (!didInit.current) return;
 
 		const params = new URLSearchParams();
 		if (selectedTags.length) params.set("tags", selectedTags.join(","));
 		if (selectedPools.length) params.set("pools", selectedPools.join(","));
+		if (urlCell) params.set("cell", formatCellParam(urlCell));
 		const qs = params.toString();
 		router.replace(qs ? `${pathname}?${qs}` : pathname);
-	}, [selectedTags, selectedPools, pathname, router]);
+	}, [selectedTags, selectedPools, urlCell, pathname, router]);
 
 	// focus mode takes the scrolling layout out of the flow, which collapses
 	// the document and clamps the page's scroll offset; stash it on the way in
@@ -380,6 +412,19 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		return { day, hour };
 	}
 
+	// the url trails the grid by a gesture: pick() paints, commitCell() is what
+	// the reader settled on and the only thing the address bar hears about
+	function pick(cell: SelectedCell) {
+		latestCellRef.current = cell;
+		setSelectedCell(cell);
+	}
+
+	function commitCell(cell: SelectedCell | null) {
+		setUrlCell((prev) =>
+			prev && cell && prev.day === cell.day && prev.hour === cell.hour ? prev : cell
+		);
+	}
+
 	function handleCellPointerDown(
 		e: PointerEvent<HTMLDivElement>,
 		day: ProgramEntry["dayOfWeek"],
@@ -389,7 +434,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		if (e.pointerType !== "mouse" && !touchDrag) return;
 		isDraggingRef.current = true;
 		e.currentTarget.setPointerCapture(e.pointerId);
-		setSelectedCell({ day, hour });
+		pick({ day, hour });
 	}
 
 	function handleCellPointerMove(e: PointerEvent<HTMLDivElement>) {
@@ -397,9 +442,9 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		e.preventDefault();
 		const cell = cellAtPoint(e.clientX, e.clientY);
 		if (!cell) return;
-		setSelectedCell((prev) =>
-			prev && prev.day === cell.day && prev.hour === cell.hour ? prev : cell
-		);
+		const prev = latestCellRef.current;
+		if (prev && prev.day === cell.day && prev.hour === cell.hour) return;
+		pick(cell);
 	}
 
 	function handleCellPointerUp(e: PointerEvent<HTMLDivElement>) {
@@ -408,6 +453,8 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			// synthesizes right after, or it'd snap the selection back to
 			// wherever the gesture started
 			suppressClickRef.current = true;
+			// the gesture is over, so wherever it ended is the real selection
+			commitCell(latestCellRef.current);
 		}
 		isDraggingRef.current = false;
 		if (e.currentTarget.hasPointerCapture(e.pointerId)) {
@@ -420,7 +467,8 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			suppressClickRef.current = false;
 			return;
 		}
-		setSelectedCell({ day, hour });
+		pick({ day, hour });
+		commitCell({ day, hour });
 	}
 
 	// ----- shared picker sub-renders -----
@@ -681,7 +729,8 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 									onKeyDown={(e) => {
 										if (e.key === "Enter" || e.key === " ") {
 											e.preventDefault();
-											setSelectedCell({ day, hour: h });
+											pick({ day, hour: h });
+											commitCell({ day, hour: h });
 										}
 									}}
 									onPointerDown={(e) => handleCellPointerDown(e, day, h, touchDrag)}
