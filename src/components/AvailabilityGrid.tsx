@@ -857,12 +857,17 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		});
 	}
 
-	function renderClearButton() {
+	// compact is for the sidebar, where it sits beside the PROGRAMS label and
+	// must fit inside that line's height, or the whole sidebar drops when the
+	// first filter is picked and the button appears
+	function renderClearButton(compact = false) {
 		return (
 			<button
 				type="button"
 				onClick={clearAll}
-				className="cursor-pointer border border-[#c4d2d9] bg-white px-2.5 py-1.5 plex-mono text-[12px] font-medium text-[#5a707c]"
+				className={`cursor-pointer border border-[#c4d2d9] bg-white plex-mono font-medium text-[#5a707c] ${
+					compact ? "px-2 py-px text-[11px] leading-none" : "px-2.5 py-1.5 text-[12px]"
+				}`}
 			>
 				CLEAR
 			</button>
@@ -1001,7 +1006,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						<span className="plex-mono text-[11px] font-semibold tracking-[.14em] text-[#8a9aa4]">
 							PROGRAMS
 						</span>
-						{hasAnyFilter ? renderClearButton() : null}
+						{hasAnyFilter ? renderClearButton(true) : null}
 					</div>
 					{renderCategoryRows(true)}
 					<div className="px-4 pb-1.5 pt-4 plex-mono text-[11px] font-semibold tracking-[.14em] text-[#8a9aa4]">
