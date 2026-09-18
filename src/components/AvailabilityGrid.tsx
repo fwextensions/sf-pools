@@ -121,9 +121,14 @@ function HeightRatchet({
 	const inner = useRef<HTMLDivElement>(null);
 	const [floor, setFloor] = useState(0);
 
-	useLayoutEffect(() => {
+	// reset during render rather than in an effect, so the stale floor is
+	// never committed for a frame before being cleared
+	const key = `${resetKey}|${enabled}`;
+	const [floorKey, setFloorKey] = useState(key);
+	if (floorKey !== key) {
+		setFloorKey(key);
 		setFloor(0);
-	}, [resetKey, enabled]);
+	}
 
 	// every commit, not just when the content changes: fonts and wrapping can
 	// settle a row later. offsetHeight is 0 while this copy of the grid is
