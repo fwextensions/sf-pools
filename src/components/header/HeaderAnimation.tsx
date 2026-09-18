@@ -15,7 +15,7 @@ export default function HeaderAnimation()
 
 		// Run the draw loop only while it can be seen. The header sits at the top
 		// of a long page, so it is scrolled away for most of a visit; without this
-		// the three sim passes and the display pass keep running every frame
+		// the simulation and display passes keep running
 		// underneath the schedule grid the user is actually using. Backgrounded
 		// tabs already stop (the browser withholds animation frames), so this only
 		// has to cover the header leaving the viewport.

@@ -1,26 +1,5 @@
-/**
- * Timing for the header's ambient wave events.
- *
- * The wave simulation advances a fixed amount of physics per DRAWN FRAME —
- * SIM_SUBSTEPS steps, with no delta-time normalisation anywhere. So the rate at
- * which the pool dissipates energy is measured in frames, not seconds. If the
- * events that inject energy are scheduled in wall-clock seconds instead, the
- * two come apart the moment the browser stops drawing at 60fps:
- *
- *   - Backgrounded tab, throttled to ~1fps: drips keep arriving every 5
- *     wall-clock seconds while the water advances 3 steps per frame instead of
- *     180 per second. A minute in the background injects a minute of drips and
- *     applies a second of damping, and the surface comes back saturated and
- *     chaotic.
- *   - Backgrounded tab, fully frozen: no frames, so nothing injects — but the
- *     first frame back sees a huge time jump.
- *   - A slow or loaded device: the same accumulation, permanently.
- *
- * The fix is to schedule against a clock that advances with the frames, which
- * is what these functions provide. Under normal conditions it tracks wall time
- * exactly, so drips really are DRIP_PERIOD_S apart; when frames stop arriving
- * it stops with them.
- */
+/** Physics and event scheduling share a fixed 60Hz clock, independent of RAF. */
+export const SIM_TICK_DT = 1 / 60;
 
 /**
  * Ceiling on how much simulated time one drawn frame may represent. At 60fps a
@@ -37,14 +16,15 @@ export const MAX_FRAME_DT = 1 / 30;
 const STALL_THRESHOLD = MAX_FRAME_DT * 2;
 
 export type SimClock = {
-	/** simulated seconds elapsed, advanced once per drawn frame */
+	/** simulated seconds elapsed, advanced only by complete physics ticks */
 	simTime: number;
+	accumulator: number;
 	/** real time at the previous frame, or -1 before the first */
 	lastRealTime: number;
 };
 
 export function createSimClock(): SimClock {
-	return { simTime: 0, lastRealTime: -1 };
+	return { simTime: 0, accumulator: 0, lastRealTime: -1 };
 }
 
 /**
@@ -58,6 +38,7 @@ export function createSimClock(): SimClock {
 export function advanceSimClock(clock: SimClock, realTime: number): {
 	simTime: number;
 	stalled: boolean;
+	ticks: number;
 } {
 	const first = clock.lastRealTime < 0;
 	// Clamped below at 0 as well: performance.now() is monotonic, but the
@@ -66,10 +47,14 @@ export function advanceSimClock(clock: SimClock, realTime: number): {
 	const realDelta = first ? 0 : Math.max(realTime - clock.lastRealTime, 0);
 	const stalled = !first && realDelta > STALL_THRESHOLD;
 
-	clock.lastRealTime = realTime;
-	clock.simTime += Math.min(realDelta, MAX_FRAME_DT);
+	clock.lastRealTime = Math.max(clock.lastRealTime, realTime);
+	clock.accumulator += Math.min(realDelta, MAX_FRAME_DT);
+	// Epsilon prevents floating-point subtraction from losing a tick at 30/60Hz.
+	const ticks = Math.floor((clock.accumulator + 1e-9) / SIM_TICK_DT);
+	clock.accumulator = Math.max(0, clock.accumulator - ticks * SIM_TICK_DT);
+	clock.simTime += ticks * SIM_TICK_DT;
 
-	return { simTime: clock.simTime, stalled };
+	return { simTime: clock.simTime, stalled, ticks };
 }
 
 /**

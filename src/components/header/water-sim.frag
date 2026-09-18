@@ -3,7 +3,7 @@ precision highp float;
 // ============================================================================
 // WATER HEIGHTFIELD SIMULATION (ping-pong pass)
 // Discrete 2D wave equation over a small float texture:
-//   next = (2h - hPrev + c^2 * laplacian(h)) * damping
+//   next = h + damping * (h - hPrev) + c^2 * laplacian(h) + viscosity
 // r = current height, g = previous height. Texels are square in screen
 // space (the JS side sizes the texture to the canvas aspect), so the
 // Laplacian propagates waves isotropically.
@@ -28,7 +28,7 @@ uniform float u_time;          // seconds, for drifting the swell wobble
 varying vec2 vTexCoord;
 
 // c^2 in texel units: how far waves travel per sim step (ring speed ~=
-// sqrt(WAVE_SPEED) texels/step, times SIM_SUBSTEPS per frame on the JS
+// sqrt(WAVE_SPEED) texels/step, times SIM_SUBSTEPS per fixed 60Hz tick on the JS
 // side). Must stay below 0.5 for numerical stability (CFL condition) —
 // above that the simulation explodes into checkerboard noise.
 //
@@ -38,19 +38,17 @@ varying vec2 vTexCoord;
 // reads as heavy, barely-moving water where a drip ring takes several seconds
 // to reach a wall, rather than as a pond being pelted.
 const float WAVE_SPEED = 0.0025;
-// Amplitude retained per sim step. At 0.9985 and 3 substeps/frame at 60fps
-// waves keep ~76% per second, e-folding in ~3.7s — so a ring travels ~100 CSS
-// px before it fades, which is about half the header's height and enough to
-// reach the long walls and reflect. Together with WAVE_SPEED this is what
-// decides whether rings from successive drips ever overlap; drop it back toward
-// 0.985 and each one dies where it lands.
+// Velocity retained per simulation step. Uniform height is not damped.
+// For an oscillating mode, amplitude decays approximately as sqrt(DAMPING)
+// per step: 0.9995 at 180 steps/s gives a ~22s e-folding time before viscosity.
+// Viscosity adds wavelength-dependent decay, so visible rings fade sooner.
 const float DAMPING = 0.9995;
 // Viscous damping coefficient, applied to the Laplacian of the velocity. Per
 // step a mode of wavenumber k loses roughly VISCOSITY * k^2 of its velocity,
 // with k^2 in texel units: 8 for the checkerboard, ~0.4 for a 10-texel ring,
 // ~0.1 for a 20-texel one. At 0.003 the checkerboard e-folds in ~40 steps
-// (a quarter second at 3 substeps and 60fps) while a drip ring loses an extra
-// ~20% per second on top of DAMPING — enough to matter, so if rings stop
+// (a quarter second at 180 steps/s) while a drip ring loses extra velocity
+// on top of DAMPING — enough to matter, so if rings stop
 // reaching the walls, raise DAMPING a touch rather than lowering this. Must
 // stay well below 1/8 (~0.12) or the viscous step itself goes unstable.
 const float VISCOSITY = 0.003;
@@ -94,7 +92,10 @@ void main() {
 	// (k^2 ~ 0.4), so injection noise and the stripes it seeds die in a few
 	// frames while the rings barely notice. See VISCOSITY for the numbers.
 	float viscous = VISCOSITY * (lap2.x - lap2.y);
-	float next = (2.0 * state.r - state.g + WAVE_SPEED * laplacian + viscous) * DAMPING;
+	// Damp velocity, not absolute height. Uniform still water must stay still:
+	// multiplying the entire next height adds an artificial restoring force.
+	float velocity = (state.r - state.g) * DAMPING;
+	float next = state.r + velocity + WAVE_SPEED * laplacian + viscous;
 	// Height carried into the .g channel as next step's "previous". Injections
 	// below displace it alongside `next` so they add no velocity — see the
 	// note on the pointer dent.

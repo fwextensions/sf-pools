@@ -6,8 +6,12 @@ import {
 	createSimClock,
 	dueBucket,
 	hash01,
+	SIM_TICK_DT,
 } from "./wave-schedule";
+import { readGustParams, updateGusts } from "./wave-gust";
 import { QuadRenderer, type Program, type Target } from "./webgl";
+
+const GUST_DEFAULTS = readGustParams(displayFragShader);
 
 // Size the simulation by CSS pixels, not a fixed texel count, so ripples
 // have the same on-screen wavelength, dent size, and speed on every device.
@@ -17,7 +21,7 @@ import { QuadRenderer, type Program, type Target } from "./webgl";
 const SIM_TEXEL_CSS_PX = 3;
 const SIM_MAX_WIDTH = 512;
 const SIM_MIN_WIDTH = 96;
-const SIM_SUBSTEPS = 3; // wave-equation steps per frame; more = faster waves
+const SIM_SUBSTEPS = 3; // wave-equation steps per fixed 60Hz tick
 const SIM_IMPULSE_RADIUS = 3.0; // pointer dent radius, in sim texels
 
 // Pointer dent depth: IMPULSE_BASE for a slow drag, rising with pointer speed
@@ -31,7 +35,7 @@ const IMPULSE_BASE = 0.08;
 const IMPULSE_PER_PX = 0.005;
 const IMPULSE_MAX = 0.5;
 const CLICK_AMP = 0.7; // clicks still splash harder than moves (was 1.2)
-const MAX_PIXEL_DENSITY = 1.5; // retina resolution is invisible on blurry water
+const MAX_PIXEL_DENSITY = 1.5; // retain retina detail without the cost of full 2x/3x
 
 // Scroll-driven swell: inertia responds to acceleration, not velocity, so
 // the water sloshes when scrolling starts, stops, or jerks — a steady
@@ -79,9 +83,8 @@ const SWELL_INSET = 0.35;
 // dead, fire only after 6s of stillness, and are suppressed under the harness.
 // These run continuously and are part of the wave field's design.
 const DRIP_AMBIENT_AMP = 0.35; // 0 disables them entirely
-// Mean seconds between drips. Set against the ~3.7s decay time from DAMPING:
-// close enough that a new ring arrives while the previous one is still crossing
-// the pool, so there are usually two or three generations interfering, but far
+// Mean seconds between drips: close enough that a new ring arrives while
+// the previous one is still crossing the pool, leaving generations interfering, but far
 // enough apart that each one is still legible as a single expanding ring.
 const DRIP_PERIOD_S = 5.0;
 const DRIP_RADIUS = 3.0; // drip radius, in sim texels
@@ -282,11 +285,10 @@ export function mountWater(
 	// on-screen proportions.
 	let simDims = [SIM_MAX_WIDTH, SIM_MAX_WIDTH];
 
-	// Simulated seconds, advanced once per drawn frame. Everything time-driven
-	// reads this rather than wall clock, because the sim itself advances per
-	// frame — see wave-schedule.ts for why the two coming apart is what makes a
-	// backgrounded tab come back chaotic.
+	// Fixed ticks shared by physics and ambient events. Catch-up is bounded
+	// after stalls so a returning tab cannot accumulate a backlog of drips.
 	const simClock = createSimClock();
+	const gusts = new Float32Array(12);
 
 	let lastScrollY = 0;
 	let lastScrollDelta = 0;
@@ -390,8 +392,17 @@ export function mountWater(
 		const now = performance.now();
 		const from =
 			sweepFrom && now - sweepFrom.t <= SWEEP_MAX_GAP_MS ? sweepFrom : null;
-		const speedPx = from ? Math.hypot(x - from.x, y - from.y) : 0;
+		// Express speed as distance per 60Hz tick, independent of event frequency.
+		const speedPx = from
+			? Math.hypot(x - from.x, y - from.y) * (SIM_TICK_DT * 1000) / Math.max(now - from.t, 1)
+			: 0;
 
+		// Preserve the first pending anchor until a physics tick consumes it.
+		// Several pointer events can arrive between ticks on a high-refresh device.
+		if (impulseAmp === 0 || !from) {
+			impulsePrevX = from ? from.x / width : x / width;
+			impulsePrevY = from ? 1.0 - from.y / height : 1.0 - y / height;
+		}
 		impulseX = x / width;
 		impulseY = 1.0 - y / height;
 		const jp = opts.getJsParams
@@ -399,10 +410,6 @@ export function mountWater(
 			: JS_PARAM_DEFAULTS;
 		impulseAmp = Math.min(jp.IMPULSE_MAX, jp.IMPULSE_BASE + speedPx * jp.IMPULSE_PER_PX);
 
-		// sweep the dent from the last position, unless the pointer just
-		// arrived — then it is a point dent where it landed
-		impulsePrevX = from ? from.x / width : impulseX;
-		impulsePrevY = from ? 1.0 - from.y / height : impulseY;
 		sweepFrom = { x, y, t: now };
 		lastInteractionTime = simClock.simTime * 1000;
 	}
@@ -429,18 +436,8 @@ export function mountWater(
 
 	// --- the frame -----------------------------------------------------------
 
-	function draw() {
+	function simulateTick(time: number, scrollY: number, js: JsParams, tunables: Record<string, number> | null) {
 		if (!simRead || !simWrite) return;
-		const d = density;
-		// One frame of simulated time. `stalled` means the gap since the last
-		// frame was too long to be one — the tab was backgrounded, or the device
-		// could not keep up — so anything measured as a per-frame difference
-		// against the outside world is stale rather than a real change.
-		const { simTime: time, stalled } = advanceSimClock(simClock, nowSeconds());
-		// JS-side tunables. Production passes nothing and gets the constants.
-		const js: JsParams = opts.getJsParams
-			? { ...JS_PARAM_DEFAULTS, ...opts.getJsParams() }
-			: JS_PARAM_DEFAULTS;
 
 		// The harness feeds both instances the same impulse; without this each
 		// pane would only respond to a pointer physically over it. Each new
@@ -466,9 +463,8 @@ export function mountWater(
 		// scrolled while the tab is in the background, and the whole distance
 		// would otherwise arrive as one frame's worth of acceleration and fire a
 		// capped swell the moment you come back.
-		const scrollY = opts.input ? opts.input.scrollY : window.scrollY;
-		const scrollDelta = stalled ? 0 : scrollY - lastScrollY;
-		const scrollJerk = stalled ? 0 : scrollDelta - lastScrollDelta;
+		const scrollDelta = scrollY - lastScrollY;
+		const scrollJerk = scrollDelta - lastScrollDelta;
 		lastScrollY = scrollY;
 		lastScrollDelta = scrollDelta;
 		// The line source fires at most once per frame. Both the scroll swell and
@@ -564,12 +560,6 @@ export function mountWater(
 			nextDripTime = now + DRIP_MIN_GAP_MS + Math.random() * (DRIP_MAX_GAP_MS - DRIP_MIN_GAP_MS);
 		}
 
-		// Live tunables, present only under the harness (where the shader's
-		// `const float`s have been rewritten into uniforms). A name that does
-		// not exist in a program resolves to a null location and is ignored, so
-		// the same loop safely feeds both shaders every name.
-		const tunables = opts.getUniforms ? opts.getUniforms() : null;
-
 		// --- advance the wave simulation (ping-pong) ---
 		simShader.use();
 		if (tunables) {
@@ -591,13 +581,45 @@ export function mountWater(
 			[simRead, simWrite] = [simWrite, simRead];
 		}
 		impulseAmp = 0.0;
+	}
+
+	function draw() {
+		if (!simRead || !simWrite) return;
+		const { simTime: time, stalled, ticks } = looping
+			? advanceSimClock(simClock, nowSeconds())
+			: { simTime: simClock.simTime, stalled: false, ticks: 0 };
+		// No state or animation time changed. Avoid shading an identical image
+		// on intervening 120/144Hz frames; initial and resize draws still land.
+		if (ticks === 0 && !needsDraw) return;
+		const js = opts.getJsParams
+			? { ...JS_PARAM_DEFAULTS, ...opts.getJsParams() }
+			: JS_PARAM_DEFAULTS;
+		const tunables = opts.getUniforms?.() ?? null;
+		if (stalled) {
+			lastScrollY = opts.input ? opts.input.scrollY : window.scrollY;
+			lastScrollDelta = 0;
+			clearSweep();
+		}
+		// A 30Hz frame runs two ticks; 120Hz frames alternate zero and one.
+		// Events are processed per tick too, so catch-up cannot skip a drip.
+		const scrollStart = lastScrollY;
+		const scrollEnd = opts.input ? opts.input.scrollY : window.scrollY;
+		for (let tick = 0; tick < ticks; tick++) {
+			const scroll = scrollStart + (scrollEnd - scrollStart) * (tick + 1) / ticks;
+			simulateTick(time - (ticks - tick - 1) * SIM_TICK_DT, scroll, js, tunables);
+		}
 
 		// --- render the pool ---
 		displayShader.use();
 		if (tunables) {
 			for (const k in tunables) displayShader.set1f(k, tunables[k]);
 		}
-		displayShader.set2f("u_resolution", width * d, height * d);
+		updateGusts(gusts, time * 0.8, {
+			GUST_DEPTH: tunables?.GUST_DEPTH ?? GUST_DEFAULTS.GUST_DEPTH,
+			GUST_RATE: tunables?.GUST_RATE ?? GUST_DEFAULTS.GUST_RATE,
+		});
+		displayShader.set4fv("u_gust[0]", gusts);
+		displayShader.set2f("u_resolution", canvas.width, canvas.height);
 		displayShader.set1f("u_time", time);
 		displayShader.setTexture("u_water", simRead.tex, 0);
 		displayShader.set2f("u_waterTexel", simTexel[0], simTexel[1]);
@@ -605,7 +627,7 @@ export function mountWater(
 		displayShader.set1f("u_simLens", simLens);
 		// integer-CSS-px tile edge, in device px; the CSS placeholder computes
 		// the identical value as min(22px, round(down, 100vw / 33, 1px))
-		displayShader.set1f("u_tilePx", tileCssPx(width) * d);
+		displayShader.set1f("u_tilePx", tileCssPx(width) * density);
 		renderer.draw(displayShader, null, canvas.width, canvas.height);
 
 		if (firstFrame) {
@@ -618,22 +640,29 @@ export function mountWater(
 
 	let looping = false;
 	let rafId = 0;
-	let drawnOnce = false;
+	let needsDraw = true;
 
 	function frame() {
 		rafId = 0;
 		draw();
-		drawnOnce = true;
+		needsDraw = false;
 		if (looping) rafId = requestAnimationFrame(frame);
 	}
 
 	function setLooping(on: boolean) {
+		if (on !== looping) {
+			// Paused time must never become physics debt, even for a short pause.
+			simClock.lastRealTime = -1;
+			lastScrollY = opts.input ? opts.input.scrollY : window.scrollY;
+			lastScrollDelta = 0;
+			impulseAmp = 0;
+			clearSweep();
+		}
 		looping = on;
 		if (on) {
 			if (!rafId) rafId = requestAnimationFrame(frame);
-		} else if (rafId && drawnOnce) {
-			// The first frame is always allowed to land, so an instance stopped
-			// before it draws (reduced motion) still shows the pool.
+		} else if (rafId && !needsDraw) {
+			// Initial and resize redraws must land even when the loop is stopped.
 			cancelAnimationFrame(rafId);
 			rafId = 0;
 		}
@@ -647,6 +676,9 @@ export function mountWater(
 		const w = canvasWidth();
 		if (w === width) return;
 		setSize(w);
+		// Resizing clears the canvas, including when reduced motion stops RAF.
+		needsDraw = true;
+		if (!rafId) rafId = requestAnimationFrame(frame);
 	}
 
 	function remove() {

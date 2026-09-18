@@ -1,6 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
 import {
 	MAX_FRAME_DT,
+	SIM_TICK_DT,
 	advanceSimClock,
 	createSimClock,
 	dueBucket,
@@ -9,9 +10,8 @@ import {
 
 /**
  * Drive a clock through `frames` frames spaced `frameGap` real seconds apart,
- * counting how many events a `period` schedule fires. This is the shape of the
- * bug being guarded against: the injection count has to follow the number of
- * frames drawn (which is what dissipates energy), not the wall time elapsed.
+ * counting events. Both injection and damping must follow simulated time,
+ * including when bounded catch-up drops excess elapsed time after a stall.
  */
 function runSchedule(frames: number, frameGap: number, period: number) {
 	const clock = createSimClock();
@@ -34,6 +34,37 @@ function runSchedule(frames: number, frameGap: number, period: number) {
 }
 
 describe("sim clock", () => {
+	it.each([30, 60, 90, 120, 144, 240])("runs exactly 600 physics ticks over ten seconds at %iHz", (hz) => {
+		const clock = createSimClock();
+		let total = 0;
+		for (let frame = 0; frame <= hz * 10; frame++) {
+			total += advanceSimClock(clock, frame / hz).ticks;
+		}
+		expect(total).toBe(600);
+		expect(clock.simTime).toBeCloseTo(10, 9);
+	});
+
+	it("keeps fractional time and does not simulate every high-refresh frame", () => {
+		const clock = createSimClock();
+		expect(advanceSimClock(clock, 0).ticks).toBe(0);
+		expect(advanceSimClock(clock, 1 / 120).ticks).toBe(0);
+		expect(advanceSimClock(clock, 2 / 120).ticks).toBe(1);
+		expect(clock.simTime).toBeCloseTo(SIM_TICK_DT);
+	});
+
+	it("bounds catch-up and drops stalled time rather than building debt", () => {
+		const clock = createSimClock();
+		advanceSimClock(clock, 0);
+		expect(advanceSimClock(clock, 600).ticks).toBe(2);
+		expect(advanceSimClock(clock, 600 + SIM_TICK_DT).ticks).toBe(1);
+	});
+
+	it("does not count a backward-clock interval twice", () => {
+		const clock = createSimClock();
+		advanceSimClock(clock, 10);
+		advanceSimClock(clock, 5);
+		expect(advanceSimClock(clock, 10).ticks).toBe(0);
+	});
 	// The first frame has no predecessor to measure against, so N frames span
 	// N-1 gaps. That single missing frame is the whole discrepancy below.
 	it("tracks wall time while frames arrive at 60fps", () => {
@@ -69,6 +100,27 @@ describe("sim clock", () => {
 });
 
 describe("event scheduling", () => {
+	it("injects on the same physics ticks at different display rates", () => {
+		function events(hz: number) {
+			const clock = createSimClock();
+			let lastBucket = -1;
+			const fired: number[] = [];
+			for (let frame = 0; frame <= 30 * hz; frame++) {
+				const { simTime, ticks } = advanceSimClock(clock, frame / hz);
+				for (let tick = 0; tick < ticks; tick++) {
+					const time = simTime - (ticks - tick - 1) * SIM_TICK_DT;
+					const bucket = dueBucket(time, 5, lastBucket, 101);
+					if (bucket !== null) {
+						lastBucket = bucket;
+						fired.push(Math.round(time / SIM_TICK_DT));
+					}
+				}
+			}
+			return fired;
+		}
+		expect(events(30)).toEqual(events(60));
+		expect(events(144)).toEqual(events(60));
+	});
 	it("fires about once per period at 60fps", () => {
 		// 60 real seconds, period 5 => 12 windows
 		const { fired } = runSchedule(3600, 1 / 60, 5);
@@ -92,15 +144,13 @@ describe("event scheduling", () => {
 	});
 
 	it("scales injections with frames drawn, not wall time, when throttled", () => {
-		// A backgrounded tab throttled to ~1fps for five minutes. The water only
-		// advances 3 sim steps per frame, so it dissipates 300 frames' worth --
-		// if the schedule ran on wall time it would inject 60 drips against that,
-		// which is the saturated mess this guards against.
+		// A backgrounded tab at ~1fps processes at most two ticks per frame.
+		// Scheduling on wall time would inject 60 drips without enough damping.
 		const throttled = runSchedule(300, 1, 5);
 		expect(throttled.realTime).toBeCloseTo(300, 5);
 
-		// Same number of frames at 60fps, for reference: the injection count must
-		// be of the same order, because the same number of frames dissipated.
+		// The throttled case processes up to twice as many ticks per frame,
+		// still nowhere near five minutes of events.
 		const normal = runSchedule(300, 1 / 60, 5);
 
 		expect(throttled.fired).toBeLessThanOrEqual(normal.fired + 2);

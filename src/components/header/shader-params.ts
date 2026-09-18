@@ -133,7 +133,7 @@ export const PARAM_SPECS: ParamSpec[] = [
 	{
 		name: "DAMPING", domain: "sim", group: "Simulation",
 		label: "Damping", min: 0.95, max: 1.0, step: 0.0005,
-		hint: "Energy retained per step, and the parameter that decides whether a travelling front can cross the header at all. At 0.985 with 2 substeps a wave e-folds in ~0.55s while moving ~114 CSS px/s, so it dies ~60px from where it was made — a line swell never gets across. ~0.995 with speed 0.4 and 3 substeps gives ~375px. Finer steps than the other sliders because the decay time is 1/(1-this): 0.995 vs 0.996 is a 20% difference.",
+		hint: "Velocity retained per physics step. Larger values keep waves moving longer without pulling their height toward zero. At 0.9995 and 180 steps/s, oscillating amplitudes have an approximately 22-second decay time before wavelength-dependent viscosity. Uniform still water is unaffected.",
 	},
 	{
 		name: "VISCOSITY", domain: "sim", group: "Simulation",
@@ -155,7 +155,7 @@ export const PARAM_SPECS: ParamSpec[] = [
 	},
 	{
 		name: "IMPULSE_PER_PX", domain: "js", group: "Pointer input",
-		label: "Depth per px/frame of speed", min: 0.0, max: 0.03, step: 0.001,
+		label: "Depth per px/tick of speed", min: 0.0, max: 0.03, step: 0.001,
 		hint: "How much faster pointer movement deepens the dent. The caustic lens reads curvature directly, so a deep dent throws a much brighter flare than the wake it leaves — lower this if the moment of contact overpowers the ripples that follow.",
 	},
 	{
@@ -175,8 +175,8 @@ export const PARAM_SPECS: ParamSpec[] = [
 	},
 	{
 		name: "SIM_SUBSTEPS", domain: "js", group: "Pointer input",
-		label: "Sim steps per frame", min: 1, max: 4, step: 1,
-		hint: "Wave-equation steps per rendered frame. More makes ripples travel and decay faster, at proportional GPU cost.",
+		label: "Sim steps per 60Hz tick", min: 1, max: 4, step: 1,
+		hint: "Wave-equation steps per fixed 60Hz physics tick, independent of display refresh rate. More makes ripples travel and decay faster, at proportional GPU cost.",
 	},
 	{
 		name: "SCROLL_AMP_MAX", domain: "js", group: "Pointer input",

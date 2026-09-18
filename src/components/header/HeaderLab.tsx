@@ -32,7 +32,8 @@ const CLOCK_ORIGIN = typeof performance !== "undefined" ? performance.now() : 0;
 //
 // The speed/damping pairs are not free choices. A front travels
 // sqrt(WAVE_SPEED) texels/step * substeps * 60 fps * 3 CSS px, and its
-// amplitude e-folds in 1/((1 - DAMPING) * substeps * 60) seconds. Multiply the
+// oscillating amplitude e-folds in roughly 2/((1 - DAMPING) * substeps * 60)
+// seconds before viscosity. Multiply the
 // two and you get how far a swell gets before it fades — which has to be a
 // decent fraction of the header's ~1500 px or the front never reads as
 // crossing anything.
@@ -43,7 +44,7 @@ const PRESETS: { label: string; hint: string; values: Values }[] = [
 		label: "Slow drips",
 		hint:
 			"Slow, lingering water: speed 0.008 (~48 px/s) with damping 0.9985 " +
-			"(~3.7s, ~180 px) so rings outlive the gap between drips and reach the " +
+			"(about 7.4s before viscosity) so rings outlive the gap between drips and reach the " +
 			"walls. Drips every 1.5s are the only injected energy; direction comes " +
 			"from the gusting analytic field instead of from line swells. Lens gain " +
 			"0.60 to read a much gentler curvature field.",
@@ -65,7 +66,7 @@ const PRESETS: { label: string; hint: string; values: Values }[] = [
 		label: "Fast drips (rings travel)",
 		hint:
 			"The other end of the speed dial: 0.25 / damping 0.995 / 3 substeps, " +
-			"~270 px/s and a ~300 px decay length, so a ring visibly expands across " +
+			"~270 px/s, so a ring visibly expands across " +
 			"the pane and reflects rather than sitting where it landed. Same drip " +
 			"source, faster water.",
 		values: {

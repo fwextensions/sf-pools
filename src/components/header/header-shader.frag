@@ -10,6 +10,7 @@ uniform sampler2D u_water;  // simulated heightfield, r = height
 uniform vec2 u_waterTexel;  // 1.0 / simulation resolution
 uniform float u_tilePx;     // tile edge in device px (integer CSS px * density)
 uniform vec2 u_bandFade;    // antialias fade for ambient wave groups B and C
+uniform vec4 u_gust[3];     // twelve time-only envelopes, computed once per frame
 // 1.0 normally; 0.0 where the GPU cannot linearly filter a float texture, in
 // which case the sim's second derivative is garbage (see createSimBuffers) and
 // only the analytic ambient field drives the caustic lens. Ripples still
@@ -104,7 +105,7 @@ const float AMBIENT_WEIGHT = 0.30;
 // This is the cheap half of "impulses rather than a constant swell": because a
 // caustic filament runs perpendicular to its wave's k, fading wave groups in
 // and out swings the web's dominant ORIENTATION over time, which is most of
-// what reads as weather. Costs one sin() per wave.
+// what reads as weather. The CPU reads these defaults and uploads u_gust.
 const float GUST_DEPTH = 0.60;
 // Envelope frequency, in cycles per second, before the per-wave spread below.
 // 0.05 is a 20s cycle — slow enough to read as drifting conditions rather than
@@ -218,8 +219,8 @@ float tiles(vec2 st, float gridScale) {
 	vec2 g = fract(st);
 	float t = 0.05;
 	float b = 0.02;
-	float x = smoothstep(t, t + b, g.x) * smoothstep(1.0 - t, 1.0 - t - b, g.x);
-	float y = smoothstep(t, t + b, g.y) * smoothstep(1.0 - t, 1.0 - t - b, g.y);
+	float x = smoothstep(t, t + b, g.x) * (1.0 - smoothstep(1.0 - t - b, 1.0 - t, g.x));
+	float y = smoothstep(t, t + b, g.y) * (1.0 - smoothstep(1.0 - t - b, 1.0 - t, g.y));
 	return x * y;
 }
 
@@ -243,28 +244,11 @@ float tiles(vec2 st, float gridScale) {
 // ~12x and the caustic would collapse into uniform fizz.
 // ============================================================================
 
-// Slow amplitude envelope for wave `idx`, centred on 1.0.
-//
-// Golden-angle phases and an irrational rate spread, for the same reason the
-// headings use the golden angle: any rational relationship between the twelve
-// envelopes lets whole groups fade in and out together, and the caustic web
-// visibly breathes as one. The RATE spread does most of that work — equal rates
-// with staggered phases still re-align on a fixed period.
-//
-// The early-out is on a compile-time const, so setting GUST_DEPTH back to 0.0
-// costs nothing at all: the branch folds and this whole function inlines to
-// 1.0. At the shipped 0.60 it is live and production pays one sin() per wave.
-// Under the tuning harness GUST_DEPTH is a uniform, so it becomes a
-// fully-coherent branch instead.
-float gustEnvelope(float t, float idx) {
-	if (GUST_DEPTH == 0.0) return 1.0;
-	float rate = GUST_RATE * (0.6 + 0.8 * fract(idx * 0.6180339887));
-	return 1.0 + GUST_DEPTH * sin(TAU * rate * t + idx * 2.39996);
-}
-
+// Gust envelopes are computed in wave-gust.ts from the declarations above.
+// Explicit vec4 components at each call keep indexing portable to WebGL 1.
 void addWave(vec2 p, float t, vec2 k, float amp, float omega, float phase,
-             float idx, inout float h, inout vec2 grad, inout vec3 hess) {
-	amp *= gustEnvelope(t, idx);
+             float gust, inout float h, inout vec2 grad, inout vec3 hess) {
+	amp *= gust;
 	float a = dot(k, p) + omega * t + phase;
 	float s = sin(a);
 	float c = cos(a);
@@ -302,19 +286,19 @@ void ambientSpectrum(vec2 p, float t, out float h, out vec2 grad,
 	// keep their exact character; only the curvature field becomes isotropic.
 
 	// --- Group A: swell, |k| 3.5-8.5.
-	addWave(p, t, vec2(  3.500,  0.000), 0.400,  0.9, 0.0,  0.0, h, grad, hess);
-	addWave(p, t, vec2( -3.687,  3.377), 0.300, -1.1, 0.0,  1.0, h, grad, hess);
-	addWave(p, t, vec2( -0.495,  5.635), 0.250,  0.7, 0.0,  2.0, h, grad, hess);
-	addWave(p, t, vec2(  5.163,  6.734), 0.150, -0.8, 0.0,  3.0, h, grad, hess);
+	addWave(p, t, vec2(  3.500,  0.000), 0.400,  0.9, 0.0, u_gust[0].x, h, grad, hess);
+	addWave(p, t, vec2( -3.687,  3.377), 0.300, -1.1, 0.0, u_gust[0].y, h, grad, hess);
+	addWave(p, t, vec2( -0.495,  5.635), 0.250,  0.7, 0.0, u_gust[0].z, h, grad, hess);
+	addWave(p, t, vec2(  5.163,  6.734), 0.150, -0.8, 0.0, u_gust[0].w, h, grad, hess);
 
 	// --- Group B: chop, |k| 11-17 (~3x the swell). Drift speeds follow the
 	// deep-water relation w = 0.42*sqrt(|k|), so short waves outrun long ones
 	// and the twelve components stay permanently out of step. The per-wave
 	// phase offsets keep them from all aligning at the origin.
-	addWave(p, t, vec2( 12.787,  2.262), 0.0475 * fadeB,  1.51, 1.7,  4.0, h, grad, hess);
-	addWave(p, t, vec2(-12.661,  8.054), 0.0355 * fadeB, -1.63, 3.9,  5.0, h, grad, hess);
-	addWave(p, t, vec2( -4.412, 16.411), 0.0277 * fadeB,  1.73, 5.2,  6.0, h, grad, hess);
-	addWave(p, t, vec2(  5.070,  9.763), 0.0661 * fadeB, -1.39, 2.4,  7.0, h, grad, hess);
+	addWave(p, t, vec2( 12.787,  2.262), 0.0475 * fadeB,  1.51, 1.7, u_gust[1].x, h, grad, hess);
+	addWave(p, t, vec2(-12.661,  8.054), 0.0355 * fadeB, -1.63, 3.9, u_gust[1].y, h, grad, hess);
+	addWave(p, t, vec2( -4.412, 16.411), 0.0277 * fadeB,  1.73, 5.2, u_gust[1].z, h, grad, hess);
+	addWave(p, t, vec2(  5.070,  9.763), 0.0661 * fadeB, -1.39, 2.4, u_gust[1].w, h, grad, hess);
 
 	// The glint raises surface slope to the 64th power, so feeding it the
 	// finest ripples turns the header into crawling white speckle. Snapshot the
@@ -324,10 +308,10 @@ void ambientSpectrum(vec2 p, float t, out float h, out vec2 grad,
 	// --- Group C: ripple, |k| 29-43 (~2.5x again). Amplitudes are 0.4%-2% of
 	// the swell, so these are invisible in the height field and barely present
 	// in the slope — they exist purely to give the determinant fine structure.
-	addWave(p, t, vec2( 29.137, 10.641), 0.00832 * fadeC,  2.34, 0.8,  8.0, h, grad, hess);
-	addWave(p, t, vec2(-34.167, 14.103), 0.00586 * fadeC, -2.55, 4.6,  9.0, h, grad, hess);
-	addWave(p, t, vec2(-12.309, 26.303), 0.00949 * fadeC,  2.26, 3.1, 10.0, h, grad, hess);
-	addWave(p, t, vec2( 12.853, 40.978), 0.00434 * fadeC, -2.75, 1.2, 11.0, h, grad, hess);
+	addWave(p, t, vec2( 29.137, 10.641), 0.00832 * fadeC,  2.34, 0.8, u_gust[2].x, h, grad, hess);
+	addWave(p, t, vec2(-34.167, 14.103), 0.00586 * fadeC, -2.55, 4.6, u_gust[2].y, h, grad, hess);
+	addWave(p, t, vec2(-12.309, 26.303), 0.00949 * fadeC,  2.26, 3.1, u_gust[2].z, h, grad, hess);
+	addWave(p, t, vec2( 12.853, 40.978), 0.00434 * fadeC, -2.75, 1.2, u_gust[2].w, h, grad, hess);
 }
 
 // ============================================================================
@@ -411,8 +395,10 @@ void sampleWater(vec2 screenUV, out float height, out vec2 grad, out vec3 hess) 
 	// the one place the tile refraction and the caustic lens part company: in
 	// the few texels where a drip has just landed, the lens is softened and the
 	// refraction is not.)
-	float lapMag = abs(hess.x + hess.y);
-	hess *= inversesqrt(1.0 + (lapMag * lapMag) / (SIM_CURV_MAX * SIM_CURV_MAX));
+	// sqrt(2) times the Frobenius norm matches the old trace magnitude for
+	// circular dents, but also bounds saddle curvature where the trace is zero.
+	float curvatureSq = 2.0 * (hess.x * hess.x + hess.y * hess.y + 2.0 * hess.z * hess.z);
+	hess *= inversesqrt(1.0 + curvatureSq / (SIM_CURV_MAX * SIM_CURV_MAX));
 }
 
 // ============================================================================
@@ -528,8 +514,7 @@ void main() {
 	float tileCountV = u_resolution.y / u_tilePx;
 
 	vec2 gridID = floor(tileUV * tileCountV);
-	vec2 stableGrid = floor(uv * tileCountV);
-	float colorVar = mix(0.96, 1.04, hash(stableGrid));
+	float colorVar = mix(0.96, 1.04, hash(gridID));
 
 	// --- Text Positioning ---
 	float totalTilesH = tileCountV * aspect;
@@ -566,8 +551,8 @@ void main() {
 
 	// --- Depth Vignette ---
 	// darken up to 15% toward the corners, fading in over a 1.2-radius
-	float dist = length(uv - vec2(aspect * 0.5, 0.5));
-	color *= 1.0 - smoothstep(1.2, 0.0, dist) * 0.15;
+	float dist = length((screenUV - 0.5) * 2.0);
+	color *= 1.0 - smoothstep(0.0, 1.2, dist) * 0.15;
 
 	// --- Caustic Lighting ---
 	vec3 shadowColor = vec3(0.2, 0.35, 0.45);
