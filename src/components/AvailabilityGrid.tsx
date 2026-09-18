@@ -8,6 +8,7 @@ import {
 	useRef,
 	useState,
 	type PointerEvent,
+	type ReactNode,
 } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
@@ -34,6 +35,21 @@ const FIRST_HOUR = 6;
 const LAST_HOUR = 21;
 const HOURS: number[] = [];
 for (let h = FIRST_HOUR; h <= LAST_HOUR; h++) HOURS.push(h);
+
+// ?cell=thu-14 — the three-letter day the grid already labels its columns
+// with, and the hour the selection starts on
+function formatCellParam(cell: SelectedCell): string {
+	return `${cell.day.slice(0, 3).toLowerCase()}-${cell.hour}`;
+}
+
+function parseCellParam(raw: string | null): SelectedCell | null {
+	if (!raw) return null;
+	const [abbr, rest] = raw.toLowerCase().split("-");
+	const day = DAYS.find((d) => d.slice(0, 3).toLowerCase() === abbr);
+	const hour = Number(rest);
+	if (!day || !Number.isInteger(hour) || hour < FIRST_HOUR || hour > LAST_HOUR) return null;
+	return { day, hour };
+}
 
 // a session you cannot simply show up for says so on the card; drop-in is the
 // unremarkable case and stays unlabelled
@@ -85,12 +101,57 @@ type Props = {
 	alerts?: AlertsData | null;
 };
 
+// The detail list sits under the grid, so a shorter list pulls everything
+// below it upward — pick a sparse cell while scrolled down and the page
+// shifts under you. Hold the tallest list rendered so far as a floor: the
+// space can grow but never shrink, so switching cells never moves the page.
+// Changing the filters is the one time a smaller list is expected, so the
+// floor resets there rather than stranding a gap for the rest of the session.
+// Focus mode opts out: the page doesn't scroll there and the list has its
+// own scroller, so a floor would only add one.
+function HeightRatchet({
+	enabled,
+	resetKey,
+	children,
+}: {
+	enabled: boolean;
+	resetKey: string;
+	children: ReactNode;
+}) {
+	const inner = useRef<HTMLDivElement>(null);
+	const [floor, setFloor] = useState(0);
+
+	useLayoutEffect(() => {
+		setFloor(0);
+	}, [resetKey, enabled]);
+
+	// every commit, not just when the content changes: fonts and wrapping can
+	// settle a row later. offsetHeight is 0 while this copy of the grid is
+	// display:none (the layout keeps both the mobile and desktop trees
+	// mounted), which leaves the floor alone rather than crushing it
+	useLayoutEffect(() => {
+		if (!enabled) return;
+		const h = inner.current?.offsetHeight ?? 0;
+		setFloor((prev) => (h > prev ? h : prev));
+	});
+
+	return (
+		<div style={{ minHeight: enabled && floor ? floor : undefined }}>
+			<div ref={inner}>{children}</div>
+		</div>
+	);
+}
+
 export default function AvailabilityGrid({ all, alerts }: Props) {
 	// selection is a set of tag ids from the closed vocabulary in
 	// program-taxonomy, so it survives the churn in the PDFs' own wording
 	const [selectedTags, setSelectedTags] = useState<string[]>([]);
 	const [selectedPools, setSelectedPools] = useState<string[]>([]);
 	const [selectedCell, setSelectedCell] = useState<SelectedCell | null>(null);
+	// what the URL says. It trails selectedCell: a drag repaints the grid on
+	// every cell it crosses, but only the cell the gesture settles on is worth
+	// a navigation
+	const [urlCell, setUrlCell] = useState<SelectedCell | null>(null);
 	const [openPanel, setOpenPanel] = useState<"programs" | "pools" | null>(null);
 	const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({ activity: true });
 	// phones only: pins the whole thing to the viewport so the page itself
@@ -101,15 +162,20 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	const pathname = usePathname();
 	const router = useRouter();
 	const didInit = useRef(false);
+	// the state half of didInit. The effects below would otherwise run on
+	// the same commit as the init effect, before its state lands, and write
+	// the empty initial state out over the url the reader arrived on
+	const [initialized, setInitialized] = useState(false);
 	const isDraggingRef = useRef(false);
 	const suppressClickRef = useRef(false);
 	const scrollBeforeFocusRef = useRef<number | null>(null);
+	const latestCellRef = useRef<SelectedCell | null>(null);
 
 	// init once: URL params win over localStorage
 	useEffect(() => {
 		if (didInit.current) return;
 
-		let saved: { tags?: string[]; poolIds?: string[]; selectedCell?: SelectedCell | null } = {};
+		let saved: { tags?: string[]; poolIds?: string[] } = {};
 		try {
 			saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || "{}");
 		} catch {}
@@ -124,37 +190,44 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 
 		setSelectedTags(tags);
 		setSelectedPools(pools);
-		if (
-			saved.selectedCell &&
-			DAYS.includes(saved.selectedCell.day) &&
-			typeof saved.selectedCell.hour === "number" &&
-			saved.selectedCell.hour >= FIRST_HOUR &&
-			saved.selectedCell.hour <= LAST_HOUR
-		) {
-			setSelectedCell(saved.selectedCell);
-		}
+		// only a cell someone linked to. It is deliberately not restored from
+		// localStorage: filters are a standing preference, but a highlighted
+		// cell on arrival reads as a claim the page is making rather than one
+		// the reader made
+		const cell = parseCellParam(searchParams.get("cell"));
+		setSelectedCell(cell);
+		setUrlCell(cell);
+		latestCellRef.current = cell;
 
 		didInit.current = true;
+		setInitialized(true);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// persist + sync url when filters change
+	// the filters are the standing preference worth carrying between visits
 	useEffect(() => {
-		if (!didInit.current) return;
+		if (!initialized) return;
 
 		try {
 			window.localStorage.setItem(
 				STORAGE_KEY,
-				JSON.stringify({ tags: selectedTags, poolIds: selectedPools, selectedCell })
+				JSON.stringify({ tags: selectedTags, poolIds: selectedPools })
 			);
 		} catch {}
+	}, [initialized, selectedTags, selectedPools]);
+
+	// keep the url shareable. urlCell rather than selectedCell: a drag would
+	// otherwise fire a navigation for every cell the pointer crosses
+	useEffect(() => {
+		if (!initialized) return;
 
 		const params = new URLSearchParams();
 		if (selectedTags.length) params.set("tags", selectedTags.join(","));
 		if (selectedPools.length) params.set("pools", selectedPools.join(","));
+		if (urlCell) params.set("cell", formatCellParam(urlCell));
 		const qs = params.toString();
 		router.replace(qs ? `${pathname}?${qs}` : pathname);
-	}, [selectedTags, selectedPools, selectedCell, pathname, router]);
+	}, [initialized, selectedTags, selectedPools, urlCell, pathname, router]);
 
 	// focus mode takes the scrolling layout out of the flow, which collapses
 	// the document and clamps the page's scroll offset; stash it on the way in
@@ -289,6 +362,8 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	}, [selectedCell, sessions, matchesTags, poolSet]);
 
 	const hasAnyFilter = selectedTags.length > 0 || selectedPools.length > 0;
+	// what the detail list's height floor resets on
+	const filterKey = `${selectedTags.join(",")}|${selectedPools.join(",")}`;
 
 	function toggleProgram(name: string) {
 		setSelectedTags((prev) =>
@@ -342,6 +417,19 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		return { day, hour };
 	}
 
+	// the url trails the grid by a gesture: pick() paints, commitCell() is what
+	// the reader settled on and the only thing the address bar hears about
+	function pick(cell: SelectedCell) {
+		latestCellRef.current = cell;
+		setSelectedCell(cell);
+	}
+
+	function commitCell(cell: SelectedCell | null) {
+		setUrlCell((prev) =>
+			prev && cell && prev.day === cell.day && prev.hour === cell.hour ? prev : cell
+		);
+	}
+
 	function handleCellPointerDown(
 		e: PointerEvent<HTMLDivElement>,
 		day: ProgramEntry["dayOfWeek"],
@@ -351,7 +439,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		if (e.pointerType !== "mouse" && !touchDrag) return;
 		isDraggingRef.current = true;
 		e.currentTarget.setPointerCapture(e.pointerId);
-		setSelectedCell({ day, hour });
+		pick({ day, hour });
 	}
 
 	function handleCellPointerMove(e: PointerEvent<HTMLDivElement>) {
@@ -359,9 +447,9 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		e.preventDefault();
 		const cell = cellAtPoint(e.clientX, e.clientY);
 		if (!cell) return;
-		setSelectedCell((prev) =>
-			prev && prev.day === cell.day && prev.hour === cell.hour ? prev : cell
-		);
+		const prev = latestCellRef.current;
+		if (prev && prev.day === cell.day && prev.hour === cell.hour) return;
+		pick(cell);
 	}
 
 	function handleCellPointerUp(e: PointerEvent<HTMLDivElement>) {
@@ -370,6 +458,8 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			// synthesizes right after, or it'd snap the selection back to
 			// wherever the gesture started
 			suppressClickRef.current = true;
+			// the gesture is over, so wherever it ended is the real selection
+			commitCell(latestCellRef.current);
 		}
 		isDraggingRef.current = false;
 		if (e.currentTarget.hasPointerCapture(e.pointerId)) {
@@ -382,7 +472,8 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			suppressClickRef.current = false;
 			return;
 		}
-		setSelectedCell({ day, hour });
+		pick({ day, hour });
+		commitCell({ day, hour });
 	}
 
 	// ----- shared picker sub-renders -----
@@ -419,7 +510,11 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						onClick={() =>
 							setExpandedCats((prev) => ({ ...prev, [cat.id]: !prev[cat.id] }))
 						}
-						className="cursor-pointer px-2 py-1 plex-mono text-[13px] font-medium text-[#5a707c]"
+						// the glyph is small inside its em box, so it needs roughly
+						// double the label's size to carry the same weight as the
+						// checkbox and text it sits with. leading-none keeps that off
+						// the row height
+						className="cursor-pointer px-2 py-1 plex-mono text-[26px] font-medium leading-none text-[#5a707c]"
 					>
 						{expandedCats[cat.id] ? "▴" : "▾"}
 					</button>
@@ -607,10 +702,11 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						style={{ marginTop: h === 12 || h === 17 ? 8 : 2 }}
 					>
 							<span
-							// leading-none keeps the label's line box under the cell
-							// height, so a labelled row isn't taller than an unlabelled
-							// one and the rows stay evenly pitched
-							className="self-center pr-1.5 text-right plex-mono text-[10px] font-medium leading-none"
+							// stretched rather than self-centred so the selected
+							// hour's wash fills the row, not just the text's line box.
+							// leading-none keeps that line box under the cell height, so
+							// the label can't push the row taller than an unlabelled one
+							className="flex items-center justify-end pr-1.5 plex-mono text-[10px] font-medium leading-none"
 							style={{
 								color: selectedCell?.hour === h ? "#0e2733" : "#8a9aa4",
 								background: selectedCell?.hour === h ? SELECT_BAND : undefined,
@@ -623,6 +719,10 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 							const inBand =
 								selectedCell != null &&
 								(selectedCell.day === day || selectedCell.hour === h);
+							// with a cell picked, the rest of the grid steps back so the
+							// selection is the brightest thing on screen: the row and
+							// column it sits in fade a little, everything else more
+							const dim = selectedCell == null || isSelected ? 1 : inBand ? 0.6 : 0.4;
 							return (
 								// a div, not a <button>: Safari mangles flex layout inside
 								// buttons, collapsing the lane spans to zero height
@@ -638,7 +738,8 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 									onKeyDown={(e) => {
 										if (e.key === "Enter" || e.key === " ") {
 											e.preventDefault();
-											setSelectedCell({ day, hour: h });
+											pick({ day, hour: h });
+											commitCell({ day, hour: h });
 										}
 									}}
 									onPointerDown={(e) => handleCellPointerDown(e, day, h, touchDrag)}
@@ -648,8 +749,11 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 										className={`grid-cell relative flex cursor-pointer ${cellHeightClass}`}
 									style={{
 										background: isSelected ? SELECT_CELL : inBand ? SELECT_BAND : CELL_BG,
-										outline: isSelected ? `2px solid ${SELECT_RING}` : "none",
-										outlineOffset: -1.5,
+										outline: isSelected ? `3px solid ${SELECT_RING}` : "none",
+										outlineOffset: -1,
+										// the ring is drawn inside the cell, so it would be
+										// painted over by the next cell's background without this
+										zIndex: isSelected ? 1 : undefined,
 										// only claim the touch gesture where nothing behind the
 										// grid scrolls; elsewhere the browser keeps it
 										touchAction: touchDrag ? "none" : undefined,
@@ -666,11 +770,22 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 													background: hit ? token.color : "transparent",
 													// unselected pools fade rather than vanish, so
 													// "my pools" still read in context
-													opacity: hit && unselected ? 0.13 : 1,
+													opacity: hit && unselected ? 0.13 * dim : dim,
 												}}
 											/>
 										);
 									})}
+									{/* the ring's inner gutter. As an inset shadow on the
+									    cell it painted under the lane spans and only showed
+									    through where a cell was empty, so it has to be its
+									    own layer above them */}
+									{isSelected ? (
+										<span
+											aria-hidden
+											className="pointer-events-none absolute inset-[1px]"
+											style={{ boxShadow: "inset 0 0 0 1px #fff" }}
+										/>
+									) : null}
 								</div>
 							);
 						})}
@@ -682,7 +797,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 
 	// ----- detail -----
 
-	function renderDetail(canDrag = false) {
+	function renderDetail(canDrag = false, ratchet = true) {
 		return (
 			<div className="mt-4 border-t-2 border-[#0e2733] pt-2.5">
 				<div className="flex items-baseline justify-between">
@@ -699,6 +814,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						</span>
 					) : null}
 				</div>
+				<HeightRatchet enabled={ratchet} resetKey={filterKey}>
 				{detail?.map((d, i) => (
 					<div
 						key={i}
@@ -731,6 +847,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						Nothing scheduled here — {canDrag ? "drag across" : "tap a colored cell in"} the grid.
 					</div>
 				) : null}
+				</HeightRatchet>
 			</div>
 		);
 	}
@@ -759,7 +876,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						    list gives its space to the panel and comes back after */}
 						{openPanel ? null : (
 							<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4">
-								{renderDetail(true)}
+								{renderDetail(true, false)}
 							</div>
 						)}
 					</div>
