@@ -232,9 +232,12 @@ export function mountWater(
 	canvas.style.zIndex = "1";
 	canvas.style.opacity = "0";
 	canvas.style.transition = "opacity 300ms ease";
-	// Touch pans start on the header too, and the browser must own them; the
-	// pointer events it delivers before taking over still stir the water.
-	canvas.style.touchAction = "pan-y";
+	// A finger dragged across the water stirs it rather than scrolling the page,
+	// as it did under p5 (whose touchMoved returned false). With pan-y the
+	// browser took any mostly-vertical drag for a scroll and cancelled the
+	// pointer after a move or two, so on a phone the water barely responded.
+	// The page still scrolls from anywhere below the header.
+	canvas.style.touchAction = "none";
 	host.appendChild(canvas);
 
 	const density = Math.min(window.devicePixelRatio || 1, MAX_PIXEL_DENSITY);
