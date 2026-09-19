@@ -874,12 +874,41 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		);
 	}
 
+	// the word CLEAR wrapped the chip row to a second line once two pools were
+	// picked (the counts widen both chips), which shoves the grid down in focus
+	// mode, so on mobile it's a reset glyph sized like the focus toggle
+	function renderClearIconButton() {
+		return (
+			<button
+				type="button"
+				onClick={clearAll}
+				aria-label="Clear filters"
+				title="Clear filters"
+				className="w-9 flex-none cursor-pointer border-[1.5px] border-[#c4d2d9] bg-white px-2.5 py-2 text-center text-[#5a707c]"
+			>
+				<svg
+					aria-hidden
+					viewBox="0 0 14 14"
+					className="inline-block h-[14px] w-[14px] align-middle"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="1.6"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				>
+					<path d="M1.6 7a5.4 5.4 0 1 0 1.6-3.8" />
+					<path d="M1.4 1.6v3.2h3.2" />
+				</svg>
+			</button>
+		);
+	}
+
 	// ----- mobile chrome (shared by the scrolling page and focus mode) -----
 
 	function renderMobileChips() {
 		return (
 			<div className="flex items-center justify-between gap-1.5">
-				<div className="flex flex-wrap items-center gap-1.5">
+				<div className="flex min-w-0 flex-wrap items-center gap-1.5">
 					<button
 						type="button"
 						onClick={() => setOpenPanel(openPanel === "programs" ? null : "programs")}
@@ -902,42 +931,44 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 					>
 						POOLS {selectedPools.length || "ALL"} {openPanel === "pools" ? "▴" : "▾"}
 					</button>
-					{hasAnyFilter ? renderClearButton() : null}
 				</div>
-				{/* the grid can only take a touch drag when the page behind it
-				    holds still, so this is the way into that mode */}
-				<button
-					type="button"
-					aria-label={focusMode ? "Leave full screen" : "Fill the screen to drag across the grid"}
-					aria-pressed={focusMode}
-					onClick={() => {
-						if (!focusMode) {
-							scrollBeforeFocusRef.current = window.scrollY;
-							setOpenPanel(null);
-						}
-						setFocusMode((on) => !on);
-					}}
-					className="w-9 flex-none cursor-pointer border-[1.5px] border-[#0e2733] px-2.5 py-2 text-center plex-mono text-[12px] font-semibold"
-					style={{
-						background: focusMode ? "#0e2733" : "#fff",
-						color: focusMode ? "#fff" : "#0e2733",
-					}}
-				>
-					{focusMode ? (
-						"✕"
-					) : (
-						<svg
-							aria-hidden
-							viewBox="0 0 14 14"
-							className="inline-block h-[14px] w-[14px] align-middle"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="2"
-						>
-							<path d="M1 5V1h4M13 5V1H9M1 9v4h4M13 9v4H9" />
-						</svg>
-					)}
-				</button>
+				<div className="flex flex-none items-center gap-1.5">
+					{hasAnyFilter ? renderClearIconButton() : null}
+					{/* the grid can only take a touch drag when the page behind it
+					    holds still, so this is the way into that mode */}
+					<button
+						type="button"
+						aria-label={focusMode ? "Leave full screen" : "Fill the screen to drag across the grid"}
+						aria-pressed={focusMode}
+						onClick={() => {
+							if (!focusMode) {
+								scrollBeforeFocusRef.current = window.scrollY;
+								setOpenPanel(null);
+							}
+							setFocusMode((on) => !on);
+						}}
+						className="w-9 flex-none cursor-pointer border-[1.5px] border-[#0e2733] px-2.5 py-2 text-center plex-mono text-[12px] font-semibold"
+						style={{
+							background: focusMode ? "#0e2733" : "#fff",
+							color: focusMode ? "#fff" : "#0e2733",
+						}}
+					>
+						{focusMode ? (
+							"✕"
+						) : (
+							<svg
+								aria-hidden
+								viewBox="0 0 14 14"
+								className="inline-block h-[14px] w-[14px] align-middle"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="2"
+							>
+								<path d="M1 5V1h4M13 5V1H9M1 9v4h4M13 9v4H9" />
+							</svg>
+						)}
+					</button>
+				</div>
 			</div>
 		);
 	}
