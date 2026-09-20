@@ -39,3 +39,7 @@ pnpm-debug.log*
 # pdf-manifest.json is intentionally tracked for incremental extraction
 
 tsconfig.tsbuildinfo
+
+.vercel
+.env*
+!.env.example
