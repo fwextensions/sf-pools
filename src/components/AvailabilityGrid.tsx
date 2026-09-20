@@ -1023,19 +1023,21 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		);
 	}
 
-	// on the page a panel is just tall and the rest scrolls past it. In focus
-	// mode nothing scrolls, so it takes the leftover space instead of a fixed
-	// height — otherwise it pushes the grid off a short screen with no way to
-	// scroll back to it
+	// on the page a panel is just tall and the rest scrolls past it: no height
+	// cap and no scroller of its own, so the page is the only thing that
+	// scrolls and a swipe started anywhere behaves the same. A capped panel
+	// scrolled on its own instead, and a touch that starts inside a scroller
+	// stays with it for the whole gesture, so reaching the grid meant
+	// scrolling the filters to their end, lifting, and swiping again — or
+	// knowing to start outside the panel. The chip bar above it is sticky, so
+	// a long list is still one tap from being closed.
 	//
-	// overscroll-contain belongs to focus mode alone, where the point is that
-	// nothing behind the panel moves. On the page it strands the reader: the
-	// list stops at its own end and the page underneath refuses to take over,
-	// so scrolling past the filters means knowing to start the gesture
-	// somewhere else
+	// Focus mode is the opposite case and keeps both: nothing behind the
+	// panel scrolls there, so it takes the leftover space and contains its
+	// own overscroll rather than pushing the grid off a short screen.
 	function renderMobilePanels(fill = false) {
-		const className = `overflow-y-auto border-b-2 border-[#0e2733] bg-[#fbfdfe] ${
-			fill ? "overscroll-contain min-h-0 flex-1" : "max-h-[340px] flex-none"
+		const className = `border-b-2 border-[#0e2733] bg-[#fbfdfe] ${
+			fill ? "overflow-y-auto overscroll-contain min-h-0 flex-1" : ""
 		}`;
 		if (openPanel === "programs") {
 			return <div className={className}>{renderCategoryRows(false)}</div>;
