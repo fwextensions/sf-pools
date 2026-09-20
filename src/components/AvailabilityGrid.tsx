@@ -83,6 +83,22 @@ function toMinutes(t: string): number | null {
 // restore a set of strings that now match nothing
 const STORAGE_KEY = "sfpools-grid-v2";
 
+// Whether the grid has already rewritten the query string in this document.
+//
+// Until it has, the address bar holds what the reader arrived on, and it
+// outranks the stored filters — that is what makes a shared link work. Once
+// the grid has written the url itself, any url a later mount sees is either
+// its own write, which localStorage already agrees with, or a stale one the
+// router put back: writeUrl uses replaceState, which the App Router never
+// hears about, so tabbing to another section and back restores whatever
+// query string the route was last navigated to. That resurrected the filters
+// a reader had just cleared. From that point on the stored filters are at
+// least as fresh as the url, so they win.
+//
+// Module scope, not a ref: it is per document, and has to outlive the
+// unmount that a section change puts the grid through.
+let urlRewritten = false;
+
 type SelectedCell = { day: ProgramEntry["dayOfWeek"]; hour: number };
 
 function sameCell(a: SelectedCell | null, b: SelectedCell | null): boolean {
@@ -514,8 +530,8 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || "{}");
 		} catch {}
 
-		const qTags = searchParams.get("tags");
-		const qPools = searchParams.get("pools");
+		const qTags = urlRewritten ? null : searchParams.get("tags");
+		const qPools = urlRewritten ? null : searchParams.get("pools");
 
 		const tags = qTags ? qTags.split(",").filter(Boolean) : (saved.tags ?? []);
 		const pools = (qPools ? qPools.split(",") : (saved.poolIds ?? [])).filter((id) =>
@@ -524,6 +540,19 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 
 		setSelectedTags(tags);
 		setSelectedPools(pools);
+		// persist straight away rather than leaving it to the effect below.
+		// Under StrictMode the init effect runs, is torn down, and runs again
+		// before that state has landed, and the second pass reads storage
+		// instead of the url — so the link's filters have to be in storage by
+		// then or the remount drops them
+		if (qTags || qPools) {
+			try {
+				window.localStorage.setItem(
+					STORAGE_KEY,
+					JSON.stringify({ tags, poolIds: pools })
+				);
+			} catch {}
+		}
 		// only a cell someone linked to. It is deliberately not restored from
 		// localStorage: filters are a standing preference, but a highlighted
 		// cell on arrival reads as a claim the page is making rather than one
@@ -557,6 +586,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		if (pools.length) params.set("pools", pools.join(","));
 		if (committedCellRef.current) params.set("cell", formatCellParam(committedCellRef.current));
 		const qs = params.toString();
+		urlRewritten = true;
 		// the native history call, not router.replace: the router treats a new
 		// query as a navigation, fetching the page from the server and
 		// re-rendering it on every click, and scrolling to the top besides.
