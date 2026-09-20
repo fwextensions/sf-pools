@@ -997,9 +997,15 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	// mode nothing scrolls, so it takes the leftover space instead of a fixed
 	// height — otherwise it pushes the grid off a short screen with no way to
 	// scroll back to it
+	//
+	// overscroll-contain belongs to focus mode alone, where the point is that
+	// nothing behind the panel moves. On the page it strands the reader: the
+	// list stops at its own end and the page underneath refuses to take over,
+	// so scrolling past the filters means knowing to start the gesture
+	// somewhere else
 	function renderMobilePanels(fill = false) {
-		const className = `overflow-y-auto overscroll-contain border-b-2 border-[#0e2733] bg-[#fbfdfe] ${
-			fill ? "min-h-0 flex-1" : "max-h-[340px] flex-none"
+		const className = `overflow-y-auto border-b-2 border-[#0e2733] bg-[#fbfdfe] ${
+			fill ? "overscroll-contain min-h-0 flex-1" : "max-h-[340px] flex-none"
 		}`;
 		if (openPanel === "programs") {
 			return <div className={className}>{renderCategoryRows(false)}</div>;
