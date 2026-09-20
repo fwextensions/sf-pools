@@ -21,6 +21,14 @@ import PoolAlerts from "@/components/PoolAlerts";
 import ProgramName from "@/components/ProgramName";
 import { TAG_FACETS, tagFacet, tagLabel } from "@/lib/program-taxonomy";
 import { describeProgram } from "@/lib/program-display";
+import {
+	trackCategoryFilter,
+	trackCellSelected,
+	trackFiltersCleared,
+	trackFocusMode,
+	trackPoolFilter,
+	trackProgramFilter,
+} from "@/lib/analytics";
 import type { AlertsData } from "../../scripts/scrape-alerts";
 
 const DAYS: Array<ProgramEntry["dayOfWeek"]> = [
@@ -670,27 +678,35 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	// what the detail list's height floor resets on
 	const filterKey = `${selectedTags.join(",")}|${selectedPools.join(",")}`;
 
+	// the toggles report the selection they are about to produce rather than
+	// the one on screen, so an event always describes the state the reader
+	// ends up looking at
 	function toggleProgram(name: string) {
-		setSelectedTags((prev) =>
-			prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]
-		);
+		const next = selectedTags.includes(name)
+			? selectedTags.filter((n) => n !== name)
+			: [...selectedTags, name];
+		trackProgramFilter(name, !selectedTags.includes(name), next.length);
+		setSelectedTags(next);
 	}
 
-	function toggleCategory(names: string[], allSelected: boolean) {
-		setSelectedTags((prev) =>
-			allSelected
-				? prev.filter((n) => !names.includes(n))
-				: Array.from(new Set([...prev, ...names]))
-		);
+	function toggleCategory(id: string, names: string[], allSelected: boolean) {
+		const next = allSelected
+			? selectedTags.filter((n) => !names.includes(n))
+			: Array.from(new Set([...selectedTags, ...names]));
+		trackCategoryFilter(id, !allSelected, next.length);
+		setSelectedTags(next);
 	}
 
 	function togglePool(id: string) {
-		setSelectedPools((prev) =>
-			prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
-		);
+		const next = selectedPools.includes(id)
+			? selectedPools.filter((p) => p !== id)
+			: [...selectedPools, id];
+		trackPoolFilter(id, !selectedPools.includes(id), next.length);
+		setSelectedPools(next);
 	}
 
 	function clearAll() {
+		trackFiltersCleared(selectedTags.length, selectedPools.length);
 		setSelectedTags([]);
 		setSelectedPools([]);
 	}
@@ -720,7 +736,9 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 				// wherever the gesture started
 				suppressClickRef.current = true;
 				// the gesture is over, so wherever it ended is the real selection
-				commitCell(store.get());
+				const ended = store.get();
+				if (ended) trackCellSelected(ended.day, ended.hour, "drag");
+				commitCell(ended);
 			}
 			isDraggingRef.current = false;
 			if (e.currentTarget.hasPointerCapture(e.pointerId)) {
@@ -729,6 +747,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		}
 
 		function choose(day: ProgramEntry["dayOfWeek"], hour: number) {
+			trackCellSelected(day, hour, "click");
 			store.set({ day, hour });
 			commitCell({ day, hour });
 		}
@@ -768,7 +787,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						type="button"
 						aria-label={`Toggle every ${cat.label} tag`}
 						aria-pressed={cat.allSelected}
-						onClick={() => toggleCategory(cat.names, cat.allSelected)}
+						onClick={() => toggleCategory(cat.id, cat.names, cat.allSelected)}
 						className="flex h-[18px] w-[18px] flex-none cursor-pointer items-center justify-center border-2 border-[#0e2733] plex-mono text-[12px] font-bold text-white"
 						style={{
 							background: cat.allSelected ? "#0e2733" : cat.someSelected ? "#5a8ba3" : "#fff",
@@ -778,7 +797,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 					</button>
 					<button
 						type="button"
-						onClick={() => toggleCategory(cat.names, cat.allSelected)}
+						onClick={() => toggleCategory(cat.id, cat.names, cat.allSelected)}
 						className="flex-1 cursor-pointer text-left text-[14px] font-semibold text-[#0e2733]"
 					>
 						{cat.label}{" "}
@@ -945,6 +964,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 								scrollBeforeFocusRef.current = window.scrollY;
 								setOpenPanel(null);
 							}
+							trackFocusMode(!focusMode);
 							setFocusMode((on) => !on);
 						}}
 						className="w-9 flex-none cursor-pointer border-[1.5px] border-[#0e2733] px-2.5 py-2 text-center plex-mono text-[12px] font-semibold"

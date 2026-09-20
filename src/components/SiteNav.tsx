@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { trackSectionNav } from "@/lib/analytics";
 
 // The three sections of the site, in the order they read left to right. The
 // week grid is the home page, so its tab matches only the exact root path;
@@ -40,6 +41,7 @@ export default function SiteNav() {
 						key={href}
 						href={href}
 						aria-current={current ? "page" : undefined}
+						onClick={() => trackSectionNav(pathname, href)}
 						className={`plex-mono -mb-px whitespace-nowrap border-b-2 pb-3 pt-2 text-[12px] min-[900px]:pt-6 min-[500px]:tracking-[.08em] ${
 							current
 								? "border-[#0e2733] font-semibold text-[#0e2733]"
