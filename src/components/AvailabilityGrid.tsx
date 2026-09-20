@@ -884,7 +884,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 				onClick={clearAll}
 				aria-label="Clear filters"
 				title="Clear filters"
-				className="w-9 flex-none cursor-pointer border-[1.5px] border-[#c4d2d9] bg-white px-2.5 py-2 text-center text-[#5a707c]"
+				className="w-9 flex-none cursor-pointer border-[1.5px] border-[#0e2733] bg-white px-2.5 py-2 text-center plex-mono text-[12px] font-semibold text-[#0e2733]"
 			>
 				<svg
 					aria-hidden
@@ -892,7 +892,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 					className="inline-block h-[14px] w-[14px] align-middle"
 					fill="none"
 					stroke="currentColor"
-					strokeWidth="1.6"
+					strokeWidth="2"
 					strokeLinecap="round"
 					strokeLinejoin="round"
 				>
@@ -918,7 +918,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 							color: selectedTags.length ? "#fff" : "#0e2733",
 						}}
 					>
-						PROGRAMS {selectedTags.length || "ALL"} {openPanel === "programs" ? "▴" : "▾"}
+						PROGRAMS {selectedTags.length || "ALL"} <span className="text-[15px] leading-none">{openPanel === "programs" ? "▴" : "▾"}</span>
 					</button>
 					<button
 						type="button"
@@ -929,7 +929,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 							color: selectedPools.length ? "#fff" : "#0e2733",
 						}}
 					>
-						POOLS {selectedPools.length || "ALL"} {openPanel === "pools" ? "▴" : "▾"}
+						POOLS {selectedPools.length || "ALL"} <span className="text-[15px] leading-none">{openPanel === "pools" ? "▴" : "▾"}</span>
 					</button>
 				</div>
 				<div className="flex flex-none items-center gap-1.5">
@@ -954,7 +954,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						}}
 					>
 						{focusMode ? (
-							"✕"
+							<span className="text-[15px] leading-none">✕</span>
 						) : (
 							<svg
 								aria-hidden
