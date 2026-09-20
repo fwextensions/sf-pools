@@ -21,10 +21,13 @@ export function initAnalytics() {
 	posthog.init(key, {
 		// requests go through the /lane rewrite in next.config.ts rather than
 		// straight to posthog.com, so that content blockers — which most of
-		// this site's readers on phones have — don't drop them. ui_host only
-		// affects the links the toolbar builds back to the dashboard
+		// this site's readers on phones have — don't drop them. That hides
+		// the real host from posthog-js, so ui_host has to name it for the
+		// toolbar's links back to the dashboard; it carries no events. Both
+		// of these and the rewrite destinations say US cloud — moving the
+		// project to EU means editing all three together
 		api_host: "/lane",
-		ui_host: process.env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://us.posthog.com",
+		ui_host: "https://us.posthog.com",
 		// opts into the current defaults, which include pageviews on App
 		// Router history changes and a pageleave on the way out. Pinning the
 		// date means a posthog-js upgrade can't silently change what we send
