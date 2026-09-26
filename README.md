@@ -51,7 +51,7 @@ This will scrape PDF URLs, download PDFs, extract schedules, and write `public/d
 - **`data/pools.json`** — Source of truth for static pool metadata (id, name, shortName, address, pageUrl). Does not change frequently.
 - **`public/data/discovered_pool_schedules.json`** — Scraped PDF URLs (poolId → pdfUrl mapping). Regenerated on each scrape.
 - **`data/pdf-manifest.json`** — Tracks downloaded PDFs by hash to detect changes.
-- **`data/extracted/<poolId>.json`** — Cached LLM extractions per PDF.
+- **`data/extracted/<poolId>.json`** — Cached LLM extractions per PDF, keyed by PDF hash in `data/extracted/_manifest.json`. Committed, so the weekly run only sends a PDF to the model when it has actually changed.
 - **`public/data/all_schedules.json`** — Aggregated schedule data for the UI.
 - **`data/changelog/`** — Change history between schedule updates.
 

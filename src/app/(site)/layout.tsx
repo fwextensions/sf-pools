@@ -1,13 +1,15 @@
 import HeaderAnimation from "@/components/header/HeaderAnimation";
 import { HEADER_HEIGHT } from "@/components/header/HeaderPlaceholder";
+import SiteFooter from "@/components/SiteFooter";
 import SiteNav from "@/components/SiteNav";
 
 /**
  * The shell every public page shares: the water, then the section tabs, then
- * the page. It lives in a layout rather than in each page so that moving
- * between sections is a client-side navigation that swaps only the page below
- * the tabs — the water keeps its simulation state and never remounts. The
- * header lab sits outside this route group on purpose; it draws its own water.
+ * the page, then the footer. It lives in a layout rather than in each page so
+ * that moving between sections is a client-side navigation that swaps only the
+ * page between the tabs and the footer — the water keeps its simulation state
+ * and never remounts. The header lab sits outside this route group on purpose;
+ * it draws its own water.
  */
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
 	return (
@@ -20,6 +22,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
 			</header>
 			<SiteNav />
 			{children}
+			<SiteFooter />
 		</div>
 	);
 }

@@ -77,7 +77,7 @@
 	<p>The canonical list of pools (ids, names, addresses, page URLs) lives in <code>data/pools.json</code>.</p>
 
 	<h2>2. Downloading</h2>
-	<p><code>downloadPdf.ts</code> fetches each discovered PDF, SHA-256 hashes the bytes, and saves it as <code>data/pdfs/&lt;sanitized-pool-id&gt;.pdf</code>. <code>data/pdf-manifest.json</code> records the URL and hash per pool; if the hash matches, the file is left as-is (only the URL is refreshed if it moved).</p>
+	<p><code>downloadPdf.ts</code> fetches each discovered PDF, SHA-256 hashes the bytes, and saves it as <code>data/pdfs/&lt;sanitized-pool-id&gt;.pdf</code>, whether or not it changed, so every pool gets processed. <code>data/pdf-manifest.json</code> records the URL and hash per pool and logs which PDFs changed; the decision to call the model is made against the extraction cache.</p>
 
 	<h2>3. Alerts and closures</h2>
 	<p><code>scrape-alerts.ts</code> collects site-wide banners and per-pool notices (both prose on the page and linked notice documents). Anything that mentions a closure is <em>enriched</em>: the notice PDF is downloaded and read by the model together with the alert text to produce a structured <code>Closure</code> (start/end dates, indefinite flag, summary, and <code>suppressPrograms</code>).</p>
@@ -166,7 +166,7 @@
 		<tr><td><code>public/data/discovered_pool_schedules.json</code></td><td>PDF URL per pool</td><td class="ok">yes</td></tr>
 		<tr><td><code>data/pdf-manifest.json</code></td><td>Download URL + hash</td><td class="ok">yes</td></tr>
 		<tr><td><code>data/pdfs/*.pdf</code></td><td>Downloaded PDFs</td><td class="muted">no</td></tr>
-		<tr><td><code>data/extracted/*.json</code></td><td>Cached raw extractions + hash manifest</td><td class="muted">no</td></tr>
+		<tr><td><code>data/extracted/*.json</code></td><td>Cached raw extractions + hash manifest</td><td class="ok">yes</td></tr>
 		<tr><td><code>public/data/alerts.json</code></td><td>Alerts and closures</td><td class="ok">yes</td></tr>
 		<tr><td><code>public/data/all_schedules.json</code></td><td>What the site renders</td><td class="ok">yes</td></tr>
 		<tr><td><code>data/changelog/*.json</code></td><td>Per-run diffs and warnings</td><td class="ok">yes</td></tr>

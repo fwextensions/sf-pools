@@ -18,6 +18,91 @@ export function parseTimeToMinutes(time: string): number | null {
 }
 
 /**
+ * Bounds on a real session. The longest any pool has published is 4.5 hours,
+ * none has started before 6am or ended after 9:30pm, so these leave plenty of
+ * room for a genuinely unusual schedule while still catching a flipped am/pm,
+ * which moves a time by twelve hours.
+ */
+export const EARLIEST_START = 5 * 60;
+export const LATEST_END = 22 * 60 + 30;
+export const MAX_SESSION_MINUTES = 8 * 60;
+
+/** a repaired session has to come out at least this short to be believed */
+export const MAX_REPAIRED_MINUTES = 6 * 60;
+const MIN_SESSION_MINUTES = 15;
+
+function formatMinutes(minutes: number): string {
+	const hour24 = Math.floor(minutes / 60);
+	const hour12 = hour24 % 12 || 12;
+	const minute = String(minutes % 60).padStart(2, "0");
+	return `${hour12}:${minute}${hour24 < 12 ? "a" : "p"}`;
+}
+
+function flipMeridiem(time: string): string {
+	return time.endsWith("a") ? time.slice(0, -1) + "p" : time.slice(0, -1) + "a";
+}
+
+/** why a start/end pair can't be a real session, or null if it could be */
+function implausibility(start: number, end: number): string | null {
+	if (end <= start) return "end at or before start";
+	if (end - start > MAX_SESSION_MINUTES) return `lasts ${Math.round((end - start) / 60)} hours`;
+	if (start < EARLIEST_START) return `starts before ${formatMinutes(EARLIEST_START)}`;
+	if (end > LATEST_END) return `ends after ${formatMinutes(LATEST_END)}`;
+	return null;
+}
+
+export type TimeRepair = {
+	programName: string;
+	dayOfWeek: string;
+	from: string;
+	to: string;
+};
+
+/**
+ * Fix the am/pm typos the city's PDFs sometimes carry, like a Senior Swim
+ * printed as "10:15am-11:15pm". The extractor copies these faithfully, and a
+ * thirteen-hour session then shows on the site. When a session can't be real
+ * but flipping the am/pm on one end gives an ordinary one, the flipped reading
+ * is almost certainly what was meant. Only one end is ever flipped, the end
+ * time first since that's where these typos have turned up, and a session
+ * neither flip explains is left alone for detectScheduleAnomalies to flag.
+ *
+ * Mutates the schedule's programs and returns what was changed.
+ */
+export function repairMeridiemTypos(schedule: PoolSchedule): TimeRepair[] {
+	const repairs: TimeRepair[] = [];
+
+	for (const p of schedule.programs ?? []) {
+		const start = parseTimeToMinutes(p.startTime);
+		const end = parseTimeToMinutes(p.endTime);
+		if (start === null || end === null || implausibility(start, end) === null) continue;
+
+		const candidates = [
+			{ startTime: p.startTime, endTime: flipMeridiem(p.endTime) },
+			{ startTime: flipMeridiem(p.startTime), endTime: p.endTime },
+		];
+		for (const candidate of candidates) {
+			const s = parseTimeToMinutes(candidate.startTime)!;
+			const e = parseTimeToMinutes(candidate.endTime)!;
+			if (implausibility(s, e) !== null) continue;
+			if (e - s < MIN_SESSION_MINUTES || e - s > MAX_REPAIRED_MINUTES) continue;
+
+			repairs.push({
+				programName: p.programName,
+				dayOfWeek: p.dayOfWeek,
+				from: `${p.startTime}-${p.endTime}`,
+				to: `${candidate.startTime}-${candidate.endTime}`,
+			});
+			p.startTime = candidate.startTime;
+			p.endTime = candidate.endTime;
+			break;
+		}
+	}
+
+	return repairs;
+}
+
+/**
  * "error" anomalies are unambiguously corrupt data that should not ship (they
  * fail the build); "warning" anomalies are suspicious but may be legitimate and
  * are surfaced for review without blocking.
@@ -50,8 +135,10 @@ export function detectScheduleAnomalies(schedule: PoolSchedule): Anomaly[] {
 		return anomalies;
 	}
 
-	// an impossible time block (end at/before start, or a time we can't parse)
-	// is corrupt data — never a real schedule, so treat it as an error
+	// an impossible time block (end at/before start, a session far longer or
+	// earlier or later than any pool runs, or a time we can't parse) is corrupt
+	// data — never a real schedule, so treat it as an error. repairMeridiemTypos
+	// runs first and fixes the ones a flipped am/pm explains
 	for (const p of programs) {
 		const start = parseTimeToMinutes(p.startTime);
 		const end = parseTimeToMinutes(p.endTime);
@@ -62,10 +149,11 @@ export function detectScheduleAnomalies(schedule: PoolSchedule): Anomaly[] {
 			});
 			continue;
 		}
-		if (end <= start) {
+		const problem = implausibility(start, end);
+		if (problem) {
 			anomalies.push({
 				severity: "error",
-				message: `end at or before start in "${p.programName}" on ${p.dayOfWeek} (${p.startTime}-${p.endTime})`,
+				message: `${problem} in "${p.programName}" on ${p.dayOfWeek} (${p.startTime}-${p.endTime})`,
 			});
 		}
 	}

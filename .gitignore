@@ -32,8 +32,8 @@ pnpm-debug.log*
 # data
 /data/pdfs/*
 !/data/pdfs/.gitkeep
-/data/extracted/*
-!/data/extracted/.gitkeep
+# data/extracted/ is tracked: it caches the model's read of each PDF by hash,
+# so a PDF that hasn't changed isn't sent to the model again
 #/data/changelog/*
 !/data/changelog/.gitkeep
 # pdf-manifest.json is intentionally tracked for incremental extraction

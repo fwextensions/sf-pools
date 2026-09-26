@@ -119,6 +119,12 @@ export async function main() {
 			const buf = await fetchPdfBuffer(disc.pdfUrl);
 			const hash = computeHash(buf);
 
+			// always write what was fetched: processing reads every pool's PDF
+			// from disk, and a fresh CI checkout has none. Whether it gets sent to
+			// the model is decided later, against the extraction cache's hashes
+			const outPath = path.join(OUT_DIR, fname);
+			await writeFile(outPath, buf);
+
 			// check if PDF has changed (by URL or hash)
 			const existing = manifest[poolKey];
 			if (existing && existing.pdfHash === hash) {
@@ -132,9 +138,6 @@ export async function main() {
 				skippedCount++;
 				continue;
 			}
-
-			const outPath = path.join(OUT_DIR, fname);
-			await writeFile(outPath, buf);
 
 			// update manifest
 			manifest[poolKey] = {

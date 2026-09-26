@@ -5,6 +5,7 @@ import path from "node:path";
 import type { ChangelogEntry } from "./changelog";
 
 const PUSHOVER_API_URL = "https://api.pushover.net/1/messages.json";
+const SITE_URL = "https://sf-pools.vercel.app";
 const GITHUB_REPO = "fwextensions/sf-pools";
 const GITHUB_CHANGELOG_PATH = "data/changelog";
 
@@ -131,7 +132,7 @@ export async function notifyScheduleUpdate(changelog?: ChangelogEntry | null): P
 
 	let title = "🏊 Pool Schedules Updated";
 	let message = "Schedules have been updated.";
-	let url = "https://sf-pools.vercel.app/schedules";
+	let url = `${SITE_URL}/schedules`;
 	let urlTitle = "View Schedules";
 
 	if (entry) {
@@ -172,9 +173,15 @@ export async function notifyScheduleUpdate(changelog?: ChangelogEntry | null): P
 
 		message = lines.join("\n");
 
-		// link to GitHub changelog
-		url = `https://github.com/${GITHUB_REPO}/tree/main/${GITHUB_CHANGELOG_PATH}`;
-		urlTitle = "View Change History";
+		// the site's changelog page only exists for runs that changed programs;
+		// a run that just recorded warnings has nothing to show there
+		if (entry.totalChanges > 0) {
+			url = `${SITE_URL}/changes/${entry.date}`;
+			urlTitle = "See What Changed";
+		} else {
+			url = `https://github.com/${GITHUB_REPO}/tree/main/${GITHUB_CHANGELOG_PATH}`;
+			urlTitle = "View Change History";
+		}
 	}
 
 	return sendNotification({
@@ -357,7 +364,7 @@ export async function notifyNewAlerts(
 		title: `🚨 ${totalAlerts} New Pool Alert${totalAlerts > 1 ? "s" : ""}`,
 		message: lines.join("\n"),
 		priority: 1, // high priority for alerts
-		url: "https://sf-pools.vercel.app/",
+		url: `${SITE_URL}/`,
 		urlTitle: "View Alerts",
 	});
 }
