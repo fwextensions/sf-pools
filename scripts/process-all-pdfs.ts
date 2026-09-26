@@ -6,7 +6,11 @@ import { extractScheduleFromPdf, type PoolSchedule } from "@/lib/pdf-processor";
 import { cleanProgramTitle, deriveTags, findCanonicalProgram, normalizeProgramName } from "@/lib/program-taxonomy";
 import { getPoolIdFromName, getPoolById } from "@/lib/pool-mapping";
 import { toTitleCase } from "@/lib/program-taxonomy";
-import { detectScheduleAnomalies, detectRegressionAnomalies } from "@/lib/schedule-validation";
+import {
+	detectScheduleAnomalies,
+	detectRegressionAnomalies,
+	repairMeridiemTypos,
+} from "@/lib/schedule-validation";
 import { isClosureActive, type Closure } from "@/lib/closures";
 import type { PoolEntry, DiscoveredPool } from "./downloadPdf";
 import {
@@ -121,6 +125,8 @@ export type ProcessResult = {
 	closedPools: string[];
 	preservedCount: number;
 	anomalies: string[];
+	/** session times corrected for an am/pm typo in the source PDF */
+	repairs: string[];
 	/** pools held back at their previous data because this run's extract looked corrupt */
 	quarantinedPools: string[];
 	/** pools dropped entirely — extract looked corrupt and there was no previous data */
@@ -175,6 +181,7 @@ export async function main(): Promise<ProcessResult> {
 	let skippedCount = 0;
 	let preservedCount = 0;
 	const anomalies: string[] = [];
+	const repairs: string[] = [];
 	const quarantinedPools: string[] = [];
 	const droppedPools: string[] = [];
 	const closedPools: string[] = [];
@@ -308,11 +315,21 @@ export async function main(): Promise<ProcessResult> {
 					continue;
 				}
 
+				const label = s.shortName || s.name;
+
+				// the city's PDFs occasionally flip an am/pm ("10:15am-11:15pm"), and
+				// the extractor copies it faithfully. Fix the ones a flip explains
+				// before the health check, which would otherwise quarantine the pool
+				for (const r of repairMeridiemTypos(s)) {
+					const msg = `${label}: ${r.programName} on ${r.dayOfWeek} ${r.from} → ${r.to}`;
+					repairs.push(msg);
+					console.warn("🔧 repaired am/pm typo:", msg);
+				}
+
 				// health-check the extract: intrinsic problems that suggest a misread
 				// PDF, plus regressions against the previous run. Volume of change is
 				// deliberately not part of this — a season rollover churns most of the
 				// corpus and is perfectly healthy.
-				const label = s.shortName || s.name;
 				const previous = previousByName.get(s.name);
 				const poolAnomalies = [
 					...detectScheduleAnomalies(s),
@@ -378,6 +395,7 @@ export async function main(): Promise<ProcessResult> {
 	if (anomalies.length > 0) {
 		changelog.warnings.push(...anomalies.map((a) => `anomaly: ${a}`));
 	}
+	changelog.warnings.push(...repairs.map((r) => `repaired: ${r}`));
 	for (const name of quarantinedPools) {
 		changelog.warnings.push(`quarantined: ${name} held at previous data`);
 	}
@@ -455,6 +473,7 @@ export async function main(): Promise<ProcessResult> {
 		closedPools,
 		preservedCount,
 		anomalies,
+		repairs,
 		quarantinedPools,
 		droppedPools,
 		reviewRequired,

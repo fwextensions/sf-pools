@@ -4,6 +4,7 @@ import {
 	parseTimeToMinutes,
 	detectScheduleAnomalies,
 	detectRegressionAnomalies,
+	repairMeridiemTypos,
 } from "./schedule-validation";
 import type { PoolSchedule, ProgramEntry } from "./pdf-processor";
 
@@ -105,6 +106,40 @@ describe("detectScheduleAnomalies", () => {
 		expect(anomalies.some((a) => a.severity === "error")).toBe(true);
 	});
 
+	it("flags a session far longer than any pool runs as an error", () => {
+		const anomalies = detectScheduleAnomalies(
+			schedule([program({ startTime: "10:15a", endTime: "11:15p" }), ...multiDay])
+		);
+		const hit = anomalies.find((a) => /lasts 13 hours/i.test(a.message));
+		expect(hit).toBeDefined();
+		expect(hit!.severity).toBe("error");
+	});
+
+	it("flags a session that ends in the middle of the night as an error", () => {
+		const anomalies = detectScheduleAnomalies(
+			schedule([program({ startTime: "9:00p", endTime: "11:30p" }), ...multiDay])
+		);
+		expect(anomalies.find((a) => /ends after 10:30p/i.test(a.message))?.severity).toBe("error");
+	});
+
+	it("flags a session that starts before dawn as an error", () => {
+		const anomalies = detectScheduleAnomalies(
+			schedule([program({ startTime: "3:00a", endTime: "4:00a" }), ...multiDay])
+		);
+		expect(anomalies.find((a) => /starts before 5:00a/i.test(a.message))?.severity).toBe("error");
+	});
+
+	it("does not flag the longest sessions pools really run", () => {
+		const anomalies = detectScheduleAnomalies(
+			schedule([
+				program({ dayOfWeek: "Monday", startTime: "11:00a", endTime: "3:30p" }),
+				program({ dayOfWeek: "Tuesday", startTime: "6:00a", endTime: "7:00a" }),
+				program({ dayOfWeek: "Wednesday", startTime: "8:00p", endTime: "9:30p" }),
+			])
+		);
+		expect(anomalies).toEqual([]);
+	});
+
 	it("flags a schedule that collapses to a single day as a warning", () => {
 		const anomalies = detectScheduleAnomalies(
 			schedule([
@@ -129,6 +164,58 @@ describe("detectScheduleAnomalies", () => {
 		];
 		const programs = days.map((d) => program({ dayOfWeek: d }));
 		expect(detectScheduleAnomalies(schedule(programs))).toEqual([]);
+	});
+});
+
+describe("repairMeridiemTypos", () => {
+	it("fixes an end time printed pm for am", () => {
+		// North Beach (Warm)'s summer 2026 PDF: "Senior/Therapy Swim 10:15am-11:15pm"
+		const s = schedule([
+			program({ programName: "Senior Swim / Therapy Swim", dayOfWeek: "Wednesday", startTime: "10:15a", endTime: "11:15p" }),
+		]);
+		expect(repairMeridiemTypos(s)).toEqual([
+			{ programName: "Senior Swim / Therapy Swim", dayOfWeek: "Wednesday", from: "10:15a-11:15p", to: "10:15a-11:15a" },
+		]);
+		expect(s.programs[0]).toMatchObject({ startTime: "10:15a", endTime: "11:15a" });
+		expect(detectScheduleAnomalies(schedule([...s.programs, ...multiDay]))).toEqual([]);
+	});
+
+	it("fixes an end time that comes out before the start", () => {
+		const s = schedule([program({ startTime: "11:30a", endTime: "12:30a" })]);
+		expect(repairMeridiemTypos(s)).toHaveLength(1);
+		expect(s.programs[0]).toMatchObject({ startTime: "11:30a", endTime: "12:30p" });
+	});
+
+	it("fixes a start time when flipping the end doesn't explain it", () => {
+		const s = schedule([program({ startTime: "1:00a", endTime: "3:00p" })]);
+		expect(repairMeridiemTypos(s)).toHaveLength(1);
+		expect(s.programs[0]).toMatchObject({ startTime: "1:00p", endTime: "3:00p" });
+	});
+
+	it("leaves ordinary sessions alone", () => {
+		const s = schedule([
+			program({ startTime: "11:00a", endTime: "3:30p" }),
+			program({ startTime: "12:00p", endTime: "1:00p" }),
+			program({ startTime: "5:30p", endTime: "7:00p" }),
+		]);
+		expect(repairMeridiemTypos(s)).toEqual([]);
+	});
+
+	it("leaves a session no single flip explains for the anomaly check", () => {
+		// flipping either end still gives an implausible session
+		const s = schedule([program({ startTime: "2:00a", endTime: "11:00p" })]);
+		expect(repairMeridiemTypos(s)).toEqual([]);
+		expect(s.programs[0]).toMatchObject({ startTime: "2:00a", endTime: "11:00p" });
+	});
+
+	it("won't repair into a session longer than a real one", () => {
+		// flipped, this is 6:00a-11:00a: five hours, under the cap
+		const long = schedule([program({ startTime: "6:00a", endTime: "11:00p" })]);
+		expect(repairMeridiemTypos(long)[0]?.to).toBe("6:00a-11:00a");
+
+		// flipped, this is 5:00a-12:00p: seven hours, which isn't believed
+		const tooLong = schedule([program({ startTime: "5:00a", endTime: "12:00a" })]);
+		expect(repairMeridiemTypos(tooLong)).toEqual([]);
 	});
 });
 
