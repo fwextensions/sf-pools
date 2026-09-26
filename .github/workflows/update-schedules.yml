@@ -41,13 +41,18 @@ jobs:
         id: diff
         run: |
           git diff --quiet public/data/ data/changelog/ || echo "changed=true" >> $GITHUB_OUTPUT
+          # the extraction cache and download manifest get committed too, so the
+          # next run doesn't send unchanged PDFs to the model again, but a change
+          # to them alone isn't a schedule change and doesn't notify. --porcelain
+          # also sees files the run created, which git diff doesn't
+          [ -z "$(git status --porcelain data/extracted/ data/pdf-manifest.json)" ] || echo "cache_changed=true" >> $GITHUB_OUTPUT
 
       - name: Commit and push changes
-        if: steps.diff.outputs.changed == 'true' && steps.build.outcome == 'success'
+        if: (steps.diff.outputs.changed == 'true' || steps.diff.outputs.cache_changed == 'true') && steps.build.outcome == 'success'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/data/ data/changelog/
+          git add public/data/ data/changelog/ data/extracted/ data/pdf-manifest.json
           git commit -m "Update pool schedules $(date -I)"
           git push
 

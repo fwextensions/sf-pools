@@ -316,13 +316,25 @@ export async function main(): Promise<ProcessResult> {
 				}
 
 				const label = s.shortName || s.name;
+				const previous = previousByName.get(s.name);
 
 				// the city's PDFs occasionally flip an am/pm ("10:15am-11:15pm"), and
 				// the extractor copies it faithfully. Fix the ones a flip explains
-				// before the health check, which would otherwise quarantine the pool
+				// before the health check, which would otherwise quarantine the pool.
+				// The cache holds the unrepaired read, so the same typo is repaired
+				// every week the PDF stays up; only a repair the published data
+				// doesn't already reflect goes in the changelog
 				for (const r of repairMeridiemTypos(s)) {
 					const msg = `${label}: ${r.programName} on ${r.dayOfWeek} ${r.from} → ${r.to}`;
-					repairs.push(msg);
+					const [startTime, endTime] = r.to.split("-");
+					const alreadyPublished = previous?.programs?.some(
+						(p) =>
+							p.programName === r.programName &&
+							p.dayOfWeek === r.dayOfWeek &&
+							p.startTime === startTime &&
+							p.endTime === endTime
+					);
+					if (!alreadyPublished) repairs.push(msg);
 					console.warn("🔧 repaired am/pm typo:", msg);
 				}
 
@@ -330,7 +342,6 @@ export async function main(): Promise<ProcessResult> {
 				// PDF, plus regressions against the previous run. Volume of change is
 				// deliberately not part of this — a season rollover churns most of the
 				// corpus and is perfectly healthy.
-				const previous = previousByName.get(s.name);
 				const poolAnomalies = [
 					...detectScheduleAnomalies(s),
 					...detectRegressionAnomalies(s, previous),
