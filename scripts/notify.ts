@@ -89,6 +89,10 @@ function severityLabel(severity: string): string {
 	}
 }
 
+// a run takes a few hours and can cross midnight UTC, so "this run's changelog"
+// means one written recently rather than one dated today
+const CHANGELOG_MAX_AGE_MS = 12 * 60 * 60 * 1000;
+
 export async function loadLatestChangelog(): Promise<ChangelogEntry | null> {
 	const changelogDir = path.join(process.cwd(), "data", "changelog");
 	try {
@@ -104,8 +108,26 @@ export async function loadLatestChangelog(): Promise<ChangelogEntry | null> {
 	}
 }
 
+/**
+ * The changelog written by the current run, or null. A changelog is only saved
+ * when programs changed or there were warnings, so a run that just bumps
+ * timestamps leaves the newest file weeks old — reporting that one would
+ * present stale changes as today's.
+ */
+export async function loadCurrentChangelog(): Promise<ChangelogEntry | null> {
+	const entry = await loadLatestChangelog();
+	if (!entry) return null;
+	const age = Date.now() - new Date(entry.timestamp).getTime();
+	return age >= 0 && age <= CHANGELOG_MAX_AGE_MS ? entry : null;
+}
+
 export async function notifyScheduleUpdate(changelog?: ChangelogEntry | null): Promise<boolean> {
-	const entry = changelog ?? await loadLatestChangelog();
+	const entry = changelog ?? await loadCurrentChangelog();
+
+	// the published data changed (timestamps, alerts) but no programs did
+	if (!entry) {
+		return notifyScheduleNoChanges();
+	}
 
 	let title = "🏊 Pool Schedules Updated";
 	let message = "Schedules have been updated.";
@@ -173,7 +195,7 @@ export async function notifyScheduleNoChanges(): Promise<boolean> {
 }
 
 export async function notifyBuildFailed(changelog?: ChangelogEntry | null): Promise<boolean> {
-	const entry = changelog ?? (await loadLatestChangelog());
+	const entry = changelog ?? (await loadCurrentChangelog());
 
 	const lines: string[] = ["Schedule build failed — review required before it can ship."];
 	if (entry) {
@@ -204,7 +226,7 @@ export async function notifyBuildFailed(changelog?: ChangelogEntry | null): Prom
  * specific pool's extract looked corrupt. No-ops when nothing was quarantined.
  */
 export async function notifyReviewRequired(changelog?: ChangelogEntry | null): Promise<boolean> {
-	const entry = changelog ?? (await loadLatestChangelog());
+	const entry = changelog ?? (await loadCurrentChangelog());
 	const quarantined = entry?.quarantinedPools ?? [];
 	if (!entry || quarantined.length === 0) return true;
 
