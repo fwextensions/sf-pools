@@ -3,7 +3,7 @@ import ChangelogView from "@/components/ChangelogView";
 import { getChangelog, listChangelogs } from "@/lib/changelog-data";
 
 export const metadata: Metadata = {
-	title: "Schedule changes — SF Pools",
+	title: "Schedule changes",
 	description: "What changed in each weekly update of the San Francisco public pool schedules.",
 };
 

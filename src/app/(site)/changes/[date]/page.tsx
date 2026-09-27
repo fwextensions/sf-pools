@@ -16,7 +16,7 @@ type Props = { params: Promise<{ date: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const { date } = await params;
 	return {
-		title: `Schedule changes, ${formatShortDate(date, { year: "numeric" })} — SF Pools`,
+		title: `Schedule changes, ${formatShortDate(date, { year: "numeric" })}`,
 		description: "What changed in this update of the San Francisco public pool schedules.",
 	};
 }

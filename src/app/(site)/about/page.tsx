@@ -5,7 +5,7 @@ import Link from "next/link";
 import { getPoolToken, type PoolToken } from "@/lib/pool-tokens";
 
 export const metadata: Metadata = {
-	title: "About — SF Pools",
+	title: "About",
 	description: "What SF Pools is, where its schedules come from, and how far to trust them.",
 };
 

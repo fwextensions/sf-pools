@@ -15,7 +15,12 @@ const plexMono = Chivo_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "SF Pools Schedule Viewer",
+	// pages set just their own name; the template adds the site's, and the
+	// default covers pages that don't set one (the home page)
+	title: {
+		template: "%s — SF Pools",
+		default: "SF Pools Schedule Viewer",
+	},
 	description: "Centralized, searchable schedules for San Francisco public swimming pools.",
 };
 

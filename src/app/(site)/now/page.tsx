@@ -5,7 +5,7 @@ import type { PoolSchedule } from "@/lib/pdf-processor";
 import NowSoon from "@/components/NowSoon";
 
 export const metadata: Metadata = {
-	title: "Now & soon — SF Pools",
+	title: "Now & soon",
 	description: "What is running right now across San Francisco public pools, and what starts soon.",
 };
 

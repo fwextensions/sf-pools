@@ -11,7 +11,7 @@ import { POOL_TOKENS, getPoolToken, type PoolToken } from "@/lib/pool-tokens";
 import { formatScheduleDate, parseTimeToMinutes } from "@/lib/utils";
 
 export const metadata: Metadata = {
-	title: "Full schedules — SF Pools",
+	title: "Full schedules",
 	description:
 		"Every program on every San Francisco public pool weekly schedule.",
 };
