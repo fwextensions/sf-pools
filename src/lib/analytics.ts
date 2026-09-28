@@ -33,6 +33,17 @@ export function initAnalytics() {
 		// date means a posthog-js upgrade can't silently change what we send
 		defaults: "2026-05-30",
 		person_profiles: "always",
+		// unhandled errors and unhandled promise rejections, reported as
+		// $exception events. Set here rather than left to the project's
+		// dashboard toggle so that what the site sends is visible in the
+		// code, and so a fork gets the same behaviour without a setting
+		// someone has to know about. Console errors stay out: this site
+		// logs plenty that is diagnostic rather than broken
+		capture_exceptions: {
+			capture_unhandled_errors: true,
+			capture_unhandled_rejections: true,
+			capture_console_errors: false,
+		},
 	});
 	enabled = true;
 }
@@ -40,6 +51,19 @@ export function initAnalytics() {
 function capture(event: string, properties?: Record<string, unknown>) {
 	if (!enabled) return;
 	posthog.capture(event, properties);
+}
+
+/**
+ * An error React swallowed. The autocapture above only sees what reaches
+ * window.onerror, and a render error caught by an error boundary never gets
+ * there — so the boundaries hand it over here instead.
+ *
+ * `boundary` says which one caught it, since "the page failed to render" and
+ * "the root layout failed to render" are very different problems.
+ */
+export function trackError(error: unknown, boundary: "page" | "root", digest?: string) {
+	if (!enabled) return;
+	posthog.captureException(error, { boundary, digest });
 }
 
 /** A program tag was ticked or unticked in the filter list. */
