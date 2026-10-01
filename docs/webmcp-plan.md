@@ -51,30 +51,50 @@ document.modelContext.registerTool(
 
 ## Tool design
 
-Two layers: **site-wide tools**, registered once from the shared layout, which answer questions from any page; and **page tools**, registered by the week grid only while it's mounted, which drive its UI. That follows the spec's own advice to register tools for the current page state and remove them when they stop applying, which keeps the agent's tool list short.
+Nearly every tool is **site-wide**: registered once from the shared layout and callable from any section. That includes `show-in-grid`, which works from any page and navigates to the grid itself. An agent doesn't need to know which page the user is on.
 
-Section changes are client-side navigations inside `(site)/layout.tsx`, so the document never unloads. Site-wide tools stay registered across sections, and the grid's tools come and go with the `/` route, firing `toolchange` as they do.
+The one exception is `get-grid-state`, which the week grid registers only while it's mounted, because it only makes sense when the user is looking at the grid ("what am I looking at?"). This follows the spec's advice to register tools for the current page state, and it's small enough not to cost much context.
+
+Section changes are client-side navigations inside `(site)/layout.tsx`, so the document never unloads. Site-wide tools stay registered across sections, and `get-grid-state` comes and goes with the `/` route, firing `toolchange` as it does.
 
 ### Site-wide tools (registered in the `(site)` layout)
 
 | Tool | Inputs | Does |
 | --- | --- | --- |
-| `find-swim-sessions` | `activity?`, `audience?`, `access?`, `pools?`, `days?`, `startsAfter?`, `endsBefore?`, `text?` | Returns matching sessions across pools, sorted by day and time, each with a link |
+| `find-swim-sessions` | `activity?`, `audience?`, `access?`, `pools?`, `days?`, `dates?`, `startsAfter?`, `endsBefore?`, `text?` | Returns matching sessions across pools, sorted by day and time, each with a link. With `dates`, checks each date against season and closures (see below) |
 | `whats-on-now` | `withinMinutes?` (default 60) | Sessions running now and starting soon, in Pacific time; same logic as `/now` |
 | `get-pool-info` | `pool?` | Name, address, season and date range, closure status, SF Rec & Park page and PDF link; all pools if `pool` is omitted |
 | `get-pool-alerts` | `pool?` | Site-wide and per-pool alerts. Marked `untrustedContentHint` because the text is scraped |
-| `show-page` | `page` (`week-grid`, `now`, `schedules`, `changes`, `about`), `pool?` | Navigates with the Next router. With `pool` on `schedules`, scrolls to `#pool-<id>` (the anchors already exist) |
+| `show-in-grid` | `activities?`, `audiences?`, `access?`, `pools?`, `mode?` (`replace`, the default, or `add`), `day?` or `date?`, `hour?` | Navigates to the week grid if needed, sets its filters and, with a day and hour, highlights that cell. Returns the applied filters, the visible session count, the cell's sessions and the shareable URL. With no filters and `mode: "replace"`, it clears the grid |
+| `show-page` | `page` (`now`, `schedules`, `changes`, `about`), `pool?`, `day?` | Navigates with the Next router. On `schedules`, `pool` scrolls to that pool's section (`#pool-<id>`), and `day` to that day's column on narrow screens (see below) |
 
-### Week grid tools (registered by `AvailabilityGrid` while it's mounted)
+### Week grid tool (registered by `AvailabilityGrid` while it's mounted)
 
 | Tool | Inputs | Does |
 | --- | --- | --- |
-| `set-grid-filters` | `activities?`, `audiences?`, `access?`, `pools?`, `mode` (`replace` / `add`) | Sets the program and pool filters and returns the resulting filters plus how many sessions now show |
-| `select-grid-time` | `day`, `hour` | Highlights that cell and returns the sessions in it, as the detail list shows them |
-| `clear-grid-filters` | — | Clears the filters and the selected cell |
-| `get-grid-state` | — | Current filters, selected cell, and visible session count |
+| `get-grid-state` | — | Current filters, selected cell, and visible session count, including filters the user set by hand |
 
-A typical exchange: "When can I lap swim near the Mission on weekday evenings?" The agent calls `find-swim-sessions` to get the answer, then `show-page("week-grid")` and `set-grid-filters({ activities: ["lap"], pools: ["mission", "garfield"] })`, and the user sees the grid filtered to match, with a shareable URL, since the grid already writes its state to the query string.
+A typical exchange: "When can I lap swim near the Mission on weekday evenings?" From any page, the agent calls `find-swim-sessions` to get the answer, then `show-in-grid({ activities: ["lap"], pools: ["mission", "garfield"] })`. The user lands on the grid filtered to match, with a shareable URL, since the grid already writes its state to the query string.
+
+### Dates in `find-swim-sessions`
+
+`dates` takes `YYYY-MM-DD` strings, and also `"today"` and `"tomorrow"`, resolved in Pacific time so the model doesn't have to work out the date. Every result includes `today` (Pacific) so the agent can compute relative dates like "next Saturday" itself. For each date, the tool:
+
+1. Maps it to a weekday. It parses the calendar date at UTC noon so the weekday can't shift with the browser's time zone.
+2. Checks the date against each pool's `scheduleStartDate`/`scheduleEndDate`. Outside that range, the pool's result says the schedule for that date isn't published yet (or has ended) instead of returning this season's sessions as if they applied.
+3. Checks the pool's `closure` with `isClosureActive(closure, date)`. If the pool is closed that day, it says so, with `formatClosurePeriod`. There's one catch: the pipeline empties the programs of a pool that's closed *on the day it runs*. A date after a current closure ends has no sessions in the data, so the tool reports "reopens on X; the schedule after that isn't available yet" rather than "nothing on".
+4. Includes the active alerts for matched pools, since holiday hours and one-off closures show up in alerts rather than in the schedule data.
+
+`days` and `dates` can be combined; the results group by date when dates are given and by weekday otherwise. `show-in-grid` accepts `date` too and maps it to the grid's weekday. The grid shows a typical week, so the date only picks the column.
+
+### The full schedules page
+
+`/schedules` is a server-rendered page with no client state: a jump nav, then each pool's week. There's nothing for an agent to change on it beyond where it's scrolled, so it gets no tools of its own. `show-page("schedules", { pool, day })` covers it:
+
+- `pool` scrolls to `#pool-<id>`, the same anchors the jump nav uses.
+- `day` only matters on narrow screens, where the week stacks into per-day columns. Those columns need `id="pool-<id>-<day>"` added to `DayColumn` so the tool can scroll to them. On wide screens it's ignored, since the whole week is visible as a timeline.
+
+Questions about a pool's schedule ("what's on at Rossi on Saturday?") go to `find-swim-sessions` or `get-pool-info`, which return the same data as text. The page is only for showing the user.
 
 ### Design notes
 
@@ -84,7 +104,7 @@ A typical exchange: "When can I lap swim near the Mission on weekday evenings?" 
 - **Explain empty results.** A closed pool has its programs emptied by the pipeline, so when a pool has nothing, say why: an active closure (with `formatClosurePeriod`) or a date outside the season. Include `scheduleStartDate` and `scheduleEndDate` so the agent can catch out-of-season questions.
 - **Cite sources.** Results include the pool's `sfRecParkUrl` and `pdfScheduleUrl`, and a note that the official PDF is authoritative.
 - **Cap output.** `find-swim-sessions` returns at most ~50 sessions and says when it truncated, so an unfiltered call can't flood the context.
-- **Keep the count low.** Five site-wide tools plus four on the grid is about right. Resist adding a tool per filter chip.
+- **Keep the count low.** Six site-wide tools plus one on the grid is about right. Resist adding a tool per filter chip.
 
 ---
 
@@ -95,7 +115,7 @@ A typical exchange: "When can I lap swim near the Mission on weekday evenings?" 
 Both the WebMCP tools and a future server MCP need the same queries, and some of that logic is currently stuck inside components:
 
 - **`src/lib/pacific-time.ts`**: move `getNowInPT()` out of `NowSoon.tsx` and give it an optional `Date` argument so it's testable. `NowSoon` imports it back.
-- **`src/lib/schedule-query.ts`**: pure functions over `PoolSchedule[]`: `resolvePool(nameOrId)` (on top of `findPool`/`getPoolById`), `findSessions(all, filters)`, `sessionsNow(all, now, withinMinutes)`, `explainEmpty(pool, today)`. No I/O and no DOM, so they run in Jest's node environment and in the browser alike.
+- **`src/lib/schedule-query.ts`**: pure functions over `PoolSchedule[]`: `resolvePool(nameOrId)` (on top of `findPool`/`getPoolById`), `resolveDate(input, today)` (handles `"today"`, `"tomorrow"` and ISO dates, and returns the weekday), `findSessions(all, filters)`, `sessionsNow(all, now, withinMinutes)`, `poolStatusOn(pool, date)` (in season, closed, or schedule unknown, with the reason). No I/O and no DOM, so they run in Jest's node environment and in the browser alike.
 - Optional cleanup: the five copies of the `fs.readFile` block for `all_schedules.json` and `alerts.json` in pages and `SiteFooter` could become one `src/lib/schedule-data.ts`. The WebMCP work doesn't need it, but the server MCP phase would.
 
 ### 2. A thin WebMCP module: `src/lib/webmcp.ts`
@@ -130,18 +150,21 @@ A `"use client"` component rendered once in `src/app/(site)/layout.tsx`, which r
 
 - In a `useEffect`, if `hasWebMcp()`, create an `AbortController` and register the site-wide tools; abort in the cleanup. React StrictMode's double effect run in dev is harmless, since the first set is unregistered before the second registers.
 - **Load data on first use, not up front.** `execute` fetches `/data/all_schedules.json` and `/data/alerts.json` once, memoized in a module-level promise. Browsers without WebMCP, and visitors whose agent never calls a tool, pay nothing, and the layout doesn't have to pass the whole schedule down as props.
-- `show-page` uses `useRouter()` from `next/navigation` and resolves once the new pathname has rendered, so the agent's next call sees the grid tools already registered.
+- `show-page` and `show-in-grid` use `useRouter()` from `next/navigation`. `show-page` resolves once the new pathname has rendered, then scrolls to the anchor if one was asked for.
 - Keep the tool definitions in `src/lib/webmcp-tools.ts` as plain objects built from the `schedule-query.ts` functions, so they can be tested without React.
 
-### 4. Grid tools inside `AvailabilityGrid.tsx`
+### 4. `show-in-grid`: getting a request into the grid from anywhere
 
-The grid owns the state, so it registers its own tools in a `useEffect` that depends on `initialized`, which keeps tool calls from racing the URL/`localStorage` restore in the init effect.
+The grid's state lives inside `AvailabilityGrid`, and the grid may not be mounted when the tool runs. Navigating to `/?tags=…&pools=…` isn't enough on its own: once the grid has rewritten the URL in this document (`urlRewritten`), it deliberately lets stored filters win over the query string on its next mount. So the tool hands the request over directly instead:
 
-- `set-grid-filters` and `clear-grid-filters` call the existing `setSelectedTags` and `setSelectedPools`, so persistence and `writeUrl` happen through the effects already there.
-- `select-grid-time` calls `store.set(cell)`, sets `committedCellRef.current` and calls `writeUrl()`, the same steps a click goes through, then scrolls the cell into view.
-- Tools that report state (`get-grid-state`, and the return value of the setters) read from `filtersRef` and `store.get()` rather than from closure state. React state set inside `execute` hasn't landed yet when `execute` returns, so compute the result from the requested values directly, or await a `requestAnimationFrame` before reading.
-- Validate pool ids with `validatePoolId` and tags against the taxonomy, and report anything dropped.
+- **`src/lib/grid-requests.ts`** (new, tiny): a module-level slot holding at most one pending request (`{ tags, pools, mode, cell }`) plus a resolver, and a subscribe function. `show-in-grid` puts its request there and gets back a promise.
+- If the user isn't on `/`, the tool calls `router.push("/")`. The grid's init effect checks the slot first and applies a pending request ahead of the URL and `localStorage`. If the grid is already mounted, it's subscribed to the slot and applies the request straight away.
+- Applying it goes through the existing paths: `setSelectedTags`/`setSelectedPools` (so persistence and `writeUrl` happen through the effects already there), and for a cell, `store.set(cell)`, `committedCellRef.current = cell` and `writeUrl()`, the same steps a click takes. Then the cell scrolls into view.
+- The grid resolves the promise with the result once the state has landed (after the effect that writes the URL, so the returned URL is the real one). Build the result from the applied values rather than reading React state inside the handler, since state set there hasn't landed yet. The tool times out after a few seconds with a clear error if the grid never picks the request up.
+- Validate pool ids with `validatePoolId` and tags against the taxonomy before queuing, and report anything dropped.
 - Record agent-driven filter changes with the existing `trackProgramFilter` and `trackPoolFilter`, tagged with a `source: "agent"` property, so analytics can tell them apart from clicks.
+
+`get-grid-state` is registered by the grid itself in a `useEffect` that depends on `initialized`, and reads `filtersRef` and `store.get()`.
 
 ### 5. Origin trial
 
@@ -160,9 +183,9 @@ To reach Chrome 149+ and Edge 150+ users without a flag, register the site for e
 
 ## Testing
 
-- **Unit (Jest, node environment):** `schedule-query.ts` and `pacific-time.ts` against fixture schedules: midnight rollover for "now", closed pools, out-of-season dates, pool name resolution, time parsing. `fast-check` is already available for property tests on the time parsing.
+- **Unit (Jest, node environment):** `schedule-query.ts` and `pacific-time.ts` against fixture schedules: midnight rollover for "now", closed pools, out-of-season dates, a date after a current closure ends, `"today"` just after midnight Pacific when it's still the previous day in UTC (and the reverse), pool name resolution, time parsing. `fast-check` is already available for property tests on the time parsing.
 - **Tool definitions:** call each tool's `execute` from `webmcp-tools.ts` directly with a stubbed `fetch`. Check the JSON Schemas with a quick `JSON.stringify` round trip, since `registerTool` serializes `inputSchema` and throws on anything that isn't plain JSON.
-- **In the browser:** the spec also defines `document.modelContext.getTools()` and `executeTool()` for in-page agents. With a WebMCP-enabled Chromium, a Playwright test can load `/`, list the tools and execute `set-grid-filters`, then check that the grid and URL updated. Whether the pre-installed Chromium has the feature behind a launch flag needs checking. If it doesn't, this stays a manual check in Chrome with the flag on.
+- **In the browser:** the spec also defines `document.modelContext.getTools()` and `executeTool()` for in-page agents. With a WebMCP-enabled Chromium, a Playwright test can load `/now`, list the tools and execute `show-in-grid`, then check that it navigated and that the grid and URL updated. A second case runs it with the grid already mounted. Whether the pre-installed Chromium has the feature behind a launch flag needs checking. If it doesn't, this stays a manual check in Chrome with the flag on.
 - **With a real agent:** Chrome or Edge with the flag or origin trial, and ChatGPT Desktop. Try a handful of questions ("lap swim before work on Tuesday", "is anything open right now near Balboa", "show me senior swims at Hamilton on the grid").
 
 ---
@@ -177,11 +200,13 @@ To reach Chrome 149+ and Edge 150+ users without a flag, register the site for e
 
 ### Phase 2: site-wide tools
 - [ ] `src/lib/webmcp.ts`, `src/lib/webmcp-tools.ts`, `WebMcpTools.tsx`.
-- [ ] `find-swim-sessions`, `whats-on-now`, `get-pool-info`, `get-pool-alerts`, `show-page`.
+- [ ] `find-swim-sessions` (with dates), `whats-on-now`, `get-pool-info`, `get-pool-alerts`.
+- [ ] `show-page`, plus per-day anchors on the `/schedules` day columns.
 - [ ] PostHog tracking.
 
-### Phase 3: grid tools
-- [ ] `set-grid-filters`, `select-grid-time`, `clear-grid-filters`, `get-grid-state` in `AvailabilityGrid`.
+### Phase 3: grid
+- [ ] `grid-requests.ts` and `show-in-grid`, with the grid consuming requests on mount and while mounted.
+- [ ] `get-grid-state` in `AvailabilityGrid`.
 - [ ] Playwright check if a WebMCP-enabled Chromium is available.
 
 ### Phase 4: ship
@@ -203,6 +228,11 @@ Because the query logic lives in `schedule-query.ts`, this is mostly wiring:
 
 ## Open questions
 
-- Should the grid tools also be reachable from other sections, as one `show-in-grid` tool that navigates and then filters? That's friendlier for agents but duplicates the grid tools. The current plan relies on `show-page` plus dynamic registration instead, which is what the spec recommends. Worth trying both with a real agent in Phase 3.
-- Should `find-swim-sessions` accept a calendar date ("next Saturday") as well as weekdays? It lets the tool catch closures and out-of-season dates, but the agent has to pass a date and the tool has to resolve it in Pacific time.
-- Should `/schedules` get tools of its own (for example, jumping to a pool's section)? `show-page` with `pool` covers the main case, so probably not.
+- Should `/now` get a page-level tool too? It shows the same thing `whats-on-now` returns, so probably not; `show-page("now")` is enough.
+- When the next season's PDFs appear partway through the current one, should date queries for the new season work? Today the pipeline keeps one schedule per pool, so they won't until the season switches over. Fine for now, but worth knowing.
+
+### Decided
+
+- `show-in-grid` is a site-wide tool that navigates to the grid and applies filters from any page. It replaces the separate page-level setter tools.
+- `find-swim-sessions` accepts calendar dates and checks them against seasons and closures.
+- `/schedules` gets no tools of its own; `show-page` scrolls it to a pool and, on narrow screens, a day.
