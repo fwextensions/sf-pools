@@ -181,6 +181,18 @@ export type WaterOptions = {
 	/** canvas width in CSS px; defaults to the viewport width */
 	getWidth?: () => number;
 	/**
+	 * Canvas height in CSS px; defaults to the header height derived from the
+	 * width. Only the social-preview page overrides this — the production
+	 * header's height has to stay the CSS placeholder's whole number of rows.
+	 */
+	getHeight?: () => number;
+	/**
+	 * Tile edge in CSS px; defaults to the width-derived tileCssPx(). Also only
+	 * for the social-preview page, which wants a big grid at a fixed size
+	 * rather than the header's 22px cap.
+	 */
+	getTilePx?: () => number;
+	/**
 	 * Live overrides for the JS-side numbers, read every frame. These cannot be
 	 * uniforms: they shape the impulse BEFORE it reaches the shader.
 	 */
@@ -351,7 +363,7 @@ export function mountWater(
 
 	function setSize(w: number) {
 		width = w;
-		height = headerHeightPx(w);
+		height = opts.getHeight ? opts.getHeight() : headerHeightPx(w);
 		canvas.width = Math.round(width * density);
 		canvas.height = Math.round(height * density);
 		canvas.style.width = `${width}px`;
@@ -608,7 +620,10 @@ export function mountWater(
 		displayShader.set1f("u_simLens", simLens);
 		// integer-CSS-px tile edge, in device px; the CSS placeholder computes
 		// the identical value as min(22px, round(down, 100vw / 33, 1px))
-		displayShader.set1f("u_tilePx", tileCssPx(width) * d);
+		displayShader.set1f(
+			"u_tilePx",
+			(opts.getTilePx ? opts.getTilePx() : tileCssPx(width)) * d
+		);
 		renderer.draw(displayShader, null, canvas.width, canvas.height);
 
 		if (firstFrame) {
