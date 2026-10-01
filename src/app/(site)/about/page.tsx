@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { Metadata } from "next";
-import Link from "next/link";
+import BaseLink from "next/link";
 import { getPoolToken, type PoolToken } from "@/lib/pool-tokens";
 
 export const metadata: Metadata = {
@@ -10,7 +10,9 @@ export const metadata: Metadata = {
 };
 
 const GITHUB_URL = "https://github.com/fwextensions/sf-pools";
+const ISSUES_URL = "https://github.com/fwextensions/sf-pools/issues/new";
 const REC_PARK_URL = "https://sfrecpark.org";
+const POOLS_URL = "https://sfrecpark.org/482/Swimming-Pools";
 
 type PoolRecord = {
 	id: string;
@@ -20,6 +22,9 @@ type PoolRecord = {
 };
 
 type Facility = {
+	// the first pool's id, whose section on the full schedules page the
+	// facility's name links to
+	poolId: string;
 	name: string;
 	address: string;
 	pageUrl: string;
@@ -41,6 +46,7 @@ async function readFacilities(): Promise<Facility[]> {
 				continue;
 			}
 			byPage.set(pool.pageUrl, {
+				poolId: pool.id,
 				name: pool.nameTitle.replace(/\s*\(.*\)$/, ""),
 				address: pool.address.replace(/, San Francisco$/, ""),
 				pageUrl: pool.pageUrl,
@@ -64,6 +70,24 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 const inlineLink = "text-[#0e2733] underline underline-offset-2 hover:text-[#2596be]";
 
+function Link({ href, children }: { href: string, children: React.ReactNode })
+{
+	return (
+		<BaseLink href={href} className={inlineLink}>
+			{children}
+		</BaseLink>
+	)
+}
+
+function ExternalLink({ href, children }: { href: string, children: React.ReactNode })
+{
+	return (
+		<a href={href} className={inlineLink} target="_blank" rel="noreferrer">
+			{children}
+		</a>
+	)
+}
+
 export default async function AboutPage() {
 	const facilities = await readFacilities();
 
@@ -79,16 +103,16 @@ export default async function AboutPage() {
 			<div className="mt-7 flex max-w-[68ch] flex-col gap-10">
 				<Section title="WHAT THIS IS">
 					<p>
-						San Francisco Rec &amp; Park runs nine public pools, and each one posts its schedule as a
-						separate PDF. Finding a lap swim that fits your morning means opening several of them and
-						comparing by hand. This site does that comparison for you.
+						The <ExternalLink href={REC_PARK_URL}>San Francisco Recreation and Park Department</ExternalLink> runs nine public pools,
+						and each one posts its schedule as a separate PDF. Finding a lap swim that fits your morning routine means
+						opening several PDFs and comparing by hand. This site does that comparison for you.
 					</p>
 					<p>
-						The <Link href="/" className={inlineLink}>week grid</Link> shows which pools have a program
+						The <Link href="/">week grid</Link> shows which pools have a program
 						at each hour of the week,{" "}
-						<Link href="/now" className={inlineLink}>now &amp; soon</Link>
+						<Link href="/now">now &amp; soon</Link>
 						{" "}shows what&rsquo;s open at the moment, and the{" "}
-						<Link href="/schedules" className={inlineLink}>full schedules</Link> list every session at
+						<Link href="/schedules">full schedules</Link> list every session at
 						every pool.
 					</p>
 				</Section>
@@ -103,7 +127,7 @@ export default async function AboutPage() {
 						Each update is checked for signs of a bad read before it goes live. If one pool&rsquo;s
 						schedule looks wrong, that pool keeps last week&rsquo;s data while the others update. You can
 						see what changed in each update on the{" "}
-						<Link href="/changes" className={inlineLink}>schedule changes</Link> page.
+						<Link href="/changes">schedule changes</Link> page.
 					</p>
 				</Section>
 
@@ -111,11 +135,8 @@ export default async function AboutPage() {
 					<p>
 						This is an independent project, not a city site. Reading PDFs automatically can get details
 						wrong, and pools change hours, close for maintenance, or cancel sessions at short notice. Before
-						you head out, confirm on the pool&rsquo;s official page or with{" "}
-						<a href={REC_PARK_URL} target="_blank" rel="noreferrer" className={inlineLink}>
-							SF Rec &amp; Park
-						</a>
-						.
+						you head out, confirm the schedule on the pool&rsquo;s page at{" "}
+						<ExternalLink href={POOLS_URL}>SF Rec &amp; Parks</ExternalLink>.
 					</p>
 				</Section>
 
@@ -129,16 +150,23 @@ export default async function AboutPage() {
 								>
 									<span className="flex gap-1 self-center">
 										{facility.tokens.map((token) => (
-											<span
+											<BaseLink
 												key={token.id}
+												href={`/schedules#pool-${token.id}`}
+												title={`${token.name} schedule`}
 												className="plex-mono px-[5px] py-[3px] text-[10px] font-semibold text-white"
 												style={{ background: token.color }}
 											>
 												{token.code}
-											</span>
+											</BaseLink>
 										))}
 									</span>
-									<span className="font-medium text-[#0e2733]">{facility.name}</span>
+									<BaseLink
+										href={`/schedules#pool-${facility.poolId}`}
+										className={`font-medium ${inlineLink}`}
+									>
+										{facility.name}
+									</BaseLink>
 									<span className="text-[14px] text-[#5a707c]">{facility.address}</span>
 									<a
 										href={facility.pageUrl}
@@ -157,10 +185,8 @@ export default async function AboutPage() {
 				<Section title="THE CODE">
 					<p>
 						The site and the pipeline behind it are open source on{" "}
-						<a href={GITHUB_URL} target="_blank" rel="noreferrer" className={inlineLink}>
-							GitHub
-						</a>
-						. If a schedule looks wrong or something doesn&rsquo;t work, opening an issue there is the best
+						<ExternalLink href={GITHUB_URL}>GitHub</ExternalLink>. If a schedule looks wrong or something
+						doesn&rsquo;t work, <ExternalLink href={ISSUES_URL}>opening an issue there</ExternalLink> is the best
 						way to report it.
 					</p>
 				</Section>
