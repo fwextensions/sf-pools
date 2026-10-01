@@ -37,8 +37,8 @@ export default async function SiteFooter() {
 				<div className="flex max-w-[460px] flex-col gap-2.5">
 					<div className="plex-mono text-[12px] font-semibold tracking-[.08em]">SF POOLS</div>
 					<p className="text-[14px] leading-relaxed text-[#3d5663]">
-						Every public pool schedule in San Francisco in one place, read from the PDFs that SF Rec
-						&amp; Park publishes. This is an independent project, not a city site. Check the official
+						Every public pool schedule in San Francisco in one place, pulled from the PDFs that SF Rec
+						&amp; Parks publishes. This is an independent project, not a city site. Check the official
 						page before you go.
 					</p>
 				</div>
@@ -55,7 +55,7 @@ export default async function SiteFooter() {
 					<nav aria-label="Elsewhere" className="flex flex-col min-[900px]:gap-3">
 						<div className={groupLabelClass}>ELSEWHERE</div>
 						<a href={REC_PARK_URL} target="_blank" rel="noreferrer" className={linkClass}>
-							SF Rec &amp; Park ↗
+							SF Rec &amp; Parks ↗
 						</a>
 						<a href={GITHUB_URL} target="_blank" rel="noreferrer" className={linkClass}>
 							Code on GitHub ↗
