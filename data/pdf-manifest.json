@@ -1,33 +1,33 @@
 {
 	"balboa": {
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29562",
-		"pdfHash": "318d08d0ca04c9479c3efd5e75847a7c308b7576a39b9b0f4757468550f4df42",
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29796",
+		"pdfHash": "d6f21871037274cc7b8817ab17a92eb7fec8b8d9dfa915d1cb72182b9526dda9",
 		"filename": "balboa.pdf",
-		"lastDownloaded": "2026-07-06T01:17:03.120Z"
+		"lastDownloaded": "2026-10-02T23:19:39.611Z"
 	},
 	"coffman": {
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29563",
-		"pdfHash": "3b3444b7aca2df27e9e4b2aaa7d14ded050e1730a8f9c26da0257241b09bfd4c",
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29798",
+		"pdfHash": "0345cb25881bf830cc0da365d669c36410bf6ac3cebcd9a83cb0910459e3e457",
 		"filename": "coffman.pdf",
-		"lastDownloaded": "2026-07-06T01:17:03.736Z"
+		"lastDownloaded": "2026-10-02T23:19:40.187Z"
 	},
 	"garfield": {
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29564",
-		"pdfHash": "ec980b5239ba1ed5e0d1ea2b4db4512c9a4f01683aa625c40b8d8519d708f552",
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29799",
+		"pdfHash": "7f5c0074e8ddf2428c38ce3870d36d73521e7ae17f863839c5db20893e26573b",
 		"filename": "garfield.pdf",
-		"lastDownloaded": "2026-07-06T01:17:04.345Z"
+		"lastDownloaded": "2026-10-02T23:19:40.747Z"
 	},
 	"hamilton": {
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29599",
-		"pdfHash": "0bd01dc9ea83680c17475a0718e79fe77c0b85af5c1a7308c345771bbf8672c6",
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29800",
+		"pdfHash": "c8e193806d9e9b7c6240eda5cc3e533ac2bb261007b6f72c48f60ce466db6697",
 		"filename": "hamilton.pdf",
-		"lastDownloaded": "2026-07-06T01:17:04.983Z"
+		"lastDownloaded": "2026-10-02T23:19:41.314Z"
 	},
 	"mlk": {
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29578",
-		"pdfHash": "631524f6aa3c6810fd22e1e76f14c977c8382c1908b5f355dcba12bac666eb44",
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29802",
+		"pdfHash": "838c12e25ad10207558e0a5c7e72d84aa3a2eaa0cc974be92e82e46e3acf4b72",
 		"filename": "mlk.pdf",
-		"lastDownloaded": "2026-07-06T01:17:05.571Z"
+		"lastDownloaded": "2026-10-02T23:19:41.863Z"
 	},
 	"northbeach": {
 		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29568",
@@ -36,21 +36,33 @@
 		"lastDownloaded": "2026-07-06T01:17:06.764Z"
 	},
 	"rossi": {
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29570",
-		"pdfHash": "4366bb8babcdaa6815a60c47919934e83b6176b6306b9b988581845462dd82b0",
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29804",
+		"pdfHash": "cb8abdbbedda075c85b1a8f1400345efb2d9b022eee6f452bf6b21d4876d80bc",
 		"filename": "rossi.pdf",
-		"lastDownloaded": "2026-07-06T01:17:07.363Z"
+		"lastDownloaded": "2026-10-02T23:19:44.226Z"
 	},
 	"sava": {
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29571",
-		"pdfHash": "aa7cf8ecc26978e5a5a713161e86e57376c31668ecd54f1d61a5ae8586188bc9",
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/30037",
+		"pdfHash": "4b1055669e1df46512c16b051b02b8de52d1b935f7cbfde2f27bfe38ff03009c",
 		"filename": "sava.pdf",
-		"lastDownloaded": "2026-07-06T01:17:07.961Z"
+		"lastDownloaded": "2026-10-02T23:19:44.756Z"
 	},
 	"mission": {
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29566",
-		"pdfHash": "064a04e274e735909e8ca465f462844a738d88b8dac3ca53d651b8c5641f81d1",
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/30001",
+		"pdfHash": "67f2a420e8fc7957ece8b02acfcbf574249473f759eafb123e17c6ed0cebd2b4",
 		"filename": "mission.pdf",
-		"lastDownloaded": "2026-07-06T01:17:06.155Z"
+		"lastDownloaded": "2026-10-02T23:19:42.402Z"
+	},
+	"northbeachcool": {
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29953",
+		"pdfHash": "6c2b2e77fb2370a1aee52203c9d8672fc5e55ab398875a72f83156ac3b23397c",
+		"filename": "northbeachcool.pdf",
+		"lastDownloaded": "2026-10-02T23:19:43.100Z"
+	},
+	"northbeachwarm": {
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29954",
+		"pdfHash": "ac196df42a14a71cd86fbb13972706e22b5e5cf8dcc5820f660d57882bfd25c8",
+		"filename": "northbeachwarm.pdf",
+		"lastDownloaded": "2026-10-02T23:19:43.688Z"
 	}
 }
