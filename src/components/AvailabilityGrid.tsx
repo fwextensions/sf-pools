@@ -43,6 +43,9 @@ const DAYS: Array<ProgramEntry["dayOfWeek"]> = [
 
 const FIRST_HOUR = 6;
 const LAST_HOUR = 21;
+
+// the facets the picker offers; a stored tag from any other is dropped
+const FILTER_FACETS = new Set<string>(TAG_FACETS.map((f) => f.id));
 const HOURS: number[] = [];
 for (let h = FIRST_HOUR; h <= LAST_HOUR; h++) HOURS.push(h);
 
@@ -533,7 +536,11 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		const qTags = urlRewritten ? null : searchParams.get("tags");
 		const qPools = urlRewritten ? null : searchParams.get("pools");
 
-		const tags = qTags ? qTags.split(",").filter(Boolean) : (saved.tags ?? []);
+		// drop tags from a facet the picker no longer offers — an old link or a
+		// saved "Getting in" choice would otherwise filter with no visible chip
+		const tags = (qTags ? qTags.split(",").filter(Boolean) : (saved.tags ?? [])).filter((t) =>
+			FILTER_FACETS.has(tagFacet(t))
+		);
 		const pools = (qPools ? qPools.split(",") : (saved.poolIds ?? [])).filter((id) =>
 			validatePoolId(id)
 		);
@@ -644,7 +651,9 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		return counts;
 	}, [sessions]);
 
-	// one set of wanted tags per facet the viewer picked in
+	// one set of wanted tags per facet the viewer picked in. A facet with every
+	// chip ticked is no filter at all: most sessions say nothing about who they
+	// are for, and ticking every audience must not hide them.
 	const facetFilters = useMemo(() => {
 		const byFacet = new Map<string, Set<string>>();
 		for (const tag of selectedTags) {
@@ -652,8 +661,12 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			if (!byFacet.has(facet)) byFacet.set(facet, new Set());
 			byFacet.get(facet)!.add(tag);
 		}
-		return [...byFacet.values()];
-	}, [selectedTags]);
+		const facetSize = new Map<string, number>();
+		for (const t of tagCounts.keys()) facetSize.set(tagFacet(t), (facetSize.get(tagFacet(t)) ?? 0) + 1);
+		return [...byFacet]
+			.filter(([facet, wanted]) => [...wanted].filter((t) => tagCounts.has(t)).length < (facetSize.get(facet) ?? 0))
+			.map(([, wanted]) => wanted);
+	}, [selectedTags, tagCounts]);
 
 	// a session matches when it carries one of the selected tags in every facet
 	// that has a selection: OR within a facet, AND across facets. Picking "Lap

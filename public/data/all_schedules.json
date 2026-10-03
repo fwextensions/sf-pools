@@ -37,7 +37,8 @@
 				"programNameCanonical": "High School Swim Programs",
 				"title": "SFUSD Class",
 				"tags": [
-					"access:school-group"
+					"access:school-group",
+					"activity:school"
 				]
 			},
 			{
@@ -143,6 +144,7 @@
 				"title": "Rentals (Synchro)",
 				"tags": [
 					"access:rental",
+					"activity:rental",
 					"activity:synchro"
 				]
 			},
@@ -243,6 +245,7 @@
 				"title": "Rentals (Synchro)",
 				"tags": [
 					"access:rental",
+					"activity:rental",
 					"activity:synchro"
 				]
 			},
@@ -270,7 +273,8 @@
 				"programNameCanonical": "High School Swim Programs",
 				"title": "SFUSD Class",
 				"tags": [
-					"access:school-group"
+					"access:school-group",
+					"activity:school"
 				]
 			},
 			{
@@ -341,7 +345,8 @@
 				"programNameCanonical": "High School Swim Programs",
 				"title": "SFUSD Class",
 				"tags": [
-					"access:school-group"
+					"access:school-group",
+					"activity:school"
 				]
 			},
 			{
@@ -413,7 +418,8 @@
 				"title": "Rentals (Masters)",
 				"tags": [
 					"access:rental",
-					"activity:masters"
+					"activity:masters",
+					"activity:rental"
 				]
 			},
 			{
@@ -602,6 +608,7 @@
 				"title": "Rentals (Synchro)",
 				"tags": [
 					"access:rental",
+					"activity:rental",
 					"activity:synchro"
 				]
 			},
@@ -646,7 +653,8 @@
 				"title": "SFUSD/Rec Swim",
 				"tags": [
 					"access:school-group",
-					"activity:rec"
+					"activity:rec",
+					"activity:school"
 				]
 			},
 			{
@@ -791,6 +799,7 @@
 				"title": "Rentals (Synchro)",
 				"tags": [
 					"access:rental",
+					"activity:rental",
 					"activity:synchro"
 				]
 			},
@@ -878,6 +887,7 @@
 				"title": "Rentals (Synchro)",
 				"tags": [
 					"access:rental",
+					"activity:rental",
 					"activity:synchro"
 				]
 			},
@@ -1249,7 +1259,8 @@
 				"title": "Rentals (Masters)",
 				"tags": [
 					"access:rental",
-					"activity:masters"
+					"activity:masters",
+					"activity:rental"
 				]
 			},
 			{
@@ -1532,7 +1543,8 @@
 				"title": "Rentals (Masters)",
 				"tags": [
 					"access:rental",
-					"activity:masters"
+					"activity:masters",
+					"activity:rental"
 				]
 			},
 			{
@@ -1649,7 +1661,8 @@
 				"title": "Rentals (Masters)",
 				"tags": [
 					"access:rental",
-					"activity:masters"
+					"activity:masters",
+					"activity:rental"
 				]
 			},
 			{
@@ -2083,7 +2096,8 @@
 				"programNameCanonical": "Rentals / Private Use",
 				"title": "Rentals (Club)",
 				"tags": [
-					"access:rental"
+					"access:rental",
+					"activity:rental"
 				]
 			},
 			{
@@ -2097,7 +2111,8 @@
 				"programNameCanonical": "Rentals / Private Use",
 				"title": "Rentals (Club)",
 				"tags": [
-					"access:rental"
+					"access:rental",
+					"activity:rental"
 				]
 			},
 			{
@@ -2111,7 +2126,8 @@
 				"programNameCanonical": "Rentals / Private Use",
 				"title": "Rentals (Club)",
 				"tags": [
-					"access:rental"
+					"access:rental",
+					"activity:rental"
 				]
 			},
 			{
@@ -2125,7 +2141,8 @@
 				"programNameCanonical": "Rentals / Private Use",
 				"title": "Rentals (Club)",
 				"tags": [
-					"access:rental"
+					"access:rental",
+					"activity:rental"
 				]
 			},
 			{
@@ -2157,7 +2174,8 @@
 				"title": "Rentals (Masters)",
 				"tags": [
 					"access:rental",
-					"activity:masters"
+					"activity:masters",
+					"activity:rental"
 				]
 			},
 			{
@@ -2187,7 +2205,8 @@
 				"title": "Rentals (Masters)",
 				"tags": [
 					"access:rental",
-					"activity:masters"
+					"activity:masters",
+					"activity:rental"
 				]
 			},
 			{
@@ -2370,7 +2389,8 @@
 				"programNameCanonical": "Rentals / Private Use",
 				"title": "Rentals",
 				"tags": [
-					"access:rental"
+					"access:rental",
+					"activity:rental"
 				]
 			},
 			{
@@ -2505,7 +2525,8 @@
 				"programNameCanonical": "Rentals / Private Use",
 				"title": "Rentals",
 				"tags": [
-					"access:rental"
+					"access:rental",
+					"activity:rental"
 				]
 			},
 			{
@@ -2655,7 +2676,8 @@
 				"programNameCanonical": "Rentals / Private Use",
 				"title": "Rentals",
 				"tags": [
-					"access:rental"
+					"access:rental",
+					"activity:rental"
 				]
 			},
 			{
@@ -2790,7 +2812,8 @@
 				"programNameCanonical": "Rentals / Private Use",
 				"title": "Rentals",
 				"tags": [
-					"access:rental"
+					"access:rental",
+					"activity:rental"
 				]
 			},
 			{
@@ -2819,7 +2842,8 @@
 				"programNameCanonical": "Rentals / Private Use",
 				"title": "Rentals",
 				"tags": [
-					"access:rental"
+					"access:rental",
+					"activity:rental"
 				]
 			},
 			{
@@ -3329,7 +3353,8 @@
 				"programNameCanonical": "High School Swim Programs",
 				"title": "SFUSD",
 				"tags": [
-					"access:school-group"
+					"access:school-group",
+					"activity:school"
 				]
 			},
 			{
@@ -3384,7 +3409,8 @@
 				"programNameCanonical": "High School Swim Programs",
 				"title": "SFUSD",
 				"tags": [
-					"access:school-group"
+					"access:school-group",
+					"activity:school"
 				]
 			},
 			{
@@ -3524,7 +3550,8 @@
 				"programNameCanonical": "High School Swim Programs",
 				"title": "SFUSD",
 				"tags": [
-					"access:school-group"
+					"access:school-group",
+					"activity:school"
 				]
 			},
 			{
@@ -3684,7 +3711,8 @@
 				"programNameCanonical": "High School Swim Programs",
 				"title": "SFUSD",
 				"tags": [
-					"access:school-group"
+					"access:school-group",
+					"activity:school"
 				]
 			},
 			{
@@ -3773,7 +3801,8 @@
 				"programNameCanonical": "High School Swim Programs",
 				"title": "SFUSD",
 				"tags": [
-					"access:school-group"
+					"access:school-group",
+					"activity:school"
 				]
 			},
 			{
@@ -3995,7 +4024,8 @@
 				"programNameCanonical": "High School Swim Programs",
 				"title": "SFUSD",
 				"tags": [
-					"access:school-group"
+					"access:school-group",
+					"activity:school"
 				]
 			},
 			{
@@ -4360,7 +4390,8 @@
 				"programNameCanonical": "Rentals / Private Use",
 				"title": "Rentals (Club)",
 				"tags": [
-					"access:rental"
+					"access:rental",
+					"activity:rental"
 				]
 			},
 			{
@@ -4446,7 +4477,8 @@
 				"programNameCanonical": "Rentals / Private Use",
 				"title": "Rentals (Club)",
 				"tags": [
-					"access:rental"
+					"access:rental",
+					"activity:rental"
 				]
 			},
 			{
@@ -4579,7 +4611,8 @@
 				"programNameCanonical": "Rentals / Private Use",
 				"title": "Rentals (Club)",
 				"tags": [
-					"access:rental"
+					"access:rental",
+					"activity:rental"
 				]
 			},
 			{
@@ -4665,7 +4698,8 @@
 				"programNameCanonical": "Rentals / Private Use",
 				"title": "Rentals (Club)",
 				"tags": [
-					"access:rental"
+					"access:rental",
+					"activity:rental"
 				]
 			},
 			{
@@ -4724,7 +4758,8 @@
 				"programNameCanonical": "High School Swim Programs",
 				"title": "SFUSD",
 				"tags": [
-					"access:school-group"
+					"access:school-group",
+					"activity:school"
 				]
 			},
 			{
@@ -4782,6 +4817,7 @@
 				"title": "Rental (Youth Teams)",
 				"tags": [
 					"access:rental",
+					"activity:rental",
 					"activity:swim-team",
 					"audience:youth"
 				]
@@ -4913,7 +4949,8 @@
 				"title": "Rental (Masters)",
 				"tags": [
 					"access:rental",
-					"activity:masters"
+					"activity:masters",
+					"activity:rental"
 				]
 			},
 			{
@@ -4940,7 +4977,8 @@
 				"programNameCanonical": "High School Swim Programs",
 				"title": "SFUSD",
 				"tags": [
-					"access:school-group"
+					"access:school-group",
+					"activity:school"
 				]
 			},
 			{
@@ -4998,6 +5036,7 @@
 				"title": "Rental (Youth Teams)",
 				"tags": [
 					"access:rental",
+					"activity:rental",
 					"activity:swim-team",
 					"audience:youth"
 				]

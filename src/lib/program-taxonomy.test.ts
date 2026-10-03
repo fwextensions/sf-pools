@@ -1,5 +1,7 @@
 // the raw names in these cases are verbatim from pool PDFs; see
 // docs/program-taxonomy-review.md for where each one showed up
+import fs from "node:fs";
+import path from "node:path";
 import { describe, it, expect } from "@jest/globals";
 import {
 	ACCESS_TAGS, ACTIVITY_TAGS, AUDIENCE_TAGS, CANONICAL_CATEGORIES,
@@ -115,6 +117,28 @@ describe("deriveTags", () => {
 		expect(deriveTags("Lap Swim")).toEqual(["access:drop-in", "activity:lap"]);
 		expect(deriveTags("CLOSED FOR STAFF TRAINING")).not.toContain("access:drop-in");
 		expect(deriveTags("*SMALL POOL-SFUSD CLASS")).not.toContain("access:drop-in");
+	});
+
+	it("files rentals and school use under a program", () => {
+		expect(deriveTags("Rentals (Club)")).toContain("activity:rental");
+		expect(deriveTags("RENTALS")).toContain("activity:rental");
+		expect(deriveTags("SFUSD")).toContain("activity:school");
+		expect(deriveTags("*SMALL POOL- NVPS CLASS")).toContain("activity:school");
+	});
+
+	it("falls back to other, without promising drop-in, for a name no pattern knows", () => {
+		expect(deriveTags("BAYVIEW SPLASH")).toEqual(["activity:other"]);
+		expect(deriveTags("Lap Swim")).not.toContain("activity:other");
+	});
+
+	it("gives every session in the current data a program", () => {
+		const file = path.join(process.cwd(), "public", "data", "all_schedules.json");
+		const pools = JSON.parse(fs.readFileSync(file, "utf8")) as Array<{ programs?: Array<{ programNameOriginal: string; tags?: string[] }> }>;
+		const missing = pools
+			.flatMap((pool) => pool.programs ?? [])
+			.filter((p) => !(p.tags ?? []).some((t) => t.startsWith("activity:")))
+			.map((p) => p.programNameOriginal);
+		expect(missing).toEqual([]);
 	});
 
 	it("returns nothing for an empty name", () => {
