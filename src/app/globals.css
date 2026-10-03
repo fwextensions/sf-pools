@@ -302,9 +302,10 @@ input[type="radio"] {
 	--dim: 1;
 	background: #ffe6a1;
 	outline: 3px solid #f0a202;
-	outline-offset: -1px;
-	/* the ring is drawn inside the cell, so it would be painted over by the
-	   next cell's background without this */
+	/* the ring sits outside the cell, past a 1px white gutter (.grid-ring),
+	   so it never covers the first and last lanes. It overlaps the
+	   neighbouring cells, which would paint over it without the z-index */
+	outline-offset: 1px;
 	z-index: 1;
 }
 

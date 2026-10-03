@@ -386,11 +386,10 @@ const GridBody = memo(function GridBody({
 									/>
 								);
 							})}
-							{/* the ring's inner gutter, shown only on the selected cell.
-							    As an inset shadow on the cell it painted under the lane
-							    spans and only showed through where a cell was empty, so
-							    it has to be its own layer above them */}
-							<span aria-hidden className="grid-ring pointer-events-none absolute inset-[1px]" />
+							{/* the ring's inner gutter, shown only on the selected cell:
+							    a 1px white line just outside the cell's edge, between the
+							    lanes and the amber outline */}
+							<span aria-hidden className="grid-ring pointer-events-none absolute inset-[-1px]" />
 						</div>
 					))}
 				</div>
