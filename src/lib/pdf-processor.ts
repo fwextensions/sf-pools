@@ -2,6 +2,9 @@ import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { ClosureSchema } from "./closures";
+import { trackUsage } from "./llm-usage";
+
+const EXTRACT_MODEL = "gemini-3.1-flash-lite";
 
 export const DayOfWeek = z.enum([
 	"Monday",
@@ -77,7 +80,14 @@ export type PoolSchedule = z.infer<typeof PoolScheduleSchema>;
 
 export async function extractScheduleFromPdf(
 	pdfBuffer: Buffer,
-	hints?: { pdfScheduleUrl?: string; sfRecParkUrl?: string; expectedPoolName?: string }
+	hints?: {
+		pdfScheduleUrl?: string;
+		sfRecParkUrl?: string;
+		expectedPoolName?: string;
+		/** labels the usage record; the caller knows which pool this is */
+		poolId?: string;
+		pdfHash?: string;
+	}
 ): Promise<PoolSchedule[]> {
 	const system = `
 You are an expert data extractor for San Francisco public pool schedules.
@@ -101,8 +111,14 @@ ${hints?.expectedPoolName ? `This PDF is the schedule for "${hints.expectedPoolN
 If known, set pdfScheduleUrl to: ${hints?.pdfScheduleUrl ?? ""}
 If known, set sfRecParkUrl to: ${hints?.sfRecParkUrl ?? ""}`;
 
-	const result = await generateText({
-		model: google("gemini-3.1-flash-lite"),
+	const meta = {
+		task: "pdf-extract",
+		subject: hints?.poolId ?? hints?.expectedPoolName ?? "unknown",
+		model: EXTRACT_MODEL,
+		pdfHash: hints?.pdfHash,
+	};
+	const call = () => generateText({
+		model: google(EXTRACT_MODEL),
 		output: Output.array({ element: PoolScheduleSchema }),
 		// deterministic extraction: avoid run-to-run drift on ambiguous cells
 		temperature: 0,
@@ -121,5 +137,5 @@ If known, set sfRecParkUrl to: ${hints?.sfRecParkUrl ?? ""}`;
 	});
 
 	// validate again just to be safe
-	return AllSchedulesSchema.parse(result.output);
+	return trackUsage(meta, call, (result) => AllSchedulesSchema.parse(result.output));
 }

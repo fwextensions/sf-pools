@@ -7,6 +7,7 @@ import type { PoolEntry } from "./downloadPdf";
 import { fetchText } from "./http";
 import { detectClosure, mergeClosure, type Closure } from "../src/lib/closures";
 import { enrichClosure } from "../src/lib/closure-enrichment";
+import { formatUsageSummary, sessionUsage } from "../src/lib/llm-usage";
 import { fetchPdfBuffer } from "./http";
 
 const LIST_URL = "https://sfrecpark.org/482/Swimming-Pools";
@@ -441,6 +442,8 @@ export async function main(options: { notify?: boolean } = {}) {
 	await mkdir(OUT_DIR, { recursive: true });
 	await writeFile(OUT_FILE, JSON.stringify(current, null, "\t"), "utf-8");
 	console.log("\nWrote:", OUT_FILE);
+	const usageSummary = formatUsageSummary(sessionUsage("closure-enrich"));
+	if (usageSummary) console.log(usageSummary);
 
 	return { current, newSiteWide, newPoolAlerts };
 }

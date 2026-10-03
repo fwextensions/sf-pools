@@ -2,6 +2,9 @@ import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import type { ClosureEnrichment } from "./closures";
+import { trackUsage } from "./llm-usage";
+
+const ENRICH_MODEL = "gemini-3.1-flash-lite";
 
 /**
  * Model-side reading of a closure notice.
@@ -96,8 +99,8 @@ Notice text: "${input.text}"
 ${input.pdfBuffer ? "The notice document is attached; prefer what it says over the text above." : "No document is available; read the text above only."}`;
 
 	try {
-		const result = await generateText({
-			model: google("gemini-3.1-flash-lite"),
+		const call = () => generateText({
+			model: google(ENRICH_MODEL),
 			output: Output.object({ schema: ClosureEnrichmentSchema }),
 			// deterministic: the same notice should not flip between runs
 			temperature: 0,
@@ -120,7 +123,11 @@ ${input.pdfBuffer ? "The notice document is attached; prefer what it says over t
 			],
 		});
 
-		return ClosureEnrichmentSchema.parse(result.output);
+		return await trackUsage(
+			{ task: "closure-enrich", subject: input.poolName, model: ENRICH_MODEL },
+			call,
+			(result) => ClosureEnrichmentSchema.parse(result.output)
+		);
 	} catch (err) {
 		console.warn("closure enrichment failed for", input.poolName, err);
 		return null;

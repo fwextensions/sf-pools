@@ -105,7 +105,7 @@ export default async function AboutPage() {
 					<p>
 						The <ExternalLink href={REC_PARK_URL}>San Francisco Recreation and Park Department</ExternalLink> runs nine public pools,
 						and each one posts its schedule as a separate PDF. Finding a lap swim that fits your morning routine means
-						opening several PDFs and comparing by hand. This site does that comparison for you.
+						opening several PDFs and comparing them by hand. This site does that comparison for you.
 					</p>
 					<p>
 						The <Link href="/">week grid</Link> shows which pools have a program
@@ -119,7 +119,7 @@ export default async function AboutPage() {
 
 				<Section title="WHERE THE SCHEDULES COME FROM">
 					<p>
-						Every Friday, a script checks each pool&rsquo;s page on the Rec &amp; Park site, downloads any
+						Every Friday, a script checks each pool&rsquo;s page on the Rec &amp; Parks site, downloads any
 						schedule PDF that has changed, and has an AI model read it into structured data. It also picks
 						up the closure and alert notices posted on those pages.
 					</p>

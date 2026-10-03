@@ -12,6 +12,7 @@ import {
 	repairMeridiemTypos,
 } from "@/lib/schedule-validation";
 import { isClosureActive, type Closure } from "@/lib/closures";
+import { formatUsageSummary, sessionUsage, USAGE_LOG } from "@/lib/llm-usage";
 import type { PoolEntry, DiscoveredPool } from "./downloadPdf";
 import {
 	computeChangelog,
@@ -231,7 +232,14 @@ export async function main(): Promise<ProcessResult> {
 					pdfScheduleUrl: disc?.pdfUrl ?? undefined,
 					sfRecParkUrl: pool?.pageUrl ?? undefined,
 					expectedPoolName: pool?.name ?? undefined,
+					poolId: pool?.id ?? base,
+					pdfHash: currentHash,
 				});
+				const u = sessionUsage("pdf-extract").at(-1)!;
+				console.log(
+					`  tokens: ${u.inputTokens} in / ${u.outputTokens} out` +
+						(u.costUsd !== null ? ` ($${u.costUsd.toFixed(4)})` : "")
+				);
 				// write raw extraction cache
 				await writeFile(extractPath, JSON.stringify(schedules, null, "\t"), "utf-8");
 				// update extracted manifest
@@ -468,6 +476,8 @@ export async function main(): Promise<ProcessResult> {
 	await writeFile(OUT_FILE, JSON.stringify(aggregated, null, "\t"), "utf-8");
 	console.log("wrote:", OUT_FILE, `(${aggregated.length} pools)`);
 	console.log(`extracted: ${extractedCount}, skipped: ${skippedCount}, preserved: ${preservedCount}`);
+	const usageSummary = formatUsageSummary(sessionUsage("pdf-extract"));
+	if (usageSummary) console.log(`${usageSummary} (logged to ${USAGE_LOG})`);
 
 	// surface data-quality anomalies (non-fatal; the changelog gate handles
 	// build-failing severity separately)
