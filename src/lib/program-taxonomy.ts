@@ -264,7 +264,7 @@ export function normalizeProgramName(raw: string): string {
 export const ACTIVITY_TAGS = [
 	"lap", "family", "rec", "senior", "therapy", "self-guided", "water-exercise",
 	"lessons", "swim-team", "masters", "synchro", "water-polo", "hockey", "camp",
-	"parent-tot", "special-olympics",
+	"parent-tot", "special-olympics", "rental", "school", "other",
 ] as const;
 
 export const AUDIENCE_TAGS = ["adult", "youth", "senior", "parent-child", "high-school", "preschool"] as const;
@@ -294,6 +294,10 @@ const ACTIVITY_PATTERNS: Array<[typeof ACTIVITY_TAGS[number], RegExp]> = [
 	["camp", /\bcamps?\b/],
 	["parent-tot", /parent/],
 	["special-olympics", /special olympics/],
+	// a rental or a school class is still the thing occupying the water, so it
+	// is filed under Program as well as being restricted to get into
+	["rental", /\brentals?\b|private|permit|reserved/],
+	["school", /sfusd|unified school|school district|nvps/],
 ];
 
 const AUDIENCE_PATTERNS: Array<[typeof AUDIENCE_TAGS[number], RegExp]> = [
@@ -337,6 +341,11 @@ export function deriveTags(raw: string): ProgramTag[] {
 	const restricted: AccessTag[] = ["access:rental", "access:school-group", "access:closed", "access:registration", "access:contact-coach"];
 	if (tags.size > 0 && !restricted.some((t) => tags.has(t))) tags.add("access:drop-in");
 
+	// the grid filters on activity, so a session with none would drop out the
+	// moment any Program box is ticked. Added after the drop-in check, so an
+	// unrecognized name is not also promised as walk-in.
+	if (![...tags].some((t) => t.startsWith("activity:"))) tags.add("activity:other");
+
 	return [...tags].sort();
 }
 
@@ -358,9 +367,11 @@ export function cleanProgramTitle(raw: string): string {
 
 // display labels and facet order for the filter UI. Keys are the full tag ids;
 // anything missing falls back to the tag's own slug.
+// access tags are still derived, and the detail list shows the restrictive
+// ones, but they are not offered as a filter: rentals and school use are
+// Program tags, and the rest were too thin to filter on.
 export const TAG_FACETS = [
 	{ id: "activity", label: "Program" },
-	{ id: "access", label: "Getting in" },
 	{ id: "audience", label: "Who it's for" },
 ] as const;
 
@@ -381,6 +392,9 @@ export const TAG_LABELS: Record<string, string> = {
 	"activity:camp": "Camps",
 	"activity:parent-tot": "Parent & tot",
 	"activity:special-olympics": "Special Olympics",
+	"activity:rental": "Rentals",
+	"activity:school": "School classes",
+	"activity:other": "Other",
 	"audience:adult": "Adults",
 	"audience:youth": "Youth",
 	"audience:senior": "Seniors",
