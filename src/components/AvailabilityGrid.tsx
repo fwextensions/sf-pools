@@ -178,6 +178,19 @@ function cellAtPoint(x: number, y: number): SelectedCell | null {
 	return { day, hour };
 }
 
+function buildHitMatrix(sessions: Session[]): Set<string> {
+	const hits = new Set<string>();
+	for (const s of sessions) {
+		if (s.startMin == null || s.endMin == null) continue;
+		for (const h of HOURS) {
+			if (s.startMin < (h + 1) * 60 && s.endMin > h * 60) {
+				hits.add(`${s.dayOfWeek}|${h}|${s.poolId}`);
+			}
+		}
+	}
+	return hits;
+}
+
 type Session = {
 	poolId: string;
 	title: string;
@@ -260,6 +273,7 @@ type GridHandlers = {
 const GridBody = memo(function GridBody({
 	store,
 	hitMatrix,
+	anyHitMatrix,
 	poolSet,
 	cellHeightClass,
 	touchDrag,
@@ -267,6 +281,7 @@ const GridBody = memo(function GridBody({
 }: {
 	store: SelectionStore;
 	hitMatrix: Set<string>;
+	anyHitMatrix: Set<string>;
 	poolSet: Set<string> | null;
 	cellHeightClass: string;
 	touchDrag: boolean;
@@ -353,18 +368,20 @@ const GridBody = memo(function GridBody({
 							}}
 						>
 							{POOL_TOKENS.map((token) => {
-								const hit = hitMatrix.has(`${day}|${h}|${token.id}`);
-								const unselected = poolSet != null && !poolSet.has(token.id);
+								const key = `${day}|${h}|${token.id}`;
+								const scheduled = anyHitMatrix.has(key);
+								const shown = hitMatrix.has(key) && (poolSet == null || poolSet.has(token.id));
 								return (
 									<span
 										key={token.id}
 										className="flex-1"
 										style={{
-											background: hit ? token.color : "transparent",
+											background: scheduled ? token.color : "transparent",
 											// --dim is the selection's fade, set in globals.css.
-											// Unselected pools fade rather than vanish, so "my
-											// pools" still read in context
-											opacity: hit && unselected ? "calc(var(--dim) * 0.13)" : "var(--dim)",
+											// Whatever either filter leaves out fades rather than
+											// vanishes, so a cell the filters emptied still reads
+											// as busy, unlike one where nothing is scheduled
+											opacity: scheduled && !shown ? "calc(var(--dim) * 0.13)" : "var(--dim)",
 										}}
 									/>
 								);
@@ -718,20 +735,10 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	);
 
 	// hit matrix: day -> hour -> poolId, true when any filter-matching program
-	// overlaps [h, h+1). pure derived render, memoized on [sessions, programSet]
-	const hitMatrix = useMemo(() => {
-		const hits = new Set<string>();
-		const progFiltered = sessions.filter(matchesTags);
-		for (const s of progFiltered) {
-			if (s.startMin == null || s.endMin == null) continue;
-			for (const h of HOURS) {
-				if (s.startMin < (h + 1) * 60 && s.endMin > h * 60) {
-					hits.add(`${s.dayOfWeek}|${h}|${s.poolId}`);
-				}
-			}
-		}
-		return hits;
-	}, [sessions, matchesTags]);
+	// overlaps [h, h+1). anyHitMatrix is the same before the program filter,
+	// so the grid can fade what the filter left out instead of dropping it
+	const hitMatrix = useMemo(() => buildHitMatrix(sessions.filter(matchesTags)), [sessions, matchesTags]);
+	const anyHitMatrix = useMemo(() => buildHitMatrix(sessions), [sessions]);
 
 	// one picker group per facet, listing only the tags this season's schedules
 	// actually use, most common first
@@ -1127,7 +1134,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 							{renderMobileChips()}
 						</div>
 						{renderMobilePanels(true)}
-						<div className="flex-none"><GridBody store={store} hitMatrix={hitMatrix} poolSet={poolSet} cellHeightClass="h-[19px]" touchDrag handlers={handlers} /></div>
+						<div className="flex-none"><GridBody store={store} hitMatrix={hitMatrix} anyHitMatrix={anyHitMatrix} poolSet={poolSet} cellHeightClass="h-[19px]" touchDrag handlers={handlers} /></div>
 						{/* while filtering, the grid itself is the live feedback; the
 						    list gives its space to the panel and comes back after */}
 						{openPanel ? null : (
@@ -1143,7 +1150,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						{renderMobileChips()}
 					</div>
 					{renderMobilePanels()}
-					<GridBody store={store} hitMatrix={hitMatrix} poolSet={poolSet} cellHeightClass="h-[15px]" touchDrag={false} handlers={handlers} />
+					<GridBody store={store} hitMatrix={hitMatrix} anyHitMatrix={anyHitMatrix} poolSet={poolSet} cellHeightClass="h-[15px]" touchDrag={false} handlers={handlers} />
 					<DetailPanel store={store} sessions={sessions} matchesTags={matchesTags} poolSet={poolSet} filterKey={filterKey} onClear={clearFromEmptyCell} canDrag={false} ratchet={true} />
 				</div>
 			)}
@@ -1164,7 +1171,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 					{renderPoolRows()}
 				</div>
 				<div className="min-w-0 flex-1 pl-4">
-					<GridBody store={store} hitMatrix={hitMatrix} poolSet={poolSet} cellHeightClass="h-[19px]" touchDrag={false} handlers={handlers} />
+					<GridBody store={store} hitMatrix={hitMatrix} anyHitMatrix={anyHitMatrix} poolSet={poolSet} cellHeightClass="h-[19px]" touchDrag={false} handlers={handlers} />
 					<DetailPanel store={store} sessions={sessions} matchesTags={matchesTags} poolSet={poolSet} filterKey={filterKey} onClear={clearFromEmptyCell} canDrag={false} ratchet={true} />
 				</div>
 			</div>
