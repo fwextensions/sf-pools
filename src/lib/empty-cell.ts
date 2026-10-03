@@ -8,7 +8,7 @@ export type EmptyCellReason =
 	// the picked pools have sessions here, but none in the picked programs
 	| { kind: "programs"; hidden: number }
 	// sessions in the picked programs exist here, only at other pools
-	| { kind: "pools"; hidden: number; poolIds: string[] }
+	| { kind: "pools"; hidden: number }
 	// each filter on its own hides every session here, so only clearing both
 	// brings any back
 	| { kind: "both"; hidden: number };
@@ -28,10 +28,7 @@ export function explainEmptyCell<T extends { poolId: string }>(
 	if (atPools.length) return { kind: "programs", hidden: atPools.length };
 
 	const inPrograms = inCell.filter(matchesTags);
-	if (inPrograms.length) {
-		const poolIds = [...new Set(inPrograms.map((s) => s.poolId))];
-		return { kind: "pools", hidden: inPrograms.length, poolIds };
-	}
+	if (inPrograms.length) return { kind: "pools", hidden: inPrograms.length };
 
 	return { kind: "both", hidden: inCell.length };
 }
@@ -40,19 +37,14 @@ function sessionCount(n: number): string {
 	return `${n} session${n === 1 ? "" : "s"}`;
 }
 
-function listNames(names: string[]): string {
-	if (names.length <= 2) return names.join(" and ");
-	return `${names.slice(0, -1).join(", ")}, and ${names[names.length - 1]}`;
-}
-
-export function emptyCellMessage(reason: EmptyCellReason, poolName: (id: string) => string): string {
+export function emptyCellMessage(reason: EmptyCellReason): string {
 	switch (reason.kind) {
 		case "nothing":
 			return "Nothing is scheduled at any pool in this hour.";
 		case "programs":
 			return `Your program filter hides ${sessionCount(reason.hidden)} here.`;
 		case "pools":
-			return `Your pool filter hides ${sessionCount(reason.hidden)} here, at ${listNames(reason.poolIds.map(poolName))}.`;
+			return `Your pool filter hides ${sessionCount(reason.hidden)} here.`;
 		case "both":
 			return `Your program and pool filters both hide the ${sessionCount(reason.hidden)} here.`;
 	}

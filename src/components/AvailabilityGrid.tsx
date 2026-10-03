@@ -15,7 +15,7 @@ import {
 import { usePathname, useSearchParams } from "next/navigation";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import { validatePoolId } from "@/lib/pool-mapping";
-import { POOL_TOKENS, getPoolToken } from "@/lib/pool-tokens";
+import { POOL_TOKENS } from "@/lib/pool-tokens";
 import { emptyCellMessage, explainEmptyCell } from "@/lib/empty-cell";
 import { parseTimeToMinutes } from "@/lib/utils";
 import PoolAlerts from "@/components/PoolAlerts";
@@ -528,7 +528,7 @@ const DetailPanel = memo(function DetailPanel({
 			))}
 			{emptyReason ? (
 				<div className="py-3.5 text-[14px] text-[#8a9aa4]">
-					{emptyCellMessage(emptyReason, (id) => getPoolToken(id)?.name ?? id)}
+					{emptyCellMessage(emptyReason)}
 					{emptyAction ? (
 						<button
 							type="button"
