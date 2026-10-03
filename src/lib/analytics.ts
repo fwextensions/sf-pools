@@ -81,9 +81,16 @@ export function trackPoolFilter(pool: string, selected: boolean, total: number) 
 	capture("pool_filter_toggled", { pool, selected, selected_count: total });
 }
 
-/** The clear button was pressed. Counts are what was thrown away. */
-export function trackFiltersCleared(programCount: number, poolCount: number) {
-	capture("filters_cleared", { program_count: programCount, pool_count: poolCount });
+/**
+ * Filters were cleared, by the clear button or by the button under an empty
+ * cell's detail list. Counts are what was thrown away.
+ */
+export function trackFiltersCleared(
+	programCount: number,
+	poolCount: number,
+	source: "clear_button" | "empty_cell" = "clear_button"
+) {
+	capture("filters_cleared", { program_count: programCount, pool_count: poolCount, source });
 }
 
 /**

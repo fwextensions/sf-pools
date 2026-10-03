@@ -16,6 +16,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import { validatePoolId } from "@/lib/pool-mapping";
 import { POOL_TOKENS } from "@/lib/pool-tokens";
+import { emptyCellMessage, explainEmptyCell } from "@/lib/empty-cell";
 import { parseTimeToMinutes } from "@/lib/utils";
 import PoolAlerts from "@/components/PoolAlerts";
 import ProgramName from "@/components/ProgramName";
@@ -177,6 +178,19 @@ function cellAtPoint(x: number, y: number): SelectedCell | null {
 	return { day, hour };
 }
 
+function buildHitMatrix(sessions: Session[]): Set<string> {
+	const hits = new Set<string>();
+	for (const s of sessions) {
+		if (s.startMin == null || s.endMin == null) continue;
+		for (const h of HOURS) {
+			if (s.startMin < (h + 1) * 60 && s.endMin > h * 60) {
+				hits.add(`${s.dayOfWeek}|${h}|${s.poolId}`);
+			}
+		}
+	}
+	return hits;
+}
+
 type Session = {
 	poolId: string;
 	title: string;
@@ -259,6 +273,7 @@ type GridHandlers = {
 const GridBody = memo(function GridBody({
 	store,
 	hitMatrix,
+	anyHitMatrix,
 	poolSet,
 	cellHeightClass,
 	touchDrag,
@@ -266,6 +281,7 @@ const GridBody = memo(function GridBody({
 }: {
 	store: SelectionStore;
 	hitMatrix: Set<string>;
+	anyHitMatrix: Set<string>;
 	poolSet: Set<string> | null;
 	cellHeightClass: string;
 	touchDrag: boolean;
@@ -352,27 +368,28 @@ const GridBody = memo(function GridBody({
 							}}
 						>
 							{POOL_TOKENS.map((token) => {
-								const hit = hitMatrix.has(`${day}|${h}|${token.id}`);
-								const unselected = poolSet != null && !poolSet.has(token.id);
+								const key = `${day}|${h}|${token.id}`;
+								const scheduled = anyHitMatrix.has(key);
+								const shown = hitMatrix.has(key) && (poolSet == null || poolSet.has(token.id));
 								return (
 									<span
 										key={token.id}
 										className="flex-1"
 										style={{
-											background: hit ? token.color : "transparent",
+											background: scheduled ? token.color : "transparent",
 											// --dim is the selection's fade, set in globals.css.
-											// Unselected pools fade rather than vanish, so "my
-											// pools" still read in context
-											opacity: hit && unselected ? "calc(var(--dim) * 0.13)" : "var(--dim)",
+											// Whatever either filter leaves out fades rather than
+											// vanishes, so a cell the filters emptied still reads
+											// as busy, unlike one where nothing is scheduled
+											opacity: scheduled && !shown ? "calc(var(--dim) * 0.13)" : "var(--dim)",
 										}}
 									/>
 								);
 							})}
-							{/* the ring's inner gutter, shown only on the selected cell.
-							    As an inset shadow on the cell it painted under the lane
-							    spans and only showed through where a cell was empty, so
-							    it has to be its own layer above them */}
-							<span aria-hidden className="grid-ring pointer-events-none absolute inset-[1px]" />
+							{/* the ring's inner gutter, shown only on the selected cell:
+							    a 1px white line just outside the cell's edge, between the
+							    lanes and the amber outline */}
+							<span aria-hidden className="grid-ring pointer-events-none absolute inset-[-1px]" />
 						</div>
 					))}
 				</div>
@@ -402,6 +419,7 @@ const DetailPanel = memo(function DetailPanel({
 	filterKey,
 	canDrag,
 	ratchet,
+	onClear,
 }: {
 	store: SelectionStore;
 	sessions: Session[];
@@ -410,21 +428,33 @@ const DetailPanel = memo(function DetailPanel({
 	filterKey: string;
 	canDrag: boolean;
 	ratchet: boolean;
+	onClear: (what: "programs" | "pools" | "all") => void;
 }) {
 	const selectedCell = useSyncExternalStore(store.subscribe, store.get, noSelection);
 
+	// every session in the selected cell, before either filter, so an empty
+	// list can say whether the filters emptied it
+	const inCell = useMemo(() => {
+		if (!selectedCell) return null;
+		return sessions.filter(
+			(s) =>
+				s.dayOfWeek === selectedCell.day &&
+				s.startMin != null &&
+				s.endMin != null &&
+				s.startMin < (selectedCell.hour + 1) * 60 &&
+				s.endMin > selectedCell.hour * 60
+		);
+	}, [selectedCell, sessions]);
+
 	// detail list for the selected cell, honoring both filters
 	const detail = useMemo(() => {
-		if (!selectedCell) return null;
+		if (!inCell) return null;
 		const rows: DetailRow[] = [];
 		for (const token of POOL_TOKENS) {
 			if (poolSet && !poolSet.has(token.id)) continue;
-			for (const s of sessions) {
+			for (const s of inCell) {
 				if (s.poolId !== token.id) continue;
-				if (s.dayOfWeek !== selectedCell.day) continue;
 				if (!matchesTags(s)) continue;
-				if (s.startMin == null || s.endMin == null) continue;
-				if (s.startMin >= (selectedCell.hour + 1) * 60 || s.endMin <= selectedCell.hour * 60) continue;
 				rows.push({
 					code: token.code,
 					color: token.color,
@@ -433,13 +463,23 @@ const DetailPanel = memo(function DetailPanel({
 					tags: s.tags,
 					startTime: s.startTime,
 					endTime: s.endTime,
-					startMin: s.startMin,
+					startMin: s.startMin!,
 				});
 			}
 		}
 		rows.sort((a, b) => a.startMin - b.startMin);
 		return rows;
-	}, [selectedCell, sessions, matchesTags, poolSet]);
+	}, [inCell, matchesTags, poolSet]);
+
+	const emptyReason = inCell && detail && !detail.length ? explainEmptyCell(inCell, matchesTags, poolSet) : null;
+	const emptyAction =
+		emptyReason?.kind === "programs"
+			? { what: "programs" as const, label: "SHOW ALL PROGRAMS" }
+			: emptyReason?.kind === "pools"
+				? { what: "pools" as const, label: "SHOW ALL POOLS" }
+				: emptyReason?.kind === "both"
+					? { what: "all" as const, label: "CLEAR FILTERS" }
+					: null;
 
 	return (
 		<div className="mt-4 border-t-2 border-[#0e2733] pt-2.5">
@@ -485,9 +525,20 @@ const DetailPanel = memo(function DetailPanel({
 					</span>
 				</div>
 			))}
-			{detail && detail.length === 0 ? (
+			{emptyReason ? (
 				<div className="py-3.5 text-[14px] text-[#8a9aa4]">
-					Nothing scheduled here — {canDrag ? "drag across" : "tap a colored cell in"} the grid.
+					{emptyCellMessage(emptyReason)}
+					{emptyAction ? (
+						<button
+							type="button"
+							onClick={() => onClear(emptyAction.what)}
+							className="ml-2 cursor-pointer border border-[#c4d2d9] bg-white px-2 py-0.5 align-baseline plex-mono text-[11px] font-medium text-[#5a707c]"
+						>
+							{emptyAction.label}
+						</button>
+					) : (
+						<> Try {canDrag ? "dragging across" : "tapping a colored cell in"} the grid.</>
+					)}
 				</div>
 			) : null}
 			</HeightRatchet>
@@ -683,20 +734,10 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	);
 
 	// hit matrix: day -> hour -> poolId, true when any filter-matching program
-	// overlaps [h, h+1). pure derived render, memoized on [sessions, programSet]
-	const hitMatrix = useMemo(() => {
-		const hits = new Set<string>();
-		const progFiltered = sessions.filter(matchesTags);
-		for (const s of progFiltered) {
-			if (s.startMin == null || s.endMin == null) continue;
-			for (const h of HOURS) {
-				if (s.startMin < (h + 1) * 60 && s.endMin > h * 60) {
-					hits.add(`${s.dayOfWeek}|${h}|${s.poolId}`);
-				}
-			}
-		}
-		return hits;
-	}, [sessions, matchesTags]);
+	// overlaps [h, h+1). anyHitMatrix is the same before the program filter,
+	// so the grid can fade what the filter left out instead of dropping it
+	const hitMatrix = useMemo(() => buildHitMatrix(sessions.filter(matchesTags)), [sessions, matchesTags]);
+	const anyHitMatrix = useMemo(() => buildHitMatrix(sessions), [sessions]);
 
 	// one picker group per facet, listing only the tags this season's schedules
 	// actually use, most common first
@@ -753,6 +794,18 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		setSelectedTags([]);
 		setSelectedPools([]);
 	}
+
+	// the empty detail list's button, which clears only the filter it blamed
+	const clearFromEmptyCell = useCallback(
+		(what: "programs" | "pools" | "all") => {
+			const programCount = what === "pools" ? 0 : selectedTags.length;
+			const poolCount = what === "programs" ? 0 : selectedPools.length;
+			trackFiltersCleared(programCount, poolCount, "empty_cell");
+			if (programCount) setSelectedTags([]);
+			if (poolCount) setSelectedPools([]);
+		},
+		[selectedTags, selectedPools]
+	);
 
 	// live-preview drag: pressing a cell and moving the pointer across the
 	// grid updates the selection to whatever cell is under the pointer, so the
@@ -1080,12 +1133,12 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 							{renderMobileChips()}
 						</div>
 						{renderMobilePanels(true)}
-						<div className="flex-none"><GridBody store={store} hitMatrix={hitMatrix} poolSet={poolSet} cellHeightClass="h-[19px]" touchDrag handlers={handlers} /></div>
+						<div className="flex-none"><GridBody store={store} hitMatrix={hitMatrix} anyHitMatrix={anyHitMatrix} poolSet={poolSet} cellHeightClass="h-[19px]" touchDrag handlers={handlers} /></div>
 						{/* while filtering, the grid itself is the live feedback; the
 						    list gives its space to the panel and comes back after */}
 						{openPanel ? null : (
 							<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4">
-								<DetailPanel store={store} sessions={sessions} matchesTags={matchesTags} poolSet={poolSet} filterKey={filterKey} canDrag={true} ratchet={false} />
+								<DetailPanel store={store} sessions={sessions} matchesTags={matchesTags} poolSet={poolSet} filterKey={filterKey} onClear={clearFromEmptyCell} canDrag={true} ratchet={false} />
 							</div>
 						)}
 					</div>
@@ -1096,8 +1149,8 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						{renderMobileChips()}
 					</div>
 					{renderMobilePanels()}
-					<GridBody store={store} hitMatrix={hitMatrix} poolSet={poolSet} cellHeightClass="h-[15px]" touchDrag={false} handlers={handlers} />
-					<DetailPanel store={store} sessions={sessions} matchesTags={matchesTags} poolSet={poolSet} filterKey={filterKey} canDrag={false} ratchet={true} />
+					<GridBody store={store} hitMatrix={hitMatrix} anyHitMatrix={anyHitMatrix} poolSet={poolSet} cellHeightClass="h-[15px]" touchDrag={false} handlers={handlers} />
+					<DetailPanel store={store} sessions={sessions} matchesTags={matchesTags} poolSet={poolSet} filterKey={filterKey} onClear={clearFromEmptyCell} canDrag={false} ratchet={true} />
 				</div>
 			)}
 
@@ -1117,8 +1170,8 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 					{renderPoolRows()}
 				</div>
 				<div className="min-w-0 flex-1 pl-4">
-					<GridBody store={store} hitMatrix={hitMatrix} poolSet={poolSet} cellHeightClass="h-[19px]" touchDrag={false} handlers={handlers} />
-					<DetailPanel store={store} sessions={sessions} matchesTags={matchesTags} poolSet={poolSet} filterKey={filterKey} canDrag={false} ratchet={true} />
+					<GridBody store={store} hitMatrix={hitMatrix} anyHitMatrix={anyHitMatrix} poolSet={poolSet} cellHeightClass="h-[19px]" touchDrag={false} handlers={handlers} />
+					<DetailPanel store={store} sessions={sessions} matchesTags={matchesTags} poolSet={poolSet} filterKey={filterKey} onClear={clearFromEmptyCell} canDrag={false} ratchet={true} />
 				</div>
 			</div>
 		</div>
