@@ -22,6 +22,7 @@ import PoolAlerts from "@/components/PoolAlerts";
 import ProgramName from "@/components/ProgramName";
 import { TAG_FACETS, tagFacet, tagLabel } from "@/lib/program-taxonomy";
 import { describeProgram } from "@/lib/program-display";
+import { formatFilterQuery, parseFilterQuery } from "@/lib/filter-url";
 import {
 	trackCategoryFilter,
 	trackCellSelected,
@@ -595,15 +596,16 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || "{}");
 		} catch {}
 
-		const qTags = urlRewritten ? null : searchParams.get("tags");
-		const qPools = urlRewritten ? null : searchParams.get("pools");
+		const { tags: qTags, pools: qPools } = urlRewritten
+			? { tags: null, pools: null }
+			: parseFilterQuery(searchParams);
 
 		// drop tags from a facet the picker no longer offers — an old link or a
 		// saved "Getting in" choice would otherwise filter with no visible chip
-		const tags = (qTags ? qTags.split(",").filter(Boolean) : (saved.tags ?? [])).filter((t) =>
+		const tags = (qTags ?? saved.tags ?? []).filter((t) =>
 			FILTER_FACETS.has(tagFacet(t))
 		);
-		const pools = (qPools ? qPools.split(",") : (saved.poolIds ?? [])).filter((id) =>
+		const pools = (qPools ?? saved.poolIds ?? []).filter((id) =>
 			validatePoolId(id)
 		);
 
@@ -650,11 +652,8 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	// keep the url shareable
 	const writeUrl = useCallback(() => {
 		const { tags, pools } = filtersRef.current;
-		const params = new URLSearchParams();
-		if (tags.length) params.set("tags", tags.join(","));
-		if (pools.length) params.set("pools", pools.join(","));
-		if (committedCellRef.current) params.set("cell", formatCellParam(committedCellRef.current));
-		const qs = params.toString();
+		const cell = committedCellRef.current;
+		const qs = formatFilterQuery({ tags, pools, cell: cell && formatCellParam(cell) });
 		urlRewritten = true;
 		// the native history call, not router.replace: the router treats a new
 		// query as a navigation, fetching the page from the server and
@@ -662,12 +661,6 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		// Next keeps useSearchParams in step with replaceState on its own
 		window.history.replaceState(null, "", qs ? `${pathname}?${qs}` : pathname);
 	}, [pathname]);
-
-	useEffect(() => {
-		filtersRef.current = { tags: selectedTags, pools: selectedPools };
-		if (!initialized) return;
-		writeUrl();
-	}, [initialized, selectedTags, selectedPools, writeUrl]);
 
 	// focus mode takes the scrolling layout out of the flow, which collapses
 	// the document and clamps the page's scroll offset; stash it on the way in
@@ -725,18 +718,33 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		}
 		const facetSize = new Map<string, number>();
 		for (const t of tagCounts.keys()) facetSize.set(tagFacet(t), (facetSize.get(tagFacet(t)) ?? 0) + 1);
-		return [...byFacet]
-			.filter(([facet, wanted]) => [...wanted].filter((t) => tagCounts.has(t)).length < (facetSize.get(facet) ?? 0))
-			.map(([, wanted]) => wanted);
+		return new Map(
+			[...byFacet].filter(
+				([facet, wanted]) => [...wanted].filter((t) => tagCounts.has(t)).length < (facetSize.get(facet) ?? 0)
+			)
+		);
 	}, [selectedTags, tagCounts]);
 
 	// a session matches when it carries one of the selected tags in every facet
 	// that has a selection: OR within a facet, AND across facets. Picking "Lap
 	// swim" and "Drop in" means lap swim you can walk into, not either one.
 	const matchesTags = useCallback(
-		(s: Session) => facetFilters.every((wanted) => s.tags.some((t) => wanted.has(t))),
+		(s: Session) => [...facetFilters.values()].every((wanted) => s.tags.some((t) => wanted.has(t))),
 		[facetFilters]
 	);
+
+	// the url carries only the facets that filter something, so ticking every
+	// audience leaves the link as clean as ticking none
+	const urlTags = useMemo(
+		() => selectedTags.filter((t) => facetFilters.has(tagFacet(t))),
+		[selectedTags, facetFilters]
+	);
+
+	useEffect(() => {
+		filtersRef.current = { tags: urlTags, pools: selectedPools };
+		if (!initialized) return;
+		writeUrl();
+	}, [initialized, urlTags, selectedPools, writeUrl]);
 
 	const tagSet = useMemo(() => new Set(selectedTags), [selectedTags]);
 	const poolSet = useMemo(
