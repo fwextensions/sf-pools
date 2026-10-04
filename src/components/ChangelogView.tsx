@@ -168,7 +168,7 @@ export default function ChangelogView({
 }) {
 	const stats = detail && [
 		{ value: detail.poolsChanged, label: "POOLS CHANGED" },
-		{ value: detail.moved, label: "TIMES MOVED" },
+		{ value: detail.moved, label: "SESSIONS MOVED" },
 		{ value: detail.added, label: "SESSIONS ADDED" },
 		{ value: detail.removed, label: "SESSIONS DROPPED" },
 	];
