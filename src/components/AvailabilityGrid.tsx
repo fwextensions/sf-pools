@@ -290,6 +290,17 @@ const GridBody = memo(function GridBody({
 }) {
 	const root = useRef<HTMLDivElement>(null);
 
+	// drop the empty hours at either end of the day, so no row sits below the
+	// last session. The range comes from the unfiltered matrix, so it doesn't
+	// shift as filters change what's shown
+	const hours = useMemo(() => {
+		const used = [...anyHitMatrix].map((key) => Number(key.split("|")[1]));
+		if (!used.length) return HOURS;
+		const first = Math.min(...used);
+		const last = Math.max(...used);
+		return HOURS.filter((h) => h >= first && h <= last);
+	}, [anyHitMatrix]);
+
 	// on mount as well as on every change: focus mode mounts a fresh copy of
 	// the grid, which has to come up showing the current selection
 	useLayoutEffect(() => {
@@ -320,7 +331,7 @@ const GridBody = memo(function GridBody({
 					</span>
 				))}
 			</div>
-			{HOURS.map((h) => (
+			{hours.map((h) => (
 				<div
 					key={h}
 					className="grid grid-cols-[44px_repeat(7,1fr)] gap-x-[3px]"
@@ -748,12 +759,12 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	const anyHitMatrix = useMemo(() => buildHitMatrix(sessions), [sessions]);
 
 	// one picker group per facet, listing only the tags this season's schedules
-	// actually use, most common first
+	// actually use, alphabetized by the label the picker shows
 	const categories = useMemo(() => {
 		return TAG_FACETS.map((facet) => {
 			const names = [...tagCounts.keys()]
 				.filter((t) => tagFacet(t) === facet.id)
-				.sort((a, b) => (tagCounts.get(b) ?? 0) - (tagCounts.get(a) ?? 0) || a.localeCompare(b));
+				.sort((a, b) => tagLabel(a).localeCompare(tagLabel(b)));
 			if (!names.length) return null;
 			const selCount = names.filter((n) => tagSet.has(n)).length;
 			return {
