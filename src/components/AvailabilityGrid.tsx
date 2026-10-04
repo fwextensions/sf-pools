@@ -289,6 +289,17 @@ const GridBody = memo(function GridBody({
 }) {
 	const root = useRef<HTMLDivElement>(null);
 
+	// drop the empty hours at either end of the day, so no row sits below the
+	// last session. The range comes from the unfiltered matrix, so it doesn't
+	// shift as filters change what's shown
+	const hours = useMemo(() => {
+		const used = [...anyHitMatrix].map((key) => Number(key.split("|")[1]));
+		if (!used.length) return HOURS;
+		const first = Math.min(...used);
+		const last = Math.max(...used);
+		return HOURS.filter((h) => h >= first && h <= last);
+	}, [anyHitMatrix]);
+
 	// on mount as well as on every change: focus mode mounts a fresh copy of
 	// the grid, which has to come up showing the current selection
 	useLayoutEffect(() => {
@@ -319,7 +330,7 @@ const GridBody = memo(function GridBody({
 					</span>
 				))}
 			</div>
-			{HOURS.map((h) => (
+			{hours.map((h) => (
 				<div
 					key={h}
 					className="grid grid-cols-[44px_repeat(7,1fr)] gap-x-[3px]"
