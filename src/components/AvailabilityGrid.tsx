@@ -740,12 +740,12 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	const anyHitMatrix = useMemo(() => buildHitMatrix(sessions), [sessions]);
 
 	// one picker group per facet, listing only the tags this season's schedules
-	// actually use, most common first
+	// actually use, alphabetized by the label the picker shows
 	const categories = useMemo(() => {
 		return TAG_FACETS.map((facet) => {
 			const names = [...tagCounts.keys()]
 				.filter((t) => tagFacet(t) === facet.id)
-				.sort((a, b) => (tagCounts.get(b) ?? 0) - (tagCounts.get(a) ?? 0) || a.localeCompare(b));
+				.sort((a, b) => tagLabel(a).localeCompare(tagLabel(b)));
 			if (!names.length) return null;
 			const selCount = names.filter((n) => tagSet.has(n)).length;
 			return {
