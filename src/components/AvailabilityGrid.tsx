@@ -84,25 +84,20 @@ function toMinutes(t: string): number | null {
 	return m === Number.MAX_SAFE_INTEGER ? null : m;
 }
 
-// v2: selection moved from raw program names to tags, so a v1 payload would
-// restore a set of strings that now match nothing
-const STORAGE_KEY = "sfpools-grid-v2";
-
-// Whether the grid has already rewritten the query string in this document.
+// The query string the grid last wrote in this document, or null until it has
+// written one.
 //
-// Until it has, the address bar holds what the reader arrived on, and it
-// outranks the stored filters — that is what makes a shared link work. Once
-// the grid has written the url itself, any url a later mount sees is either
-// its own write, which localStorage already agrees with, or a stale one the
-// router put back: writeUrl uses replaceState, which the App Router never
-// hears about, so tabbing to another section and back restores whatever
-// query string the route was last navigated to. That resurrected the filters
-// a reader had just cleared. From that point on the stored filters are at
-// least as fresh as the url, so they win.
+// The url is the only place the filters live. Until the grid has written it,
+// the address bar holds what the reader arrived on, which is what makes a
+// shared link work. After that the address bar can't be trusted on a later
+// mount: writeUrl uses replaceState, which the App Router never hears about,
+// so tabbing to another section and back restores whatever query string the
+// route was last navigated to, and that resurrected filters the reader had
+// just cleared. So a remount reads back what the grid itself last wrote.
 //
 // Module scope, not a ref: it is per document, and has to outlive the
 // unmount that a section change puts the grid through.
-let urlRewritten = false;
+let lastWrittenQuery: string | null = null;
 
 type SelectedCell = { day: ProgramEntry["dayOfWeek"]; hour: number };
 
@@ -587,48 +582,19 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	const suppressClickRef = useRef(false);
 	const scrollBeforeFocusRef = useRef<number | null>(null);
 
-	// init once: URL params win over localStorage
+	// init once, from the url the reader arrived on, or from what the grid
+	// last wrote if it has already been mounted in this document
 	useEffect(() => {
 		if (didInit.current) return;
 
-		let saved: { tags?: string[]; poolIds?: string[] } = {};
-		try {
-			saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || "{}");
-		} catch {}
-
-		const { tags: qTags, pools: qPools } = urlRewritten
-			? { tags: null, pools: null }
-			: parseFilterQuery(searchParams);
+		const params = lastWrittenQuery == null ? searchParams : new URLSearchParams(lastWrittenQuery);
+		const { tags: qTags, pools: qPools } = parseFilterQuery(params);
 
 		// drop tags from a facet the picker no longer offers — an old link or a
-		// saved "Getting in" choice would otherwise filter with no visible chip
-		const tags = (qTags ?? saved.tags ?? []).filter((t) =>
-			FILTER_FACETS.has(tagFacet(t))
-		);
-		const pools = (qPools ?? saved.poolIds ?? []).filter((id) =>
-			validatePoolId(id)
-		);
-
-		setSelectedTags(tags);
-		setSelectedPools(pools);
-		// persist straight away rather than leaving it to the effect below.
-		// Under StrictMode the init effect runs, is torn down, and runs again
-		// before that state has landed, and the second pass reads storage
-		// instead of the url — so the link's filters have to be in storage by
-		// then or the remount drops them
-		if (qTags || qPools) {
-			try {
-				window.localStorage.setItem(
-					STORAGE_KEY,
-					JSON.stringify({ tags, poolIds: pools })
-				);
-			} catch {}
-		}
-		// only a cell someone linked to. It is deliberately not restored from
-		// localStorage: filters are a standing preference, but a highlighted
-		// cell on arrival reads as a claim the page is making rather than one
-		// the reader made
-		const cell = parseCellParam(searchParams.get("cell"));
+		// stale "Getting in" choice would otherwise filter with no visible chip
+		setSelectedTags((qTags ?? []).filter((t) => FILTER_FACETS.has(tagFacet(t))));
+		setSelectedPools((qPools ?? []).filter((id) => validatePoolId(id)));
+		const cell = parseCellParam(params.get("cell"));
 		store.set(cell);
 		committedCellRef.current = cell;
 
@@ -637,24 +603,12 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// the filters are the standing preference worth carrying between visits
-	useEffect(() => {
-		if (!initialized) return;
-
-		try {
-			window.localStorage.setItem(
-				STORAGE_KEY,
-				JSON.stringify({ tags: selectedTags, poolIds: selectedPools })
-			);
-		} catch {}
-	}, [initialized, selectedTags, selectedPools]);
-
 	// keep the url shareable
 	const writeUrl = useCallback(() => {
 		const { tags, pools } = filtersRef.current;
 		const cell = committedCellRef.current;
 		const qs = formatFilterQuery({ tags, pools, cell: cell && formatCellParam(cell) });
-		urlRewritten = true;
+		lastWrittenQuery = qs;
 		// the native history call, not router.replace: the router treats a new
 		// query as a navigation, fetching the page from the server and
 		// re-rendering it on every click, and scrolling to the top besides.
