@@ -3,15 +3,14 @@ import { createHash } from "node:crypto";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { extractScheduleFromPdf, type PoolSchedule } from "@/lib/pdf-processor";
-import { cleanProgramTitle, deriveTags, findCanonicalProgram, normalizeProgramName } from "@/lib/program-taxonomy";
-import { getPoolIdFromName, getPoolById } from "@/lib/pool-mapping";
-import { toTitleCase } from "@/lib/program-taxonomy";
+import type { Closure } from "@/lib/closures";
 import {
-	detectScheduleAnomalies,
-	detectRegressionAnomalies,
-	repairMeridiemTypos,
-} from "@/lib/schedule-validation";
-import { isClosureActive, type Closure } from "@/lib/closures";
+	releaseSchedules,
+	releaseVerdict,
+	releaseWarnings,
+	selectActiveClosures,
+	type PoolExtract,
+} from "@/lib/release-rules";
 import { formatUsageSummary, sessionUsage, USAGE_LOG } from "@/lib/llm-usage";
 import type { PoolEntry, DiscoveredPool } from "./downloadPdf";
 import {
@@ -85,36 +84,18 @@ async function loadDiscoveredPools(): Promise<DiscoveredPool[]> {
 	}
 }
 
-/**
- * Active closures by pool id, read from the alerts scrape. A closure that has
- * already ended is ignored, so a pool comes back on its own the day after it
- * reopens even if nothing re-scrapes in between.
- */
+/** active closures by pool id, read from the alerts scrape */
 async function loadActiveClosures(today: string): Promise<Map<string, Closure>> {
-	const byPool = new Map<string, Closure>();
 	try {
 		const raw = await readFile(ALERTS_FILE, "utf-8");
 		const data = JSON.parse(raw) as {
 			poolAlerts?: Array<{ poolId: string; closure?: Closure | null }>;
 		};
-		for (const alert of data.poolAlerts ?? []) {
-			const closure = alert.closure;
-			// suppressPrograms is the single gate on hiding a schedule: a partial
-			// closure, or one the model flagged as unsafe to act on, stays an alert
-			if (!closure || !closure.suppressPrograms) continue;
-			if (!isClosureActive(closure, today)) continue;
-			// when a pool has several notices, keep the one that runs longest
-			const existing = byPool.get(alert.poolId);
-			if (existing) {
-				if (existing.indefinite) continue;
-				if (!closure.indefinite && (existing.endDate ?? "") >= (closure.endDate ?? "")) continue;
-			}
-			byPool.set(alert.poolId, closure);
-		}
+		return selectActiveClosures(data.poolAlerts ?? [], today);
 	} catch {
 		// no alerts file yet - nothing is known to be closed
+		return new Map();
 	}
-	return byPool;
 }
 
 export type ProcessResult = {
@@ -142,10 +123,6 @@ export async function main(): Promise<ProcessResult> {
 
 	// load previous schedules for changelog comparison and preservation
 	const previousSchedules = await loadPreviousSchedules();
-	const previousByName = new Map<string, PoolSchedule>();
-	for (const s of previousSchedules) {
-		previousByName.set(s.name, s);
-	}
 
 	// load pools.json for static metadata
 	const pools = await loadPools();
@@ -180,21 +157,10 @@ export async function main(): Promise<ProcessResult> {
 
 	let extractedCount = 0;
 	let skippedCount = 0;
-	let preservedCount = 0;
-	const anomalies: string[] = [];
-	const repairs: string[] = [];
-	const quarantinedPools: string[] = [];
-	const droppedPools: string[] = [];
-	const closedPools: string[] = [];
-	const activeClosures = await loadActiveClosures(todayISO());
-	let healthCheckedCount = 0;
-	// escape hatch for local dev: ship extracts even when they fail health checks
-	const allowUnhealthy = process.env.ALLOW_UNHEALTHY === "1";
+	const today = todayISO();
+	const activeClosures = await loadActiveClosures(today);
 
-	// track which pool names we've processed (to preserve unprocessed ones)
-	const processedPoolNames = new Set<string>();
-
-	const aggregated: PoolSchedule[] = [];
+	const extracts: PoolExtract[] = [];
 	for (const file of pdfFiles) {
 		const base = file.replace(/\.pdf$/i, "");
 		const pool = poolsById.get(base.toLowerCase());
@@ -251,158 +217,37 @@ export async function main(): Promise<ProcessResult> {
 				extractedCount++;
 			}
 
-			const today = todayISO();
-			for (const s of schedules) {
-				if (!s.scheduleLastUpdated) s.scheduleLastUpdated = today;
-
-				// Establish pool identity. When we know which pools.json entry
-				// this PDF belongs to, trust that as the source of truth — the
-				// PDF text alone can't disambiguate pools that share a name
-				// (e.g. North Beach's warm and cool schedules both read "North
-				// Beach"). Fall back to name-matching only when the source pool
-				// is unknown.
-				if (pool) {
-					s.id = pool.id;
-					s.name = pool.name;
-					s.shortName = pool.shortName;
-					s.nameTitle = pool.nameTitle;
-				} else {
-					const originalName = s.name || "";
-					const poolId = getPoolIdFromName(originalName);
-					s.id = poolId ?? "unknown";
-					s.name = originalName;
-					if (poolId) {
-						const poolMeta = getPoolById(poolId);
-						s.shortName = poolMeta?.shortName ?? toTitleCase(originalName);
-						s.nameTitle = poolMeta?.displayName ?? toTitleCase(originalName);
-					} else {
-						// fallback to toTitleCase for unmatched pools
-						s.shortName = toTitleCase(originalName);
-						s.nameTitle = toTitleCase(originalName);
-					}
-				}
-
-				// track this pool name as processed (after identity is settled so the
-				// preserve step keys off the canonical name)
-				processedPoolNames.add(s.name);
-
-				// populate address and URLs from pools.json and discovered data
-				if (pool) {
-					s.address = pool.address;
-					s.sfRecParkUrl = pool.pageUrl;
-				}
-				if (disc?.pdfUrl) {
-					s.pdfScheduleUrl = disc.pdfUrl;
-				}
-
-				// rewrite programName to canonical label, preserve original, and
-				// derive the display title and tags from what the PDF actually said
-				for (const p of s.programs || []) {
-					const original = p.programName;
-					const canonical = findCanonicalProgram(original) ?? normalizeProgramName(original);
-					p.programNameOriginal = original;
-					p.programName = canonical;
-					p.programNameCanonical = canonical;
-					p.title = cleanProgramTitle(original);
-					p.tags = deriveTags(original);
-				}
-
-				// A pool with an announced closure publishes no programs: a maintenance
-				// banner above a full schedule is too easy to read past. This also
-				// resolves the empty-extract ambiguity - when a closure explains why a
-				// PDF yielded nothing, the extract is not corrupt and must not be
-				// quarantined behind stale programs.
-				const closure = activeClosures.get(s.id);
-				if (closure) {
-					closedPools.push(s.shortName || s.name);
-					console.log(
-						`🚧 ${s.shortName || s.name} closed (${closure.startDate ?? "?"} -> ${closure.endDate ?? "indefinite"}) - hiding programs`
-					);
-					const { programs: _hidden, ...closedRest } = s;
-					aggregated.push({ ...closedRest, closure, programs: [] });
-					continue;
-				}
-
-				const label = s.shortName || s.name;
-				const previous = previousByName.get(s.name);
-
-				// the city's PDFs occasionally flip an am/pm ("10:15am-11:15pm"), and
-				// the extractor copies it faithfully. Fix the ones a flip explains
-				// before the health check, which would otherwise quarantine the pool.
-				// The cache holds the unrepaired read, so the same typo is repaired
-				// every week the PDF stays up; only a repair the published data
-				// doesn't already reflect goes in the changelog
-				for (const r of repairMeridiemTypos(s)) {
-					const msg = `${label}: ${r.programName} on ${r.dayOfWeek} ${r.from} → ${r.to}`;
-					const [startTime, endTime] = r.to.split("-");
-					const alreadyPublished = previous?.programs?.some(
-						(p) =>
-							p.programName === r.programName &&
-							p.dayOfWeek === r.dayOfWeek &&
-							p.startTime === startTime &&
-							p.endTime === endTime
-					);
-					if (!alreadyPublished) repairs.push(msg);
-					console.warn("🔧 repaired am/pm typo:", msg);
-				}
-
-				// health-check the extract: intrinsic problems that suggest a misread
-				// PDF, plus regressions against the previous run. Volume of change is
-				// deliberately not part of this — a season rollover churns most of the
-				// corpus and is perfectly healthy.
-				const poolAnomalies = [
-					...detectScheduleAnomalies(s),
-					...detectRegressionAnomalies(s, previous),
-				];
-				for (const a of poolAnomalies) {
-					const msg = `${label}: ${a.message}`;
-					anomalies.push(msg);
-					console.warn(`⚠️  anomaly (${a.severity}):`, msg);
-				}
-				healthCheckedCount++;
-
-				const { programs, ...rest } = s;
-				const unhealthy = poolAnomalies.some((a) => a.severity === "error");
-
-				if (unhealthy && !allowUnhealthy) {
-					// hold this pool at its last known good data so the other pools can
-					// still ship. Nothing is lost: the PDF hash isn't recorded for a
-					// quarantined pool, so the next run re-extracts it.
-					if (previous) {
-						quarantinedPools.push(label);
-						aggregated.push(previous);
-						console.warn(`⛔ quarantined ${label} — keeping previous data`);
-					} else {
-						// no known-good data to fall back on, so publish nothing for it
-						droppedPools.push(label);
-						console.warn(`⛔ dropped ${label} — corrupt extract and no previous data`);
-					}
-					delete extractedManifest[base];
-					continue;
-				}
-
-				// a pool that is no longer closed drops any closure it was carrying
-				aggregated.push({ ...rest, closure: null, programs });
-			}
+			extracts.push({ base, pool, pdfUrl: disc?.pdfUrl, schedules });
 		} catch (err) {
 			console.warn("failed to process", file, err);
 		}
 	}
 
-	// preserve schedules for pools that weren't processed (PDF unchanged or
-	// missing), but drop entries whose pool no longer exists in pools.json —
-	// otherwise a renamed or split pool (e.g. North Beach -> cool/warm) leaves
-	// a stale entry behind, since the preserve check keys off the pool name.
-	const knownPoolIds = new Set(pools.map((p) => p.id));
-	for (const prev of previousSchedules) {
-		if (processedPoolNames.has(prev.name)) continue;
-		if (!prev.id || !knownPoolIds.has(prev.id)) {
-			console.log("dropped (no longer a known pool):", prev.name);
-			continue;
-		}
-		aggregated.push(prev);
-		preservedCount++;
-		console.log("preserved (no new pdf):", prev.name);
+	const release = releaseSchedules({
+		extracts,
+		previousSchedules,
+		knownPoolIds: pools.map((p) => p.id),
+		activeClosures,
+		today,
+		// escape hatch for local dev: ship extracts even when they fail health checks
+		allowUnhealthy: process.env.ALLOW_UNHEALTHY === "1",
+		log: console,
+	});
+	const {
+		schedules: aggregated,
+		closedPools,
+		anomalies,
+		repairs,
+		quarantinedPools,
+		droppedPools,
+		preservedCount,
+		healthCheckedCount,
+	} = release;
+
+	// the PDF hash isn't recorded for a quarantined pool, so the next run
+	// re-extracts it
+	for (const base of release.invalidatedExtracts) {
+		delete extractedManifest[base];
 	}
 
 	await saveExtractedManifest(extractedManifest);
@@ -411,43 +256,22 @@ export async function main(): Promise<ProcessResult> {
 	// anomalies into its warnings so they're persisted and surfaced by notify
 	const changelog = computeChangelog(previousSchedules, aggregated);
 	changelog.quarantinedPools = quarantinedPools;
-	if (anomalies.length > 0) {
-		changelog.warnings.push(...anomalies.map((a) => `anomaly: ${a}`));
-	}
-	changelog.warnings.push(...repairs.map((r) => `repaired: ${r}`));
-	for (const name of quarantinedPools) {
-		changelog.warnings.push(`quarantined: ${name} held at previous data`);
-	}
-	for (const name of droppedPools) {
-		changelog.warnings.push(`dropped: ${name} had no usable data`);
-	}
+	changelog.warnings.push(...releaseWarnings(release));
 	const changelogPath = await saveChangelog(changelog);
 	if (changelogPath) {
 		console.log("wrote changelog:", changelogPath);
 	}
 	console.log(formatChangelogSummary(changelog));
 
-	// Failure policy. The size of a change no longer fails anything: a seasonal
-	// rollover legitimately churns most of the corpus, and blocking on volume
-	// meant every changeover needed a manual override. Health is the gate
-	// instead, and it acts per pool — an unhealthy pool is quarantined above so
-	// the healthy ones still ship. The run as a whole only fails when nothing
-	// usable came out of it, which is the systemic case (a site-wide PDF layout
-	// change) rather than one bad document.
-	const reviewRequired = quarantinedPools.length > 0 || droppedPools.length > 0;
-	const nothingToShip = aggregated.length === 0;
-	const everyExtractFailed =
-		healthCheckedCount > 0 &&
-		quarantinedPools.length + droppedPools.length === healthCheckedCount;
-	const shouldFail = nothingToShip || everyExtractFailed;
+	const { success, failure, reviewRequired } = releaseVerdict(release);
 
 	if (closedPools.length > 0) {
 		console.log(`
 🚧 ${closedPools.length} pool(s) closed: ${closedPools.join(", ")}`);
 	}
 
-	if (shouldFail) {
-		if (nothingToShip) {
+	if (failure) {
+		if (failure === "nothing-to-ship") {
 			console.error("\n❌ Build failed: no usable schedules to publish");
 		} else {
 			console.error(
@@ -487,7 +311,7 @@ export async function main(): Promise<ProcessResult> {
 	}
 
 	return {
-		success: !shouldFail,
+		success,
 		changelog,
 		extractedCount,
 		skippedCount,
