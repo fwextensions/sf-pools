@@ -1,21 +1,5 @@
 import type { PoolSchedule } from "./pdf-processor";
-
-/**
- * Convert a schedule time string ("h:mm[a|p]", e.g. "9:00a", "2:15p",
- * "12:00p" = noon, "12:00a" = midnight) to minutes since midnight.
- * Returns null if the string doesn't match the expected format.
- */
-export function parseTimeToMinutes(time: string): number | null {
-	const m = /^(\d{1,2}):(\d{2})([ap])$/.exec(time);
-	if (!m) return null;
-	let hour = parseInt(m[1], 10);
-	const minute = parseInt(m[2], 10);
-	if (hour < 1 || hour > 12 || minute > 59) return null;
-	// 12a -> 0 (midnight), 12p -> 12 (noon)
-	if (hour === 12) hour = 0;
-	if (m[3] === "p") hour += 12;
-	return hour * 60 + minute;
-}
+import { formatMinutes, parseTimeToMinutes } from "./time";
 
 /**
  * Bounds on a real session. The longest any pool has published is 4.5 hours,
@@ -30,13 +14,6 @@ export const MAX_SESSION_MINUTES = 8 * 60;
 /** a repaired session has to come out at least this short to be believed */
 export const MAX_REPAIRED_MINUTES = 6 * 60;
 const MIN_SESSION_MINUTES = 15;
-
-function formatMinutes(minutes: number): string {
-	const hour24 = Math.floor(minutes / 60);
-	const hour12 = hour24 % 12 || 12;
-	const minute = String(minutes % 60).padStart(2, "0");
-	return `${hour12}:${minute}${hour24 < 12 ? "a" : "p"}`;
-}
 
 function flipMeridiem(time: string): string {
 	return time.endsWith("a") ? time.slice(0, -1) + "p" : time.slice(0, -1) + "a";

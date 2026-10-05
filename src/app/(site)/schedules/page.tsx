@@ -8,7 +8,9 @@ import SessionBlock from "@/components/schedule/SessionBlock";
 import TimelineBlock from "@/components/schedule/TimelineBlock";
 import { toTitleCase } from "@/lib/program-taxonomy";
 import { POOL_TOKENS, getPoolToken, type PoolToken } from "@/lib/pool-tokens";
-import { formatScheduleDate, parseTimeToMinutes } from "@/lib/utils";
+import { DAYS, programMinutes } from "@/lib/sessions";
+import { parseTimeToMinutes } from "@/lib/time";
+import { formatScheduleDate } from "@/lib/utils";
 
 export const metadata: Metadata = {
 	title: "Full schedules",
@@ -29,16 +31,6 @@ export const metadata: Metadata = {
  */
 const SHRINKABLE_LABEL_CHARS = 10;
 
-const DAYS: Array<ProgramEntry["dayOfWeek"]> = [
-	"Monday",
-	"Tuesday",
-	"Wednesday",
-	"Thursday",
-	"Friday",
-	"Saturday",
-	"Sunday",
-];
-
 async function readSchedules(): Promise<PoolSchedule[] | null> {
 	try {
 		const file = path.join(process.cwd(), "public", "data", "all_schedules.json");
@@ -53,8 +45,13 @@ function formatDate(d?: string | null): string {
 	return formatScheduleDate(d, { year: "numeric", month: "short", day: "2-digit" });
 }
 
+// a time that doesn't parse sorts last
+function startOrLast(p: ProgramEntry): number {
+	return parseTimeToMinutes(p.startTime) ?? Number.MAX_SAFE_INTEGER;
+}
+
 function byStartTime(a: ProgramEntry, b: ProgramEntry): number {
-	return parseTimeToMinutes(a.startTime) - parseTimeToMinutes(b.startTime);
+	return startOrLast(a) - startOrLast(b);
 }
 
 /**
@@ -161,9 +158,9 @@ type LaidOutProgram = TimedProgram & { lane: number; lanes: number };
 function layoutDay(programs: ProgramEntry[]): LaidOutProgram[] {
 	const timed: TimedProgram[] = [];
 	for (const program of programs) {
-		const startMin = parseTimeToMinutes(program.startTime);
-		const endMin = parseTimeToMinutes(program.endTime);
-		if (startMin === Number.MAX_SAFE_INTEGER || endMin === Number.MAX_SAFE_INTEGER) continue;
+		const minutes = programMinutes(program);
+		if (!minutes) continue;
+		const { startMin, endMin } = minutes;
 		timed.push({ program, startMin, endMin: Math.max(endMin, startMin + 15) });
 	}
 	timed.sort((a, b) => a.startMin - b.startMin || b.endMin - a.endMin);
@@ -240,13 +237,7 @@ function WeekTimeline({
 
 	// unparseable times can't be placed on an axis; they still render, listed
 	// beneath that day's column rather than silently dropped
-	const unplacedByDay = byDay.map(({ programs }) =>
-		programs.filter(
-			(p) =>
-				parseTimeToMinutes(p.startTime) === Number.MAX_SAFE_INTEGER ||
-				parseTimeToMinutes(p.endTime) === Number.MAX_SAFE_INTEGER
-		)
-	);
+	const unplacedByDay = byDay.map(({ programs }) => programs.filter((p) => !programMinutes(p)));
 
 	return (
 		<div

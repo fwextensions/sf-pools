@@ -2,8 +2,9 @@
 // pool filters, the selected cell, the commands that change them and the
 // derived data the views draw. No React and no DOM, so the views, the url and
 // analytics are all just subscribers, and tests drive it the way a reader does.
+import type { Session } from "@/lib/sessions";
 import { countTags, createFilter, facetGroups, toggleGroup, toggleItem, type FacetGroup, type GridFilter } from "./filters";
-import { buildHitMatrix, hourSpan, sameCell, type GridCell, type GridSession } from "./sessions";
+import { buildHitMatrix, hourSpan, sameCell, type GridCell } from "./sessions";
 
 export type ClearWhat = "programs" | "pools" | "all";
 
@@ -44,7 +45,7 @@ export type FilterView = {
 export type GridModel = ReturnType<typeof createGridModel>;
 
 export function createGridModel(
-	sessions: GridSession[],
+	sessions: Session[],
 	initial: { tags: string[]; pools: string[]; cell: GridCell | null }
 ) {
 	const tagCounts = countTags(sessions);

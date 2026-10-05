@@ -1,6 +1,6 @@
 import { describe, it, expect } from "@jest/globals";
 import { cellDetail, emptyCellMessage, explainEmptyCell } from "./cell-detail";
-import type { GridSession } from "./sessions";
+import type { Session } from "@/lib/sessions";
 
 type S = { poolId: string; tags: string[] };
 
@@ -48,7 +48,7 @@ describe("emptyCellMessage", () => {
 });
 
 describe("cellDetail", () => {
-	const session = (poolId: string, tag: string, startTime: string, endTime: string, startMin: number, endMin: number): GridSession => ({
+	const session = (poolId: string, tag: string, startTime: string, endTime: string, startMin: number, endMin: number): Session => ({
 		poolId,
 		title: tag,
 		badges: [],

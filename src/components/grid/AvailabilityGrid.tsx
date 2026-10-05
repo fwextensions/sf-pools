@@ -6,7 +6,7 @@ import type { PoolSchedule } from "@/lib/pdf-processor";
 import PoolAlerts from "@/components/PoolAlerts";
 import { createGridModel } from "@/lib/grid/grid-model";
 import { trackGridChange } from "@/lib/grid/grid-analytics";
-import { toSessions } from "@/lib/grid/sessions";
+import { toSessions } from "@/lib/sessions";
 import { initialGridState, writeGridUrl } from "@/lib/grid/url";
 import { trackFocusMode } from "@/lib/analytics";
 import type { AlertsData } from "../../../scripts/scrape-alerts";

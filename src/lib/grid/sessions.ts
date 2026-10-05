@@ -1,21 +1,8 @@
-// The week grid's view of the schedules: every session flattened out of its
-// pool, with its times parsed once, and the hour-by-hour overlap the grid's
-// cells are built from.
-import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
-import { describeProgram } from "@/lib/program-display";
-import { parseTimeToMinutes } from "@/lib/utils";
+// The week grid's view of the sessions: the hours its rows cover, and the
+// hour-by-hour overlap its cells are built from.
+import { overlaps, type Day, type Session } from "@/lib/sessions";
 
-export type Day = ProgramEntry["dayOfWeek"];
-
-export const DAYS: Day[] = [
-	"Monday",
-	"Tuesday",
-	"Wednesday",
-	"Thursday",
-	"Friday",
-	"Saturday",
-	"Sunday",
-];
+export { DAYS, type Day } from "@/lib/sessions";
 
 export const FIRST_HOUR = 6;
 export const LAST_HOUR = 21;
@@ -30,51 +17,12 @@ export function sameCell(a: GridCell | null, b: GridCell | null): boolean {
 	return a === b || (a != null && b != null && a.day === b.day && a.hour === b.hour);
 }
 
-export type GridSession = {
-	poolId: string;
-	title: string;
-	badges: string[];
-	tags: string[];
-	dayOfWeek: Day;
-	startTime: string;
-	endTime: string;
-	// null when the time didn't parse; such a session is in no cell
-	startMin: number | null;
-	endMin: number | null;
-};
-
-function toMinutes(t: string): number | null {
-	const m = parseTimeToMinutes(t);
-	return m === Number.MAX_SAFE_INTEGER ? null : m;
-}
-
-export function toSessions(all: PoolSchedule[]): GridSession[] {
-	const out: GridSession[] = [];
-	for (const pool of all) {
-		for (const p of pool.programs || []) {
-			const display = describeProgram(p);
-			out.push({
-				poolId: pool.id,
-				title: display.title,
-				badges: display.badges,
-				tags: p.tags ?? [],
-				dayOfWeek: p.dayOfWeek,
-				startTime: p.startTime,
-				endTime: p.endTime,
-				startMin: toMinutes(p.startTime),
-				endMin: toMinutes(p.endTime),
-			});
-		}
-	}
-	return out;
-}
-
 // a session is in an hour when any part of it overlaps [hour, hour + 1)
-function overlapsHour(s: GridSession, hour: number): boolean {
-	return s.startMin != null && s.endMin != null && s.startMin < (hour + 1) * 60 && s.endMin > hour * 60;
+function overlapsHour(s: Session, hour: number): boolean {
+	return overlaps(s, hour * 60, (hour + 1) * 60);
 }
 
-export function sessionsInCell(sessions: GridSession[], cell: GridCell): GridSession[] {
+export function sessionsInCell(sessions: Session[], cell: GridCell): Session[] {
 	return sessions.filter((s) => s.dayOfWeek === cell.day && overlapsHour(s, cell.hour));
 }
 
@@ -83,7 +31,7 @@ export function hitKey(day: Day, hour: number, poolId: string): string {
 }
 
 // every day|hour|pool that has at least one of the sessions in it
-export function buildHitMatrix(sessions: GridSession[]): Set<string> {
+export function buildHitMatrix(sessions: Session[]): Set<string> {
 	const hits = new Set<string>();
 	for (const s of sessions) {
 		for (const h of HOURS) {

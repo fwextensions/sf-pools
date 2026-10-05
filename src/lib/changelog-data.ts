@@ -3,6 +3,7 @@ import path from "node:path";
 import type { ChangelogEntry, ProgramChange } from "../../scripts/changelog";
 import { findPool } from "./pool-mapping";
 import { POOL_TOKENS, getPoolToken, type PoolToken } from "./pool-tokens";
+import { parseTimeToMinutes } from "./time";
 
 const CHANGELOG_DIR = path.join(process.cwd(), "data", "changelog");
 
@@ -50,10 +51,7 @@ export type ChangelogDetail = ChangelogSummary & {
 
 // "7:30p" → minutes past midnight, for ordering rows within a day
 function startMinutes(range: string | undefined): number {
-	const m = range?.match(/^(\d{1,2}):(\d{2})([ap])/);
-	if (!m) return 0;
-	const hour = (Number(m[1]) % 12) + (m[3] === "p" ? 12 : 0);
-	return hour * 60 + Number(m[2]);
+	return parseTimeToMinutes(range?.match(/^\d{1,2}:\d{2}[ap]/)?.[0] ?? "") ?? 0;
 }
 
 function toRow(change: ProgramChange): ChangeRow {

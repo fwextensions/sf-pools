@@ -1,8 +1,9 @@
 import { describe, it, expect } from "@jest/globals";
 import { createGridModel, type GridChange } from "./grid-model";
-import { hitKey, type GridSession } from "./sessions";
+import type { Session } from "@/lib/sessions";
+import { hitKey } from "./sessions";
 
-function session(poolId: string, startTime: string, endTime: string, tags: string[]): GridSession {
+function session(poolId: string, startTime: string, endTime: string, tags: string[]): Session {
 	const min = (t: string) => {
 		const [h, m] = t.split(":").map(Number);
 		return h * 60 + m;
