@@ -1,3 +1,56 @@
+// What the detail list under the grid shows for the selected cell: the
+// sessions that pass both filters, in pool order and then by start time, or,
+// when none do, why not.
+import { POOL_TOKENS } from "@/lib/pool-tokens";
+import type { GridFilter } from "./filters";
+import { sessionsInCell, type GridCell, type GridSession } from "./sessions";
+
+export type DetailRow = {
+	code: string;
+	color: string;
+	title: string;
+	badges: string[];
+	tags: string[];
+	startTime: string;
+	endTime: string;
+	startMin: number;
+};
+
+export type CellDetail = {
+	rows: DetailRow[];
+	// set only when rows is empty
+	empty: EmptyCellReason | null;
+};
+
+export function cellDetail(
+	sessions: GridSession[],
+	cell: GridCell,
+	{ matchesTags, poolSet }: Pick<GridFilter, "matchesTags" | "poolSet">
+): CellDetail {
+	// every session in the cell, before either filter, so an empty list can
+	// say whether the filters emptied it
+	const inCell = sessionsInCell(sessions, cell);
+	const rows: DetailRow[] = [];
+	for (const token of POOL_TOKENS) {
+		if (poolSet && !poolSet.has(token.id)) continue;
+		for (const s of inCell) {
+			if (s.poolId !== token.id || !matchesTags(s)) continue;
+			rows.push({
+				code: token.code,
+				color: token.color,
+				title: s.title,
+				badges: s.badges,
+				tags: s.tags,
+				startTime: s.startTime,
+				endTime: s.endTime,
+				startMin: s.startMin!,
+			});
+		}
+	}
+	rows.sort((a, b) => a.startMin - b.startMin);
+	return { rows, empty: rows.length ? null : explainEmptyCell(inCell, matchesTags, poolSet) };
+}
+
 // Why a selected grid cell lists no sessions. "Nothing scheduled" was the only
 // answer, which was wrong whenever the filters were what emptied the cell, so
 // this sorts the cell's unfiltered sessions by which filter hid them.

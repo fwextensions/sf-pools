@@ -13,16 +13,34 @@ import {
 	type ReactNode,
 } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
-import { validatePoolId } from "@/lib/pool-mapping";
+import type { PoolSchedule } from "@/lib/pdf-processor";
 import { POOL_TOKENS } from "@/lib/pool-tokens";
-import { emptyCellMessage, explainEmptyCell } from "@/lib/empty-cell";
-import { parseTimeToMinutes } from "@/lib/utils";
 import PoolAlerts from "@/components/PoolAlerts";
 import ProgramName from "@/components/ProgramName";
-import { TAG_FACETS, tagFacet, tagLabel } from "@/lib/program-taxonomy";
-import { describeProgram } from "@/lib/program-display";
-import { formatFilterQuery, parseFilterQuery } from "@/lib/filter-url";
+import { tagLabel } from "@/lib/program-taxonomy";
+import { cellDetail, emptyCellMessage } from "@/lib/grid/cell-detail";
+import {
+	countTags,
+	createFilter,
+	facetGroups,
+	toggleGroup,
+	toggleItem,
+	type FacetGroup,
+	type GridFilter,
+} from "@/lib/grid/filters";
+import {
+	buildHitMatrix,
+	DAYS,
+	formatHour,
+	hitKey,
+	hourSpan,
+	sameCell,
+	toSessions,
+	type Day,
+	type GridCell,
+	type GridSession,
+} from "@/lib/grid/sessions";
+import { initialGridState, writeGridUrl } from "@/lib/grid/url";
 import {
 	trackCategoryFilter,
 	trackCellSelected,
@@ -33,39 +51,6 @@ import {
 } from "@/lib/analytics";
 import type { AlertsData } from "../../scripts/scrape-alerts";
 
-const DAYS: Array<ProgramEntry["dayOfWeek"]> = [
-	"Monday",
-	"Tuesday",
-	"Wednesday",
-	"Thursday",
-	"Friday",
-	"Saturday",
-	"Sunday",
-];
-
-const FIRST_HOUR = 6;
-const LAST_HOUR = 21;
-
-// the facets the picker offers; a stored tag from any other is dropped
-const FILTER_FACETS = new Set<string>(TAG_FACETS.map((f) => f.id));
-const HOURS: number[] = [];
-for (let h = FIRST_HOUR; h <= LAST_HOUR; h++) HOURS.push(h);
-
-// ?cell=thu-14 — the three-letter day the grid already labels its columns
-// with, and the hour the selection starts on
-function formatCellParam(cell: SelectedCell): string {
-	return `${cell.day.slice(0, 3).toLowerCase()}-${cell.hour}`;
-}
-
-function parseCellParam(raw: string | null): SelectedCell | null {
-	if (!raw) return null;
-	const [abbr, rest] = raw.toLowerCase().split("-");
-	const day = DAYS.find((d) => d.slice(0, 3).toLowerCase() === abbr);
-	const hour = Number(rest);
-	if (!day || !Number.isInteger(hour) || hour < FIRST_HOUR || hour > LAST_HOUR) return null;
-	return { day, hour };
-}
-
 // a session you cannot simply show up for says so on the card; drop-in is the
 // unremarkable case and stays unlabelled
 function accessNote(tags: string[]): string | null {
@@ -75,36 +60,6 @@ function accessNote(tags: string[]): string | null {
 	return null;
 }
 
-function formatHour(h: number): string {
-	return (h % 12 === 0 ? 12 : h % 12) + (h < 12 ? "a" : "p");
-}
-
-function toMinutes(t: string): number | null {
-	const m = parseTimeToMinutes(t);
-	return m === Number.MAX_SAFE_INTEGER ? null : m;
-}
-
-// The query string the grid last wrote in this document, or null until it has
-// written one.
-//
-// The url is the only place the filters live. Until the grid has written it,
-// the address bar holds what the reader arrived on, which is what makes a
-// shared link work. After that the address bar can't be trusted on a later
-// mount: writeUrl uses replaceState, which the App Router never hears about,
-// so tabbing to another section and back restores whatever query string the
-// route was last navigated to, and that resurrected filters the reader had
-// just cleared. So a remount reads back what the grid itself last wrote.
-//
-// Module scope, not a ref: it is per document, and has to outlive the
-// unmount that a section change puts the grid through.
-let lastWrittenQuery: string | null = null;
-
-type SelectedCell = { day: ProgramEntry["dayOfWeek"]; hour: number };
-
-function sameCell(a: SelectedCell | null, b: SelectedCell | null): boolean {
-	return a === b || (a != null && b != null && a.day === b.day && a.hour === b.hour);
-}
-
 // The selected cell lives outside React state. A drag moves it on every cell
 // the pointer crosses, and keeping it in state re-rendered the whole page each
 // time: both copies of the grid (mobile and desktop stay mounted), ~2,500
@@ -112,12 +67,12 @@ function sameCell(a: SelectedCell | null, b: SelectedCell | null): boolean {
 // instead (see paintSelection) and never re-renders for it; only the detail
 // list subscribes, since its contents really do depend on the cell
 type SelectionStore = {
-	get: () => SelectedCell | null;
-	set: (cell: SelectedCell | null) => void;
+	get: () => GridCell | null;
+	set: (cell: GridCell | null) => void;
 	subscribe: (listener: () => void) => () => void;
 };
 
-function createSelectionStore(initial: SelectedCell | null): SelectionStore {
+function createSelectionStore(initial: GridCell | null): SelectionStore {
 	let current = initial;
 	const listeners = new Set<() => void>();
 	return {
@@ -145,7 +100,7 @@ const noSelection = () => null;
 // React never renders these attributes, so a re-render of the grid leaves
 // them alone; aria-pressed it renders once as false and never changes, so
 // that too stays as set here
-function paintSelection(root: HTMLElement, cell: SelectedCell | null) {
+function paintSelection(root: HTMLElement, cell: GridCell | null) {
 	for (const el of root.querySelectorAll("[data-band]")) el.removeAttribute("data-band");
 	const prev = root.querySelector("[data-selected]");
 	if (prev) {
@@ -165,39 +120,14 @@ function paintSelection(root: HTMLElement, cell: SelectedCell | null) {
 	selected?.setAttribute("aria-pressed", "true");
 }
 
-function cellAtPoint(x: number, y: number): SelectedCell | null {
+function cellAtPoint(x: number, y: number): GridCell | null {
 	const el = document.elementFromPoint(x, y)?.closest<HTMLElement>("[data-day][data-hour]");
 	if (!el) return null;
-	const day = el.dataset.day as ProgramEntry["dayOfWeek"];
+	const day = el.dataset.day as Day;
 	const hour = Number(el.dataset.hour);
 	if (!DAYS.includes(day) || Number.isNaN(hour)) return null;
 	return { day, hour };
 }
-
-function buildHitMatrix(sessions: Session[]): Set<string> {
-	const hits = new Set<string>();
-	for (const s of sessions) {
-		if (s.startMin == null || s.endMin == null) continue;
-		for (const h of HOURS) {
-			if (s.startMin < (h + 1) * 60 && s.endMin > h * 60) {
-				hits.add(`${s.dayOfWeek}|${h}|${s.poolId}`);
-			}
-		}
-	}
-	return hits;
-}
-
-type Session = {
-	poolId: string;
-	title: string;
-	badges: string[];
-	tags: string[];
-	dayOfWeek: ProgramEntry["dayOfWeek"];
-	startTime: string;
-	endTime: string;
-	startMin: number | null;
-	endMin: number | null;
-};
 
 type Props = {
 	all: PoolSchedule[];
@@ -253,14 +183,14 @@ function HeightRatchet({
 type GridHandlers = {
 	pointerDown: (
 		e: PointerEvent<HTMLDivElement>,
-		day: ProgramEntry["dayOfWeek"],
+		day: Day,
 		hour: number,
 		touchDrag: boolean
 	) => void;
 	pointerMove: (e: PointerEvent<HTMLDivElement>) => void;
 	pointerUp: (e: PointerEvent<HTMLDivElement>) => void;
-	click: (day: ProgramEntry["dayOfWeek"], hour: number) => void;
-	choose: (day: ProgramEntry["dayOfWeek"], hour: number) => void;
+	click: (day: Day, hour: number) => void;
+	choose: (day: Day, hour: number) => void;
 };
 
 // Memoized, and none of its props change with the selection, so a click or a
@@ -288,13 +218,7 @@ const GridBody = memo(function GridBody({
 	// drop the empty hours at either end of the day, so no row sits below the
 	// last session. The range comes from the unfiltered matrix, so it doesn't
 	// shift as filters change what's shown
-	const hours = useMemo(() => {
-		const used = [...anyHitMatrix].map((key) => Number(key.split("|")[1]));
-		if (!used.length) return HOURS;
-		const first = Math.min(...used);
-		const last = Math.max(...used);
-		return HOURS.filter((h) => h >= first && h <= last);
-	}, [anyHitMatrix]);
+	const hours = useMemo(() => hourSpan(anyHitMatrix), [anyHitMatrix]);
 
 	// on mount as well as on every change: focus mode mounts a fresh copy of
 	// the grid, which has to come up showing the current selection
@@ -306,8 +230,8 @@ const GridBody = memo(function GridBody({
 		return store.subscribe(paint);
 	}, [store]);
 
-	function cellAriaLabel(day: string, hour: number): string {
-		const poolNames = POOL_TOKENS.filter((t) => hitMatrix.has(`${day}|${hour}|${t.id}`)).map(
+	function cellAriaLabel(day: Day, hour: number): string {
+		const poolNames = POOL_TOKENS.filter((t) => hitMatrix.has(hitKey(day, hour, t.id))).map(
 			(t) => t.name
 		);
 		const time = formatHour(hour).replace("a", "am").replace("p", "pm");
@@ -375,7 +299,7 @@ const GridBody = memo(function GridBody({
 							}}
 						>
 							{POOL_TOKENS.map((token) => {
-								const key = `${day}|${h}|${token.id}`;
+								const key = hitKey(day, h, token.id);
 								const scheduled = anyHitMatrix.has(key);
 								const shown = hitMatrix.has(key) && (poolSet == null || poolSet.has(token.id));
 								return (
@@ -405,33 +329,20 @@ const GridBody = memo(function GridBody({
 	);
 });
 
-type DetailRow = {
-	code: string;
-	color: string;
-	title: string;
-	badges: string[];
-	tags: string[];
-	startTime: string;
-	endTime: string;
-	startMin: number;
-};
-
 // the one part of the page that does depend on the selected cell, so the one
 // part that re-renders as a drag moves it
 const DetailPanel = memo(function DetailPanel({
 	store,
 	sessions,
-	matchesTags,
-	poolSet,
+	filter,
 	filterKey,
 	canDrag,
 	ratchet,
 	onClear,
 }: {
 	store: SelectionStore;
-	sessions: Session[];
-	matchesTags: (s: Session) => boolean;
-	poolSet: Set<string> | null;
+	sessions: GridSession[];
+	filter: GridFilter;
 	filterKey: string;
 	canDrag: boolean;
 	ratchet: boolean;
@@ -439,46 +350,13 @@ const DetailPanel = memo(function DetailPanel({
 }) {
 	const selectedCell = useSyncExternalStore(store.subscribe, store.get, noSelection);
 
-	// every session in the selected cell, before either filter, so an empty
-	// list can say whether the filters emptied it
-	const inCell = useMemo(() => {
-		if (!selectedCell) return null;
-		return sessions.filter(
-			(s) =>
-				s.dayOfWeek === selectedCell.day &&
-				s.startMin != null &&
-				s.endMin != null &&
-				s.startMin < (selectedCell.hour + 1) * 60 &&
-				s.endMin > selectedCell.hour * 60
-		);
-	}, [selectedCell, sessions]);
-
-	// detail list for the selected cell, honoring both filters
-	const detail = useMemo(() => {
-		if (!inCell) return null;
-		const rows: DetailRow[] = [];
-		for (const token of POOL_TOKENS) {
-			if (poolSet && !poolSet.has(token.id)) continue;
-			for (const s of inCell) {
-				if (s.poolId !== token.id) continue;
-				if (!matchesTags(s)) continue;
-				rows.push({
-					code: token.code,
-					color: token.color,
-					title: s.title,
-					badges: s.badges,
-					tags: s.tags,
-					startTime: s.startTime,
-					endTime: s.endTime,
-					startMin: s.startMin!,
-				});
-			}
-		}
-		rows.sort((a, b) => a.startMin - b.startMin);
-		return rows;
-	}, [inCell, matchesTags, poolSet]);
-
-	const emptyReason = inCell && detail && !detail.length ? explainEmptyCell(inCell, matchesTags, poolSet) : null;
+	// the cell's sessions that pass both filters, or why there are none
+	const cellView = useMemo(
+		() => (selectedCell ? cellDetail(sessions, selectedCell, filter) : null),
+		[selectedCell, sessions, filter]
+	);
+	const detail = cellView?.rows ?? null;
+	const emptyReason = cellView?.empty ?? null;
 	const emptyAction =
 		emptyReason?.kind === "programs"
 			? { what: "programs" as const, label: "SHOW ALL PROGRAMS" }
@@ -553,34 +431,18 @@ const DetailPanel = memo(function DetailPanel({
 	);
 });
 
-// What the grid starts from: the url the reader arrived on, or what the grid
-// last wrote if it has already been mounted in this document
-function initialGridState(searchParams: Pick<URLSearchParams, "get">) {
-	const params = lastWrittenQuery == null ? searchParams : new URLSearchParams(lastWrittenQuery);
-	const { tags, pools } = parseFilterQuery(params);
-	return {
-		// drop tags from a facet the picker no longer offers — an old link or a
-		// stale "Getting in" choice would otherwise filter with no visible chip
-		tags: (tags ?? []).filter((t) => FILTER_FACETS.has(tagFacet(t))),
-		pools: (pools ?? []).filter((id) => validatePoolId(id)),
-		cell: parseCellParam(params.get("cell")),
-	};
-}
-
 export default function AvailabilityGrid({ all, alerts }: Props) {
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
 	// read during the first render rather than in an effect, so the grid never
 	// paints a frame unfiltered before the filters land
 	const [initial] = useState(() => initialGridState(searchParams));
-	// selection is a set of tag ids from the closed vocabulary in
-	// program-taxonomy, so it survives the churn in the PDFs' own wording
 	const [selectedTags, setSelectedTags] = useState<string[]>(initial.tags);
 	const [selectedPools, setSelectedPools] = useState<string[]>(initial.pools);
 	const [store] = useState(() => createSelectionStore(initial.cell));
 	// what the URL says. It trails the store: a drag repaints the grid on every
 	// cell it crosses, but only the cell the gesture settles on goes in the url
-	const committedCellRef = useRef<SelectedCell | null>(initial.cell);
+	const committedCellRef = useRef<GridCell | null>(initial.cell);
 	// the current filters, kept where writeUrl can read them when a gesture
 	// ends, not only when the filters themselves change
 	const filtersRef = useRef<{ tags: string[]; pools: string[] }>({ tags: [], pools: [] });
@@ -596,15 +458,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 
 	// keep the url shareable
 	const writeUrl = useCallback(() => {
-		const { tags, pools } = filtersRef.current;
-		const cell = committedCellRef.current;
-		const qs = formatFilterQuery({ tags, pools, cell: cell && formatCellParam(cell) });
-		lastWrittenQuery = qs;
-		// the native history call, not router.replace: the router treats a new
-		// query as a navigation, fetching the page from the server and
-		// re-rendering it on every click, and scrolling to the top besides.
-		// Next keeps useSearchParams in step with replaceState on its own
-		window.history.replaceState(null, "", qs ? `${pathname}?${qs}` : pathname);
+		writeGridUrl(pathname, { ...filtersRef.current, cell: committedCellRef.current });
 	}, [pathname]);
 
 	// focus mode takes the scrolling layout out of the flow, which collapses
@@ -622,68 +476,13 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		}
 	}, [focusMode]);
 
-	const sessions: Session[] = useMemo(() => {
-		const out: Session[] = [];
-		for (const pool of all) {
-			for (const p of pool.programs || []) {
-				const display = describeProgram(p);
-				out.push({
-					poolId: pool.id,
-					title: display.title,
-					badges: display.badges,
-					tags: p.tags ?? [],
-					dayOfWeek: p.dayOfWeek,
-					startTime: p.startTime,
-					endTime: p.endTime,
-					startMin: toMinutes(p.startTime),
-					endMin: toMinutes(p.endTime),
-				});
-			}
-		}
-		return out;
-	}, [all]);
-
-	// how many sessions carry each tag, so the picker can show real counts and
-	// hide tags no current schedule uses
-	const tagCounts = useMemo(() => {
-		const counts = new Map<string, number>();
-		for (const s of sessions) for (const t of s.tags) counts.set(t, (counts.get(t) ?? 0) + 1);
-		return counts;
-	}, [sessions]);
-
-	// one set of wanted tags per facet the viewer picked in. A facet with every
-	// chip ticked is no filter at all: most sessions say nothing about who they
-	// are for, and ticking every audience must not hide them.
-	const facetFilters = useMemo(() => {
-		const byFacet = new Map<string, Set<string>>();
-		for (const tag of selectedTags) {
-			const facet = tagFacet(tag);
-			if (!byFacet.has(facet)) byFacet.set(facet, new Set());
-			byFacet.get(facet)!.add(tag);
-		}
-		const facetSize = new Map<string, number>();
-		for (const t of tagCounts.keys()) facetSize.set(tagFacet(t), (facetSize.get(tagFacet(t)) ?? 0) + 1);
-		return new Map(
-			[...byFacet].filter(
-				([facet, wanted]) => [...wanted].filter((t) => tagCounts.has(t)).length < (facetSize.get(facet) ?? 0)
-			)
-		);
-	}, [selectedTags, tagCounts]);
-
-	// a session matches when it carries one of the selected tags in every facet
-	// that has a selection: OR within a facet, AND across facets. Picking "Lap
-	// swim" and "Drop in" means lap swim you can walk into, not either one.
-	const matchesTags = useCallback(
-		(s: Session) => [...facetFilters.values()].every((wanted) => s.tags.some((t) => wanted.has(t))),
-		[facetFilters]
+	const sessions = useMemo(() => toSessions(all), [all]);
+	const tagCounts = useMemo(() => countTags(sessions), [sessions]);
+	const filter = useMemo(
+		() => createFilter({ tags: selectedTags, pools: selectedPools }, tagCounts),
+		[selectedTags, selectedPools, tagCounts]
 	);
-
-	// the url carries only the facets that filter something, so ticking every
-	// audience leaves the link as clean as ticking none
-	const urlTags = useMemo(
-		() => selectedTags.filter((t) => facetFilters.has(tagFacet(t))),
-		[selectedTags, facetFilters]
-	);
+	const { matchesTags, poolSet, urlTags } = filter;
 
 	useEffect(() => {
 		filtersRef.current = { tags: urlTags, pools: selectedPools };
@@ -691,10 +490,6 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	}, [urlTags, selectedPools, writeUrl]);
 
 	const tagSet = useMemo(() => new Set(selectedTags), [selectedTags]);
-	const poolSet = useMemo(
-		() => (selectedPools.length ? new Set(selectedPools) : null),
-		[selectedPools]
-	);
 
 	// hit matrix: day -> hour -> poolId, true when any filter-matching program
 	// overlaps [h, h+1). anyHitMatrix is the same before the program filter,
@@ -702,24 +497,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	const hitMatrix = useMemo(() => buildHitMatrix(sessions.filter(matchesTags)), [sessions, matchesTags]);
 	const anyHitMatrix = useMemo(() => buildHitMatrix(sessions), [sessions]);
 
-	// one picker group per facet, listing only the tags this season's schedules
-	// actually use, alphabetized by the label the picker shows
-	const categories = useMemo(() => {
-		return TAG_FACETS.map((facet) => {
-			const names = [...tagCounts.keys()]
-				.filter((t) => tagFacet(t) === facet.id)
-				.sort((a, b) => tagLabel(a).localeCompare(tagLabel(b)));
-			if (!names.length) return null;
-			const selCount = names.filter((n) => tagSet.has(n)).length;
-			return {
-				id: facet.id,
-				label: facet.label,
-				names,
-				allSelected: selCount === names.length,
-				someSelected: selCount > 0,
-			};
-		}).filter((c): c is NonNullable<typeof c> => c != null);
-	}, [tagCounts, tagSet]);
+	const categories = useMemo(() => facetGroups(tagCounts, selectedTags), [tagCounts, selectedTags]);
 
 	const hasAnyFilter = selectedTags.length > 0 || selectedPools.length > 0;
 	// what the detail list's height floor resets on
@@ -728,26 +506,20 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	// the toggles report the selection they are about to produce rather than
 	// the one on screen, so an event always describes the state the reader
 	// ends up looking at
-	function toggleProgram(name: string) {
-		const next = selectedTags.includes(name)
-			? selectedTags.filter((n) => n !== name)
-			: [...selectedTags, name];
-		trackProgramFilter(name, !selectedTags.includes(name), next.length);
+	function toggleProgram(tag: string) {
+		const next = toggleItem(selectedTags, tag);
+		trackProgramFilter(tag, !selectedTags.includes(tag), next.length);
 		setSelectedTags(next);
 	}
 
-	function toggleCategory(id: string, names: string[], allSelected: boolean) {
-		const next = allSelected
-			? selectedTags.filter((n) => !names.includes(n))
-			: Array.from(new Set([...selectedTags, ...names]));
-		trackCategoryFilter(id, !allSelected, next.length);
+	function toggleCategory(group: FacetGroup) {
+		const next = toggleGroup(selectedTags, group);
+		trackCategoryFilter(group.id, !group.allSelected, next.length);
 		setSelectedTags(next);
 	}
 
 	function togglePool(id: string) {
-		const next = selectedPools.includes(id)
-			? selectedPools.filter((p) => p !== id)
-			: [...selectedPools, id];
+		const next = toggleItem(selectedPools, id);
 		trackPoolFilter(id, !selectedPools.includes(id), next.length);
 		setSelectedPools(next);
 	}
@@ -782,7 +554,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	// the url trails the grid by a gesture: store.set paints, commitCell is
 	// what the reader settled on and the only thing the address bar hears about
 	const handlers = useMemo<GridHandlers>(() => {
-		function commitCell(cell: SelectedCell | null) {
+		function commitCell(cell: GridCell | null) {
 			if (sameCell(committedCellRef.current, cell)) return;
 			committedCellRef.current = cell;
 			writeUrl();
@@ -805,7 +577,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			}
 		}
 
-		function choose(day: ProgramEntry["dayOfWeek"], hour: number) {
+		function choose(day: Day, hour: number) {
 			trackCellSelected(day, hour, "click");
 			store.set({ day, hour });
 			commitCell({ day, hour });
@@ -846,7 +618,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						type="button"
 						aria-label={`Toggle every ${cat.label} tag`}
 						aria-pressed={cat.allSelected}
-						onClick={() => toggleCategory(cat.id, cat.names, cat.allSelected)}
+						onClick={() => toggleCategory(cat)}
 						className="flex h-[18px] w-[18px] flex-none cursor-pointer items-center justify-center border-2 border-[#0e2733] plex-mono text-[12px] font-bold text-white"
 						style={{
 							background: cat.allSelected ? "#0e2733" : cat.someSelected ? "#5a8ba3" : "#fff",
@@ -856,12 +628,12 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 					</button>
 					<button
 						type="button"
-						onClick={() => toggleCategory(cat.id, cat.names, cat.allSelected)}
+						onClick={() => toggleCategory(cat)}
 						className="flex-1 cursor-pointer text-left text-[14px] font-semibold text-[#0e2733]"
 					>
 						{cat.label}{" "}
 						<span className="plex-mono text-[12px] font-medium text-[#8a9aa4]">
-							({cat.names.length})
+							({cat.tags.length})
 						</span>
 					</button>
 					<button
@@ -881,7 +653,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 				</div>
 				{expandedCats[cat.id] ? (
 					<div className="flex flex-col gap-0.5 pb-2.5 pl-11 pr-4">
-						{cat.names.map((name) => (
+						{cat.tags.map((name) => (
 							<label
 								key={name}
 								className="flex cursor-pointer items-center gap-2 py-1.5"
@@ -1101,7 +873,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						    list gives its space to the panel and comes back after */}
 						{openPanel ? null : (
 							<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4">
-								<DetailPanel store={store} sessions={sessions} matchesTags={matchesTags} poolSet={poolSet} filterKey={filterKey} onClear={clearFromEmptyCell} canDrag={true} ratchet={false} />
+								<DetailPanel store={store} sessions={sessions} filter={filter} filterKey={filterKey} onClear={clearFromEmptyCell} canDrag={true} ratchet={false} />
 							</div>
 						)}
 					</div>
@@ -1113,7 +885,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 					</div>
 					{renderMobilePanels()}
 					<GridBody store={store} hitMatrix={hitMatrix} anyHitMatrix={anyHitMatrix} poolSet={poolSet} cellHeightClass="h-[15px]" touchDrag={false} handlers={handlers} />
-					<DetailPanel store={store} sessions={sessions} matchesTags={matchesTags} poolSet={poolSet} filterKey={filterKey} onClear={clearFromEmptyCell} canDrag={false} ratchet={true} />
+					<DetailPanel store={store} sessions={sessions} filter={filter} filterKey={filterKey} onClear={clearFromEmptyCell} canDrag={false} ratchet={true} />
 				</div>
 			)}
 
@@ -1134,7 +906,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 				</div>
 				<div className="min-w-0 flex-1 pl-4">
 					<GridBody store={store} hitMatrix={hitMatrix} anyHitMatrix={anyHitMatrix} poolSet={poolSet} cellHeightClass="h-[19px]" touchDrag={false} handlers={handlers} />
-					<DetailPanel store={store} sessions={sessions} matchesTags={matchesTags} poolSet={poolSet} filterKey={filterKey} onClear={clearFromEmptyCell} canDrag={false} ratchet={true} />
+					<DetailPanel store={store} sessions={sessions} filter={filter} filterKey={filterKey} onClear={clearFromEmptyCell} canDrag={false} ratchet={true} />
 				</div>
 			</div>
 		</div>
