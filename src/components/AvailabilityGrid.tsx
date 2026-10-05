@@ -117,8 +117,8 @@ type SelectionStore = {
 	subscribe: (listener: () => void) => () => void;
 };
 
-function createSelectionStore(): SelectionStore {
-	let current: SelectedCell | null = null;
+function createSelectionStore(initial: SelectedCell | null): SelectionStore {
+	let current = initial;
 	const listeners = new Set<() => void>();
 	return {
 		get: () => current,
@@ -553,15 +553,34 @@ const DetailPanel = memo(function DetailPanel({
 	);
 });
 
+// What the grid starts from: the url the reader arrived on, or what the grid
+// last wrote if it has already been mounted in this document
+function initialGridState(searchParams: Pick<URLSearchParams, "get">) {
+	const params = lastWrittenQuery == null ? searchParams : new URLSearchParams(lastWrittenQuery);
+	const { tags, pools } = parseFilterQuery(params);
+	return {
+		// drop tags from a facet the picker no longer offers — an old link or a
+		// stale "Getting in" choice would otherwise filter with no visible chip
+		tags: (tags ?? []).filter((t) => FILTER_FACETS.has(tagFacet(t))),
+		pools: (pools ?? []).filter((id) => validatePoolId(id)),
+		cell: parseCellParam(params.get("cell")),
+	};
+}
+
 export default function AvailabilityGrid({ all, alerts }: Props) {
+	const searchParams = useSearchParams();
+	const pathname = usePathname();
+	// read during the first render rather than in an effect, so the grid never
+	// paints a frame unfiltered before the filters land
+	const [initial] = useState(() => initialGridState(searchParams));
 	// selection is a set of tag ids from the closed vocabulary in
 	// program-taxonomy, so it survives the churn in the PDFs' own wording
-	const [selectedTags, setSelectedTags] = useState<string[]>([]);
-	const [selectedPools, setSelectedPools] = useState<string[]>([]);
-	const [store] = useState(createSelectionStore);
+	const [selectedTags, setSelectedTags] = useState<string[]>(initial.tags);
+	const [selectedPools, setSelectedPools] = useState<string[]>(initial.pools);
+	const [store] = useState(() => createSelectionStore(initial.cell));
 	// what the URL says. It trails the store: a drag repaints the grid on every
 	// cell it crosses, but only the cell the gesture settles on goes in the url
-	const committedCellRef = useRef<SelectedCell | null>(null);
+	const committedCellRef = useRef<SelectedCell | null>(initial.cell);
 	// the current filters, kept where writeUrl can read them when a gesture
 	// ends, not only when the filters themselves change
 	const filtersRef = useRef<{ tags: string[]; pools: string[] }>({ tags: [], pools: [] });
@@ -571,37 +590,9 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	// stops scrolling, which frees the grid to take touch drags
 	const [focusMode, setFocusMode] = useState(false);
 
-	const searchParams = useSearchParams();
-	const pathname = usePathname();
-	const didInit = useRef(false);
-	// the state half of didInit. The effects below would otherwise run on
-	// the same commit as the init effect, before its state lands, and write
-	// the empty initial state out over the url the reader arrived on
-	const [initialized, setInitialized] = useState(false);
 	const isDraggingRef = useRef(false);
 	const suppressClickRef = useRef(false);
 	const scrollBeforeFocusRef = useRef<number | null>(null);
-
-	// init once, from the url the reader arrived on, or from what the grid
-	// last wrote if it has already been mounted in this document
-	useEffect(() => {
-		if (didInit.current) return;
-
-		const params = lastWrittenQuery == null ? searchParams : new URLSearchParams(lastWrittenQuery);
-		const { tags: qTags, pools: qPools } = parseFilterQuery(params);
-
-		// drop tags from a facet the picker no longer offers — an old link or a
-		// stale "Getting in" choice would otherwise filter with no visible chip
-		setSelectedTags((qTags ?? []).filter((t) => FILTER_FACETS.has(tagFacet(t))));
-		setSelectedPools((qPools ?? []).filter((id) => validatePoolId(id)));
-		const cell = parseCellParam(params.get("cell"));
-		store.set(cell);
-		committedCellRef.current = cell;
-
-		didInit.current = true;
-		setInitialized(true);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
 
 	// keep the url shareable
 	const writeUrl = useCallback(() => {
@@ -696,9 +687,8 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 
 	useEffect(() => {
 		filtersRef.current = { tags: urlTags, pools: selectedPools };
-		if (!initialized) return;
 		writeUrl();
-	}, [initialized, urlTags, selectedPools, writeUrl]);
+	}, [urlTags, selectedPools, writeUrl]);
 
 	const tagSet = useMemo(() => new Set(selectedTags), [selectedTags]);
 	const poolSet = useMemo(
