@@ -2,8 +2,9 @@
 // sessions that pass both filters, in pool order and then by start time, or,
 // when none do, why not.
 import { POOL_TOKENS } from "@/lib/pool-tokens";
+import type { Session } from "@/lib/sessions";
 import type { GridFilter } from "./filters";
-import { sessionsInCell, type GridCell, type GridSession } from "./sessions";
+import { sessionsInCell, type GridCell } from "./sessions";
 
 export type DetailRow = {
 	code: string;
@@ -23,7 +24,7 @@ export type CellDetail = {
 };
 
 export function cellDetail(
-	sessions: GridSession[],
+	sessions: Session[],
 	cell: GridCell,
 	{ matchesTags, poolSet }: Pick<GridFilter, "matchesTags" | "poolSet">
 ): CellDetail {
@@ -43,7 +44,7 @@ export function cellDetail(
 				tags: s.tags,
 				startTime: s.startTime,
 				endTime: s.endTime,
-				startMin: s.startMin!,
+				startMin: s.startMin,
 			});
 		}
 	}

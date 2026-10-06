@@ -1,28 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
-import { describeProgram } from "@/lib/program-display";
+import type { PoolSchedule } from "@/lib/pdf-processor";
+import { around, toSessions, type Day, type Session } from "@/lib/sessions";
 import { toTitleCase } from "@/lib/program-taxonomy";
 import { getPoolToken } from "@/lib/pool-tokens";
 import ProgramName from "@/components/ProgramName";
-import { parseTimeToMinutes } from "@/lib/utils";
 
 type Props = {
 	all: PoolSchedule[];
-};
-
-type Session = {
-	programName: string;
-	poolId: string;
-	poolDisplayName: string;
-	startTime: string;
-	endTime: string;
-	startMin: number;
-	endMin: number;
-	notes?: string | null;
-	pdf?: string | null;
-	sfUrl?: string | null;
 };
 
 type StatusKey = "open" | "soon" | "closed";
@@ -38,7 +24,7 @@ const STATUS: Record<StatusKey, { label: string; fg: string; bg: string }> = {
 	closed: { label: "CLOSED", fg: "#8a9aa4", bg: "#f0f4f6" },
 };
 
-function getNowInPT(): { day: ProgramEntry["dayOfWeek"]; minutes: number; display: string } {
+function getNowInPT(): { day: Day; minutes: number; display: string } {
 	const fmt = new Intl.DateTimeFormat("en-US", {
 		timeZone: "America/Los_Angeles",
 		hour: "numeric",
@@ -50,7 +36,7 @@ function getNowInPT(): { day: ProgramEntry["dayOfWeek"]; minutes: number; displa
 	const hourPart = parts.find((p) => p.type === "hour")?.value ?? "0";
 	const minutePart = parts.find((p) => p.type === "minute")?.value ?? "00";
 	const dayPeriod = (parts.find((p) => p.type === "dayPeriod")?.value ?? "AM").toLowerCase();
-	const weekday = parts.find((p) => p.type === "weekday")?.value as ProgramEntry["dayOfWeek"];
+	const weekday = parts.find((p) => p.type === "weekday")?.value as Day;
 
 	let h = parseInt(hourPart, 10);
 	const min = parseInt(minutePart, 10);
@@ -189,38 +175,20 @@ export default function NowSoon({ all }: Props) {
 		return () => clearInterval(id);
 	}, []);
 
-	const perPool = useMemo(() => {
-		return all.map((pool) => {
-			const todays: Session[] = (pool.programs || [])
-				.filter((p) => p.dayOfWeek === now.day)
-				.map((p) => ({
-					programName: describeProgram(p).title,
-					poolId: pool.id,
-					poolDisplayName: poolLabel(pool),
-					startTime: p.startTime,
-					endTime: p.endTime,
-					startMin: parseTimeToMinutes(p.startTime),
-					endMin: parseTimeToMinutes(p.endTime),
-					notes: p.notes ?? "",
-					pdf: pool.pdfScheduleUrl ?? null,
-					sfUrl: pool.sfRecParkUrl ?? null,
-				}));
+	const sessionsByPool = useMemo(() => {
+		const byPool = new Map<string, Session[]>();
+		for (const s of toSessions(all)) {
+			const list = byPool.get(s.poolId);
+			if (list) list.push(s);
+			else byPool.set(s.poolId, [s]);
+		}
+		return byPool;
+	}, [all]);
 
-			const current = todays
-				.filter((s) => s.startMin <= now.minutes && now.minutes < s.endMin)
-				.sort((a, b) => a.endMin - b.endMin)[0];
-
-			const upcoming = todays
-				.filter((s) => s.startMin >= now.minutes && s.startMin < now.minutes + windowMin)
-				.sort((a, b) => a.startMin - b.startMin);
-
-			const later = todays
-				.filter((s) => s.startMin >= now.minutes + windowMin)
-				.sort((a, b) => a.startMin - b.startMin)[0];
-
-			return { pool, current, upcoming, later };
-		});
-	}, [all, now, windowMin]);
+	const perPool = useMemo(
+		() => all.map((pool) => ({ pool, ...around(sessionsByPool.get(pool.id) ?? [], now, windowMin) })),
+		[all, sessionsByPool, now, windowMin]
+	);
 
 	const openNow = perPool
 		.filter((x) => !!x.current)
@@ -267,7 +235,7 @@ export default function NowSoon({ all }: Props) {
 						<div className="mt-1.5">
 							<SessionLine
 								time={`until ${current!.endTime}`}
-								name={current!.programName}
+								name={current!.title}
 							/>
 						</div>
 					</PoolBlock>
@@ -286,7 +254,7 @@ export default function NowSoon({ all }: Props) {
 								<SessionLine
 									key={idx}
 									time={`${u.startTime}–${u.endTime}`}
-									name={u.programName}
+									name={u.title}
 								/>
 							))}
 						</div>
@@ -303,7 +271,7 @@ export default function NowSoon({ all }: Props) {
 					<PoolBlock key={pool.id} pool={pool} status="closed">
 						<div className="mt-1.5">
 							{later ? (
-								<SessionLine time={`later ${later.startTime}`} name={later.programName} />
+								<SessionLine time={`later ${later.startTime}`} name={later.title} />
 							) : (
 								<div className="text-[13px] text-[#8a9aa4]">No more sessions today.</div>
 							)}

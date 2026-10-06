@@ -3,7 +3,7 @@
 // from the closed vocabulary in program-taxonomy, so they survive the churn
 // in the PDFs' own wording.
 import { TAG_FACETS, tagFacet, tagLabel } from "@/lib/program-taxonomy";
-import type { GridSession } from "./sessions";
+import type { Session } from "@/lib/sessions";
 
 // the facets the picker offers; a tag from any other is dropped
 const FILTER_FACETS = new Set<string>(TAG_FACETS.map((f) => f.id));
@@ -16,7 +16,7 @@ export function pickerTags(tags: string[]): string[] {
 
 // how many sessions carry each tag, so the picker can show real counts and
 // hide tags no current schedule uses
-export function countTags(sessions: Pick<GridSession, "tags">[]): Map<string, number> {
+export function countTags(sessions: Pick<Session, "tags">[]): Map<string, number> {
 	const counts = new Map<string, number>();
 	for (const s of sessions) for (const t of s.tags) counts.set(t, (counts.get(t) ?? 0) + 1);
 	return counts;
@@ -24,7 +24,7 @@ export function countTags(sessions: Pick<GridSession, "tags">[]): Map<string, nu
 
 export type GridFilter = {
 	// passes the program filter: OR within a facet, AND across facets
-	matchesTags: (s: Pick<GridSession, "tags">) => boolean;
+	matchesTags: (s: Pick<Session, "tags">) => boolean;
 	// the picked pools, or null when every pool is shown
 	poolSet: Set<string> | null;
 	// the selected tags that filter something, which is all the url needs

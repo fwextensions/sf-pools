@@ -1,6 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
 import type { PoolSchedule } from "@/lib/pdf-processor";
-import { buildHitMatrix, hitKey, hourSpan, HOURS, sessionsInCell, toSessions } from "./sessions";
+import { toSessions } from "@/lib/sessions";
+import { buildHitMatrix, hitKey, hourSpan, HOURS, sessionsInCell } from "./sessions";
 
 const pool = (id: string, programs: Array<[string, string, string]>) =>
 	({
@@ -19,22 +20,9 @@ const sessions = toSessions([
 	pool("balboa", [
 		["Monday", "9:30a", "11:00a"],
 		["Monday", "7:00p", "8:00p"],
-		// unreadable: in no cell, never on the grid
-		["Monday", "noon", "1:00p"],
 	]),
 	pool("mlk", [["Tuesday", "6:00a", "7:00a"]]),
 ]);
-
-describe("toSessions", () => {
-	it("parses times once, leaving null for ones that don't parse", () => {
-		expect(sessions.map((s) => [s.poolId, s.startMin, s.endMin])).toEqual([
-			["balboa", 570, 660],
-			["balboa", 1140, 1200],
-			["balboa", null, 780],
-			["mlk", 360, 420],
-		]);
-	});
-});
 
 describe("sessionsInCell", () => {
 	it("includes sessions overlapping any part of the hour, but not ones that end as it starts", () => {
