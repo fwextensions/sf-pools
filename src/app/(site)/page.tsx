@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { PoolSchedule } from "@/lib/pdf-processor";
-import AvailabilityGrid from "@/components/AvailabilityGrid";
+import AvailabilityGrid from "@/components/grid/AvailabilityGrid";
 import type { AlertsData } from "../../../scripts/scrape-alerts";
 
 async function readAllSchedules(): Promise<PoolSchedule[]> {
