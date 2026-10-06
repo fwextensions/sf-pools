@@ -2,16 +2,16 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Chivo, Chivo_Mono } from "next/font/google";
 
-const plexSans = Chivo({
+const chivo = Chivo({
 	subsets: ["latin"],
 	weight: ["400", "500", "600", "700"],
-	variable: "--font-plex-sans",
+	variable: "--font-sans",
 });
 
-const plexMono = Chivo_Mono({
+const chivoMono = Chivo_Mono({
 	subsets: ["latin"],
 	weight: ["400", "500", "600"],
-	variable: "--font-plex-mono",
+	variable: "--font-mono",
 });
 
 export const metadata: Metadata = {
@@ -39,7 +39,7 @@ export default function RootLayout({
 			<meta name="apple-mobile-web-app-title" content="SF Pools" />
 			<link rel="manifest" href="/site.webmanifest" />
 		</head>
-		<body className={`${plexSans.variable} ${plexMono.variable} min-h-screen bg-white text-slate-900 antialiased`}>
+		<body className={`${chivo.variable} ${chivoMono.variable} min-h-screen bg-white text-ink antialiased`}>
 			{children}
 		</body>
 		</html>

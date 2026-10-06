@@ -158,7 +158,7 @@ const GridBody = memo(function GridBody({
 
 	return (
 		<div ref={root} className="pt-3">
-			<div className="grid grid-cols-[44px_repeat(7,1fr)] gap-x-[3px] plex-mono text-[10px] font-semibold">
+			<div className="grid grid-cols-[44px_repeat(7,1fr)] gap-x-[3px] font-mono text-label font-semibold">
 				<span />
 				{DAYS.map((day) => (
 					<span key={day} data-day={day} className="grid-day text-center">
@@ -181,7 +181,7 @@ const GridBody = memo(function GridBody({
 						// hour's wash fills the row, not just the text's line box.
 						// leading-none keeps that line box under the cell height, so
 						// the label can't push the row taller than an unlabelled one
-						className="grid-hour flex items-center justify-end pr-1.5 plex-mono text-[10px] font-medium leading-none"
+						className="grid-hour flex items-center justify-end pr-1.5 font-mono text-label font-medium leading-none"
 					>
 						{formatHour(h)}
 					</span>

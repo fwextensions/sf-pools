@@ -25,8 +25,8 @@ export default async function NowPage() {
 	return (
 		<main>
 			<header className="pt-6">
-				<h1 className="text-[26px] font-semibold leading-tight">Now &amp; soon</h1>
-				<p className="mt-1.5 max-w-[62ch] text-[14px] text-[#5a707c]">
+				<h1 className="text-title font-semibold leading-tight">Now &amp; soon</h1>
+				<p className="mt-1.5 max-w-[62ch] text-body text-ink-2">
 					What is running right now across the pools, and what starts soon. Times are Pacific.
 				</p>
 			</header>
@@ -34,12 +34,12 @@ export default async function NowPage() {
 			{all && all.length > 0 ? (
 				<NowSoon all={all} />
 			) : (
-				<div className="mt-6 border-l-[3px] border-[#c4d2d9] bg-[#f7fafb] px-3 py-2.5">
-					<p className="text-[14px] text-[#0e2733]">No schedule data found yet.</p>
-					<p className="mt-1 plex-mono text-[11px] font-semibold tracking-[.14em] text-[#8a9aa4]">
+				<div className="mt-6 border-l-[3px] border-line-strong bg-tint px-3 py-2.5">
+					<p className="text-body text-ink">No schedule data found yet.</p>
+					<p className="mt-1 font-mono text-label font-semibold tracking-[.08em] text-ink-2">
 						RUN THE PIPELINE
 					</p>
-					<pre className="mt-1.5 whitespace-pre-wrap plex-mono text-[12px] leading-relaxed text-[#37474f]">
+					<pre className="mt-1.5 whitespace-pre-wrap font-mono text-small leading-relaxed text-ink-2">
 						{`npm run scrape\nnpm run download-pdfs\nnpm run process-all-pdfs`}
 					</pre>
 				</div>
