@@ -58,19 +58,27 @@ export function parseLinkDateRange(text: string, today: string): LinkDateRange |
 	};
 }
 
+/** the DocumentCenter id in a link's href; the site numbers uploads in order */
+function documentId(href: string): number {
+	const m = href.match(/\/DocumentCenter\/View\/(\d+)/i);
+	return m ? Number(m[1]) : -1;
+}
+
 /**
  * Pick the schedule that applies today from several links for the same pool:
  * the one whose range covers today, else the next one to start, else the one
- * that ended most recently. Links whose text has no readable range are only
- * used when none of them do, and then the first one wins, as before.
+ * that ended most recently. That needs a readable range on every link; when
+ * any link's text has none, the newest upload (highest DocumentCenter id)
+ * wins instead, since a later part is posted after the one it follows.
  */
 export function pickCurrentScheduleLink<T extends ScheduleLink>(links: T[], today: string): T | null {
 	if (links.length <= 1) return links[0] ?? null;
 
-	const dated = links
-		.map((link) => ({ link, range: parseLinkDateRange(link.text, today) }))
-		.filter((d): d is { link: T; range: LinkDateRange } => d.range !== null);
-	if (dated.length === 0) return links[0];
+	const parsed = links.map((link) => ({ link, range: parseLinkDateRange(link.text, today) }));
+	if (parsed.some(({ range }) => range === null)) {
+		return links.reduce((newest, link) => (documentId(link.href) > documentId(newest.href) ? link : newest));
+	}
+	const dated = parsed as Array<{ link: T; range: LinkDateRange }>;
 
 	const current = dated
 		.filter(({ range }) => range.start <= today && today <= range.end)

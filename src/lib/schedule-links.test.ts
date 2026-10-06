@@ -57,7 +57,17 @@ describe("pickCurrentScheduleLink", () => {
 		expect(pickCurrentScheduleLink([MLK_PT2, MLK_PT1], "2026-09-01")).toBe(MLK_PT1);
 	});
 
-	it("falls back to the first link when none has readable dates", () => {
+	it("picks the newest upload when any link has no readable dates", () => {
+		const undatedPt2 = { href: "https://sfrecpark.org/DocumentCenter/View/30210", text: "MLK Pool_Fall2026_pt2 (1) (2)" };
+		// pt1's range covers the day, but pt2's is unknown, so dates can't decide
+		expect(pickCurrentScheduleLink([MLK_PT1, undatedPt2], "2026-09-25")).toBe(undatedPt2);
+		const a = { href: "/DocumentCenter/View/29001", text: "Pool Schedule" };
+		const b = { href: "/DocumentCenter/View/29000", text: "Pool Schedule (1)" };
+		expect(pickCurrentScheduleLink([a, b], "2026-10-06")).toBe(a);
+		expect(pickCurrentScheduleLink([b, a], "2026-10-06")).toBe(a);
+	});
+
+	it("falls back to the first link when nothing tells them apart", () => {
 		const a = { href: "a", text: "Pool Schedule" };
 		const b = { href: "b", text: "Pool Schedule (Spanish)" };
 		expect(pickCurrentScheduleLink([a, b], "2026-10-06")).toBe(a);
