@@ -4,6 +4,7 @@ import path from "node:path";
 import { load } from "cheerio";
 import type { PoolEntry } from "./downloadPdf";
 import { fetchText } from "./http";
+import { pickCurrentScheduleLink } from "@/lib/schedule-links";
 
 const LIST_URL = "https://sfrecpark.org/482/Swimming-Pools";
 const OUT_DIR = path.join(process.cwd(), "public", "data");
@@ -61,6 +62,7 @@ function pickBestPdfLink(
 	$: ReturnType<typeof load>,
 	pageUrl: string,
 	prefSlug: string,
+	today: string,
 	scheduleMatch?: string
 ): string | null {
 	const slugTokens = stripTrailingId(prefSlug).toLowerCase().split("-").filter(Boolean);
@@ -87,11 +89,22 @@ function pickBestPdfLink(
 		}
 	}
 
-	// when there's no ambiguity to resolve, keep the original fast path: the
-	// first document-row link is the pool's schedule
-	if (!wanted && rowAnchors && rowAnchors.length) {
-		const hrefRaw = rowAnchors.first().attr("href") ?? "";
-		return absoluteUrl(pageUrl, hrefRaw);
+	// the Documents row holds only this facility's schedules. Narrow it to the
+	// requested variant, if any, then pick the part whose dates cover today: a
+	// split season lists every part at once (MLK's pt1 and pt2)
+	if (rowAnchors && rowAnchors.length) {
+		const links = rowAnchors.toArray().map((el) => ({
+			href: absoluteUrl(pageUrl, $(el).attr("href") ?? ""),
+			text: $(el).text().trim(),
+		}));
+		const matching = wanted
+			? links.filter(({ text }) => {
+				const lower = text.toLowerCase();
+				return lower.includes(wanted) && !variantKeywords.some((kw) => kw !== wanted && lower.includes(kw));
+			})
+			: links;
+		const picked = pickCurrentScheduleLink(matching, today);
+		if (picked) return picked.href;
 	}
 
 	// 2) score all candidate PDF links; prefer the Documents row when we found
@@ -181,6 +194,7 @@ export async function main(): Promise<ScrapeResult> {
 	// scrape each pool for its PDF URL; cache pages so pools that share a facility
 	// page (warm/cool) only fetch the HTML once
 	const results: Array<{ poolId: string; pdfUrl: string | null }> = [];
+	const today = new Date().toISOString().slice(0, 10);
 	const pageCache = new Map<string, ReturnType<typeof load>>();
 
 	for (const pool of pools) {
@@ -194,7 +208,7 @@ export async function main(): Promise<ScrapeResult> {
 				pageCache.set(pageUrl, $);
 			}
 			const slug = getPoolSlugFromUrl(pageUrl);
-			const pdfUrl = pickBestPdfLink($, pageUrl, slug, pool.scheduleMatch);
+			const pdfUrl = pickBestPdfLink($, pageUrl, slug, today, pool.scheduleMatch);
 
 			// validate PDF URL doesn't look like rules/facility doc
 			if (pdfUrl) {
