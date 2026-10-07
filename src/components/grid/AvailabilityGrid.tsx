@@ -123,7 +123,9 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			    results keep their own native scroll */}
 			{focusMode ? (
 				<div className="fixed inset-0 z-50 flex flex-col bg-tint min-[900px]:hidden">
-					<div className="mx-auto flex h-full w-full max-w-[430px] flex-col px-3.5">
+					{/* the page container's 1rem gutter, and 430px inside it, so the
+					    grid keeps exactly its width from the scrolling view */}
+					<div className="mx-auto flex h-full w-full max-w-[calc(430px+2rem)] flex-col px-4">
 						<div className="flex-none border-b border-line px-3.5 py-2.5">
 							{mobileChips}
 						</div>
