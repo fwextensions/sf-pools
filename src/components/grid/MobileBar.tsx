@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import type { FilterView, GridModel } from "@/lib/grid/grid-model";
+import { Chevron } from "@/components/icons";
 import { ClearIconButton } from "./FilterPicker";
 
 // ----- mobile chrome (shared by the scrolling page and focus mode) -----
@@ -31,24 +32,26 @@ export function MobileChips({
 				<button
 					type="button"
 					onClick={() => onOpenPanel(openPanel === "programs" ? null : "programs")}
-					className="cursor-pointer border-[1.5px] border-ink px-2.5 py-2 font-mono text-small font-semibold"
+					className="control text-body font-medium"
 					style={{
 						background: selectedTags.length ? "var(--color-ink)" : "#fff",
+						borderColor: selectedTags.length ? "var(--color-ink)" : undefined,
 						color: selectedTags.length ? "#fff" : "var(--color-ink)",
 					}}
 				>
-					PROGRAMS {selectedTags.length || "ALL"} <span className="text-body leading-none">{openPanel === "programs" ? "▴" : "▾"}</span>
+					Programs: {selectedTags.length || "All"} <Chevron open={openPanel === "programs"} />
 				</button>
 				<button
 					type="button"
 					onClick={() => onOpenPanel(openPanel === "pools" ? null : "pools")}
-					className="cursor-pointer border-[1.5px] border-ink px-2.5 py-2 font-mono text-small font-semibold"
+					className="control text-body font-medium"
 					style={{
 						background: selectedPools.length ? "var(--color-ink)" : "#fff",
+						borderColor: selectedPools.length ? "var(--color-ink)" : undefined,
 						color: selectedPools.length ? "#fff" : "var(--color-ink)",
 					}}
 				>
-					POOLS {selectedPools.length || "ALL"} <span className="text-body leading-none">{openPanel === "pools" ? "▴" : "▾"}</span>
+					Pools: {selectedPools.length || "All"} <Chevron open={openPanel === "pools"} />
 				</button>
 			</div>
 			<div className="flex flex-none items-center gap-1.5">
@@ -60,9 +63,10 @@ export function MobileChips({
 					aria-label={focusMode ? "Leave full screen" : "Fill the screen to drag across the grid"}
 					aria-pressed={focusMode}
 					onClick={onToggleFocus}
-					className="w-9 flex-none cursor-pointer border-[1.5px] border-ink px-2.5 py-2 text-center font-mono text-small font-semibold"
+					className="control w-11 flex-none px-0"
 					style={{
 						background: focusMode ? "var(--color-ink)" : "#fff",
+						borderColor: focusMode ? "var(--color-ink)" : undefined,
 						color: focusMode ? "#fff" : "var(--color-ink)",
 					}}
 				>

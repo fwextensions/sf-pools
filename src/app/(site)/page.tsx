@@ -32,7 +32,7 @@ export default async function HomePage() {
 		<main>
 			<Suspense
 				fallback={
-					<div className="font-sans mt-4 border-l-[3px] border-line-strong bg-tint px-3 py-2.5 text-body text-ink-2">
+					<div className="font-sans mt-4 bg-tint px-3 py-2.5 text-body text-ink-2">
 						Loading…
 					</div>
 				}

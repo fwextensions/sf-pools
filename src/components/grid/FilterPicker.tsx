@@ -2,6 +2,7 @@
 
 import { POOL_TOKENS } from "@/lib/pool-tokens";
 import { tagLabel } from "@/lib/program-taxonomy";
+import { Chevron } from "@/components/icons";
 import type { FilterView, GridModel } from "@/lib/grid/grid-model";
 
 // The program and pool pickers, shared by the desktop sidebar and the mobile
@@ -29,12 +30,13 @@ export function CategoryRows({
 					aria-label={`Toggle every ${cat.label} tag`}
 					aria-pressed={cat.allSelected}
 					onClick={() => model.toggleGroup(cat.id)}
-					className="flex h-[18px] w-[18px] flex-none cursor-pointer items-center justify-center border-2 border-ink font-mono text-small font-bold text-white"
-					style={{
-						background: cat.allSelected ? "var(--color-ink)" : cat.someSelected ? "#5a8ba3" : "#fff",
-					}}
+					// drawn like the tag checkboxes under it: a filled square when
+					// every tag is on, a bar when some are
+					className={`picker-checkbox flex items-center justify-center ${cat.allSelected ? "picker-checkbox-on" : ""}`}
 				>
-					{cat.allSelected ? "✓" : cat.someSelected ? "–" : ""}
+					{cat.someSelected && !cat.allSelected ? (
+						<span aria-hidden className="block h-[1.5px] w-[8px] bg-ink" />
+					) : null}
 				</button>
 				<button
 					type="button"
@@ -50,13 +52,9 @@ export function CategoryRows({
 					type="button"
 					aria-label={`${expanded[cat.id] ? "Collapse" : "Expand"} ${cat.label}`}
 					onClick={() => onToggleExpanded(cat.id)}
-					// the glyph is small inside its em box, so it needs roughly
-					// double the label's size to carry the same weight as the
-					// checkbox and text it sits with. leading-none keeps that off
-					// the row height
-					className="cursor-pointer px-2 py-1 font-mono text-title font-medium leading-none text-ink-2"
+					className="cursor-pointer px-2 py-1 text-ink-2"
 				>
-					{expanded[cat.id] ? "▴" : "▾"}
+					<Chevron open={expanded[cat.id]} />
 				</button>
 			</div>
 			{expanded[cat.id] ? (
@@ -125,9 +123,11 @@ export function ClearButton({ model, compact = false }: { model: GridModel; comp
 		<button
 			type="button"
 			onClick={() => model.clearFilters("all")}
-			className={`cursor-pointer border border-line-strong bg-white font-mono font-medium text-ink-2 ${
-				compact ? "px-2 py-px text-label leading-none" : "px-2.5 py-1.5 text-small"
-			}`}
+			className={
+				compact
+					? "cursor-pointer border border-line-strong bg-white px-2 py-px font-mono text-label font-medium leading-none text-ink-2"
+					: "control font-mono text-small font-medium text-ink-2"
+			}
 		>
 			CLEAR
 		</button>
@@ -144,7 +144,7 @@ export function ClearIconButton({ model }: { model: GridModel }) {
 			onClick={() => model.clearFilters("all")}
 			aria-label="Clear filters"
 			title="Clear filters"
-			className="w-9 flex-none cursor-pointer border-[1.5px] border-ink bg-white px-2.5 py-2 text-center font-mono text-small font-semibold text-ink"
+			className="control w-11 flex-none px-0 text-ink"
 		>
 			<svg
 				aria-hidden

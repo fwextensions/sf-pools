@@ -38,13 +38,13 @@ export default function SiteError({
 				<button
 					type="button"
 					onClick={reset}
-					className="cursor-pointer border-[1.5px] border-ink bg-ink px-3 py-2 font-mono text-small font-semibold tracking-[.08em] text-white"
+					className="control border-ink bg-ink font-mono text-small font-semibold tracking-[.08em] text-white"
 				>
 					TRY AGAIN
 				</button>
 				<Link
 					href="/"
-					className="cursor-pointer border-[1.5px] border-line-strong bg-white px-3 py-2 font-mono text-small font-semibold tracking-[.08em] text-ink-2"
+					className="control font-mono text-small font-semibold tracking-[.08em] text-ink-2"
 				>
 					WEEK GRID
 				</Link>
