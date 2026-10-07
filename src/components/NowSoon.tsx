@@ -16,13 +16,14 @@ type StatusKey = "open" | "soon" | "closed";
 
 /**
  * Status is deliberately a separate channel from pool identity: the left rule
- * and code chip always carry the pool's token color, so status has to read
- * from the tag alone rather than recoloring the block.
+ * and code chip always carry the pool's token color, so status reads from a
+ * glyph and a word in ink rather than from a color. A filled dot is open, a
+ * ring is soon, and a faint ring is closed.
  */
-const STATUS: Record<StatusKey, { label: string; fg: string; bg: string }> = {
-	open: { label: "OPEN NOW", fg: "#2f7d32", bg: "#eef6ee" },
-	soon: { label: "SOON", fg: "#a9761c", bg: "#fdf7ec" },
-	closed: { label: "CLOSED", fg: "var(--color-ink-2)", bg: "var(--color-tint)" },
+const STATUS: Record<StatusKey, { label: string; glyph: string; text: string }> = {
+	open: { label: "OPEN NOW", glyph: "bg-ink", text: "text-ink" },
+	soon: { label: "SOON", glyph: "ring-2 ring-ink ring-inset", text: "text-ink" },
+	closed: { label: "CLOSED", glyph: "ring-2 ring-ink-2 ring-inset opacity-60", text: "text-ink-2" },
 };
 
 function getNowInPT(): { day: Day; minutes: number; display: string } {
@@ -66,16 +67,11 @@ function poolLabel(pool: PoolSchedule): string {
 	return pool.shortName || pool.nameTitle || toTitleCase(pool.name);
 }
 
-/** mono uppercase link, rendered only when the pool actually has the URL */
+/** utility link, rendered only when the pool actually has the URL */
 function SourceLink({ href, children }: { href?: string | null; children: React.ReactNode }) {
 	if (!href) return null;
 	return (
-		<a
-			href={href}
-			target="_blank"
-			rel="noreferrer"
-			className="font-mono text-label font-medium text-ink-2 underline underline-offset-2"
-		>
+		<a href={href} target="_blank" rel="noreferrer" className="link-utility">
 			{children}
 		</a>
 	);
@@ -102,17 +98,17 @@ function PoolBlock({
 					{poolLabel(pool)}
 				</span>
 				<span
-					className="flex-none px-1.5 py-[3px] font-mono text-label font-semibold tracking-[.08em]"
-					style={{ color: tag.fg, background: tag.bg }}
+					className={`flex-none whitespace-nowrap font-mono text-label font-semibold tracking-[.08em] ${tag.text}`}
 				>
+					<span aria-hidden className={`status-dot ${tag.glyph}`} />
 					{tag.label}
 				</span>
 			</div>
 			{children}
 			{pool.pdfScheduleUrl || pool.sfRecParkUrl ? (
 				<div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
-					<SourceLink href={pool.pdfScheduleUrl}>SOURCE PDF ↗</SourceLink>
-					<SourceLink href={pool.sfRecParkUrl}>POOL PAGE ↗</SourceLink>
+					<SourceLink href={pool.pdfScheduleUrl}>Source PDF ↗</SourceLink>
+					<SourceLink href={pool.sfRecParkUrl}>Pool page ↗</SourceLink>
 				</div>
 			) : null}
 		</li>

@@ -69,7 +69,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 	);
 }
 
-const inlineLink = "text-ink underline underline-offset-2 hover:text-[#2596be]";
+const inlineLink = "link-inline";
 
 function Link({ href, children }: { href: string, children: React.ReactNode })
 {
@@ -171,9 +171,9 @@ export default async function AboutPage() {
 										href={facility.pageUrl}
 										target="_blank"
 										rel="noreferrer"
-										className="font-mono ml-auto text-label font-medium text-ink-2 underline underline-offset-2"
+										className="link-utility ml-auto"
 									>
-										POOL PAGE ↗
+										Pool page ↗
 									</a>
 								</li>
 							))}

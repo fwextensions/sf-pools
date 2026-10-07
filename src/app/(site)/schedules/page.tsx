@@ -465,9 +465,9 @@ export default async function SchedulesPage() {
 												href={pool.pdfScheduleUrl}
 												target="_blank"
 												rel="noreferrer"
-												className="text-ink-2 underline underline-offset-2"
+												className="link-utility"
 											>
-												SOURCE PDF ↗
+												Source PDF ↗
 											</a>
 										) : null,
 									]}

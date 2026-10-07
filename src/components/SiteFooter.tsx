@@ -22,7 +22,7 @@ async function readLastChecked(): Promise<string | null> {
 // on a phone the two groups run together as one list of full-width rows,
 // so the group labels drop out; from 900px up they're two labelled columns
 const linkClass =
-	"flex h-12 items-center border-b border-line text-body font-medium text-ink hover:text-[#2596be] " +
+	"flex h-12 items-center border-b border-line text-body font-medium text-ink underline-offset-[3px] hover:underline " +
 	"min-[900px]:h-auto min-[900px]:border-0";
 const groupLabelClass =
 	"font-mono hidden text-label font-medium tracking-[.08em] text-ink-2 min-[900px]:mb-1 min-[900px]:block";
@@ -77,7 +77,7 @@ export default async function SiteFooter() {
 				{lastChange && (
 					<Link
 						href="/changes"
-						className="hidden text-ink underline underline-offset-[3px] min-[900px]:inline"
+						className="link-inline hidden min-[900px]:inline"
 					>
 						WHAT CHANGED →
 					</Link>
