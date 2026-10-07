@@ -7,6 +7,7 @@ import {
 	type ChangelogSummary,
 	type PoolChanges,
 } from "@/lib/changelog-data";
+import PoolChip from "./PoolChip";
 
 const RAW_JSON_URL = "https://github.com/fwextensions/sf-pools/blob/main/data/changelog";
 
@@ -81,14 +82,7 @@ function PoolSection({ pool }: { pool: PoolChanges }) {
 	return (
 		<section className="flex flex-col">
 			<div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 border-b border-ink pb-2.5">
-				{pool.token && (
-					<span
-						className="font-mono px-[5px] py-[3px] text-label font-semibold text-white"
-						style={{ background: pool.token.color }}
-					>
-						{pool.token.code}
-					</span>
-				)}
+				{pool.token && <PoolChip token={pool.token} />}
 				<h3 className="flex-1 whitespace-nowrap text-body font-semibold">{pool.name}</h3>
 				<span className="font-mono text-label tracking-[.08em] text-ink-2">{poolCounts(pool)}</span>
 			</div>

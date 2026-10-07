@@ -1,14 +1,13 @@
 // What the detail list under the grid shows for the selected cell: the
 // sessions that pass both filters, in pool order and then by start time, or,
 // when none do, why not.
-import { POOL_TOKENS } from "@/lib/pool-tokens";
+import { POOL_TOKENS, type PoolToken } from "@/lib/pool-tokens";
 import type { Session } from "@/lib/sessions";
 import type { GridFilter } from "./filters";
 import { sessionsInCell, type GridCell } from "./sessions";
 
 export type DetailRow = {
-	code: string;
-	color: string;
+	pool: PoolToken;
 	title: string;
 	badges: string[];
 	tags: string[];
@@ -37,8 +36,7 @@ export function cellDetail(
 		for (const s of inCell) {
 			if (s.poolId !== token.id || !matchesTags(s)) continue;
 			rows.push({
-				code: token.code,
-				color: token.color,
+				pool: token,
 				title: s.title,
 				badges: s.badges,
 				tags: s.tags,
