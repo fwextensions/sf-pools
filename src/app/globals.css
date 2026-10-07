@@ -55,11 +55,19 @@
 	--schedule-day-row-top: calc(var(--schedule-nav-h) + var(--schedule-pool-header-h) - 1px);
 }
 
-/* Phone type scale: the type tokens are in rem, so raising the root size to
-   17px scales every step together. */
+/* Phone type scale: the type tokens are in rem, so raising the root size from
+   the browser's default 16px to 17px scales every step together. It's a
+   percentage rather than 17px so a reader's own font-size setting still
+   applies. The mono labels are small enough already that the 1/16 bump
+   leaves them hard to read on a phone, so they get an extra step here:
+   12px at the default size, 12.75px with the root bump. */
 @media (max-width: 899px) {
 	html {
-		font-size: 106.25%;
+		font-size: calc(17 / 16 * 100%);
+	}
+
+	:root {
+		--text-label: 0.75rem;
 	}
 }
 
