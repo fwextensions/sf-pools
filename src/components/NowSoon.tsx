@@ -115,11 +115,14 @@ function PoolBlock({
 	);
 }
 
-/** one session line: mono time range, then the program name */
+/** one session line: mono time range in a fixed column, then the program
+    name, so the names in a block line up and a long one wraps under itself
+    rather than under the time. 14ch holds the longest, "11:00a–12:30p",
+    with room for the rounding that left 13ch a hair short. */
 function SessionLine({ time, name }: { time: string; name: string }) {
 	return (
-		<div className="flex gap-2 text-small leading-snug">
-			<span className="flex-none font-mono text-label font-medium text-ink-2">{time}</span>
+		<div className="grid grid-cols-[auto_minmax(0,1fr)] items-baseline gap-2 text-small leading-snug">
+			<span className="w-[14ch] whitespace-nowrap font-mono text-label font-medium text-ink-2">{time}</span>
 			<span className="min-w-0 text-ink-2">
 				<ProgramName name={name} />
 			</span>
@@ -151,7 +154,7 @@ function Section({
 			{count === 0 ? (
 				<p className="mt-2.5 text-body text-ink-2">{empty}</p>
 			) : (
-				<ul className="mt-2.5 grid gap-[3px] md:grid-cols-2">{children}</ul>
+				<ul className="mt-2.5 grid gap-[3px] min-[900px]:grid-cols-2">{children}</ul>
 			)}
 		</section>
 	);

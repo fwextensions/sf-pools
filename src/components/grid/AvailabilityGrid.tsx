@@ -149,8 +149,10 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 				</div>
 			)}
 
-			{/* desktop: fixed sidebar (the pool list doubles as the legend) + main column */}
-			<div className="mx-auto hidden max-w-[1020px] items-stretch min-[900px]:flex">
+			{/* desktop: fixed sidebar (the pool list doubles as the legend) + main
+			    column, spanning the full container so the sidebar's edge lines up
+			    with the tabs and the footer */}
+			<div className="hidden items-stretch min-[900px]:flex">
 				<div className="w-[280px] flex-none border-r border-line bg-tint">
 					<div className="mx-4 mt-4 flex items-baseline justify-between border-t-2 border-ink pb-1.5 pt-2.5">
 						<span className="font-mono text-label font-semibold tracking-[.08em] text-ink-2">

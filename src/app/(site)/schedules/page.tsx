@@ -115,7 +115,7 @@ function DayColumn({
 			{programs.length ? (
 				<div className="mt-1 flex flex-col gap-[3px]">
 					{programs.map((program, i) => (
-						<SessionBlock key={i} program={program} color={color} />
+						<SessionBlock key={i} program={program} color={color} row />
 					))}
 				</div>
 			) : (
