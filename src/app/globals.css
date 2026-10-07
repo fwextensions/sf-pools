@@ -23,6 +23,47 @@
 	--text-label: 0.6875rem;
 }
 
+/* Links come in two kinds. Inline links sit in running text: ink, with a 1px
+   underline that thickens on hover rather than changing color, so no link
+   ever reads as a pool color. Utility links ("Source PDF ↗", "Pool page ↗")
+   are the small secondary ones beside a heading or at the end of a block. */
+@utility link-inline {
+	color: var(--color-ink);
+	text-decoration-line: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 3px;
+
+	&:hover {
+		text-decoration-thickness: 2px;
+	}
+}
+
+@utility link-utility {
+	font-family: var(--font-sans);
+	font-size: var(--text-small);
+	font-weight: 400;
+	letter-spacing: normal;
+	text-transform: none;
+	color: var(--color-ink-2);
+	text-decoration-line: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 3px;
+
+	&:hover {
+		text-decoration-thickness: 2px;
+	}
+}
+
+/* Now & Soon's status glyphs: a shape plus a word, never a color, so status
+   can't be mistaken for a pool. 9px, with the rings inset. */
+@utility status-dot {
+	display: inline-block;
+	flex: none;
+	width: 9px;
+	height: 9px;
+	border-radius: 9999px;
+}
+
 /* base theme tokens */
 :root {
 	color-scheme: light;
@@ -159,7 +200,9 @@ input[type="radio"] {
 	--dim: 0.4;
 }
 
-/* the band is a pale wash of the ring's amber, run across the selected row
+/* Amber means selection and nothing else: these three values (#fdf4dc,
+   #ffe6a1, #f0a202) appear only in this block, so a status or notice never
+   borrows it. The band is a pale wash of the ring's amber, run across the selected row
    and column so the day and hour can be traced back to the axes */
 [data-has-selection] .grid-cell[data-band] {
 	--dim: 0.6;

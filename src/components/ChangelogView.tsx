@@ -217,12 +217,12 @@ export default function ChangelogView({
 						<div className="font-mono flex flex-wrap items-baseline justify-between gap-3 text-label tracking-[.08em]">
 							<span className="flex gap-6">
 								{detail.older && (
-									<Link href={`/changes/${detail.older}`} className="underline underline-offset-[3px]">
+									<Link href={`/changes/${detail.older}`} className="link-inline">
 										← {formatShortDate(detail.older).toUpperCase()}
 									</Link>
 								)}
 								{detail.newer && (
-									<Link href={`/changes/${detail.newer}`} className="underline underline-offset-[3px]">
+									<Link href={`/changes/${detail.newer}`} className="link-inline">
 										{formatShortDate(detail.newer).toUpperCase()} →
 									</Link>
 								)}
@@ -231,9 +231,9 @@ export default function ChangelogView({
 								href={`${RAW_JSON_URL}/${detail.date}.json`}
 								target="_blank"
 								rel="noreferrer"
-								className="text-ink-2 underline underline-offset-[3px]"
+								className="link-utility"
 							>
-								RAW JSON ↗
+								Raw JSON ↗
 							</a>
 						</div>
 					</article>

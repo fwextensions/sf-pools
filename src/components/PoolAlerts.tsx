@@ -72,7 +72,7 @@ export default function PoolAlerts({ alerts, pools, selectedPools }: Props) {
 									href={alert.documentUrl}
 									target="_blank"
 									rel="noreferrer"
-									className="underline underline-offset-2"
+									className="link-inline"
 								>
 									{alert.alertText}
 								</a>
