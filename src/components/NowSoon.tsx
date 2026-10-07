@@ -200,7 +200,7 @@ export default function NowSoon({ all }: Props) {
 					</span>
 					<input
 						type="number"
-						className="w-[68px] border border-line-strong bg-white px-2 py-1 font-mono text-small font-medium text-ink focus:border-ink focus:outline-none"
+						className="control w-[76px] cursor-text px-2 font-mono text-small font-medium text-ink focus:border-ink focus:outline-none"
 						min={15}
 						max={360}
 						step={15}

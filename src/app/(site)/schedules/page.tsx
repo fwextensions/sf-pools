@@ -359,7 +359,7 @@ export default async function SchedulesPage() {
 			</header>
 
 			{!pools.length ? (
-				<div className="mt-6 border-l-[3px] border-line-strong bg-tint px-3 py-2.5 text-body text-ink-2">
+				<div className="mt-6 bg-tint px-3 py-2.5 text-body text-ink-2">
 					No schedule data found.
 				</div>
 			) : (
@@ -491,7 +491,7 @@ export default async function SchedulesPage() {
 										</div>
 									</>
 								) : !pool.closure ? (
-									<div className="mt-3 border-l-[3px] border-line-strong bg-tint px-3 py-2.5 text-body text-ink-2">
+									<div className="mt-3 bg-tint px-3 py-2.5 text-body text-ink-2">
 										No programs listed for this pool.
 									</div>
 								) : null}

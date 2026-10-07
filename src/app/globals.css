@@ -73,6 +73,52 @@
 	transform: translateY(calc(4.5px - 0.5cap));
 }
 
+/* Tags come in two styles. A tinted tag (this) marks a change type or a
+   session you can't just show up for; lanes and pool areas are plain meta
+   text (below), never a box. The tag is a step under the mono label size,
+   so it follows the label's phone bump. Colors come from the caller. */
+@utility tag {
+	display: inline-block;
+	flex: none;
+	padding: 3px 6px;
+	font-family: var(--font-mono);
+	font-size: calc(var(--text-label) - 0.0625rem);
+	font-weight: 600;
+	line-height: 1;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	white-space: nowrap;
+}
+
+/* lanes and areas: "2 LN · SMALL POOL" */
+@utility meta {
+	font-family: var(--font-mono);
+	font-size: var(--text-label);
+	font-weight: 500;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--color-ink-2);
+}
+
+/* Buttons, inputs and pickers: a 1px line-strong hairline, 36px tall, or
+   44px under 900px where they take a finger. Callers add their own text
+   style and any selected state. */
+@utility control {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	min-height: 36px;
+	padding-inline: 12px;
+	border: 1px solid var(--color-line-strong);
+	background: #fff;
+	cursor: pointer;
+
+	@media (max-width: 899px) {
+		min-height: 44px;
+	}
+}
+
 /* base theme tokens */
 :root {
 	color-scheme: light;
@@ -273,7 +319,8 @@ input[type="radio"] {
 	cursor: pointer;
 }
 
-.picker-checkbox:checked {
+.picker-checkbox:checked,
+.picker-checkbox-on {
 	background: var(--color-ink);
 	border-color: var(--color-ink);
 }

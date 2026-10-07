@@ -34,7 +34,7 @@ export default async function NowPage() {
 			{all && all.length > 0 ? (
 				<NowSoon all={all} />
 			) : (
-				<div className="mt-6 border-l-[3px] border-line-strong bg-tint px-3 py-2.5">
+				<div className="mt-6 bg-tint px-3 py-2.5">
 					<p className="text-body text-ink">No schedule data found yet.</p>
 					<p className="mt-1 font-mono text-label font-semibold tracking-[.08em] text-ink-2">
 						RUN THE PIPELINE

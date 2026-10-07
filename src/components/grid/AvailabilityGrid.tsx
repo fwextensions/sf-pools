@@ -152,7 +152,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			{/* desktop: fixed sidebar (the pool list doubles as the legend) + main column */}
 			<div className="mx-auto hidden max-w-[1020px] items-stretch min-[900px]:flex">
 				<div className="w-[280px] flex-none border-r border-line bg-tint">
-					<div className="flex items-baseline justify-between px-4 pb-1.5 pt-4">
+					<div className="mx-4 mt-4 flex items-baseline justify-between border-t-2 border-ink pb-1.5 pt-2.5">
 						<span className="font-mono text-label font-semibold tracking-[.08em] text-ink-2">
 							PROGRAMS
 						</span>
@@ -165,7 +165,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						expanded={expandedCats}
 						onToggleExpanded={toggleExpanded}
 					/>
-					<div className="px-4 pb-1.5 pt-4 font-mono text-label font-semibold tracking-[.08em] text-ink-2">
+					<div className="mx-4 mt-4 border-t-2 border-ink pb-1.5 pt-2.5 font-mono text-label font-semibold tracking-[.08em] text-ink-2">
 						POOLS
 					</div>
 					<PoolRows model={model} filters={filters} />

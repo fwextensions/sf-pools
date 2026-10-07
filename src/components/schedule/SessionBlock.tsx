@@ -43,24 +43,16 @@ export default function SessionBlock({
 			<div className="font-mono text-label font-medium text-ink-2">
 				{program.startTime}–{program.endTime}
 			</div>
-			{/* the badges ride in the space beside the title rather than under it:
-			    a program name rarely fills its column, and a stacked badge row cost
-			    every session a line of height it did not need */}
-			<div className="mt-0.5 flex flex-wrap items-start justify-between gap-x-2 gap-y-1">
+			{/* the lanes and areas ride in the space beside the title rather than
+			    under it: a program name rarely fills its column, and a stacked row
+			    cost every session a line of height it did not need. They're plain
+			    meta text, joined with a dot, not boxed */}
+			<div className="mt-0.5 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
 				<div className="min-w-0 text-small font-medium leading-snug text-ink">
 					<ProgramName name={title} />
 				</div>
 				{badges.length ? (
-					<div className="ml-auto flex shrink-0 flex-wrap justify-end gap-1">
-						{badges.map((badge) => (
-							<span
-								key={badge}
-								className="border border-line-strong bg-white px-1 py-px font-mono text-label font-medium text-ink-2"
-							>
-								{badge}
-							</span>
-						))}
-					</div>
+					<div className="meta ml-auto shrink-0 text-right">{badges.join(" · ")}</div>
 				) : null}
 			</div>
 			{notes.map((note) => (

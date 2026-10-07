@@ -31,3 +31,17 @@ export const CalendarIcon: React.FC<IconProps> = ({ className = "h-4 w-4", strok
 		<path d="M7 3v4M17 3v4M3 9h18" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" />
 	</svg>
 );
+
+/** the 6px chevron on pickers and expanders; points up when open */
+export function Chevron({ open = false, className = "" }: { open?: boolean; className?: string }) {
+	return (
+		<svg
+			viewBox="0 0 10 6"
+			fill="none"
+			aria-hidden
+			className={`inline-block h-[6px] w-[10px] flex-none ${open ? "rotate-180" : ""} ${className}`}
+		>
+			<path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+		</svg>
+	);
+}

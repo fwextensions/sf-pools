@@ -66,7 +66,7 @@ function Row({ row }: { row: ChangeRow }) {
 				<span className="font-semibold">{row.now ?? <Blank />}</span>
 			</span>
 			<span
-				className={`font-mono self-start justify-self-end px-1.5 py-0.5 text-label font-semibold tracking-[.08em] [grid-area:tag] min-[900px]:self-center min-[900px]:[grid-area:auto] ${tag.className}`}
+				className={`tag self-start justify-self-end [grid-area:tag] min-[900px]:self-center min-[900px]:[grid-area:auto] ${tag.className}`}
 			>
 				{tag.label}
 			</span>
@@ -80,8 +80,11 @@ function PoolSection({ pool }: { pool: PoolChanges }) {
 	const hidden = folded ? pool.rows.slice(SHOWN_WHEN_FOLDED) : [];
 
 	return (
-		<section className="flex flex-col">
-			<div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 border-b border-ink pb-2.5">
+		<section
+			className="flex flex-col border-t-[3px] pt-2.5"
+			style={{ borderColor: pool.token?.color ?? "var(--color-ink)" }}
+		>
+			<div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 border-b border-line pb-2.5">
 				{pool.token && <PoolChip token={pool.token} />}
 				<h3 className="flex-1 whitespace-nowrap text-body font-semibold">{pool.name}</h3>
 				<span className="font-mono text-label tracking-[.08em] text-ink-2">{poolCounts(pool)}</span>
@@ -106,7 +109,7 @@ function PoolSection({ pool }: { pool: PoolChanges }) {
 				// opening it hides the button along with revealing the rest; there's
 				// no "show fewer", since the rows above it would jump out from under it
 				<details className="[&[open]>summary]:hidden">
-					<summary className="font-mono mt-2.5 inline-flex h-10 cursor-pointer list-none items-center border border-line-strong px-3.5 text-label font-semibold tracking-[.08em] hover:border-ink [&::-webkit-details-marker]:hidden">
+					<summary className="control mt-2.5 list-none font-mono text-label font-semibold tracking-[.08em] hover:border-ink [&::-webkit-details-marker]:hidden">
 						SHOW ALL {pool.rows.length} CHANGES
 					</summary>
 					<ul>
@@ -142,7 +145,7 @@ function UpdateList({ updates, current }: { updates: ChangelogSummary[]; current
 							{plural(update.totalChanges, "change")} at {plural(update.poolsChanged, "pool")}
 						</span>
 						{update.newSeason && update.season && (
-							<span className="font-mono self-start bg-[#e3f1f7] px-1.5 py-0.5 text-label font-semibold tracking-[.08em] text-[#135e7a]">
+							<span className="tag self-start bg-[#e3f1f7] text-[#135e7a]">
 								NEW SEASON: {update.season.toUpperCase()}
 							</span>
 						)}
@@ -183,7 +186,7 @@ export default function ChangelogView({
 			</header>
 
 			{!detail || !stats ? (
-				<p className="mt-6 border-l-[3px] border-line-strong bg-tint px-3 py-2.5 text-body">
+				<p className="mt-6 bg-tint px-3 py-2.5 text-body">
 					No schedule changes have been recorded yet.
 				</p>
 			) : (
