@@ -112,7 +112,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	};
 
 	return (
-		<div className="plex-sans py-6 text-[#0e2733]">
+		<div className="font-sans py-6 text-ink">
 			{alerts?.poolAlerts && alerts.poolAlerts.length > 0 && (
 				<PoolAlerts alerts={alerts} pools={all} selectedPools={filters.pools} />
 			)}
@@ -122,9 +122,9 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			    stops scrolling and the grid is free to take touch drags while the
 			    results keep their own native scroll */}
 			{focusMode ? (
-				<div className="fixed inset-0 z-50 flex flex-col bg-[#f7fafb] min-[900px]:hidden">
+				<div className="fixed inset-0 z-50 flex flex-col bg-tint min-[900px]:hidden">
 					<div className="mx-auto flex h-full w-full max-w-[430px] flex-col px-3.5">
-						<div className="flex-none border-b border-[#e2e8ec] px-3.5 py-2.5">
+						<div className="flex-none border-b border-line px-3.5 py-2.5">
 							{mobileChips}
 						</div>
 						<MobilePanel fill openPanel={openPanel}>{mobilePanelRows}</MobilePanel>
@@ -140,7 +140,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 				</div>
 			) : (
 				<div className="mx-auto max-w-[430px] min-[900px]:hidden">
-					<div className="sticky top-0 z-10 border-b border-[#e2e8ec] bg-[#f7fafb] px-3.5 py-2.5">
+					<div className="sticky top-0 z-10 border-b border-line bg-tint px-3.5 py-2.5">
 						{mobileChips}
 					</div>
 					<MobilePanel openPanel={openPanel}>{mobilePanelRows}</MobilePanel>
@@ -151,9 +151,9 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 
 			{/* desktop: fixed sidebar (the pool list doubles as the legend) + main column */}
 			<div className="mx-auto hidden max-w-[1020px] items-stretch min-[900px]:flex">
-				<div className="w-[280px] flex-none border-r border-[#e2e8ec] bg-[#fbfdfe]">
+				<div className="w-[280px] flex-none border-r border-line bg-tint">
 					<div className="flex items-baseline justify-between px-4 pb-1.5 pt-4">
-						<span className="plex-mono text-[11px] font-semibold tracking-[.14em] text-[#8a9aa4]">
+						<span className="font-mono text-label font-semibold tracking-[.08em] text-ink-2">
 							PROGRAMS
 						</span>
 						{hasAnyFilter ? <ClearButton model={model} compact /> : null}
@@ -165,7 +165,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 						expanded={expandedCats}
 						onToggleExpanded={toggleExpanded}
 					/>
-					<div className="px-4 pb-1.5 pt-4 plex-mono text-[11px] font-semibold tracking-[.14em] text-[#8a9aa4]">
+					<div className="px-4 pb-1.5 pt-4 font-mono text-label font-semibold tracking-[.08em] text-ink-2">
 						POOLS
 					</div>
 					<PoolRows model={model} filters={filters} />

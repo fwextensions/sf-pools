@@ -80,11 +80,11 @@ function MetaLine({ parts }: { parts: React.ReactNode[] }) {
 	const shown = parts.filter(Boolean);
 	if (!shown.length) return null;
 	return (
-		<div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 plex-mono text-[11px] font-medium tracking-[.06em] text-[#8a9aa4]">
+		<div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-label font-medium tracking-[.08em] text-ink-2">
 			{shown.map((part, i) => (
 				<span key={i} className="flex items-center gap-2">
 					{i > 0 ? (
-						<span aria-hidden className="text-[#c4d2d9]">
+						<span aria-hidden className="text-ink-2">
 							·
 						</span>
 					) : null}
@@ -106,7 +106,7 @@ function DayColumn({
 }) {
 	return (
 		<div className="min-w-0">
-			<div className="border-b border-[#e2e8ec] pb-1 plex-mono text-[10px] font-semibold tracking-[.1em] text-[#5a707c]">
+			<div className="border-b border-line pb-1 font-mono text-label font-semibold tracking-[.08em] text-ink-2">
 				{day.slice(0, 3).toUpperCase()}
 			</div>
 			{programs.length ? (
@@ -118,7 +118,7 @@ function DayColumn({
 			) : (
 				// mirrors an empty cell in the week grid rather than collapsing the
 				// column, so the seven-day rhythm survives a quiet day
-				<div className="mt-1 flex h-[22px] items-center justify-center bg-[#f5f8f9] plex-mono text-[11px] text-[#c4d2d9]">
+				<div className="mt-1 flex h-[22px] items-center justify-center bg-tint font-mono text-label text-ink-2">
 					—
 				</div>
 			)}
@@ -261,7 +261,7 @@ function WeekTimeline({
 					// itself, not a margin above the grid: a margin is outside the
 					// sticky box, so it collapses the moment the row pins and the
 					// sessions scroll up through the space it was holding
-					className="sticky z-[4] border-b border-[#e2e8ec] bg-white pt-3 pb-1 plex-mono text-[10px] font-semibold tracking-[.1em] text-[#5a707c]"
+					className="sticky z-[4] border-b border-line bg-white pt-3 pb-1 font-mono text-label font-semibold tracking-[.08em] text-ink-2"
 				>
 					{day.slice(0, 3).toUpperCase()}
 				</div>
@@ -272,7 +272,7 @@ function WeekTimeline({
 				{ticks.map((t) => (
 					<div
 						key={t}
-						className="absolute right-2 -translate-y-1/2 plex-mono text-[10px] font-medium text-[#8a9aa4]"
+						className="absolute right-2 -translate-y-1/2 font-mono text-label font-medium text-ink-2"
 						style={{ top: (t - dayStart) * PX_PER_MIN }}
 					>
 						{minutesToClock(t)}
@@ -284,7 +284,7 @@ function WeekTimeline({
 				<div
 					key={day}
 					style={{ gridRow: 2, gridColumn: dayIndex + 2, height: heightPx }}
-					className="relative border-l border-[#edf1f3]"
+					className="relative border-l border-line"
 				>
 					{/* hour/half-hour rules, so a quiet stretch still reads as time
 					    passing rather than as empty space */}
@@ -292,7 +292,7 @@ function WeekTimeline({
 						<div
 							key={t}
 							aria-hidden
-							className={t % 60 === 0 ? "absolute inset-x-0 border-t border-[#edf1f3]" : "absolute inset-x-0 border-t border-dotted border-[#edf1f3]"}
+							className={t % 60 === 0 ? "absolute inset-x-0 border-t border-line" : "absolute inset-x-0 border-t border-dotted border-line"}
 							style={{ top: (t - dayStart) * PX_PER_MIN }}
 						/>
 					))}
@@ -333,7 +333,7 @@ function WeekTimeline({
 			{unplacedByDay.some((u) => u.length) ? (
 				<div
 					style={{ gridRow: 3, gridColumn: "1 / -1" }}
-					className="mt-2 plex-mono text-[10px] font-medium text-[#c4d2d9]"
+					className="mt-2 font-mono text-label font-medium text-ink-2"
 				>
 					Sessions with times this page can&rsquo;t parse are listed below their day, off the axis.
 				</div>
@@ -349,14 +349,14 @@ export default async function SchedulesPage() {
 	return (
 		<main>
 			<header className="pt-6 pb-3">
-				<h1 className="text-[26px] font-semibold leading-tight">Full schedules</h1>
-				<p className="mt-1.5 max-w-[62ch] text-[14px] text-[#5a707c]">
+				<h1 className="text-title font-semibold leading-tight">Full schedules</h1>
+				<p className="mt-1.5 max-w-[62ch] text-body text-ink-2">
 					Every program on every pool&rsquo;s weekly schedule. Times are Pacific.
 				</p>
 			</header>
 
 			{!pools.length ? (
-				<div className="mt-6 border-l-[3px] border-[#c4d2d9] bg-[#f7fafb] px-3 py-2.5 text-[14px] text-[#5a707c]">
+				<div className="mt-6 border-l-[3px] border-line-strong bg-tint px-3 py-2.5 text-body text-ink-2">
 					No schedule data found.
 				</div>
 			) : (
@@ -371,7 +371,7 @@ export default async function SchedulesPage() {
 					    legend calls these pools. */}
 					<nav
 						aria-label="Jump to a pool"
-						className="sticky top-0 z-10 grid h-[var(--schedule-nav-h)] grid-cols-5 content-center gap-0.5 overflow-hidden border-b border-[#e2e8ec] bg-white min-[900px]:flex min-[900px]:items-center min-[900px]:gap-1"
+						className="sticky top-0 z-10 grid h-[var(--schedule-nav-h)] grid-cols-5 content-center gap-0.5 overflow-hidden border-b border-line bg-white min-[900px]:flex min-[900px]:items-center min-[900px]:gap-1"
 					>
 						{pools.map(({ pool, token }) => {
 							const label = token?.name ?? pool.shortName ?? toTitleCase(pool.name);
@@ -387,8 +387,8 @@ export default async function SchedulesPage() {
 									title={label}
 									// a grid cell on a phone, so five chips share the width
 									// evenly; from 900px up each chip sizes to its own label
-									className={`pool-jump-chip flex min-w-0 items-center gap-1 border border-[#e2e8ec] bg-white py-1 pl-1 pr-0.5 min-[900px]:grow-0 min-[900px]:basis-auto min-[900px]:gap-1.5 min-[900px]:pl-1 min-[900px]:pr-2 ${shrink}`}
-									style={{ "--pool-color": token?.color ?? "#5a707c" } as CSSProperties}
+									className={`pool-jump-chip flex min-w-0 items-center gap-1 border border-line bg-white py-1 pl-1 pr-0.5 min-[900px]:grow-0 min-[900px]:basis-auto min-[900px]:gap-1.5 min-[900px]:pl-1 min-[900px]:pr-2 ${shrink}`}
+									style={{ "--pool-color": token?.color ?? "var(--color-ink-2)" } as CSSProperties}
 								>
 									{/* the code chip is the legend the grid and the section
 									    headers use. On a phone the name is worth more than the
@@ -397,15 +397,15 @@ export default async function SchedulesPage() {
 									    narrowest phones get the codes back, two rows of five. */}
 									<span
 										aria-hidden
-										className="mx-auto flex h-[16px] w-[26px] flex-none items-center justify-center plex-mono text-[10px] font-semibold text-white min-[400px]:hidden min-[900px]:mx-0 min-[900px]:flex"
-										style={{ background: token?.color ?? "#5a707c" }}
+										className="mx-auto flex h-[16px] w-[26px] flex-none items-center justify-center font-mono text-label font-semibold text-white min-[400px]:hidden min-[900px]:mx-0 min-[900px]:flex"
+										style={{ background: token?.color ?? "var(--color-ink-2)" }}
 									>
 										{token?.code ?? "—"}
 									</span>
-									<span className="hidden min-w-0 truncate text-[11px] font-medium text-[#37474f] min-[400px]:block min-[900px]:hidden">
+									<span className="hidden min-w-0 truncate text-label font-medium text-ink-2 min-[400px]:block min-[900px]:hidden">
 										{phoneLabel}
 									</span>
-									<span className="hidden min-w-0 truncate text-[12px] font-medium text-[#37474f] min-[900px]:block">
+									<span className="hidden min-w-0 truncate text-small font-medium text-ink-2 min-[900px]:block">
 										{label}
 									</span>
 								</a>
@@ -414,7 +414,7 @@ export default async function SchedulesPage() {
 					</nav>
 
 					{pools.map(({ pool, token }) => {
-						const color = token?.color ?? "#5a707c";
+						const color = token?.color ?? "var(--color-ink-2)";
 						const all = pool.programs || [];
 						const byDay = DAYS.map((day) => ({
 							day,
@@ -441,20 +441,20 @@ export default async function SchedulesPage() {
 									// the hairline is drawn outside the box so it reads as the
 									// pinned bar's edge over the sessions passing under it,
 									// without adding a rule between the name and the meta line
-									className="sticky top-[var(--schedule-nav-h)] z-[5] border-t-[3px] bg-white pt-2.5 pb-2 shadow-[0_1px_0_#e2e8ec]"
+									className="sticky top-[var(--schedule-nav-h)] z-[5] border-t-[3px] bg-white pt-2.5 pb-2 shadow-[0_1px_0_var(--color-line)]"
 									style={{ borderColor: color }}
 								>
 									<div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
 										<span
-											className="px-1.5 py-[3px] plex-mono text-[11px] font-semibold text-white"
+											className="px-1.5 py-[3px] font-mono text-label font-semibold text-white"
 											style={{ background: color }}
 										>
 											{token?.code ?? "—"}
 										</span>
-										<h2 className="text-[20px] font-semibold leading-tight">
+										<h2 className="text-heading font-semibold leading-tight">
 											{toTitleCase(pool.name)}
 										</h2>
-										<span className="plex-mono text-[11px] font-medium text-[#8a9aa4]">
+										<span className="font-mono text-label font-medium text-ink-2">
 											{all.length} SESSION{all.length === 1 ? "" : "S"}
 										</span>
 									</div>
@@ -469,7 +469,7 @@ export default async function SchedulesPage() {
 												href={pool.pdfScheduleUrl}
 												target="_blank"
 												rel="noreferrer"
-												className="text-[#5a707c] underline underline-offset-2"
+												className="text-ink-2 underline underline-offset-2"
 											>
 												SOURCE PDF ↗
 											</a>
@@ -495,7 +495,7 @@ export default async function SchedulesPage() {
 										</div>
 									</>
 								) : !pool.closure ? (
-									<div className="mt-3 border-l-[3px] border-[#c4d2d9] bg-[#f7fafb] px-3 py-2.5 text-[14px] text-[#5a707c]">
+									<div className="mt-3 border-l-[3px] border-line-strong bg-tint px-3 py-2.5 text-body text-ink-2">
 										No programs listed for this pool.
 									</div>
 								) : null}

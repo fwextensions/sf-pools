@@ -1,13 +1,31 @@
 @import "tailwindcss";
 
+/* The design tokens. Colors and type sizes in components go through these
+   rather than hex or px values, so a change here reaches every page. */
+@theme static {
+	--color-ink: #0e2733;
+	/* all secondary text, labels, meta, counts */
+	--color-ink-2: #4f6672;
+	/* interactive control borders only */
+	--color-line-strong: #c4d2d9;
+	/* row dividers, grid hairlines */
+	--color-line: #e2e8ec;
+	/* empty cells, stat tiles, hover, notice boxes */
+	--color-tint: #f5f8f9;
+	/* 28 / 20 / 15 / 13px at the desktop root size */
+	--text-title: 1.75rem;
+	--text-heading: 1.25rem;
+	--text-body: 0.9375rem;
+	--text-small: 0.8125rem;
+	/* mono */
+	--text-time: 0.8125rem;
+	/* mono caps */
+	--text-label: 0.6875rem;
+}
+
 /* base theme tokens */
 :root {
 	color-scheme: light;
-	/* watery blue accent pulled from favicon */
-	--accent-color: #75C6E4;
-	/* derived tints for subtle borders and backgrounds */
-	--accent-border: color-mix(in srgb, var(--accent-color) 40%, white);
-	--accent-muted: color-mix(in srgb, var(--accent-color) 12%, white);
 	/* height of the schedules page's pinned pool jump nav; sections offset
 	   their scroll anchor by exactly this so a jump never lands under it.
 	   Two rows of five chips on a phone, one row of ten from 900px up. */
@@ -37,18 +55,20 @@
 	--schedule-day-row-top: calc(var(--schedule-nav-h) + var(--schedule-pool-header-h) - 1px);
 }
 
-/* Phone type scale: every size in the app is set in px on the element, so the
-   sizes are bumped two pixels each here rather than by scaling a root font
-   size that nothing inherits from. Tailwind's utilities live in a layer, so
-   these unlayered rules win without needing !important. */
+/* Phone type scale: the type tokens are in rem, so raising the root size from
+   the browser's default 16px to 17px scales every step together. It's a
+   percentage rather than 17px so a reader's own font-size setting still
+   applies. The mono labels are small enough already that the 1/16 bump
+   leaves them hard to read on a phone, so they get an extra step here:
+   12px at the default size, 12.75px with the root bump. */
 @media (max-width: 899px) {
-	.text-\[10px\] { font-size: 12px; }
-	.text-\[11px\] { font-size: 13px; }
-	.text-\[12px\] { font-size: 14px; }
-	.text-\[13px\] { font-size: 15px; }
-	.text-\[14px\] { font-size: 16px; }
-	.text-\[20px\] { font-size: 22px; }
-	.text-\[26px\] { font-size: 28px; }
+	html {
+		font-size: calc(17 / 16 * 100%);
+	}
+
+	:root {
+		--text-label: 0.75rem;
+	}
 }
 
 /* Between 400px and the desktop breakpoint the jump nav shows pool names
@@ -76,39 +96,6 @@ body {
 	padding-right: 1rem;
 }
 
-/* light, line-drawn styling helpers inspired by the favicon */
-.accent-left {
-	border-left: 4px solid var(--accent-color);
-}
-
-.accent-border {
-	border-color: var(--accent-border);
-}
-
-.accent-muted-bg {
-	background-color: var(--accent-muted);
-}
-
-/* accent links and outline buttons */
-.link-accent {
-	color: var(--accent-color);
-	text-underline-offset: 2px;
-}
-
-.link-accent:hover {
-	text-decoration: underline;
-}
-
-.btn-outline-accent {
-	border: 1px solid var(--accent-border);
-	color: var(--accent-color);
-	background-color: white;
-}
-
-.btn-outline-accent:hover {
-	background-color: var(--accent-muted);
-}
-
 /* ===========================================
    Mobile-friendly form controls
    =========================================== */
@@ -129,134 +116,18 @@ body {
 		padding: 0.5rem 0;
 		margin: -0.25rem 0;
 	}
-
-	/* Larger touch area for buttons */
-	.btn-outline-accent {
-		padding: 0.625rem 1rem;
-		min-height: 2.75rem;
-	}
-
-	/* Easier to tap links */
-	.link-accent {
-		padding: 0.25rem 0;
-	}
 }
 
 /* Custom styled checkboxes for better appearance */
 input[type="checkbox"],
 input[type="radio"] {
-	accent-color: var(--accent-color);
+	accent-color: var(--color-ink);
 	cursor: pointer;
-}
-
-/* ===========================================
-   Subtle personality & water-themed touches
-   =========================================== */
-
-/* Gentle wave decoration for section headers */
-.wave-underline {
-	position: relative;
-}
-
-.wave-underline::after {
-	content: "";
-	position: absolute;
-	bottom: -4px;
-	left: 0;
-	width: 100%;
-	height: 3px;
-	background: linear-gradient(
-		90deg,
-		transparent 0%,
-		var(--accent-color) 20%,
-		var(--accent-border) 50%,
-		var(--accent-color) 80%,
-		transparent 100%
-	);
-	border-radius: 2px;
-	opacity: 0.6;
-}
-
-/* Session card with subtle water gradient */
-.session-card {
-	background: linear-gradient(
-		135deg,
-		white 0%,
-		white 85%,
-		var(--accent-muted) 100%
-	);
-	transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-/* Tap ripple effect for interactive cards */
-@media (max-width: 767px) {
-	.session-card:active {
-		transform: scale(0.98);
-	}
-}
-
-/* Program type color hints - bolder left border variations */
-.program-lap {
-	border-left: 4px solid #2596be;
-}
-
-.program-lessons {
-	border-left: 4px solid #22c55e;
-}
-
-.program-aerobics {
-	border-left: 4px solid #eab308;
-}
-
-.program-recreation {
-	border-left: 4px solid #a855f7;
-}
-
-.program-default {
-	border-left: 4px solid var(--accent-color);
-}
-
-/* Pool status badges with subtle glow */
-.status-open {
-	box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
-}
-
-.status-soon {
-	box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
-}
-
-/* Lane count badge styling */
-.lane-badge {
-	background: linear-gradient(135deg, var(--accent-muted) 0%, white 100%);
-	border: 1px solid var(--accent-border);
-}
-
-/* Subtle shimmer animation for "open now" cards */
-@keyframes gentle-pulse {
-	0%, 100% { opacity: 1; }
-	50% { opacity: 0.85; }
-}
-
-.pool-open {
-	animation: gentle-pulse 3s ease-in-out infinite;
-}
-
-/* Icon styling */
-.icon-water {
-	color: var(--accent-color);
 }
 
 /* ===========================================
    Availability grid (home)
    =========================================== */
-
-.plex-sans {
-	font-family: var(--font-plex-sans), Chivo, system-ui, sans-serif;
-}
-
-.plex-mono {
-	font-family: var(--font-plex-mono), "Chivo Mono", monospace;
-}
 
 /* grid cells are short (15/19px), so expand the touch target invisibly */
 .grid-cell::after {
@@ -282,7 +153,7 @@ input[type="radio"] {
    take; they multiply it into their own opacity */
 .grid-cell {
 	--dim: 1;
-	background: #f5f8f9;
+	background: var(--color-tint);
 }
 
 [data-has-selection] .grid-cell {
@@ -319,16 +190,16 @@ input[type="radio"] {
 }
 
 .grid-day {
-	color: #5a707c;
+	color: var(--color-ink-2);
 }
 
 .grid-hour {
-	color: #8a9aa4;
+	color: var(--color-ink-2);
 }
 
 .grid-day[data-band],
 .grid-hour[data-band] {
-	color: #0e2733;
+	color: var(--color-ink);
 	background: #fdf4dc;
 }
 
@@ -345,15 +216,15 @@ input[type="radio"] {
 	min-width: 14px;
 	min-height: 14px;
 	flex: none;
-	border: 1.5px solid #5a707c;
+	border: 1.5px solid var(--color-ink-2);
 	border-radius: 0;
 	background: #fff;
 	cursor: pointer;
 }
 
 .picker-checkbox:checked {
-	background: #0e2733;
-	border-color: #0e2733;
+	background: var(--color-ink);
+	border-color: var(--color-ink);
 }
 
 /* ===========================================

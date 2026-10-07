@@ -111,7 +111,7 @@ export default function TimelineBlock({ program, color, compact, style }: Props)
 					className="tt-tooltip"
 					style={{ positionAnchor: anchorName } as AnchorStyle}
 				>
-					<div className="border border-[#c4d2d9] bg-white shadow-[0_4px_16px_rgba(14,39,51,0.18)]">
+					<div className="border border-line-strong bg-white shadow-[0_4px_16px_rgba(14,39,51,0.18)]">
 						<SessionBlock program={program} color={color} />
 					</div>
 				</div>

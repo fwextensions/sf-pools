@@ -61,9 +61,9 @@ const DetailPanel = memo(function DetailPanel({
 					: null;
 
 	return (
-		<div className="mt-4 border-t-2 border-[#0e2733] pt-2.5">
+		<div className="mt-4 border-t-2 border-ink pt-2.5">
 			<div className="flex items-baseline justify-between">
-				<span className="text-[14px] font-semibold text-[#0e2733]">
+				<span className="text-body font-semibold text-ink">
 					{selectedCell
 						? `${selectedCell.day} · ${formatHour(selectedCell.hour)}–${formatHour(selectedCell.hour + 1)}`
 						: canDrag
@@ -71,7 +71,7 @@ const DetailPanel = memo(function DetailPanel({
 							: "Tap a cell for details"}
 				</span>
 				{detail ? (
-					<span className="plex-mono text-[11px] font-medium text-[#8a9aa4]">
+					<span className="font-mono text-label font-medium text-ink-2">
 						{detail.length} SESSION{detail.length === 1 ? "" : "S"}
 					</span>
 				) : null}
@@ -80,38 +80,38 @@ const DetailPanel = memo(function DetailPanel({
 			{detail?.map((d, i) => (
 				<div
 					key={i}
-					className="flex items-center gap-2.5 border-b border-[#edf1f3] py-2 text-[14px]"
+					className="flex items-center gap-2.5 border-b border-line py-2 text-body"
 				>
 					<span
-						className="px-1.5 py-[3px] plex-mono text-[11px] font-semibold text-white"
+						className="px-1.5 py-[3px] font-mono text-label font-semibold text-white"
 						style={{ background: d.color }}
 					>
 						{d.code}
 					</span>
-					<span className="min-w-0 flex-1 font-medium text-[#0e2733]">
+					<span className="min-w-0 flex-1 font-medium text-ink">
 						<ProgramName name={d.title} />
 						{[...d.badges, accessNote(d.tags)].filter(Boolean).map((note) => (
 							<span
 								key={note}
-								className="ml-1.5 whitespace-nowrap plex-mono text-[11px] font-medium uppercase text-[#8a9aa4]"
+								className="ml-1.5 whitespace-nowrap font-mono text-label font-medium uppercase text-ink-2"
 							>
 								{note}
 							</span>
 						))}
 					</span>
-					<span className="plex-mono text-[13px] font-medium text-[#5a707c]">
+					<span className="font-mono text-small font-medium text-ink-2">
 						{d.startTime}–{d.endTime}
 					</span>
 				</div>
 			))}
 			{emptyReason ? (
-				<div className="py-3.5 text-[14px] text-[#8a9aa4]">
+				<div className="py-3.5 text-body text-ink-2">
 					{emptyCellMessage(emptyReason)}
 					{emptyAction ? (
 						<button
 							type="button"
 							onClick={() => model.clearFilters(emptyAction.what, "empty_cell")}
-							className="ml-2 cursor-pointer border border-[#c4d2d9] bg-white px-2 py-0.5 align-baseline plex-mono text-[11px] font-medium text-[#5a707c]"
+							className="ml-2 cursor-pointer border border-line-strong bg-white px-2 py-0.5 align-baseline font-mono text-label font-medium text-ink-2"
 						>
 							{emptyAction.label}
 						</button>

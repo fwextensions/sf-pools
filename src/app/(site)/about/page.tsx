@@ -61,14 +61,14 @@ async function readFacilities(): Promise<Facility[]> {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
 	return (
-		<section className="flex flex-col gap-3 border-t-2 border-[#0e2733] pt-4">
-			<h2 className="plex-mono text-[12px] font-semibold tracking-[.08em]">{title}</h2>
-			<div className="flex flex-col gap-3 text-[15px] leading-relaxed text-[#243c48]">{children}</div>
+		<section className="flex flex-col gap-3 border-t-2 border-ink pt-4">
+			<h2 className="font-mono text-small font-semibold tracking-[.08em]">{title}</h2>
+			<div className="flex flex-col gap-3 text-body leading-relaxed text-ink-2">{children}</div>
 		</section>
 	);
 }
 
-const inlineLink = "text-[#0e2733] underline underline-offset-2 hover:text-[#2596be]";
+const inlineLink = "text-ink underline underline-offset-2 hover:text-[#2596be]";
 
 function Link({ href, children }: { href: string, children: React.ReactNode })
 {
@@ -94,8 +94,8 @@ export default async function AboutPage() {
 	return (
 		<main>
 			<header className="pt-6">
-				<h1 className="text-[26px] font-semibold leading-tight">About SF Pools</h1>
-				<p className="mt-1.5 max-w-[62ch] text-[14px] text-[#5a707c]">
+				<h1 className="text-title font-semibold leading-tight">About SF Pools</h1>
+				<p className="mt-1.5 max-w-[62ch] text-body text-ink-2">
 					Every public pool schedule in San Francisco, in one place.
 				</p>
 			</header>
@@ -146,7 +146,7 @@ export default async function AboutPage() {
 							{facilities.map((facility) => (
 								<li
 									key={facility.pageUrl}
-									className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-[#e2e8ec] py-2.5"
+									className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-line py-2.5"
 								>
 									<span className="flex gap-1 self-center">
 										{facility.tokens.map((token) => (
@@ -154,7 +154,7 @@ export default async function AboutPage() {
 												key={token.id}
 												href={`/schedules#pool-${token.id}`}
 												title={`${token.name} schedule`}
-												className="plex-mono px-[5px] py-[3px] text-[10px] font-semibold text-white"
+												className="font-mono px-[5px] py-[3px] text-label font-semibold text-white"
 												style={{ background: token.color }}
 											>
 												{token.code}
@@ -167,12 +167,12 @@ export default async function AboutPage() {
 									>
 										{facility.name}
 									</BaseLink>
-									<span className="text-[14px] text-[#5a707c]">{facility.address}</span>
+									<span className="text-body text-ink-2">{facility.address}</span>
 									<a
 										href={facility.pageUrl}
 										target="_blank"
 										rel="noreferrer"
-										className="plex-mono ml-auto text-[11px] font-medium text-[#5a707c] underline underline-offset-2"
+										className="font-mono ml-auto text-label font-medium text-ink-2 underline underline-offset-2"
 									>
 										POOL PAGE ↗
 									</a>

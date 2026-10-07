@@ -33,7 +33,7 @@ export default function GlobalError({
 			}}
 		>
 			<h1 style={{ fontSize: 22, fontWeight: 600, margin: 0 }}>SF Pools is down</h1>
-			<p style={{ maxWidth: "54ch", marginTop: 12, fontSize: 15, color: "#5a707c" }}>
+			<p style={{ maxWidth: "54ch", marginTop: 12, fontSize: 15, color: "#4f6672" }}>
 				The site failed to start up. It has been reported. Reloading sometimes clears it.
 			</p>
 			<p style={{ marginTop: 24 }}>

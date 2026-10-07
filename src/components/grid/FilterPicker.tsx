@@ -22,16 +22,16 @@ export function CategoryRows({
 }) {
 	const tagSet = new Set(filters.tags);
 	return <>{filters.groups.map((cat) => (
-		<div key={cat.id} className="border-b border-[#edf1f3]">
+		<div key={cat.id} className="border-b border-line">
 			<div className={`flex items-center gap-2.5 ${compact ? "px-4 py-2" : "px-4 py-2.5"}`}>
 				<button
 					type="button"
 					aria-label={`Toggle every ${cat.label} tag`}
 					aria-pressed={cat.allSelected}
 					onClick={() => model.toggleGroup(cat.id)}
-					className="flex h-[18px] w-[18px] flex-none cursor-pointer items-center justify-center border-2 border-[#0e2733] plex-mono text-[12px] font-bold text-white"
+					className="flex h-[18px] w-[18px] flex-none cursor-pointer items-center justify-center border-2 border-ink font-mono text-small font-bold text-white"
 					style={{
-						background: cat.allSelected ? "#0e2733" : cat.someSelected ? "#5a8ba3" : "#fff",
+						background: cat.allSelected ? "var(--color-ink)" : cat.someSelected ? "#5a8ba3" : "#fff",
 					}}
 				>
 					{cat.allSelected ? "✓" : cat.someSelected ? "–" : ""}
@@ -39,10 +39,10 @@ export function CategoryRows({
 				<button
 					type="button"
 					onClick={() => model.toggleGroup(cat.id)}
-					className="flex-1 cursor-pointer text-left text-[14px] font-semibold text-[#0e2733]"
+					className="flex-1 cursor-pointer text-left text-body font-semibold text-ink"
 				>
 					{cat.label}{" "}
-					<span className="plex-mono text-[12px] font-medium text-[#8a9aa4]">
+					<span className="font-mono text-small font-medium text-ink-2">
 						({cat.tags.length})
 					</span>
 				</button>
@@ -54,7 +54,7 @@ export function CategoryRows({
 					// double the label's size to carry the same weight as the
 					// checkbox and text it sits with. leading-none keeps that off
 					// the row height
-					className="cursor-pointer px-2 py-1 plex-mono text-[26px] font-medium leading-none text-[#5a707c]"
+					className="cursor-pointer px-2 py-1 font-mono text-title font-medium leading-none text-ink-2"
 				>
 					{expanded[cat.id] ? "▴" : "▾"}
 				</button>
@@ -72,8 +72,8 @@ export function CategoryRows({
 								onChange={() => model.toggleTag(name)}
 								className="picker-checkbox"
 							/>
-							<span className="flex-1 text-[14px] text-[#37474f]">{tagLabel(name)}</span>
-							<span className="plex-mono text-[12px] font-medium text-[#8a9aa4]">
+							<span className="flex-1 text-body text-ink-2">{tagLabel(name)}</span>
+							<span className="font-mono text-small font-medium text-ink-2">
 								{filters.tagCounts.get(name)}
 							</span>
 						</label>
@@ -92,7 +92,7 @@ export function PoolRows({ model, filters }: { model: GridModel; filters: Filter
 		return (
 			<label
 				key={token.id}
-				className="flex cursor-pointer items-center gap-2.5 border-b border-[#edf1f3] px-4 py-2"
+				className="flex cursor-pointer items-center gap-2.5 border-b border-line px-4 py-2"
 				style={{ opacity: active ? 1 : 0.45 }}
 			>
 				<input
@@ -103,15 +103,15 @@ export function PoolRows({ model, filters }: { model: GridModel; filters: Filter
 				/>
 				<span
 					aria-hidden
-					className="flex h-[18px] w-[18px] flex-none items-center justify-center plex-mono text-[12px] font-bold text-white"
+					className="flex h-[18px] w-[18px] flex-none items-center justify-center font-mono text-small font-bold text-white"
 					style={{ background: token.color }}
 				>
 					{selectedPools.includes(token.id) ? "✓" : ""}
 				</span>
-				<span className="w-[34px] plex-mono text-[12px] font-semibold text-[#5a707c]">
+				<span className="w-[34px] font-mono text-small font-semibold text-ink-2">
 					{token.code}
 				</span>
-				<span className="flex-1 text-[14px] font-medium text-[#0e2733]">{token.name}</span>
+				<span className="flex-1 text-body font-medium text-ink">{token.name}</span>
 			</label>
 		);
 	})}</>;
@@ -125,8 +125,8 @@ export function ClearButton({ model, compact = false }: { model: GridModel; comp
 		<button
 			type="button"
 			onClick={() => model.clearFilters("all")}
-			className={`cursor-pointer border border-[#c4d2d9] bg-white plex-mono font-medium text-[#5a707c] ${
-				compact ? "px-2 py-px text-[11px] leading-none" : "px-2.5 py-1.5 text-[12px]"
+			className={`cursor-pointer border border-line-strong bg-white font-mono font-medium text-ink-2 ${
+				compact ? "px-2 py-px text-label leading-none" : "px-2.5 py-1.5 text-small"
 			}`}
 		>
 			CLEAR
@@ -144,7 +144,7 @@ export function ClearIconButton({ model }: { model: GridModel }) {
 			onClick={() => model.clearFilters("all")}
 			aria-label="Clear filters"
 			title="Clear filters"
-			className="w-9 flex-none cursor-pointer border-[1.5px] border-[#0e2733] bg-white px-2.5 py-2 text-center plex-mono text-[12px] font-semibold text-[#0e2733]"
+			className="w-9 flex-none cursor-pointer border-[1.5px] border-ink bg-white px-2.5 py-2 text-center font-mono text-small font-semibold text-ink"
 		>
 			<svg
 				aria-hidden

@@ -31,24 +31,24 @@ export function MobileChips({
 				<button
 					type="button"
 					onClick={() => onOpenPanel(openPanel === "programs" ? null : "programs")}
-					className="cursor-pointer border-[1.5px] border-[#0e2733] px-2.5 py-2 plex-mono text-[12px] font-semibold"
+					className="cursor-pointer border-[1.5px] border-ink px-2.5 py-2 font-mono text-small font-semibold"
 					style={{
-						background: selectedTags.length ? "#0e2733" : "#fff",
-						color: selectedTags.length ? "#fff" : "#0e2733",
+						background: selectedTags.length ? "var(--color-ink)" : "#fff",
+						color: selectedTags.length ? "#fff" : "var(--color-ink)",
 					}}
 				>
-					PROGRAMS {selectedTags.length || "ALL"} <span className="text-[15px] leading-none">{openPanel === "programs" ? "▴" : "▾"}</span>
+					PROGRAMS {selectedTags.length || "ALL"} <span className="text-body leading-none">{openPanel === "programs" ? "▴" : "▾"}</span>
 				</button>
 				<button
 					type="button"
 					onClick={() => onOpenPanel(openPanel === "pools" ? null : "pools")}
-					className="cursor-pointer border-[1.5px] border-[#0e2733] px-2.5 py-2 plex-mono text-[12px] font-semibold"
+					className="cursor-pointer border-[1.5px] border-ink px-2.5 py-2 font-mono text-small font-semibold"
 					style={{
-						background: selectedPools.length ? "#0e2733" : "#fff",
-						color: selectedPools.length ? "#fff" : "#0e2733",
+						background: selectedPools.length ? "var(--color-ink)" : "#fff",
+						color: selectedPools.length ? "#fff" : "var(--color-ink)",
 					}}
 				>
-					POOLS {selectedPools.length || "ALL"} <span className="text-[15px] leading-none">{openPanel === "pools" ? "▴" : "▾"}</span>
+					POOLS {selectedPools.length || "ALL"} <span className="text-body leading-none">{openPanel === "pools" ? "▴" : "▾"}</span>
 				</button>
 			</div>
 			<div className="flex flex-none items-center gap-1.5">
@@ -60,14 +60,14 @@ export function MobileChips({
 					aria-label={focusMode ? "Leave full screen" : "Fill the screen to drag across the grid"}
 					aria-pressed={focusMode}
 					onClick={onToggleFocus}
-					className="w-9 flex-none cursor-pointer border-[1.5px] border-[#0e2733] px-2.5 py-2 text-center plex-mono text-[12px] font-semibold"
+					className="w-9 flex-none cursor-pointer border-[1.5px] border-ink px-2.5 py-2 text-center font-mono text-small font-semibold"
 					style={{
-						background: focusMode ? "#0e2733" : "#fff",
-						color: focusMode ? "#fff" : "#0e2733",
+						background: focusMode ? "var(--color-ink)" : "#fff",
+						color: focusMode ? "#fff" : "var(--color-ink)",
 					}}
 				>
 					{focusMode ? (
-						<span className="text-[15px] leading-none">✕</span>
+						<span className="text-body leading-none">✕</span>
 					) : (
 						<svg
 							aria-hidden
@@ -107,7 +107,7 @@ export function MobilePanel({
 	openPanel: OpenPanel;
 	children: { programs: ReactNode; pools: ReactNode };
 }) {
-	const className = `border-b-2 border-[#0e2733] bg-[#fbfdfe] ${
+	const className = `border-b-2 border-ink bg-tint ${
 		fill ? "overflow-y-auto overscroll-contain min-h-0 flex-1" : ""
 	}`;
 	if (openPanel === "programs") {
