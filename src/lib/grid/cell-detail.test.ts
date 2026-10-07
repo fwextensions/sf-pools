@@ -72,7 +72,7 @@ describe("cellDetail", () => {
 
 	it("lists the cell's sessions by start time, in pool order on ties", () => {
 		const { rows, empty } = cellDetail(sessions, cell, everything);
-		expect(rows.map((r) => `${r.code} ${r.startTime}`)).toEqual([
+		expect(rows.map((r) => `${r.pool.code} ${r.startTime}`)).toEqual([
 			"BAL 10:00a",
 			"MLK 10:00a",
 			"ROS 10:30a",
@@ -83,7 +83,7 @@ describe("cellDetail", () => {
 
 	it("honours both filters", () => {
 		const { rows } = cellDetail(sessions, cell, { matchesTags: wantsLap, poolSet: new Set(["balboa", "rossi"]) });
-		expect(rows.map((r) => `${r.code} ${r.startTime}`)).toEqual(["BAL 10:00a", "ROS 10:30a"]);
+		expect(rows.map((r) => `${r.pool.code} ${r.startTime}`)).toEqual(["BAL 10:00a", "ROS 10:30a"]);
 	});
 
 	it("says which filter emptied the cell", () => {

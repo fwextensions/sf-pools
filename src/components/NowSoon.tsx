@@ -5,6 +5,7 @@ import type { PoolSchedule } from "@/lib/pdf-processor";
 import { around, toSessions, type Day, type Session } from "@/lib/sessions";
 import { toTitleCase } from "@/lib/program-taxonomy";
 import { getPoolToken } from "@/lib/pool-tokens";
+import PoolChip from "./PoolChip";
 import ProgramName from "@/components/ProgramName";
 
 type Props = {
@@ -96,13 +97,7 @@ function PoolBlock({
 	return (
 		<li className="border-l-[3px] bg-tint px-3 py-2.5" style={{ borderColor: color }}>
 			<div className="flex items-center gap-2">
-				<span
-					aria-hidden
-					className="flex h-[18px] w-[30px] flex-none items-center justify-center font-mono text-label font-semibold text-white"
-					style={{ background: color }}
-				>
-					{token?.code ?? "—"}
-				</span>
+				<PoolChip token={token} />
 				<span className="min-w-0 flex-1 truncate text-body font-semibold text-ink">
 					{poolLabel(pool)}
 				</span>

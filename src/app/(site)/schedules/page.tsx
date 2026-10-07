@@ -4,6 +4,7 @@ import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import ClosureNotice from "@/components/ClosureNotice";
+import PoolChip from "@/components/PoolChip";
 import SessionBlock from "@/components/schedule/SessionBlock";
 import TimelineBlock from "@/components/schedule/TimelineBlock";
 import { toTitleCase } from "@/lib/program-taxonomy";
@@ -25,9 +26,11 @@ export const metadata: Metadata = {
  * while "North Beach (Warm)" stays readable. Short names are pinned to their
  * natural width and the long ones give up the whole difference instead.
  *
- * The row needs ~1040px of viewport to show every label in full; between that
- * and the 900px floor where labels appear at all, the two North Beach entries
- * are what shortens. Below 900px the labels drop and the codes stand alone.
+ * The North Beach pools are labelled "NB Cool" and "NB Warm" at every width,
+ * since with the larger pool chips "North Beach (Cool)" no longer fits beside
+ * the other nine at any width the container reaches, and its ellipsis cut off
+ * the Cool/Warm that tells the two apart. The chip's title still spells out
+ * the full name. Below 900px the labels drop and the codes stand alone.
  */
 const SHRINKABLE_LABEL_CHARS = 10;
 
@@ -375,11 +378,11 @@ export default async function SchedulesPage() {
 					>
 						{pools.map(({ pool, token }) => {
 							const label = token?.name ?? pool.shortName ?? toTitleCase(pool.name);
-							// five to a row leaves a phone chip about 60px of text, which
-							// fits every name but the two North Beach pools
-							const phoneLabel = label.replace(/^North Beach \((\w+)\)$/, "NB $1");
+							// five to a row leaves a phone chip about 60px of text, and the
+							// desktop row has no room for the long form either
+							const shortLabel = label.replace(/^North Beach \((\w+)\)$/, "NB $1");
 							const shrink =
-								label.length > SHRINKABLE_LABEL_CHARS ? "shrink" : "shrink-0";
+								shortLabel.length > SHRINKABLE_LABEL_CHARS ? "shrink" : "shrink-0";
 							return (
 								<a
 									key={pool.id}
@@ -395,18 +398,16 @@ export default async function SchedulesPage() {
 									    code and the chip's left edge carries the colour — but
 									    below 400px five names to a row start clipping, so the
 									    narrowest phones get the codes back, two rows of five. */}
-									<span
+									<PoolChip
 										aria-hidden
-										className="mx-auto flex h-[16px] w-[26px] flex-none items-center justify-center font-mono text-label font-semibold text-white min-[400px]:hidden min-[900px]:mx-0 min-[900px]:flex"
-										style={{ background: token?.color ?? "var(--color-ink-2)" }}
-									>
-										{token?.code ?? "—"}
-									</span>
+										token={token}
+										className="mx-auto min-[400px]:hidden min-[900px]:mx-0 min-[900px]:inline-block"
+									/>
 									<span className="hidden min-w-0 truncate text-label font-medium text-ink-2 min-[400px]:block min-[900px]:hidden">
-										{phoneLabel}
+										{shortLabel}
 									</span>
 									<span className="hidden min-w-0 truncate text-small font-medium text-ink-2 min-[900px]:block">
-										{label}
+										{shortLabel}
 									</span>
 								</a>
 							);
@@ -445,12 +446,7 @@ export default async function SchedulesPage() {
 									style={{ borderColor: color }}
 								>
 									<div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-										<span
-											className="px-1.5 py-[3px] font-mono text-label font-semibold text-white"
-											style={{ background: color }}
-										>
-											{token?.code ?? "—"}
-										</span>
+										<PoolChip token={token} />
 										<h2 className="text-heading font-semibold leading-tight">
 											{toTitleCase(pool.name)}
 										</h2>

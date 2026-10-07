@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { Metadata } from "next";
 import BaseLink from "next/link";
+import PoolChip from "@/components/PoolChip";
 import { getPoolToken, type PoolToken } from "@/lib/pool-tokens";
 
 export const metadata: Metadata = {
@@ -153,11 +154,9 @@ export default async function AboutPage() {
 											<BaseLink
 												key={token.id}
 												href={`/schedules#pool-${token.id}`}
-												title={`${token.name} schedule`}
-												className="font-mono px-[5px] py-[3px] text-label font-semibold text-white"
-												style={{ background: token.color }}
+												className="flex"
 											>
-												{token.code}
+												<PoolChip token={token} />
 											</BaseLink>
 										))}
 									</span>

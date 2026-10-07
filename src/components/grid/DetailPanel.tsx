@@ -2,6 +2,7 @@
 
 import { memo, useCallback, useMemo, useSyncExternalStore } from "react";
 import ProgramName from "@/components/ProgramName";
+import PoolChip from "@/components/PoolChip";
 import { tagLabel } from "@/lib/program-taxonomy";
 import { cellDetail, emptyCellMessage } from "@/lib/grid/cell-detail";
 import type { FilterView, GridModel } from "@/lib/grid/grid-model";
@@ -82,12 +83,7 @@ const DetailPanel = memo(function DetailPanel({
 					key={i}
 					className="flex items-center gap-2.5 border-b border-line py-2 text-body"
 				>
-					<span
-						className="px-1.5 py-[3px] font-mono text-label font-semibold text-white"
-						style={{ background: d.color }}
-					>
-						{d.code}
-					</span>
+					<PoolChip token={d.pool} />
 					<span className="min-w-0 flex-1 font-medium text-ink">
 						<ProgramName name={d.title} />
 						{[...d.badges, accessNote(d.tags)].filter(Boolean).map((note) => (
