@@ -18,7 +18,7 @@ export default function ClosureNotice({ closure, poolName }: Props) {
 
 	return (
 		<div className="font-sans bg-tint px-3 py-2.5">
-			<div className="flex items-center gap-1.5 font-mono text-label font-semibold tracking-[.08em] text-ink">
+			<div className="font-mono text-label font-semibold tracking-[.08em] text-ink">
 				<span aria-hidden className="status-dot ring-2 ring-ink-2 ring-inset opacity-60" />
 				CLOSED
 			</div>

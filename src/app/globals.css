@@ -55,13 +55,22 @@
 }
 
 /* Now & Soon's status glyphs: a shape plus a word, never a color, so status
-   can't be mistaken for a pool. 9px, with the rings inset. */
+   can't be mistaken for a pool. 9px, with the rings inset. The dot sits
+   inline before its word, not in a flex row: flex centering lines it up
+   with the middle of the line box, which includes the descender space
+   below the capitals, so the dot hung low. Instead its bottom sits on the
+   text's baseline and a transform moves its center to half the cap height,
+   at any font size. A transform rather than vertical-align, because layout
+   rounds a raised box to a whole pixel and the offset here is a fraction
+   of one. */
 @utility status-dot {
 	display: inline-block;
-	flex: none;
 	width: 9px;
 	height: 9px;
+	margin-right: 6px;
 	border-radius: 9999px;
+	vertical-align: baseline;
+	transform: translateY(calc(4.5px - 0.5cap));
 }
 
 /* base theme tokens */

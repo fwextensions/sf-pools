@@ -98,7 +98,7 @@ function PoolBlock({
 					{poolLabel(pool)}
 				</span>
 				<span
-					className={`flex flex-none items-center gap-1.5 font-mono text-label font-semibold tracking-[.08em] ${tag.text}`}
+					className={`flex-none whitespace-nowrap font-mono text-label font-semibold tracking-[.08em] ${tag.text}`}
 				>
 					<span aria-hidden className={`status-dot ${tag.glyph}`} />
 					{tag.label}
