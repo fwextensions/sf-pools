@@ -21,7 +21,9 @@ export const POOL_TOKENS: PoolToken[] = [
 	{ id: "balboa", code: "BAL", color: "#4f7ddb", chip: "#3f6cc9", chipText: "#fff", name: "Balboa", fullName: "Balboa Pool" },
 	{ id: "coffman", code: "COF", color: "#00a7a0", chip: "#00807a", chipText: "#fff", name: "Coffman", fullName: "Coffman Pool" },
 	{ id: "garfield", code: "GAR", color: "#58a854", chip: "#3b8438", chipText: "#fff", name: "Garfield", fullName: "Garfield Pool" },
-	{ id: "hamilton", code: "HAM", color: "#e0813c", chip: "#b25e28", chipText: "#fff", name: "Hamilton", fullName: "Hamilton Pool" },
+	// HAM keeps its lane orange with ink text: darkened enough for white it
+	// turned the same rust as ROS.
+	{ id: "hamilton", code: "HAM", color: "#e0813c", chip: "#e0813c", chipText: "#0e2733", name: "Hamilton", fullName: "Hamilton Pool" },
 	{ id: "mission", code: "MIS", color: "#d65a78", chip: "#c44a69", chipText: "#fff", name: "Mission", fullName: "Mission Pool" },
 	{ id: "mlk", code: "MLK", color: "#8a5cd6", chip: "#7a4cc6", chipText: "#fff", name: "MLK", fullName: "Martin Luther King Jr. Pool" },
 	// North Beach Cool/Warm share a facility: same hue family, two shades.
