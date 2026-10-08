@@ -100,8 +100,10 @@ export function MobileChips({
 // a long list is still one tap from being closed.
 //
 // Focus mode is the opposite case and keeps both: nothing behind the
-// panel scrolls there, so it takes the leftover space and contains its
-// own overscroll rather than pushing the grid off a short screen.
+// panel scrolls there, so it shrinks to fit the space the grid leaves and
+// contains its own overscroll rather than pushing the grid off a short
+// screen. It never grows past its rows, though: a short list stretched to
+// fill that space left a blank gap between it and the grid.
 export function MobilePanel({
 	fill = false,
 	openPanel,
@@ -112,7 +114,7 @@ export function MobilePanel({
 	children: { programs: ReactNode; pools: ReactNode };
 }) {
 	const className = `border-b-2 border-ink bg-tint ${
-		fill ? "overflow-y-auto overscroll-contain min-h-0 flex-1" : ""
+		fill ? "overflow-y-auto overscroll-contain min-h-0 flex-initial" : ""
 	}`;
 	if (openPanel === "programs") {
 		return <div className={className}>{children.programs}</div>;
