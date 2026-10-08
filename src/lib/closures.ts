@@ -89,6 +89,12 @@ function monthFromName(name: string): number | null {
 	return MONTHS[name.slice(0, 4).toLowerCase()] ?? MONTHS[name.slice(0, 3).toLowerCase()] ?? null;
 }
 
+function dayBefore(date: string): string {
+	const d = new Date(`${date}T00:00:00Z`);
+	d.setUTCDate(d.getUTCDate() - 1);
+	return d.toISOString().slice(0, 10);
+}
+
 type DateRange = { startDate: string | null; endDate: string | null };
 
 /**
@@ -148,13 +154,38 @@ export function parseDateRange(text: string, referenceYear: number): DateRange {
 		}
 	}
 
+	// "closed from October 13 and reopen on November 2" — the reopening day is
+	// the first open one, so the closure ends the day before it
+	const fromReopen =
+		/\bfrom\s+([A-Za-z]{3,9})\.?\s+(\d{1,2})\b[^.]*?\breopen(?:s|ing)?(?:\s+on)?\s+([A-Za-z]{3,9})\.?\s+(\d{1,2})\b/i.exec(
+			text
+		);
+	if (fromReopen) {
+		const m1 = monthFromName(fromReopen[1]!);
+		const m2 = monthFromName(fromReopen[3]!);
+		if (m1 && m2) {
+			const startDate = iso(year, m1, +fromReopen[2]!);
+			let reopen = iso(year, m2, +fromReopen[4]!);
+			if (startDate && reopen && reopen <= startDate) {
+				reopen = iso(year + 1, m2, +fromReopen[4]!);
+			}
+			return { startDate, endDate: reopen && dayBefore(reopen) };
+		}
+	}
+
 	// "closed through September 7" — an end with no announced start
-	const endOnly = /\b(?:through|thru|until|reopens?(?:\s+on)?)\s+([A-Za-z]{3,9})\.?\s+(\d{1,2})\b/i.exec(
-		text
-	);
+	const endOnly = /\b(?:through|thru|until)\s+([A-Za-z]{3,9})\.?\s+(\d{1,2})\b/i.exec(text);
 	if (endOnly) {
 		const m = monthFromName(endOnly[1]!);
 		if (m) return { startDate: null, endDate: iso(year, m, +endOnly[2]!) };
+	}
+
+	// "reopens September 8" — closed through the day before
+	const reopenOnly = /\breopen(?:s|ing)?(?:\s+on)?\s+([A-Za-z]{3,9})\.?\s+(\d{1,2})\b/i.exec(text);
+	if (reopenOnly) {
+		const m = monthFromName(reopenOnly[1]!);
+		const reopen = m ? iso(year, m, +reopenOnly[2]!) : null;
+		if (reopen) return { startDate: null, endDate: dayBefore(reopen) };
 	}
 
 	return { startDate: null, endDate: null };
@@ -316,8 +347,19 @@ export function mergeClosure(
 		// the model can pull the pool back out of suppression, never push it in
 		const vetoed = !enrichment.isClosure || enrichment.scope === "partial";
 
+		// a start the patterns missed only shortens the closure, so the model's
+		// can fill it, as long as it falls before the end
+		const startDate =
+			pattern.startDate ??
+			(enrichment.isClosure &&
+			enrichment.startDate &&
+			(!pattern.endDate || enrichment.startDate <= pattern.endDate)
+				? enrichment.startDate
+				: null);
+
 		return {
 			...pattern,
+			startDate,
 			summary: enrichment.isClosure ? enrichment.summary : pattern.summary,
 			reason: enrichment.reason,
 			scope: enrichment.scope,

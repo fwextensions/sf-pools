@@ -82,6 +82,8 @@ You read closure notices for San Francisco public pools and return structured da
 Rules:
 - Output must conform exactly to the provided JSON schema.
 - Dates are Pacific Time, formatted YYYY-MM-DD. Today is ${input.today}.
+- endDate is the last day the pool is closed. A notice that says the pool
+  reopens on a date ends the day before it.
 - A notice that gives only a month and day takes the year that makes the closure
   fall nearest to today, without inventing a year the notice does not imply.
 - scope is "whole-pool" only when swimmers cannot use the pool at all. A closed

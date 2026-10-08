@@ -54,6 +54,22 @@ describe("parseDateRange", () => {
 		});
 	});
 
+	it("ends a from/reopen closure the day before it reopens", () => {
+		expect(
+			parseDateRange(
+				"Please note, North Beach Pool will be closed for its annual maintenance from October 13 and reopen on November 2.",
+				2026
+			)
+		).toEqual({ startDate: "2026-10-13", endDate: "2026-11-01" });
+	});
+
+	it("ends a reopen-only closure the day before it reopens", () => {
+		expect(parseDateRange("Pool closed for repairs, reopens September 8", 2026)).toEqual({
+			startDate: null,
+			endDate: "2026-09-07",
+		});
+	});
+
 	it("rolls the end into the next year when the range wraps", () => {
 		expect(parseDateRange("Closure 12-20_1-5", 2026)).toEqual({
 			startDate: "2026-12-20",
@@ -221,6 +237,19 @@ describe("mergeClosure", () => {
 			...overrides,
 		};
 	}
+
+	it("fills a start the patterns missed from the model", () => {
+		const endOnly = detectClosure("Pool closed through September 7", opts)!;
+		const merged = mergeClosure(endOnly, enrichment(), mergeOpts)!;
+		expect(merged.startDate).toBe("2026-08-14");
+		expect(merged.endDate).toBe("2026-09-07");
+	});
+
+	it("ignores a model start that falls after the end", () => {
+		const endOnly = detectClosure("Pool closed through September 7", opts)!;
+		const merged = mergeClosure(endOnly, enrichment({ startDate: "2026-09-10" }), mergeOpts)!;
+		expect(merged.startDate).toBeNull();
+	});
 
 	it("keeps the pattern reading when there is no enrichment", () => {
 		expect(mergeClosure(pattern, null, mergeOpts)).toBe(pattern);
