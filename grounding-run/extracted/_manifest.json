@@ -1,0 +1,52 @@
+{
+	"balboa": {
+		"pdfHash": "d6f21871037274cc7b8817ab17a92eb7fec8b8d9dfa915d1cb72182b9526dda9",
+		"extractedAt": "2026-10-08T02:27:07.335Z",
+		"grounding": 1
+	},
+	"coffman": {
+		"pdfHash": "0345cb25881bf830cc0da365d669c36410bf6ac3cebcd9a83cb0910459e3e457",
+		"extractedAt": "2026-10-08T02:27:12.028Z",
+		"grounding": 1
+	},
+	"garfield": {
+		"pdfHash": "7f5c0074e8ddf2428c38ce3870d36d73521e7ae17f863839c5db20893e26573b",
+		"extractedAt": "2026-10-08T02:27:19.601Z",
+		"grounding": 1
+	},
+	"hamilton": {
+		"pdfHash": "c8e193806d9e9b7c6240eda5cc3e533ac2bb261007b6f72c48f60ce466db6697",
+		"extractedAt": "2026-10-08T02:27:25.975Z",
+		"grounding": 1
+	},
+	"mlk": {
+		"pdfHash": "edca152a4fa61deb96bd55e5ed54a0fd82d1e3d464c07fca0392213965044725",
+		"extractedAt": "2026-10-08T02:27:33.231Z",
+		"grounding": 1
+	},
+	"mission": {
+		"pdfHash": "67f2a420e8fc7957ece8b02acfcbf574249473f759eafb123e17c6ed0cebd2b4",
+		"extractedAt": "2026-10-08T02:27:37.915Z",
+		"grounding": 1
+	},
+	"northbeachcool": {
+		"pdfHash": "6c2b2e77fb2370a1aee52203c9d8672fc5e55ab398875a72f83156ac3b23397c",
+		"extractedAt": "2026-10-08T02:28:06.168Z",
+		"grounding": 1
+	},
+	"northbeachwarm": {
+		"pdfHash": "ac196df42a14a71cd86fbb13972706e22b5e5cf8dcc5820f660d57882bfd25c8",
+		"extractedAt": "2026-10-08T02:28:37.279Z",
+		"grounding": 1
+	},
+	"rossi": {
+		"pdfHash": "cb8abdbbedda075c85b1a8f1400345efb2d9b022eee6f452bf6b21d4876d80bc",
+		"extractedAt": "2026-10-08T02:29:00.357Z",
+		"grounding": 1
+	},
+	"sava": {
+		"pdfHash": "4b1055669e1df46512c16b051b02b8de52d1b935f7cbfde2f27bfe38ff03009c",
+		"extractedAt": "2026-10-08T02:29:04.851Z",
+		"grounding": 1
+	}
+}
