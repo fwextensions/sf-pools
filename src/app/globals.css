@@ -10,8 +10,13 @@
 	--color-line-strong: #c4d2d9;
 	/* row dividers, grid hairlines */
 	--color-line: #e2e8ec;
-	/* empty cells, stat tiles, hover, notice boxes */
+	/* empty cells, stat tiles, hover */
 	--color-tint: #f5f8f9;
+	/* closure and alert notices: a tint of their own, so a notice never
+	   reads as another UI surface. Not amber, which marks the grid
+	   selection; the left rule and label use the darker alert color */
+	--color-alert-tint: #fbf0ee;
+	--color-alert: #a4432f;
 	/* 28 / 20 / 15 / 13px at the desktop root size */
 	--text-title: 1.75rem;
 	--text-heading: 1.25rem;
