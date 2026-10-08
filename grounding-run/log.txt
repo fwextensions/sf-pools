@@ -1,0 +1,75 @@
+found 10 pdf(s) to process
+extracting: balboa.pdf
+  1 grounding issue(s), asking for a repair
+  1 issue(s) after repair
+  tokens: 1819 in / 3567 out ($0.0095)
+  tokens: 4157 in / 3312 out ($0.0095)
+wrote extract: /home/runner/work/sf-pools/sf-pools/data/extracted/balboa.json
+  grounding: Balboa: Tuesday 2:30p-3:30p "Family/Lap Swim": the PDF says "Family/Lap Swim (small/main) (Lap swim until 4pm) 2:30pm-3:30pm", so this program runs to a different time than the rest of the cell
+extracting: coffman.pdf
+  tokens: 1838 in / 2255 out ($0.0062)
+wrote extract: /home/runner/work/sf-pools/sf-pools/data/extracted/coffman.json
+extracting: garfield.pdf
+  tokens: 2015 in / 3336 out ($0.0089)
+wrote extract: /home/runner/work/sf-pools/sf-pools/data/extracted/garfield.json
+extracting: hamilton.pdf
+  tokens: 2114 in / 2937 out ($0.0080)
+wrote extract: /home/runner/work/sf-pools/sf-pools/data/extracted/hamilton.json
+extracting: mlk.pdf
+  tokens: 2043 in / 2743 out ($0.0075)
+wrote extract: /home/runner/work/sf-pools/sf-pools/data/extracted/mlk.json
+extracting: mission.pdf
+  tokens: 1672 in / 3041 out ($0.0081)
+wrote extract: /home/runner/work/sf-pools/sf-pools/data/extracted/mission.json
+extracting: northbeachcool.pdf
+  tokens: 1660 in / 2577 out ($0.0069)
+wrote extract: /home/runner/work/sf-pools/sf-pools/data/extracted/northbeachcool.json
+extracting: northbeachwarm.pdf
+  tokens: 1905 in / 3749 out ($0.0099)
+wrote extract: /home/runner/work/sf-pools/sf-pools/data/extracted/northbeachwarm.json
+extracting: rossi.pdf
+  tokens: 1839 in / 2063 out ($0.0057)
+wrote extract: /home/runner/work/sf-pools/sf-pools/data/extracted/rossi.json
+extracting: sava.pdf
+  tokens: 1758 in / 2215 out ($0.0061)
+wrote extract: /home/runner/work/sf-pools/sf-pools/data/extracted/sava.json
+wrote changelog: /home/runner/work/sf-pools/sf-pools/data/changelog/2026-10-08.json
+Schedule changes for 2026-10-08:
+  Pools changed: 5
+  Programs added: 4
+  Programs removed: 13
+  Programs modified: 7
+
+⚠️  Warnings:
+  - grounding: Balboa: Tuesday 2:30p-3:30p "Family/Lap Swim": the PDF says "Family/Lap Swim (small/main) (Lap swim until 4pm) 2:30pm-3:30pm", so this program runs to a different time than the rest of the cell
+
+Details:
+  Balboa Aquatics Center:
+    ~ Lap Swim (Tuesday) 2:30p–3:30p → 2:30p–4:00p
+    - Lap Swim (Wednesday) 7:00a–8:00a
+  Garfield Aquatic Center:
+    ~ Lap Swim (Monday) 11:00a–1:00p → 7:00a–8:45a
+    ~ Swim Lessons (General/Youth/Community) (Monday) 9:00a–11:00a → 9:30a–10:45a
+    ~ Lap Swim (Tuesday) 11:00a–1:00p → 7:00a–8:45a
+    ~ Lap Swim (Wednesday) 11:00a–1:00p → 7:00a–8:45a
+    ~ Lap Swim (Thursday) 11:00a–1:00p → 7:00a–8:45a
+    - Swim Lessons (General/Youth/Community) (Thursday) 9:30a–10:45a
+  Martin Luther King Jr. Swimming Pool:
+    + Bayview Safety Swim & Splash (Tuesday) 3:30p–6:00p
+    ~ Lap Swim (Tuesday) 3:30p–5:30p → 6:00p–7:00p
+    + Bayview Safety Swim & Splash (Wednesday) 3:30p–6:00p
+    + Bayview Safety Swim & Splash (Thursday) 3:30p–6:00p
+    + Bayview Safety Swim & Splash (Friday) 3:30p–6:00p
+    - Swim Lessons (General/Youth/Community) (Tuesday) 3:30p–6:00p
+    - Lap Swim (Wednesday) 7:30a–9:00a
+    - Lap Swim (Wednesday) 3:30p–5:30p
+    - Swim Lessons (General/Youth/Community) (Wednesday) 3:30p–6:00p
+    - Lap Swim (Thursday) 3:30p–5:30p
+    ... and 4 more changes
+  North Beach Aquatics Center - Warm Pool:
+    - Senior Swim / Therapy Swim (Wednesday) 7:30a–9:00a
+  Rossi Pool:
+    - Lap Swim (Wednesday) 7:30a–9:45a
+wrote: /home/runner/work/sf-pools/sf-pools/public/data/all_schedules.json (10 pools)
+extracted: 10, skipped: 0, preserved: 0
+model usage: 11 call(s), 54615 tokens, ~$0.0863 (logged to /home/runner/work/sf-pools/sf-pools/data/usage/llm-usage.jsonl)
