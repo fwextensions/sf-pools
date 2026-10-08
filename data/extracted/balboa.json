@@ -2,34 +2,40 @@
 	{
 		"id": "balboa-aquatics-center",
 		"name": "Balboa Aquatics Center",
-		"nameTitle": "Balboa Pool",
-		"shortName": "Balboa Pool",
+		"nameTitle": "Balboa Aquatics Center",
+		"shortName": "Balboa",
 		"address": "51 Havelock Street",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Balboa-Pool-212",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29796",
+		"scheduleLastUpdated": null,
 		"scheduleSeason": "Fall 2026",
 		"scheduleStartDate": "2026-09-01",
 		"scheduleEndDate": "2026-12-12",
+		"lanes": null,
+		"closure": null,
 		"programs": [
 			{
 				"programName": "Lap Swim",
 				"dayOfWeek": "Tuesday",
 				"startTime": "7:00a",
 				"endTime": "8:00a",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "SFUSD Class",
 				"dayOfWeek": "Tuesday",
 				"startTime": "8:30a",
 				"endTime": "10:00a",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Senior/Therapy Swim",
 				"dayOfWeek": "Tuesday",
 				"startTime": "10:30a",
 				"endTime": "12:00p",
+				"lanes": null,
 				"notes": "main pool"
 			},
 			{
@@ -37,6 +43,7 @@
 				"dayOfWeek": "Tuesday",
 				"startTime": "10:30a",
 				"endTime": "11:00a",
+				"lanes": null,
 				"notes": "small pool"
 			},
 			{
@@ -44,27 +51,31 @@
 				"dayOfWeek": "Tuesday",
 				"startTime": "12:30p",
 				"endTime": "2:00p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Family/Lap Swim",
 				"dayOfWeek": "Tuesday",
 				"startTime": "2:30p",
 				"endTime": "3:30p",
-				"notes": "small/main, Lap swim until 4pm"
+				"lanes": null,
+				"notes": "small/main; Lap swim until 4pm"
 			},
 			{
 				"programName": "Adult Swim Lessons",
 				"dayOfWeek": "Tuesday",
 				"startTime": "3:30p",
 				"endTime": "4:00p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Family/Lap Swim",
 				"dayOfWeek": "Tuesday",
 				"startTime": "4:00p",
 				"endTime": "5:30p",
+				"lanes": null,
 				"notes": "small/main"
 			},
 			{
@@ -72,34 +83,31 @@
 				"dayOfWeek": "Tuesday",
 				"startTime": "5:30p",
 				"endTime": "7:30p",
-				"notes": ""
-			},
-			{
-				"programName": "Lap Swim",
-				"dayOfWeek": "Wednesday",
-				"startTime": "7:00a",
-				"endTime": "8:00a",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Lap Swim",
 				"dayOfWeek": "Wednesday",
 				"startTime": "9:00a",
 				"endTime": "10:15a",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Senior/Therapy Swim",
 				"dayOfWeek": "Wednesday",
 				"startTime": "10:30a",
 				"endTime": "12:00p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Lap Swim",
 				"dayOfWeek": "Wednesday",
 				"startTime": "12:30p",
 				"endTime": "3:00p",
+				"lanes": null,
 				"notes": "main pool"
 			},
 			{
@@ -107,6 +115,7 @@
 				"dayOfWeek": "Wednesday",
 				"startTime": "2:00p",
 				"endTime": "3:00p",
+				"lanes": null,
 				"notes": "small pool"
 			},
 			{
@@ -114,41 +123,47 @@
 				"dayOfWeek": "Wednesday",
 				"startTime": "3:30p",
 				"endTime": "5:30p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Rentals (Synchro)",
 				"dayOfWeek": "Wednesday",
 				"startTime": "5:30p",
 				"endTime": "7:30p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Lap Swim",
 				"dayOfWeek": "Thursday",
 				"startTime": "7:00a",
 				"endTime": "8:00a",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "SFUSD Class",
 				"dayOfWeek": "Thursday",
 				"startTime": "8:30a",
 				"endTime": "10:00a",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Senior/Therapy swim",
 				"dayOfWeek": "Thursday",
 				"startTime": "10:00a",
 				"endTime": "11:00a",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Lap Swim",
 				"dayOfWeek": "Thursday",
 				"startTime": "11:30a",
 				"endTime": "2:00p",
+				"lanes": null,
 				"notes": "Closed every 4th Thursday of the month"
 			},
 			{
@@ -156,62 +171,71 @@
 				"dayOfWeek": "Thursday",
 				"startTime": "2:30p",
 				"endTime": "5:00p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Family Swim",
 				"dayOfWeek": "Thursday",
 				"startTime": "5:30p",
 				"endTime": "7:30p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "SFUSD Class",
 				"dayOfWeek": "Friday",
 				"startTime": "8:30a",
 				"endTime": "10:00a",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Senior/Therapy/ Access Swim",
 				"dayOfWeek": "Friday",
 				"startTime": "10:30a",
 				"endTime": "12:00p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Water Exercise",
 				"dayOfWeek": "Friday",
 				"startTime": "12:00p",
 				"endTime": "1:00p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Lap Swim",
 				"dayOfWeek": "Friday",
 				"startTime": "1:30p",
 				"endTime": "3:00p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Learn To Swim",
 				"dayOfWeek": "Friday",
 				"startTime": "3:30p",
 				"endTime": "5:30p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Rentals (Masters)",
 				"dayOfWeek": "Friday",
 				"startTime": "6:00p",
 				"endTime": "7:30p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Lap Swim",
 				"dayOfWeek": "Saturday",
 				"startTime": "9:00a",
 				"endTime": "10:30a",
+				"lanes": null,
 				"notes": "main pool only"
 			},
 			{
@@ -219,28 +243,32 @@
 				"dayOfWeek": "Saturday",
 				"startTime": "9:00a",
 				"endTime": "11:00a",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Family Swim",
 				"dayOfWeek": "Saturday",
 				"startTime": "12:30p",
 				"endTime": "2:00p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Family Swim",
 				"dayOfWeek": "Saturday",
 				"startTime": "2:30p",
 				"endTime": "3:30p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Lap Swim",
 				"dayOfWeek": "Saturday",
 				"startTime": "4:00p",
 				"endTime": "5:00p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			}
 		]
 	}

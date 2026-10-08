@@ -3,20 +3,31 @@
 		"id": "garfield-aquatic-center",
 		"name": "Garfield Aquatic Center",
 		"nameTitle": "Garfield Aquatic Center",
-		"shortName": "Garfield Pool",
-		"address": "1271 Treat Ave",
+		"shortName": "Garfield",
+		"address": "1271 Treat Ave, San Francisco, CA 94110",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Garfield-Pool-214",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29799",
-		"scheduleSeason": "Fall 2026",
+		"scheduleLastUpdated": null,
+		"scheduleSeason": "FALL 2026",
 		"scheduleStartDate": "2026-09-08",
 		"scheduleEndDate": "2026-12-10",
 		"lanes": null,
+		"closure": null,
 		"programs": [
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Monday",
+				"startTime": "7:00a",
+				"endTime": "8:45a",
+				"lanes": null,
+				"notes": "Main Pool"
+			},
 			{
 				"programName": "Rec/Family Swim",
 				"dayOfWeek": "Monday",
 				"startTime": "7:00a",
 				"endTime": "8:45a",
+				"lanes": null,
 				"notes": "Small Pool"
 			},
 			{
@@ -24,13 +35,15 @@
 				"dayOfWeek": "Monday",
 				"startTime": "9:00a",
 				"endTime": "10:45a",
+				"lanes": null,
 				"notes": "Main Pool"
 			},
 			{
 				"programName": "Swim Lessons",
 				"dayOfWeek": "Monday",
-				"startTime": "9:00a",
-				"endTime": "11:00a",
+				"startTime": "9:30a",
+				"endTime": "10:45a",
+				"lanes": null,
 				"notes": "Small Pool"
 			},
 			{
@@ -38,6 +51,7 @@
 				"dayOfWeek": "Monday",
 				"startTime": "11:00a",
 				"endTime": "1:00p",
+				"lanes": null,
 				"notes": "Main Pool"
 			},
 			{
@@ -45,6 +59,7 @@
 				"dayOfWeek": "Monday",
 				"startTime": "11:30a",
 				"endTime": "12:30p",
+				"lanes": null,
 				"notes": "Small Pool"
 			},
 			{
@@ -52,6 +67,7 @@
 				"dayOfWeek": "Monday",
 				"startTime": "2:00p",
 				"endTime": "3:45p",
+				"lanes": null,
 				"notes": "Main Pool"
 			},
 			{
@@ -59,6 +75,7 @@
 				"dayOfWeek": "Monday",
 				"startTime": "2:00p",
 				"endTime": "3:45p",
+				"lanes": null,
 				"notes": "Small Pool"
 			},
 			{
@@ -66,13 +83,15 @@
 				"dayOfWeek": "Monday",
 				"startTime": "4:00p",
 				"endTime": "5:15p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Lap Swim",
 				"dayOfWeek": "Monday",
 				"startTime": "5:30p",
 				"endTime": "7:00p",
+				"lanes": null,
 				"notes": "Main Pool"
 			},
 			{
@@ -80,13 +99,23 @@
 				"dayOfWeek": "Monday",
 				"startTime": "5:30p",
 				"endTime": "7:00p",
+				"lanes": null,
 				"notes": "Small Pool"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "7:00a",
+				"endTime": "8:45a",
+				"lanes": null,
+				"notes": "Main Pool"
 			},
 			{
 				"programName": "Rec/Family Swim",
 				"dayOfWeek": "Tuesday",
 				"startTime": "7:00a",
 				"endTime": "8:45a",
+				"lanes": null,
 				"notes": "Small Pool"
 			},
 			{
@@ -94,6 +123,7 @@
 				"dayOfWeek": "Tuesday",
 				"startTime": "9:00a",
 				"endTime": "10:45a",
+				"lanes": null,
 				"notes": "Main Pool"
 			},
 			{
@@ -101,6 +131,7 @@
 				"dayOfWeek": "Tuesday",
 				"startTime": "9:00a",
 				"endTime": "10:45a",
+				"lanes": null,
 				"notes": "Small Pool"
 			},
 			{
@@ -108,6 +139,7 @@
 				"dayOfWeek": "Tuesday",
 				"startTime": "11:00a",
 				"endTime": "1:00p",
+				"lanes": null,
 				"notes": "Main Pool"
 			},
 			{
@@ -115,6 +147,7 @@
 				"dayOfWeek": "Tuesday",
 				"startTime": "11:15a",
 				"endTime": "12:15p",
+				"lanes": null,
 				"notes": "Small Pool"
 			},
 			{
@@ -122,6 +155,7 @@
 				"dayOfWeek": "Tuesday",
 				"startTime": "2:00p",
 				"endTime": "3:30p",
+				"lanes": null,
 				"notes": "Main Pool"
 			},
 			{
@@ -129,6 +163,7 @@
 				"dayOfWeek": "Tuesday",
 				"startTime": "2:00p",
 				"endTime": "3:30p",
+				"lanes": null,
 				"notes": "Small Pool"
 			},
 			{
@@ -136,20 +171,31 @@
 				"dayOfWeek": "Tuesday",
 				"startTime": "3:45p",
 				"endTime": "5:30p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Rentals (Masters)",
 				"dayOfWeek": "Tuesday",
 				"startTime": "5:30p",
 				"endTime": "7:00p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "7:00a",
+				"endTime": "8:45a",
+				"lanes": null,
+				"notes": "Main Pool"
 			},
 			{
 				"programName": "Rec/Family Swim",
 				"dayOfWeek": "Wednesday",
 				"startTime": "7:00a",
 				"endTime": "8:45a",
+				"lanes": null,
 				"notes": "Small Pool"
 			},
 			{
@@ -157,6 +203,7 @@
 				"dayOfWeek": "Wednesday",
 				"startTime": "9:00a",
 				"endTime": "10:45a",
+				"lanes": null,
 				"notes": "Main Pool"
 			},
 			{
@@ -164,6 +211,7 @@
 				"dayOfWeek": "Wednesday",
 				"startTime": "9:00a",
 				"endTime": "10:45a",
+				"lanes": null,
 				"notes": "Small Pool"
 			},
 			{
@@ -171,6 +219,7 @@
 				"dayOfWeek": "Wednesday",
 				"startTime": "11:00a",
 				"endTime": "1:00p",
+				"lanes": null,
 				"notes": "Main Pool"
 			},
 			{
@@ -178,6 +227,7 @@
 				"dayOfWeek": "Wednesday",
 				"startTime": "11:00a",
 				"endTime": "1:00p",
+				"lanes": null,
 				"notes": "Small Pool"
 			},
 			{
@@ -185,20 +235,23 @@
 				"dayOfWeek": "Wednesday",
 				"startTime": "2:00p",
 				"endTime": "3:45p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Youth Lessons/Swim Team",
 				"dayOfWeek": "Wednesday",
 				"startTime": "4:00p",
 				"endTime": "5:15p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Lap Swim",
 				"dayOfWeek": "Wednesday",
 				"startTime": "5:30p",
 				"endTime": "7:00p",
+				"lanes": null,
 				"notes": "Main Pool"
 			},
 			{
@@ -206,13 +259,23 @@
 				"dayOfWeek": "Wednesday",
 				"startTime": "5:30p",
 				"endTime": "7:00p",
+				"lanes": null,
 				"notes": "Small Pool"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "7:00a",
+				"endTime": "8:45a",
+				"lanes": null,
+				"notes": "Main Pool"
 			},
 			{
 				"programName": "Rec/Family Swim",
 				"dayOfWeek": "Thursday",
 				"startTime": "7:00a",
 				"endTime": "8:45a",
+				"lanes": null,
 				"notes": "Small Pool"
 			},
 			{
@@ -224,14 +287,7 @@
 				"notes": "Main Pool"
 			},
 			{
-				"programName": "Swim Lessons",
-				"dayOfWeek": "Thursday",
-				"startTime": "9:30a",
-				"endTime": "10:45a",
-				"notes": "Small Pool"
-			},
-			{
-				"programName": "Deep Water Exercise",
+				"programName": "Deep Water Exercise-",
 				"dayOfWeek": "Thursday",
 				"startTime": "9:30a",
 				"endTime": "10:30a",
@@ -243,6 +299,7 @@
 				"dayOfWeek": "Thursday",
 				"startTime": "11:00a",
 				"endTime": "1:00p",
+				"lanes": null,
 				"notes": "Main Pool"
 			},
 			{
@@ -250,6 +307,7 @@
 				"dayOfWeek": "Thursday",
 				"startTime": "11:00a",
 				"endTime": "1:00p",
+				"lanes": null,
 				"notes": "Small Pool"
 			},
 			{
@@ -257,6 +315,7 @@
 				"dayOfWeek": "Thursday",
 				"startTime": "2:00p",
 				"endTime": "3:30p",
+				"lanes": null,
 				"notes": "Main Pool"
 			},
 			{
@@ -264,6 +323,7 @@
 				"dayOfWeek": "Thursday",
 				"startTime": "2:00p",
 				"endTime": "3:30p",
+				"lanes": null,
 				"notes": "Small Pool"
 			},
 			{
@@ -271,20 +331,23 @@
 				"dayOfWeek": "Thursday",
 				"startTime": "3:45p",
 				"endTime": "5:30p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Rentals (Masters)",
 				"dayOfWeek": "Thursday",
 				"startTime": "5:30p",
 				"endTime": "7:00p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			},
 			{
 				"programName": "Lap Swim",
 				"dayOfWeek": "Sunday",
 				"startTime": "8:30a",
 				"endTime": "10:30a",
+				"lanes": null,
 				"notes": "Main Pool"
 			},
 			{
@@ -292,6 +355,7 @@
 				"dayOfWeek": "Sunday",
 				"startTime": "9:00a",
 				"endTime": "11:00a",
+				"lanes": null,
 				"notes": "Small Pool"
 			},
 			{
@@ -299,6 +363,7 @@
 				"dayOfWeek": "Sunday",
 				"startTime": "12:30p",
 				"endTime": "2:00p",
+				"lanes": null,
 				"notes": "Main Pool"
 			},
 			{
@@ -306,6 +371,7 @@
 				"dayOfWeek": "Sunday",
 				"startTime": "12:30p",
 				"endTime": "2:00p",
+				"lanes": null,
 				"notes": "Small Pool"
 			},
 			{
@@ -313,7 +379,8 @@
 				"dayOfWeek": "Sunday",
 				"startTime": "2:30p",
 				"endTime": "4:30p",
-				"notes": ""
+				"lanes": null,
+				"notes": null
 			}
 		]
 	}
