@@ -31,6 +31,8 @@ jobs:
         run: npm run build-schedules
         env:
           GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          # optional repo variable to extract with a different Gemini model
+          EXTRACT_MODEL: ${{ vars.EXTRACT_MODEL }}
           # the pipeline scrapes alerts partway through (before processing, so a
           # closure can hide a closed pool's programs) and notifies on new ones
           PUSHOVER_USER_KEY: ${{ secrets.PUSHOVER_USER_KEY }}
