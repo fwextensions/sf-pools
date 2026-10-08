@@ -47,7 +47,9 @@ export default function PoolAlerts({ alerts, pools, selectedPools }: Props) {
 	}
 
 	return (
-		<div className="mt-3 mb-6 space-y-2">
+		// two to a row when there's room, rather than full-width boxes that are
+		// mostly empty; a lone alert still spans the row
+		<div className="mt-3 mb-6 grid grid-cols-[repeat(auto-fit,minmax(min(100%,24rem),1fr))] gap-2">
 			{relevantAlerts.map((alert, i) =>
 				// a parsed closure renders as its date range and linked notice; a
 				// plain alert still shows its text
