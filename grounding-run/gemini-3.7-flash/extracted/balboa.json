@@ -1,0 +1,247 @@
+[
+	{
+		"id": "balboa-aquatics-center",
+		"name": "Balboa Aquatics Center",
+		"nameTitle": "Balboa Pool",
+		"shortName": "Balboa Pool",
+		"address": "51 Havelock Street",
+		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Balboa-Pool-212",
+		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29796",
+		"scheduleSeason": "Fall 2026",
+		"scheduleStartDate": "2026-09-01",
+		"scheduleEndDate": "2026-12-12",
+		"programs": [
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "7:00a",
+				"endTime": "8:00a",
+				"notes": ""
+			},
+			{
+				"programName": "SFUSD Class",
+				"dayOfWeek": "Tuesday",
+				"startTime": "8:30a",
+				"endTime": "10:00a",
+				"notes": ""
+			},
+			{
+				"programName": "Senior/Therapy Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "10:30a",
+				"endTime": "12:00p",
+				"notes": "main pool"
+			},
+			{
+				"programName": "Parent/Tot Lesson",
+				"dayOfWeek": "Tuesday",
+				"startTime": "10:30a",
+				"endTime": "11:00a",
+				"notes": "small pool"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "12:30p",
+				"endTime": "2:00p",
+				"notes": ""
+			},
+			{
+				"programName": "Family/Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "2:30p",
+				"endTime": "3:30p",
+				"notes": "small/main, Lap swim until 4pm"
+			},
+			{
+				"programName": "Adult Swim Lessons",
+				"dayOfWeek": "Tuesday",
+				"startTime": "3:30p",
+				"endTime": "4:00p",
+				"notes": ""
+			},
+			{
+				"programName": "Family/Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "4:00p",
+				"endTime": "5:30p",
+				"notes": "small/main"
+			},
+			{
+				"programName": "Rentals (Synchro)",
+				"dayOfWeek": "Tuesday",
+				"startTime": "5:30p",
+				"endTime": "7:30p",
+				"notes": ""
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "7:00a",
+				"endTime": "8:00a",
+				"notes": ""
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "9:00a",
+				"endTime": "10:15a",
+				"notes": ""
+			},
+			{
+				"programName": "Senior/Therapy Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "10:30a",
+				"endTime": "12:00p",
+				"notes": ""
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "12:30p",
+				"endTime": "3:00p",
+				"notes": "main pool"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "2:00p",
+				"endTime": "3:00p",
+				"notes": "small pool"
+			},
+			{
+				"programName": "Learn To Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "3:30p",
+				"endTime": "5:30p",
+				"notes": ""
+			},
+			{
+				"programName": "Rentals (Synchro)",
+				"dayOfWeek": "Wednesday",
+				"startTime": "5:30p",
+				"endTime": "7:30p",
+				"notes": ""
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "7:00a",
+				"endTime": "8:00a",
+				"notes": ""
+			},
+			{
+				"programName": "SFUSD Class",
+				"dayOfWeek": "Thursday",
+				"startTime": "8:30a",
+				"endTime": "10:00a",
+				"notes": ""
+			},
+			{
+				"programName": "Senior/Therapy swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "10:00a",
+				"endTime": "11:00a",
+				"notes": ""
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "11:30a",
+				"endTime": "2:00p",
+				"notes": "Closed every 4th Thursday of the month"
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "2:30p",
+				"endTime": "5:00p",
+				"notes": ""
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "5:30p",
+				"endTime": "7:30p",
+				"notes": ""
+			},
+			{
+				"programName": "SFUSD Class",
+				"dayOfWeek": "Friday",
+				"startTime": "8:30a",
+				"endTime": "10:00a",
+				"notes": ""
+			},
+			{
+				"programName": "Senior/Therapy/ Access Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "10:30a",
+				"endTime": "12:00p",
+				"notes": ""
+			},
+			{
+				"programName": "Water Exercise",
+				"dayOfWeek": "Friday",
+				"startTime": "12:00p",
+				"endTime": "1:00p",
+				"notes": ""
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "1:30p",
+				"endTime": "3:00p",
+				"notes": ""
+			},
+			{
+				"programName": "Learn To Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "3:30p",
+				"endTime": "5:30p",
+				"notes": ""
+			},
+			{
+				"programName": "Rentals (Masters)",
+				"dayOfWeek": "Friday",
+				"startTime": "6:00p",
+				"endTime": "7:30p",
+				"notes": ""
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "9:00a",
+				"endTime": "10:30a",
+				"notes": "main pool only"
+			},
+			{
+				"programName": "Learn To Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"notes": ""
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "12:30p",
+				"endTime": "2:00p",
+				"notes": ""
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "2:30p",
+				"endTime": "3:30p",
+				"notes": ""
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "4:00p",
+				"endTime": "5:00p",
+				"notes": ""
+			}
+		]
+	}
+]

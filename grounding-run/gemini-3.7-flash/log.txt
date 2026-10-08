@@ -1,0 +1,2186 @@
+found 10 pdf(s) to process
+extracting: balboa.pdf
+failed to process balboa.pdf RetryError [AI_RetryError]: Failed after 4 attempts. Last error: AI_APICallError: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+    at createRetryError (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/util/retry-with-exponential-backoff.ts:90:7)
+    at retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:102:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:932:38)
+    at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+    at async runInTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:127:7)
+    at async executeGenerateText (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:795:11)
+    at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+    at async runInTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:127:7)
+    at async generateText (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:1449:10) {
+  cause: undefined,
+  reason: 'maxRetriesExceeded',
+  errors: [
+    APICallError [AI_APICallError]: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 503,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 503,\n' +
+        '    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",\n' +
+        '    "status": "UNAVAILABLE"\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 503,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 503,\n' +
+        '    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",\n' +
+        '    "status": "UNAVAILABLE"\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 503,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 503,\n' +
+        '    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",\n' +
+        '    "status": "UNAVAILABLE"\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 503,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 503,\n' +
+        '    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",\n' +
+        '    "status": "UNAVAILABLE"\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    }
+  ],
+  lastError: APICallError [AI_APICallError]: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+      at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+      at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+      at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+      at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+      at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+      at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+      at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+      at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+    cause: undefined,
+    url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+    requestBodyValues: {
+      generationConfig: [Object],
+      contents: [Array],
+      systemInstruction: [Object],
+      safetySettings: undefined,
+      tools: undefined,
+      toolConfig: undefined,
+      cachedContent: undefined,
+      labels: undefined,
+      serviceTier: undefined
+    },
+    statusCode: 503,
+    responseHeaders: {
+      'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000',
+      'content-encoding': 'gzip',
+      'content-type': 'application/json; charset=UTF-8',
+      date: 'Thu, 08 Oct 2026 03:41:42 GMT',
+      server: 'scaffolding on HTTPServer2',
+      'server-timing': 'gfet4t7; dur=9923',
+      'transfer-encoding': 'chunked',
+      vary: 'Origin, X-Origin, Referer',
+      'x-content-type-options': 'nosniff',
+      'x-frame-options': 'SAMEORIGIN',
+      'x-gemini-service-tier': 'standard',
+      'x-xss-protection': '0'
+    },
+    responseBody: '{\n' +
+      '  "error": {\n' +
+      '    "code": 503,\n' +
+      '    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",\n' +
+      '    "status": "UNAVAILABLE"\n' +
+      '  }\n' +
+      '}\n',
+    isRetryable: true,
+    data: { error: [Object] },
+    Symbol(vercel.ai.error): true,
+    Symbol(vercel.ai.error.AI_APICallError): true
+  },
+  Symbol(vercel.ai.error): true,
+  Symbol(vercel.ai.error.AI_RetryError): true
+}
+extracting: coffman.pdf
+  tokens: 1838 in / 10924 out
+wrote extract: /home/runner/work/sf-pools/sf-pools/data/extracted/coffman.json
+extracting: garfield.pdf
+failed to process garfield.pdf RetryError [AI_RetryError]: Failed after 4 attempts. Last error: AI_APICallError: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+    at createRetryError (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/util/retry-with-exponential-backoff.ts:90:7)
+    at retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:102:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:932:38)
+    at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+    at async runInTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:127:7)
+    at async executeGenerateText (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:795:11)
+    at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+    at async runInTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:127:7)
+    at async generateText (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:1449:10) {
+  cause: undefined,
+  reason: 'maxRetriesExceeded',
+  errors: [
+    APICallError [AI_APICallError]: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 503,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 503,\n' +
+        '    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",\n' +
+        '    "status": "UNAVAILABLE"\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 503,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 503,\n' +
+        '    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",\n' +
+        '    "status": "UNAVAILABLE"\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 503,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 503,\n' +
+        '    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",\n' +
+        '    "status": "UNAVAILABLE"\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 503,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 503,\n' +
+        '    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",\n' +
+        '    "status": "UNAVAILABLE"\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    }
+  ],
+  lastError: APICallError [AI_APICallError]: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+      at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+      at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+      at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+      at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+      at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+      at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+      at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+      at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+    cause: undefined,
+    url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+    requestBodyValues: {
+      generationConfig: [Object],
+      contents: [Array],
+      systemInstruction: [Object],
+      safetySettings: undefined,
+      tools: undefined,
+      toolConfig: undefined,
+      cachedContent: undefined,
+      labels: undefined,
+      serviceTier: undefined
+    },
+    statusCode: 503,
+    responseHeaders: {
+      'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000',
+      'content-encoding': 'gzip',
+      'content-type': 'application/json; charset=UTF-8',
+      date: 'Thu, 08 Oct 2026 03:46:25 GMT',
+      server: 'scaffolding on HTTPServer2',
+      'server-timing': 'gfet4t7; dur=7359',
+      'transfer-encoding': 'chunked',
+      vary: 'Origin, X-Origin, Referer',
+      'x-content-type-options': 'nosniff',
+      'x-frame-options': 'SAMEORIGIN',
+      'x-gemini-service-tier': 'standard',
+      'x-xss-protection': '0'
+    },
+    responseBody: '{\n' +
+      '  "error": {\n' +
+      '    "code": 503,\n' +
+      '    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",\n' +
+      '    "status": "UNAVAILABLE"\n' +
+      '  }\n' +
+      '}\n',
+    isRetryable: true,
+    data: { error: [Object] },
+    Symbol(vercel.ai.error): true,
+    Symbol(vercel.ai.error.AI_APICallError): true
+  },
+  Symbol(vercel.ai.error): true,
+  Symbol(vercel.ai.error.AI_RetryError): true
+}
+extracting: hamilton.pdf
+failed to process hamilton.pdf RetryError [AI_RetryError]: Failed after 4 attempts. Last error: AI_APICallError: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+    at createRetryError (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/util/retry-with-exponential-backoff.ts:90:7)
+    at retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:102:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:932:38)
+    at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+    at async runInTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:127:7)
+    at async executeGenerateText (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:795:11)
+    at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+    at async runInTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:127:7)
+    at async generateText (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:1449:10) {
+  cause: undefined,
+  reason: 'maxRetriesExceeded',
+  errors: [
+    APICallError [AI_APICallError]: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 503,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 503,\n' +
+        '    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",\n' +
+        '    "status": "UNAVAILABLE"\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 503,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 503,\n' +
+        '    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",\n' +
+        '    "status": "UNAVAILABLE"\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 503,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 503,\n' +
+        '    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",\n' +
+        '    "status": "UNAVAILABLE"\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 503,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 503,\n' +
+        '    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",\n' +
+        '    "status": "UNAVAILABLE"\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    }
+  ],
+  lastError: APICallError [AI_APICallError]: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+      at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+      at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+      at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+      at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+      at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+      at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+      at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+      at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+    cause: undefined,
+    url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+    requestBodyValues: {
+      generationConfig: [Object],
+      contents: [Array],
+      systemInstruction: [Object],
+      safetySettings: undefined,
+      tools: undefined,
+      toolConfig: undefined,
+      cachedContent: undefined,
+      labels: undefined,
+      serviceTier: undefined
+    },
+    statusCode: 503,
+    responseHeaders: {
+      'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000',
+      'content-encoding': 'gzip',
+      'content-type': 'application/json; charset=UTF-8',
+      date: 'Thu, 08 Oct 2026 03:48:07 GMT',
+      server: 'scaffolding on HTTPServer2',
+      'server-timing': 'gfet4t7; dur=21931',
+      'transfer-encoding': 'chunked',
+      vary: 'Origin, X-Origin, Referer',
+      'x-content-type-options': 'nosniff',
+      'x-frame-options': 'SAMEORIGIN',
+      'x-gemini-service-tier': 'standard',
+      'x-xss-protection': '0'
+    },
+    responseBody: '{\n' +
+      '  "error": {\n' +
+      '    "code": 503,\n' +
+      '    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",\n' +
+      '    "status": "UNAVAILABLE"\n' +
+      '  }\n' +
+      '}\n',
+    isRetryable: true,
+    data: { error: [Object] },
+    Symbol(vercel.ai.error): true,
+    Symbol(vercel.ai.error.AI_APICallError): true
+  },
+  Symbol(vercel.ai.error): true,
+  Symbol(vercel.ai.error.AI_RetryError): true
+}
+extracting: mlk.pdf
+  tokens: 2043 in / 7077 out
+wrote extract: /home/runner/work/sf-pools/sf-pools/data/extracted/mlk.json
+extracting: mission.pdf
+failed to process mission.pdf RetryError [AI_RetryError]: Failed after 4 attempts. Last error: AI_APICallError: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+Please retry in 20h6m54.338865207s.
+    at createRetryError (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/util/retry-with-exponential-backoff.ts:90:7)
+    at retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:102:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:932:38)
+    at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+    at async runInTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:127:7)
+    at async executeGenerateText (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:795:11)
+    at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+    at async runInTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:127:7)
+    at async generateText (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:1449:10) {
+  cause: undefined,
+  reason: 'maxRetriesExceeded',
+  errors: [
+    APICallError [AI_APICallError]: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 503,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 503,\n' +
+        '    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",\n' +
+        '    "status": "UNAVAILABLE"\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 503,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 503,\n' +
+        '    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",\n' +
+        '    "status": "UNAVAILABLE"\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+    * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+    Please retry in 20h7m2.499887233s.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 429,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 429,\n' +
+        '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h7m2.499887233s.",\n' +
+        '    "status": "RESOURCE_EXHAUSTED",\n' +
+        '    "details": [\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+        '        "links": [\n' +
+        '          {\n' +
+        '            "description": "Learn more about Gemini API quotas",\n' +
+        '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+        '        "violations": [\n' +
+        '          {\n' +
+        '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+        '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+        '            "quotaDimensions": {\n' +
+        '              "location": "global",\n' +
+        '              "model": "gemini-3.7-flash"\n' +
+        '            },\n' +
+        '            "quotaValue": "20"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+        '        "retryDelay": "72422s"\n' +
+        '      }\n' +
+        '    ]\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+    * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+    Please retry in 20h6m54.338865207s.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 429,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 429,\n' +
+        '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h6m54.338865207s.",\n' +
+        '    "status": "RESOURCE_EXHAUSTED",\n' +
+        '    "details": [\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+        '        "links": [\n' +
+        '          {\n' +
+        '            "description": "Learn more about Gemini API quotas",\n' +
+        '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+        '        "violations": [\n' +
+        '          {\n' +
+        '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+        '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+        '            "quotaDimensions": {\n' +
+        '              "location": "global",\n' +
+        '              "model": "gemini-3.7-flash"\n' +
+        '            },\n' +
+        '            "quotaValue": "20"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+        '        "retryDelay": "72414s"\n' +
+        '      }\n' +
+        '    ]\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    }
+  ],
+  lastError: APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+  * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+  Please retry in 20h6m54.338865207s.
+      at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+      at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+      at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+      at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+      at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+      at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+      at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+      at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+    cause: undefined,
+    url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+    requestBodyValues: {
+      generationConfig: [Object],
+      contents: [Array],
+      systemInstruction: [Object],
+      safetySettings: undefined,
+      tools: undefined,
+      toolConfig: undefined,
+      cachedContent: undefined,
+      labels: undefined,
+      serviceTier: undefined
+    },
+    statusCode: 429,
+    responseHeaders: {
+      'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000',
+      'content-encoding': 'gzip',
+      'content-type': 'application/json; charset=UTF-8',
+      date: 'Thu, 08 Oct 2026 03:53:05 GMT',
+      server: 'scaffolding on HTTPServer2',
+      'server-timing': 'gfet4t7; dur=128',
+      'transfer-encoding': 'chunked',
+      vary: 'Origin, X-Origin, Referer',
+      'x-content-type-options': 'nosniff',
+      'x-frame-options': 'SAMEORIGIN',
+      'x-gemini-service-tier': 'standard',
+      'x-xss-protection': '0'
+    },
+    responseBody: '{\n' +
+      '  "error": {\n' +
+      '    "code": 429,\n' +
+      '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h6m54.338865207s.",\n' +
+      '    "status": "RESOURCE_EXHAUSTED",\n' +
+      '    "details": [\n' +
+      '      {\n' +
+      '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+      '        "links": [\n' +
+      '          {\n' +
+      '            "description": "Learn more about Gemini API quotas",\n' +
+      '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+      '          }\n' +
+      '        ]\n' +
+      '      },\n' +
+      '      {\n' +
+      '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+      '        "violations": [\n' +
+      '          {\n' +
+      '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+      '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+      '            "quotaDimensions": {\n' +
+      '              "location": "global",\n' +
+      '              "model": "gemini-3.7-flash"\n' +
+      '            },\n' +
+      '            "quotaValue": "20"\n' +
+      '          }\n' +
+      '        ]\n' +
+      '      },\n' +
+      '      {\n' +
+      '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+      '        "retryDelay": "72414s"\n' +
+      '      }\n' +
+      '    ]\n' +
+      '  }\n' +
+      '}\n',
+    isRetryable: true,
+    data: { error: [Object] },
+    Symbol(vercel.ai.error): true,
+    Symbol(vercel.ai.error.AI_APICallError): true
+  },
+  Symbol(vercel.ai.error): true,
+  Symbol(vercel.ai.error.AI_RetryError): true
+}
+extracting: northbeachcool.pdf
+failed to process northbeachcool.pdf RetryError [AI_RetryError]: Failed after 4 attempts. Last error: AI_APICallError: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+Please retry in 20h6m14.278242553s.
+    at createRetryError (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/util/retry-with-exponential-backoff.ts:90:7)
+    at retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:102:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:932:38)
+    at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+    at async runInTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:127:7)
+    at async executeGenerateText (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:795:11)
+    at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+    at async runInTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:127:7)
+    at async generateText (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:1449:10) {
+  cause: undefined,
+  reason: 'maxRetriesExceeded',
+  errors: [
+    APICallError [AI_APICallError]: This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 503,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 503,\n' +
+        '    "message": "This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",\n' +
+        '    "status": "UNAVAILABLE"\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+    * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+    Please retry in 20h6m26.579522223s.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 429,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 429,\n' +
+        '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h6m26.579522223s.",\n' +
+        '    "status": "RESOURCE_EXHAUSTED",\n' +
+        '    "details": [\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+        '        "links": [\n' +
+        '          {\n' +
+        '            "description": "Learn more about Gemini API quotas",\n' +
+        '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+        '        "violations": [\n' +
+        '          {\n' +
+        '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+        '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+        '            "quotaDimensions": {\n' +
+        '              "location": "global",\n' +
+        '              "model": "gemini-3.7-flash"\n' +
+        '            },\n' +
+        '            "quotaValue": "20"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+        '        "retryDelay": "72386s"\n' +
+        '      }\n' +
+        '    ]\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+    * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+    Please retry in 20h6m22.43297836s.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 429,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 429,\n' +
+        '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h6m22.43297836s.",\n' +
+        '    "status": "RESOURCE_EXHAUSTED",\n' +
+        '    "details": [\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+        '        "links": [\n' +
+        '          {\n' +
+        '            "description": "Learn more about Gemini API quotas",\n' +
+        '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+        '        "violations": [\n' +
+        '          {\n' +
+        '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+        '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+        '            "quotaDimensions": {\n' +
+        '              "location": "global",\n' +
+        '              "model": "gemini-3.7-flash"\n' +
+        '            },\n' +
+        '            "quotaValue": "20"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+        '        "retryDelay": "72382s"\n' +
+        '      }\n' +
+        '    ]\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+    * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+    Please retry in 20h6m14.278242553s.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 429,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 429,\n' +
+        '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h6m14.278242553s.",\n' +
+        '    "status": "RESOURCE_EXHAUSTED",\n' +
+        '    "details": [\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+        '        "links": [\n' +
+        '          {\n' +
+        '            "description": "Learn more about Gemini API quotas",\n' +
+        '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+        '        "violations": [\n' +
+        '          {\n' +
+        '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+        '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+        '            "quotaDimensions": {\n' +
+        '              "location": "global",\n' +
+        '              "model": "gemini-3.7-flash"\n' +
+        '            },\n' +
+        '            "quotaValue": "20"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+        '        "retryDelay": "72374s"\n' +
+        '      }\n' +
+        '    ]\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    }
+  ],
+  lastError: APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+  * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+  Please retry in 20h6m14.278242553s.
+      at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+      at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+      at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+      at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+      at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+      at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+      at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+      at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+    cause: undefined,
+    url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+    requestBodyValues: {
+      generationConfig: [Object],
+      contents: [Array],
+      systemInstruction: [Object],
+      safetySettings: undefined,
+      tools: undefined,
+      toolConfig: undefined,
+      cachedContent: undefined,
+      labels: undefined,
+      serviceTier: undefined
+    },
+    statusCode: 429,
+    responseHeaders: {
+      'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000',
+      'content-encoding': 'gzip',
+      'content-type': 'application/json; charset=UTF-8',
+      date: 'Thu, 08 Oct 2026 03:53:45 GMT',
+      server: 'scaffolding on HTTPServer2',
+      'server-timing': 'gfet4t7; dur=124',
+      'transfer-encoding': 'chunked',
+      vary: 'Origin, X-Origin, Referer',
+      'x-content-type-options': 'nosniff',
+      'x-frame-options': 'SAMEORIGIN',
+      'x-gemini-service-tier': 'standard',
+      'x-xss-protection': '0'
+    },
+    responseBody: '{\n' +
+      '  "error": {\n' +
+      '    "code": 429,\n' +
+      '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h6m14.278242553s.",\n' +
+      '    "status": "RESOURCE_EXHAUSTED",\n' +
+      '    "details": [\n' +
+      '      {\n' +
+      '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+      '        "links": [\n' +
+      '          {\n' +
+      '            "description": "Learn more about Gemini API quotas",\n' +
+      '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+      '          }\n' +
+      '        ]\n' +
+      '      },\n' +
+      '      {\n' +
+      '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+      '        "violations": [\n' +
+      '          {\n' +
+      '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+      '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+      '            "quotaDimensions": {\n' +
+      '              "location": "global",\n' +
+      '              "model": "gemini-3.7-flash"\n' +
+      '            },\n' +
+      '            "quotaValue": "20"\n' +
+      '          }\n' +
+      '        ]\n' +
+      '      },\n' +
+      '      {\n' +
+      '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+      '        "retryDelay": "72374s"\n' +
+      '      }\n' +
+      '    ]\n' +
+      '  }\n' +
+      '}\n',
+    isRetryable: true,
+    data: { error: [Object] },
+    Symbol(vercel.ai.error): true,
+    Symbol(vercel.ai.error.AI_APICallError): true
+  },
+  Symbol(vercel.ai.error): true,
+  Symbol(vercel.ai.error.AI_RetryError): true
+}
+extracting: northbeachwarm.pdf
+failed to process northbeachwarm.pdf RetryError [AI_RetryError]: Failed after 4 attempts. Last error: AI_APICallError: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+Please retry in 20h5m59.64837101s.
+    at createRetryError (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/util/retry-with-exponential-backoff.ts:90:7)
+    at retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:102:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:932:38)
+    at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+    at async runInTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:127:7)
+    at async executeGenerateText (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:795:11)
+    at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+    at async runInTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:127:7)
+    at async generateText (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:1449:10) {
+  cause: undefined,
+  reason: 'maxRetriesExceeded',
+  errors: [
+    APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+    * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+    Please retry in 20h6m14.098778097s.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 429,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 429,\n' +
+        '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h6m14.098778097s.",\n' +
+        '    "status": "RESOURCE_EXHAUSTED",\n' +
+        '    "details": [\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+        '        "links": [\n' +
+        '          {\n' +
+        '            "description": "Learn more about Gemini API quotas",\n' +
+        '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+        '        "violations": [\n' +
+        '          {\n' +
+        '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+        '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+        '            "quotaDimensions": {\n' +
+        '              "location": "global",\n' +
+        '              "model": "gemini-3.7-flash"\n' +
+        '            },\n' +
+        '            "quotaValue": "20"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+        '        "retryDelay": "72374s"\n' +
+        '      }\n' +
+        '    ]\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+    * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+    Please retry in 20h6m11.96233262s.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 429,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 429,\n' +
+        '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h6m11.96233262s.",\n' +
+        '    "status": "RESOURCE_EXHAUSTED",\n' +
+        '    "details": [\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+        '        "links": [\n' +
+        '          {\n' +
+        '            "description": "Learn more about Gemini API quotas",\n' +
+        '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+        '        "violations": [\n' +
+        '          {\n' +
+        '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+        '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+        '            "quotaDimensions": {\n' +
+        '              "model": "gemini-3.7-flash",\n' +
+        '              "location": "global"\n' +
+        '            },\n' +
+        '            "quotaValue": "20"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+        '        "retryDelay": "72371s"\n' +
+        '      }\n' +
+        '    ]\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+    * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+    Please retry in 20h6m7.809780818s.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 429,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 429,\n' +
+        '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h6m7.809780818s.",\n' +
+        '    "status": "RESOURCE_EXHAUSTED",\n' +
+        '    "details": [\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+        '        "links": [\n' +
+        '          {\n' +
+        '            "description": "Learn more about Gemini API quotas",\n' +
+        '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+        '        "violations": [\n' +
+        '          {\n' +
+        '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+        '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+        '            "quotaDimensions": {\n' +
+        '              "location": "global",\n' +
+        '              "model": "gemini-3.7-flash"\n' +
+        '            },\n' +
+        '            "quotaValue": "20"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+        '        "retryDelay": "72367s"\n' +
+        '      }\n' +
+        '    ]\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+    * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+    Please retry in 20h5m59.64837101s.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 429,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 429,\n' +
+        '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h5m59.64837101s.",\n' +
+        '    "status": "RESOURCE_EXHAUSTED",\n' +
+        '    "details": [\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+        '        "links": [\n' +
+        '          {\n' +
+        '            "description": "Learn more about Gemini API quotas",\n' +
+        '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+        '        "violations": [\n' +
+        '          {\n' +
+        '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+        '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+        '            "quotaDimensions": {\n' +
+        '              "location": "global",\n' +
+        '              "model": "gemini-3.7-flash"\n' +
+        '            },\n' +
+        '            "quotaValue": "20"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+        '        "retryDelay": "72359s"\n' +
+        '      }\n' +
+        '    ]\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    }
+  ],
+  lastError: APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+  * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+  Please retry in 20h5m59.64837101s.
+      at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+      at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+      at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+      at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+      at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+      at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+      at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+      at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+    cause: undefined,
+    url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+    requestBodyValues: {
+      generationConfig: [Object],
+      contents: [Array],
+      systemInstruction: [Object],
+      safetySettings: undefined,
+      tools: undefined,
+      toolConfig: undefined,
+      cachedContent: undefined,
+      labels: undefined,
+      serviceTier: undefined
+    },
+    statusCode: 429,
+    responseHeaders: {
+      'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000',
+      'content-encoding': 'gzip',
+      'content-type': 'application/json; charset=UTF-8',
+      date: 'Thu, 08 Oct 2026 03:54:00 GMT',
+      server: 'scaffolding on HTTPServer2',
+      'server-timing': 'gfet4t7; dur=127',
+      'transfer-encoding': 'chunked',
+      vary: 'Origin, X-Origin, Referer',
+      'x-content-type-options': 'nosniff',
+      'x-frame-options': 'SAMEORIGIN',
+      'x-gemini-service-tier': 'standard',
+      'x-xss-protection': '0'
+    },
+    responseBody: '{\n' +
+      '  "error": {\n' +
+      '    "code": 429,\n' +
+      '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h5m59.64837101s.",\n' +
+      '    "status": "RESOURCE_EXHAUSTED",\n' +
+      '    "details": [\n' +
+      '      {\n' +
+      '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+      '        "links": [\n' +
+      '          {\n' +
+      '            "description": "Learn more about Gemini API quotas",\n' +
+      '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+      '          }\n' +
+      '        ]\n' +
+      '      },\n' +
+      '      {\n' +
+      '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+      '        "violations": [\n' +
+      '          {\n' +
+      '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+      '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+      '            "quotaDimensions": {\n' +
+      '              "location": "global",\n' +
+      '              "model": "gemini-3.7-flash"\n' +
+      '            },\n' +
+      '            "quotaValue": "20"\n' +
+      '          }\n' +
+      '        ]\n' +
+      '      },\n' +
+      '      {\n' +
+      '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+      '        "retryDelay": "72359s"\n' +
+      '      }\n' +
+      '    ]\n' +
+      '  }\n' +
+      '}\n',
+    isRetryable: true,
+    data: { error: [Object] },
+    Symbol(vercel.ai.error): true,
+    Symbol(vercel.ai.error.AI_APICallError): true
+  },
+  Symbol(vercel.ai.error): true,
+  Symbol(vercel.ai.error.AI_RetryError): true
+}
+extracting: rossi.pdf
+failed to process rossi.pdf RetryError [AI_RetryError]: Failed after 4 attempts. Last error: AI_APICallError: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+Please retry in 20h5m45.011742777s.
+    at createRetryError (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/util/retry-with-exponential-backoff.ts:90:7)
+    at retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:102:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:932:38)
+    at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+    at async runInTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:127:7)
+    at async executeGenerateText (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:795:11)
+    at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+    at async runInTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:127:7)
+    at async generateText (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:1449:10) {
+  cause: undefined,
+  reason: 'maxRetriesExceeded',
+  errors: [
+    APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+    * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+    Please retry in 20h5m59.497283995s.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 429,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 429,\n' +
+        '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h5m59.497283995s.",\n' +
+        '    "status": "RESOURCE_EXHAUSTED",\n' +
+        '    "details": [\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+        '        "links": [\n' +
+        '          {\n' +
+        '            "description": "Learn more about Gemini API quotas",\n' +
+        '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+        '        "violations": [\n' +
+        '          {\n' +
+        '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+        '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+        '            "quotaDimensions": {\n' +
+        '              "location": "global",\n' +
+        '              "model": "gemini-3.7-flash"\n' +
+        '            },\n' +
+        '            "quotaValue": "20"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+        '        "retryDelay": "72359s"\n' +
+        '      }\n' +
+        '    ]\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+    * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+    Please retry in 20h5m57.363259649s.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 429,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 429,\n' +
+        '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h5m57.363259649s.",\n' +
+        '    "status": "RESOURCE_EXHAUSTED",\n' +
+        '    "details": [\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+        '        "links": [\n' +
+        '          {\n' +
+        '            "description": "Learn more about Gemini API quotas",\n' +
+        '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+        '        "violations": [\n' +
+        '          {\n' +
+        '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+        '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+        '            "quotaDimensions": {\n' +
+        '              "location": "global",\n' +
+        '              "model": "gemini-3.7-flash"\n' +
+        '            },\n' +
+        '            "quotaValue": "20"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+        '        "retryDelay": "72357s"\n' +
+        '      }\n' +
+        '    ]\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+    * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+    Please retry in 20h5m53.19388855s.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 429,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 429,\n' +
+        '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h5m53.19388855s.",\n' +
+        '    "status": "RESOURCE_EXHAUSTED",\n' +
+        '    "details": [\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+        '        "links": [\n' +
+        '          {\n' +
+        '            "description": "Learn more about Gemini API quotas",\n' +
+        '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+        '        "violations": [\n' +
+        '          {\n' +
+        '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+        '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+        '            "quotaDimensions": {\n' +
+        '              "location": "global",\n' +
+        '              "model": "gemini-3.7-flash"\n' +
+        '            },\n' +
+        '            "quotaValue": "20"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+        '        "retryDelay": "72353s"\n' +
+        '      }\n' +
+        '    ]\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+    * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+    Please retry in 20h5m45.011742777s.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 429,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 429,\n' +
+        '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h5m45.011742777s.",\n' +
+        '    "status": "RESOURCE_EXHAUSTED",\n' +
+        '    "details": [\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+        '        "links": [\n' +
+        '          {\n' +
+        '            "description": "Learn more about Gemini API quotas",\n' +
+        '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+        '        "violations": [\n' +
+        '          {\n' +
+        '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+        '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+        '            "quotaDimensions": {\n' +
+        '              "location": "global",\n' +
+        '              "model": "gemini-3.7-flash"\n' +
+        '            },\n' +
+        '            "quotaValue": "20"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+        '        "retryDelay": "72345s"\n' +
+        '      }\n' +
+        '    ]\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    }
+  ],
+  lastError: APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+  * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+  Please retry in 20h5m45.011742777s.
+      at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+      at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+      at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+      at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+      at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+      at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+      at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+      at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+    cause: undefined,
+    url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+    requestBodyValues: {
+      generationConfig: [Object],
+      contents: [Array],
+      systemInstruction: [Object],
+      safetySettings: undefined,
+      tools: undefined,
+      toolConfig: undefined,
+      cachedContent: undefined,
+      labels: undefined,
+      serviceTier: undefined
+    },
+    statusCode: 429,
+    responseHeaders: {
+      'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000',
+      'content-encoding': 'gzip',
+      'content-type': 'application/json; charset=UTF-8',
+      date: 'Thu, 08 Oct 2026 03:54:14 GMT',
+      server: 'scaffolding on HTTPServer2',
+      'server-timing': 'gfet4t7; dur=123',
+      'transfer-encoding': 'chunked',
+      vary: 'Origin, X-Origin, Referer',
+      'x-content-type-options': 'nosniff',
+      'x-frame-options': 'SAMEORIGIN',
+      'x-gemini-service-tier': 'standard',
+      'x-xss-protection': '0'
+    },
+    responseBody: '{\n' +
+      '  "error": {\n' +
+      '    "code": 429,\n' +
+      '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h5m45.011742777s.",\n' +
+      '    "status": "RESOURCE_EXHAUSTED",\n' +
+      '    "details": [\n' +
+      '      {\n' +
+      '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+      '        "links": [\n' +
+      '          {\n' +
+      '            "description": "Learn more about Gemini API quotas",\n' +
+      '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+      '          }\n' +
+      '        ]\n' +
+      '      },\n' +
+      '      {\n' +
+      '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+      '        "violations": [\n' +
+      '          {\n' +
+      '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+      '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+      '            "quotaDimensions": {\n' +
+      '              "location": "global",\n' +
+      '              "model": "gemini-3.7-flash"\n' +
+      '            },\n' +
+      '            "quotaValue": "20"\n' +
+      '          }\n' +
+      '        ]\n' +
+      '      },\n' +
+      '      {\n' +
+      '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+      '        "retryDelay": "72345s"\n' +
+      '      }\n' +
+      '    ]\n' +
+      '  }\n' +
+      '}\n',
+    isRetryable: true,
+    data: { error: [Object] },
+    Symbol(vercel.ai.error): true,
+    Symbol(vercel.ai.error.AI_APICallError): true
+  },
+  Symbol(vercel.ai.error): true,
+  Symbol(vercel.ai.error.AI_RetryError): true
+}
+extracting: sava.pdf
+failed to process sava.pdf RetryError [AI_RetryError]: Failed after 4 attempts. Last error: AI_APICallError: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+Please retry in 20h5m30.450896648s.
+    at createRetryError (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/util/retry-with-exponential-backoff.ts:90:7)
+    at retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:102:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:932:38)
+    at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+    at async runInTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:127:7)
+    at async executeGenerateText (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:795:11)
+    at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+    at async runInTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:127:7)
+    at async generateText (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:1449:10) {
+  cause: undefined,
+  reason: 'maxRetriesExceeded',
+  errors: [
+    APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+    * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+    Please retry in 20h5m44.853349283s.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 429,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 429,\n' +
+        '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h5m44.853349283s.",\n' +
+        '    "status": "RESOURCE_EXHAUSTED",\n' +
+        '    "details": [\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+        '        "links": [\n' +
+        '          {\n' +
+        '            "description": "Learn more about Gemini API quotas",\n' +
+        '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+        '        "violations": [\n' +
+        '          {\n' +
+        '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+        '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+        '            "quotaDimensions": {\n' +
+        '              "location": "global",\n' +
+        '              "model": "gemini-3.7-flash"\n' +
+        '            },\n' +
+        '            "quotaValue": "20"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+        '        "retryDelay": "72344s"\n' +
+        '      }\n' +
+        '    ]\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+    * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+    Please retry in 20h5m42.731254532s.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 429,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 429,\n' +
+        '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h5m42.731254532s.",\n' +
+        '    "status": "RESOURCE_EXHAUSTED",\n' +
+        '    "details": [\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+        '        "links": [\n' +
+        '          {\n' +
+        '            "description": "Learn more about Gemini API quotas",\n' +
+        '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+        '        "violations": [\n' +
+        '          {\n' +
+        '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+        '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+        '            "quotaDimensions": {\n' +
+        '              "location": "global",\n' +
+        '              "model": "gemini-3.7-flash"\n' +
+        '            },\n' +
+        '            "quotaValue": "20"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+        '        "retryDelay": "72342s"\n' +
+        '      }\n' +
+        '    ]\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+    * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+    Please retry in 20h5m38.592911912s.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 429,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 429,\n' +
+        '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h5m38.592911912s.",\n' +
+        '    "status": "RESOURCE_EXHAUSTED",\n' +
+        '    "details": [\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+        '        "links": [\n' +
+        '          {\n' +
+        '            "description": "Learn more about Gemini API quotas",\n' +
+        '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+        '        "violations": [\n' +
+        '          {\n' +
+        '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+        '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+        '            "quotaDimensions": {\n' +
+        '              "model": "gemini-3.7-flash",\n' +
+        '              "location": "global"\n' +
+        '            },\n' +
+        '            "quotaValue": "20"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+        '        "retryDelay": "72338s"\n' +
+        '      }\n' +
+        '    ]\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    },
+    APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+    * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+    Please retry in 20h5m30.450896648s.
+        at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+        at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+        at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+        at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+        at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+        at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+        at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+        at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+      cause: undefined,
+      url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      requestBodyValues: [Object],
+      statusCode: 429,
+      responseHeaders: [Object],
+      responseBody: '{\n' +
+        '  "error": {\n' +
+        '    "code": 429,\n' +
+        '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h5m30.450896648s.",\n' +
+        '    "status": "RESOURCE_EXHAUSTED",\n' +
+        '    "details": [\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+        '        "links": [\n' +
+        '          {\n' +
+        '            "description": "Learn more about Gemini API quotas",\n' +
+        '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+        '        "violations": [\n' +
+        '          {\n' +
+        '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+        '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+        '            "quotaDimensions": {\n' +
+        '              "location": "global",\n' +
+        '              "model": "gemini-3.7-flash"\n' +
+        '            },\n' +
+        '            "quotaValue": "20"\n' +
+        '          }\n' +
+        '        ]\n' +
+        '      },\n' +
+        '      {\n' +
+        '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+        '        "retryDelay": "72330s"\n' +
+        '      }\n' +
+        '    ]\n' +
+        '  }\n' +
+        '}\n',
+      isRetryable: true,
+      data: [Object],
+      Symbol(vercel.ai.error): true,
+      Symbol(vercel.ai.error.AI_APICallError): true
+    }
+  ],
+  lastError: APICallError [AI_APICallError]: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+  * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash
+  Please retry in 20h5m30.450896648s.
+      at <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/response-handler.ts:74:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async postToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:118:28)
+      at async postJsonToApi (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/post-to-api.ts:31:3)
+      at async _GoogleLanguageModel.doGenerate (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/google/src/google-language-model.ts:353:9)
+      at async execute (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:937:23)
+      at async runWithTracingChannelSpan (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)
+      at async executeLanguageModelCall (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:184:14)
+      at async <anonymous> (/home/runner/work/sf-pools/sf-pools/node_modules/ai/src/generate-text/generate-text.ts:933:32)
+      at async retryWithExponentialBackoffInternal (/home/runner/work/sf-pools/sf-pools/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {
+    cause: undefined,
+    url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+    requestBodyValues: {
+      generationConfig: [Object],
+      contents: [Array],
+      systemInstruction: [Object],
+      safetySettings: undefined,
+      tools: undefined,
+      toolConfig: undefined,
+      cachedContent: undefined,
+      labels: undefined,
+      serviceTier: undefined
+    },
+    statusCode: 429,
+    responseHeaders: {
+      'alt-svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000',
+      'content-encoding': 'gzip',
+      'content-type': 'application/json; charset=UTF-8',
+      date: 'Thu, 08 Oct 2026 03:54:29 GMT',
+      server: 'scaffolding on HTTPServer2',
+      'server-timing': 'gfet4t7; dur=107',
+      'transfer-encoding': 'chunked',
+      vary: 'Origin, X-Origin, Referer',
+      'x-content-type-options': 'nosniff',
+      'x-frame-options': 'SAMEORIGIN',
+      'x-gemini-service-tier': 'standard',
+      'x-xss-protection': '0'
+    },
+    responseBody: '{\n' +
+      '  "error": {\n' +
+      '    "code": 429,\n' +
+      '    "message": "You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.7-flash\\nPlease retry in 20h5m30.450896648s.",\n' +
+      '    "status": "RESOURCE_EXHAUSTED",\n' +
+      '    "details": [\n' +
+      '      {\n' +
+      '        "@type": "type.googleapis.com/google.rpc.Help",\n' +
+      '        "links": [\n' +
+      '          {\n' +
+      '            "description": "Learn more about Gemini API quotas",\n' +
+      '            "url": "https://ai.google.dev/gemini-api/docs/rate-limits"\n' +
+      '          }\n' +
+      '        ]\n' +
+      '      },\n' +
+      '      {\n' +
+      '        "@type": "type.googleapis.com/google.rpc.QuotaFailure",\n' +
+      '        "violations": [\n' +
+      '          {\n' +
+      '            "quotaMetric": "generativelanguage.googleapis.com/generate_content_free_tier_requests",\n' +
+      '            "quotaId": "GenerateRequestsPerDayPerProjectPerModel-FreeTier",\n' +
+      '            "quotaDimensions": {\n' +
+      '              "location": "global",\n' +
+      '              "model": "gemini-3.7-flash"\n' +
+      '            },\n' +
+      '            "quotaValue": "20"\n' +
+      '          }\n' +
+      '        ]\n' +
+      '      },\n' +
+      '      {\n' +
+      '        "@type": "type.googleapis.com/google.rpc.RetryInfo",\n' +
+      '        "retryDelay": "72330s"\n' +
+      '      }\n' +
+      '    ]\n' +
+      '  }\n' +
+      '}\n',
+    isRetryable: true,
+    data: { error: [Object] },
+    Symbol(vercel.ai.error): true,
+    Symbol(vercel.ai.error.AI_APICallError): true
+  },
+  Symbol(vercel.ai.error): true,
+  Symbol(vercel.ai.error.AI_RetryError): true
+}
+preserved (no new pdf): Balboa Aquatics Center
+preserved (no new pdf): Garfield Aquatic Center
+preserved (no new pdf): Hamilton Aquatic Center
+preserved (no new pdf): Mission Aquatic Center
+preserved (no new pdf): North Beach Aquatics Center - Cool Pool
+preserved (no new pdf): North Beach Aquatics Center - Warm Pool
+preserved (no new pdf): Rossi Pool
+preserved (no new pdf): Sava Pool
+wrote changelog: /home/runner/work/sf-pools/sf-pools/data/changelog/2026-10-08.json
+Schedule changes for 2026-10-08:
+  Pools changed: 1
+  Programs added: 4
+  Programs removed: 9
+  Programs modified: 1
+
+Details:
+  Martin Luther King Jr. Swimming Pool:
+    + Bayview Safety Swim & Splash (10) (Tuesday) 3:30p–6:00p
+    ~ Lap Swim (Tuesday) 3:30p–5:30p → 6:00p–7:00p
+    + Bayview Safety Swim & Splash (10) (Wednesday) 3:30p–6:00p
+    + Bayview Safety Swim & Splash (10) (Thursday) 3:30p–6:00p
+    + Bayview Safety Swim & Splash (10) (Friday) 3:30p–6:00p
+    - Swim Lessons (General/Youth/Community) (Tuesday) 3:30p–6:00p
+    - Lap Swim (Wednesday) 7:30a–9:00a
+    - Lap Swim (Wednesday) 3:30p–5:30p
+    - Swim Lessons (General/Youth/Community) (Wednesday) 3:30p–6:00p
+    - Lap Swim (Thursday) 3:30p–5:30p
+    ... and 4 more changes
+wrote: /home/runner/work/sf-pools/sf-pools/public/data/all_schedules.json (10 pools)
+extracted: 2, skipped: 0, preserved: 8
+model usage: 10 call(s) (8 failed), 21882 tokens, ~$0.0000 (logged to /home/runner/work/sf-pools/sf-pools/data/usage/llm-usage.jsonl)
