@@ -4,7 +4,8 @@ import { z } from "zod";
 import { ClosureSchema } from "./closures";
 import { trackUsage } from "./llm-usage";
 
-const EXTRACT_MODEL = "gemini-3.5-flash-lite";
+// EXTRACT_MODEL in the environment overrides this, to try another model without a code change
+const EXTRACT_MODEL = process.env.EXTRACT_MODEL || "gemini-3.5-flash-lite";
 
 export const DayOfWeek = z.enum([
 	"Monday",
