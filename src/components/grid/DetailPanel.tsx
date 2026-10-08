@@ -86,12 +86,16 @@ const DetailPanel = memo(function DetailPanel({
 						className="flex items-center gap-2.5 border-b border-line py-2 text-body"
 					>
 						<PoolChip token={d.pool} />
-						<span className="min-w-0 flex-1 font-medium text-ink">
-							<ProgramName name={d.title} />
+						{/* a wrapping flex row rather than inline text, so the lanes
+						    or the tag start flush left when they drop to a second
+						    line instead of keeping the gap that separates them from
+						    the name */}
+						<span className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-1.5 gap-y-1 font-medium text-ink">
+							<span><ProgramName name={d.title} /></span>
 							{d.badges.length ? (
-								<span className="meta ml-1.5 whitespace-nowrap">{d.badges.join(" · ")}</span>
+								<span className="meta whitespace-nowrap">{d.badges.join(" · ")}</span>
 							) : null}
-							{access ? <span className="tag ml-1.5 bg-tint align-[1px] text-ink-2">{access}</span> : null}
+							{access ? <span className="tag bg-tint text-ink-2">{access}</span> : null}
 						</span>
 						<span className="font-mono text-small font-medium text-ink-2">
 							{d.startTime}–{d.endTime}
