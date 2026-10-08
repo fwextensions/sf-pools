@@ -2,7 +2,9 @@ import "dotenv/config";
 import { createHash } from "node:crypto";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
-import { extractScheduleFromPdf, type PoolSchedule } from "@/lib/pdf-processor";
+import { extractScheduleFromPdf, repairScheduleFromPdf, type ExtractHints, type PoolSchedule } from "@/lib/pdf-processor";
+import { buildDayCells, formatDayCells, type DayCell } from "@/lib/pdf-table";
+import { applyGrounding, groundSessions } from "@/lib/grounding";
 import type { Closure } from "@/lib/closures";
 import {
 	releaseSchedules,
@@ -13,6 +15,7 @@ import {
 } from "@/lib/release-rules";
 import { formatUsageSummary, sessionUsage, USAGE_LOG } from "@/lib/llm-usage";
 import type { PoolEntry, DiscoveredPool } from "./downloadPdf";
+import { readPdfLines } from "./read-pdf-lines";
 import {
 	computeChangelog,
 	loadPreviousSchedules,
@@ -31,7 +34,12 @@ const ALERTS_FILE = path.join(process.cwd(), "public", "data", "alerts.json");
 type ExtractedMeta = {
 	pdfHash: string;
 	extractedAt: string;
+	/** GROUNDING_VERSION the extract was made under; older extracts are redone */
+	grounding?: number;
 };
+
+/** bump when the extraction prompt or repair pass changes enough to redo cached extracts */
+const GROUNDING_VERSION = 1;
 
 type ExtractedManifest = Record<string, ExtractedMeta>;
 
@@ -60,6 +68,43 @@ function sanitizeFilename(name: string): string {
 		.replace(/[^a-z0-9\s-_]+/g, "")
 		.trim()
 		.replace(/\s+/g, "-");
+}
+
+/** the PDF's table cells, or null when its text layer has no readable table */
+function readCells(buf: Buffer, file: string): DayCell[] | null {
+	try {
+		return buildDayCells(readPdfLines(buf));
+	} catch (err) {
+		console.warn(`  couldn't read the text of ${file}:`, err);
+		return null;
+	}
+}
+
+function countIssues(schedules: PoolSchedule[], cells: DayCell[]): string[] {
+	return schedules.flatMap((s) => groundSessions(s.programs, cells).map((i) => i.message));
+}
+
+/**
+ * Extract with the PDF's cells in the prompt, then check the result against
+ * them. If anything disagrees, give the model one chance to fix it, and keep
+ * whichever version disagrees less.
+ */
+async function extractGrounded(buf: Buffer, cells: DayCell[] | null, hints: ExtractHints): Promise<PoolSchedule[]> {
+	const withCells = { ...hints, cells: cells ? formatDayCells(cells) : undefined };
+	const schedules = await extractScheduleFromPdf(buf, withCells);
+	if (!cells) return schedules;
+	const issues = countIssues(schedules, cells);
+	if (issues.length === 0) return schedules;
+	console.log(`  ${issues.length} grounding issue(s), asking for a repair`);
+	try {
+		const repaired = await repairScheduleFromPdf(buf, schedules, issues, withCells);
+		const remaining = countIssues(repaired, cells).length;
+		console.log(`  ${remaining} issue(s) after repair`);
+		return remaining <= issues.length ? repaired : schedules;
+	} catch (err) {
+		console.warn("  repair failed, keeping the first extraction:", err);
+		return schedules;
+	}
 }
 
 function todayISO(): string {
@@ -161,6 +206,7 @@ export async function main(): Promise<ProcessResult> {
 	const activeClosures = await loadActiveClosures(today);
 
 	const extracts: PoolExtract[] = [];
+	const groundingWarnings: string[] = [];
 	for (const file of pdfFiles) {
 		const base = file.replace(/\.pdf$/i, "");
 		const pool = poolsById.get(base.toLowerCase());
@@ -176,12 +222,13 @@ export async function main(): Promise<ProcessResult> {
 			// can't drift out of sync with a separately-maintained download manifest
 			const currentHash = computeHash(buf);
 			const extractedMeta = extractedManifest[base];
-			const hashUnchanged = extractedMeta?.pdfHash === currentHash;
+			const cacheCurrent = extractedMeta?.pdfHash === currentHash && extractedMeta?.grounding === GROUNDING_VERSION;
+			const cells = readCells(buf, file);
 
 			let schedules: PoolSchedule[] | null = null;
 
 			// try to use cached extraction if hash unchanged and not forcing refresh
-			if (!forceRefresh && hashUnchanged) {
+			if (!forceRefresh && cacheCurrent) {
 				try {
 					const cached = await readFile(extractPath, "utf-8");
 					schedules = JSON.parse(cached) as PoolSchedule[];
@@ -194,30 +241,37 @@ export async function main(): Promise<ProcessResult> {
 
 			if (!schedules) {
 				console.log("extracting:", file);
-				schedules = await extractScheduleFromPdf(buf, {
+				schedules = await extractGrounded(buf, cells, {
 					pdfScheduleUrl: disc?.pdfUrl ?? undefined,
 					sfRecParkUrl: pool?.pageUrl ?? undefined,
 					expectedPoolName: pool?.name ?? undefined,
 					poolId: pool?.id ?? base,
 					pdfHash: currentHash,
 				});
-				const u = sessionUsage("pdf-extract").at(-1)!;
-				console.log(
-					`  tokens: ${u.inputTokens} in / ${u.outputTokens} out` +
-						(u.costUsd !== null ? ` ($${u.costUsd.toFixed(4)})` : "")
-				);
+				for (const u of sessionUsage("pdf-extract").filter((r) => r.pdfHash === currentHash)) {
+					console.log(
+						`  tokens: ${u.inputTokens} in / ${u.outputTokens} out` +
+							(u.costUsd !== null ? ` ($${u.costUsd.toFixed(4)})` : "")
+					);
+				}
 				// write raw extraction cache
 				await writeFile(extractPath, JSON.stringify(schedules, null, "\t"), "utf-8");
 				// update extracted manifest
 				extractedManifest[base] = {
 					pdfHash: currentHash,
 					extractedAt: new Date().toISOString(),
+					grounding: GROUNDING_VERSION,
 				};
 				console.log("wrote extract:", extractPath);
 				extractedCount++;
 			}
 
-			extracts.push({ base, pool, pdfUrl: disc?.pdfUrl, schedules });
+			// checked on every run, cached or not, so a cached extract made before
+			// grounding still has its invented sessions dropped
+			const grounded = applyGrounding(schedules, cells, pool?.shortName ?? base);
+			groundingWarnings.push(...grounded.warnings);
+			for (const w of grounded.warnings) console.warn(" ", w);
+			extracts.push({ base, pool, pdfUrl: disc?.pdfUrl, schedules: grounded.schedules });
 		} catch (err) {
 			console.warn("failed to process", file, err);
 		}
@@ -256,7 +310,7 @@ export async function main(): Promise<ProcessResult> {
 	// anomalies into its warnings so they're persisted and surfaced by notify
 	const changelog = computeChangelog(previousSchedules, aggregated);
 	changelog.quarantinedPools = quarantinedPools;
-	changelog.warnings.push(...releaseWarnings(release));
+	changelog.warnings.push(...releaseWarnings(release), ...groundingWarnings);
 	const changelogPath = await saveChangelog(changelog);
 	if (changelogPath) {
 		console.log("wrote changelog:", changelogPath);
