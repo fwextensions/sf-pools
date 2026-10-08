@@ -1,0 +1,237 @@
+[
+	{
+		"id": "coffman-aquatics-center",
+		"name": "Coffman Aquatics Center",
+		"nameTitle": "Coffman Pool",
+		"shortName": "Coffman Pool",
+		"address": "1701 Visitacion Ave, San Francisco, CA, 94134",
+		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Coffman-Pool-213",
+		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29798",
+		"scheduleSeason": "Fall 2026",
+		"scheduleStartDate": "2026-08-18",
+		"scheduleEndDate": "2026-12-12",
+		"programs": [
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "7:00a",
+				"endTime": "8:30a",
+				"notes": ""
+			},
+			{
+				"programName": "Senior/Therapy Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "8:45a",
+				"endTime": "10:00a",
+				"notes": ""
+			},
+			{
+				"programName": "Self-Guided Exercise",
+				"dayOfWeek": "Tuesday",
+				"startTime": "10:00a",
+				"endTime": "11:00a",
+				"notes": ""
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "11:30a",
+				"endTime": "1:00p",
+				"notes": ""
+			},
+			{
+				"programName": "Senior Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "2:00p",
+				"endTime": "4:00p",
+				"lanes": 4,
+				"notes": "may vary"
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "2:00p",
+				"endTime": "4:00p",
+				"lanes": 2,
+				"notes": ""
+			},
+			{
+				"programName": "Rentals (Synchro)",
+				"dayOfWeek": "Tuesday",
+				"startTime": "4:30p",
+				"endTime": "7:00p",
+				"notes": ""
+			},
+			{
+				"programName": "Senior Swim/ Self-Guided Exercise",
+				"dayOfWeek": "Wednesday",
+				"startTime": "9:00a",
+				"endTime": "10:30a",
+				"notes": ""
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "11:00a",
+				"endTime": "1:00p",
+				"notes": ""
+			},
+			{
+				"programName": "Sfusd/Rec Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "1:30p",
+				"endTime": "2:30p",
+				"notes": ""
+			},
+			{
+				"programName": "Learn-To-Swim Lessons",
+				"dayOfWeek": "Wednesday",
+				"startTime": "3:30p",
+				"endTime": "5:30p",
+				"notes": ""
+			},
+			{
+				"programName": "Adult Swim Lessons",
+				"dayOfWeek": "Wednesday",
+				"startTime": "5:00p",
+				"endTime": "5:30p",
+				"notes": ""
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "6:00p",
+				"endTime": "7:00p",
+				"lanes": 3,
+				"notes": ""
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "6:00p",
+				"endTime": "7:00p",
+				"lanes": 3,
+				"notes": ""
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "7:00a",
+				"endTime": "8:30a",
+				"notes": ""
+			},
+			{
+				"programName": "Senior/Therapy Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "8:45a",
+				"endTime": "10:00a",
+				"notes": ""
+			},
+			{
+				"programName": "Self-Guided Exercise",
+				"dayOfWeek": "Thursday",
+				"startTime": "10:00a",
+				"endTime": "11:00a",
+				"notes": ""
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "11:30a",
+				"endTime": "1:00p",
+				"notes": ""
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "2:30p",
+				"endTime": "4:00p",
+				"notes": "Closed every 4th Thursday of the Month for Training 8/27, 9/24, 10/22"
+			},
+			{
+				"programName": "Rentals (Synchro)",
+				"dayOfWeek": "Thursday",
+				"startTime": "4:30p",
+				"endTime": "7:00p",
+				"notes": ""
+			},
+			{
+				"programName": "Senior Swim/ Self-Guided Exercise",
+				"dayOfWeek": "Friday",
+				"startTime": "9:00a",
+				"endTime": "10:30a",
+				"notes": ""
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "11:00a",
+				"endTime": "1:00p",
+				"notes": ""
+			},
+			{
+				"programName": "Rec Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "2:00p",
+				"endTime": "3:00p",
+				"notes": ""
+			},
+			{
+				"programName": "Learn-To-Swim Lessons",
+				"dayOfWeek": "Friday",
+				"startTime": "3:30p",
+				"endTime": "5:30p",
+				"notes": ""
+			},
+			{
+				"programName": "Adult Swim Lessons",
+				"dayOfWeek": "Friday",
+				"startTime": "5:00p",
+				"endTime": "5:30p",
+				"notes": ""
+			},
+			{
+				"programName": "Rentals (Synchro)",
+				"dayOfWeek": "Friday",
+				"startTime": "5:30p",
+				"endTime": "7:00p",
+				"notes": ""
+			},
+			{
+				"programName": "Learn To Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"notes": ""
+			},
+			{
+				"programName": "Senior Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "11:45a",
+				"endTime": "12:45p",
+				"notes": ""
+			},
+			{
+				"programName": "Parent and Tots Family Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "1:00p",
+				"endTime": "2:00p",
+				"notes": ""
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "2:30p",
+				"endTime": "3:45p",
+				"notes": ""
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "4:00p",
+				"endTime": "5:00p",
+				"notes": ""
+			}
+		]
+	}
+]
