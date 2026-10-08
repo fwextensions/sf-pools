@@ -4,7 +4,7 @@ import { z } from "zod";
 import { ClosureSchema } from "./closures";
 import { trackUsage } from "./llm-usage";
 
-const EXTRACT_MODEL = "gemini-3.1-flash-lite";
+const EXTRACT_MODEL = "gemini-3.5-flash-lite";
 
 export const DayOfWeek = z.enum([
 	"Monday",
