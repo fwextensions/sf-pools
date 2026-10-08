@@ -166,10 +166,12 @@
 	}
 }
 
-/* Between 400px and the desktop breakpoint the jump nav shows pool names
-   rather than the colour-coded chips, so the chip's left edge carries the
-   pool's colour instead. Narrower than that the codes are back and the bar
-   would be the same colour twice. */
+/* The site has one breakpoint, 900px. The schedules jump nav is the one
+   exception, with a single extra step at 400px: between that and 900px it
+   shows pool names rather than the colour-coded chips, so the chip's left
+   edge carries the pool's colour instead. Narrower than 400px five names to
+   a row start clipping, so the codes come back, and the bar would be the
+   same colour twice. */
 @media (min-width: 400px) and (max-width: 899px) {
 	.pool-jump-chip {
 		border-left: 3px solid var(--pool-color);
@@ -196,7 +198,7 @@ body {
    =========================================== */
 
 /* Larger touch targets for checkboxes and radio buttons on mobile */
-@media (max-width: 767px) {
+@media (max-width: 899px) {
 	input[type="checkbox"],
 	input[type="radio"] {
 		width: 1.25rem;

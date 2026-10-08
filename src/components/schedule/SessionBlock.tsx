@@ -14,15 +14,22 @@ import ProgramName from "@/components/ProgramName";
  * Truncation/overflow here is what TimelineBlock's clip check looks for —
  * the `.truncate` class name and the natural content height are load-bearing,
  * not just styling.
+ *
+ * `row` is for the one-day lists under 900px, where a block has the screen's
+ * width to itself: the time sits in a fixed column on the left and the name,
+ * meta and notes stack beside it, so the lanes wrap under the name instead of
+ * running into it and every name in the list starts at the same edge.
  */
 export default function SessionBlock({
 	program,
 	color,
 	compact = false,
+	row = false,
 }: {
 	program: ProgramEntry;
 	color: string;
 	compact?: boolean;
+	row?: boolean;
 }) {
 	const { title, badges, notes } = describeProgram(program);
 	if (compact) {
@@ -35,6 +42,31 @@ export default function SessionBlock({
 				<span className="truncate text-small font-medium leading-snug text-ink">
 					<ProgramName name={title} />
 				</span>
+			</div>
+		);
+	}
+	if (row) {
+		return (
+			<div
+				className="grid grid-cols-[auto_minmax(0,1fr)] items-baseline gap-x-3 border-l-[3px] bg-tint px-2 py-1.5"
+				style={{ borderColor: color }}
+			>
+				{/* 14ch holds the longest range, "11:00a–12:30p", with room for
+				    the rounding that left 13ch a hair short */}
+				<div className="w-[14ch] whitespace-nowrap font-mono text-label font-medium text-ink-2">
+					{program.startTime}–{program.endTime}
+				</div>
+				<div className="min-w-0">
+					<div className="text-small font-medium leading-snug text-ink">
+						<ProgramName name={title} />
+					</div>
+					{badges.length ? <div className="meta mt-0.5">{badges.join(" · ")}</div> : null}
+					{notes.map((note) => (
+						<div key={note} className="mt-1 text-label leading-snug text-ink-2">
+							{note}
+						</div>
+					))}
+				</div>
 			</div>
 		);
 	}

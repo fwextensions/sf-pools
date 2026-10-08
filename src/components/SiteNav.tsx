@@ -27,12 +27,12 @@ export default function SiteNav() {
 	const pathname = usePathname();
 
 	return (
-		// on a phone the labels have to hold one line each or the strip doubles in
-		// height: they drop their tracking and spread across the width instead of
-		// sitting a fixed gap apart, which fits them down to a 320px screen
+		// under 900px the labels have to hold one line each or the strip doubles
+		// in height: they drop their tracking and spread across the width instead
+		// of sitting a fixed gap apart, which fits them down to a 320px screen
 		<nav
 			aria-label="Sections"
-			className="flex justify-between border-b border-line min-[500px]:justify-start min-[500px]:gap-7"
+			className="flex justify-between border-b border-line min-[900px]:justify-start min-[900px]:gap-7"
 		>
 			{SECTIONS.map(({ href, label }) => {
 				const current = isCurrent(pathname, href);
@@ -42,7 +42,7 @@ export default function SiteNav() {
 						href={href}
 						aria-current={current ? "page" : undefined}
 						onClick={() => trackSectionNav(pathname, href)}
-						className={`font-mono -mb-px whitespace-nowrap border-b-2 pb-3 pt-2 text-small min-[900px]:pt-6 min-[500px]:tracking-[.08em] ${
+						className={`font-mono -mb-px whitespace-nowrap border-b-2 pb-3 pt-2 text-small min-[900px]:pt-6 min-[900px]:tracking-[.08em] ${
 							current
 								? "border-ink font-semibold text-ink"
 								: "border-transparent font-medium text-ink-2 hover:text-ink"

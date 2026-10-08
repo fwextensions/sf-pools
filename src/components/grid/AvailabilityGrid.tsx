@@ -123,7 +123,9 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			    results keep their own native scroll */}
 			{focusMode ? (
 				<div className="fixed inset-0 z-50 flex flex-col bg-tint min-[900px]:hidden">
-					<div className="mx-auto flex h-full w-full max-w-[430px] flex-col px-3.5">
+					{/* the page container's 1rem gutter, and 430px inside it, so the
+					    grid keeps exactly its width from the scrolling view */}
+					<div className="mx-auto flex h-full w-full max-w-[calc(430px+2rem)] flex-col px-4">
 						<div className="flex-none border-b border-line px-3.5 py-2.5">
 							{mobileChips}
 						</div>
@@ -149,8 +151,10 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 				</div>
 			)}
 
-			{/* desktop: fixed sidebar (the pool list doubles as the legend) + main column */}
-			<div className="mx-auto hidden max-w-[1020px] items-stretch min-[900px]:flex">
+			{/* desktop: fixed sidebar (the pool list doubles as the legend) + main
+			    column, spanning the full container so the sidebar's edge lines up
+			    with the tabs and the footer */}
+			<div className="hidden items-stretch min-[900px]:flex">
 				<div className="w-[280px] flex-none border-r border-line bg-tint">
 					<div className="mx-4 mt-4 flex items-baseline justify-between border-t-2 border-ink pb-1.5 pt-2.5">
 						<span className="font-mono text-label font-semibold tracking-[.08em] text-ink-2">
