@@ -1,4 +1,4 @@
-# temporary (run 2): runs the extraction with grounding once on this branch and
+# temporary (run 3): runs the extraction with grounding once on this branch and
 # commits only its log and extracts; no notifications, no data published
 name: Grounding dry run
 on:
