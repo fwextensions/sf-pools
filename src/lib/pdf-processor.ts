@@ -108,7 +108,8 @@ Important rules:
 - Only output a session for a day whose column actually shows it. An empty cell means nothing runs then; never fill it from a neighboring day.
 - When a program name includes a lane count in parentheses, e.g., 'Lap Swim (8)', set the per-program 'lanes' field to that number.
 - If the block shows one program across all lanes (e.g., 'Lap Swim (10)'), set 'lanes' to that number. If no per-program lane count is shown, leave 'lanes' as null.
-- If the text indicates a pool section like '(shallow)' or '(deep)', include that text in notes.`;
+- If the text indicates a pool section like '(shallow)', '(deep)', '(Main Pool)' or '(2 lanes + Small Pool)', put that text in notes, not in programName.
+- Closure notices ('Pool CLOSED every 4th Thursday for staff training', 'Closed for In-Service August 22') are not sessions; don't output them as programs.`;
 
 function cellsText(cells: string | undefined): string {
 	if (!cells) return "";
