@@ -6,7 +6,7 @@
 			"poolName": "North Beach (Cool)",
 			"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 			"alertText": "Please note, North Beach Pool will be closed for its annual maintenance from October 13 and reopen on November 2. For schedules of our other pools please visit:",
-			"scrapedAt": "2026-10-09T00:26:21.683Z",
+			"scrapedAt": "2026-10-09T23:36:46.462Z",
 			"documentUrl": null,
 			"closure": {
 				"summary": "North Beach Pool will be closed for annual maintenance from October 13 through November 1.",
@@ -28,7 +28,7 @@
 			"poolName": "North Beach (Warm)",
 			"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 			"alertText": "Please note, North Beach Pool will be closed for its annual maintenance from October 13 and reopen on November 2. For schedules of our other pools please visit:",
-			"scrapedAt": "2026-10-09T00:26:21.683Z",
+			"scrapedAt": "2026-10-09T23:36:46.462Z",
 			"documentUrl": null,
 			"closure": {
 				"summary": "North Beach Pool will be closed for annual maintenance from October 13 through November 1.",
@@ -46,5 +46,5 @@
 			}
 		}
 	],
-	"lastUpdated": "2026-10-09T00:26:30.484Z"
+	"lastUpdated": "2026-10-09T23:36:57.025Z"
 }
