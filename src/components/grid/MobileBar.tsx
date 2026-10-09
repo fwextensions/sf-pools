@@ -26,18 +26,20 @@ export function MobileChips({
 }) {
 	const selectedTags = filters.tags;
 	const selectedPools = filters.pools;
-	// one row at every common phone width: below 21rem of bar (phones
-	// narrower than about 390px) the pickers drop to the small text size,
-	// which leaves room for both of them plus the reset and full-screen
-	// buttons down to 360px. Only the label word truncates, as a last resort
-	// on anything narrower, so the count always shows.
+	// one row at every common phone width: on phones narrower than 391px
+	// the pickers drop to the small text size, which leaves room for both of
+	// them plus the reset and full-screen buttons down to 360px. Only the
+	// label word truncates, as a last resort on anything narrower, so the
+	// count always shows. A media query, not a container query: with the
+	// container query, iOS Safari left a strip of the old, wider picker
+	// painted behind the sticky bar after its width changed.
 	return (
-		<div className="@container flex items-center justify-between gap-1">
+		<div className="flex items-center justify-between gap-1">
 			<div className="flex min-w-0 items-center gap-1">
 				<button
 					type="button"
 					onClick={() => onOpenPanel(openPanel === "programs" ? null : "programs")}
-					className="control min-w-0 px-2.5 text-body font-medium @max-[21rem]:gap-1 @max-[21rem]:px-2 @max-[21rem]:text-small"
+					className="control min-w-0 px-2.5 text-body font-medium max-[391px]:gap-1 max-[391px]:px-2 max-[391px]:text-small"
 					style={{
 						background: selectedTags.length ? "var(--color-ink)" : "#fff",
 						borderColor: selectedTags.length ? "var(--color-ink)" : undefined,
@@ -45,13 +47,13 @@ export function MobileChips({
 					}}
 				>
 					<span className="truncate">Programs:</span>
-					<span className="-ml-0.5 @max-[21rem]:ml-0">{selectedTags.length || "All"}</span>
+					<span className="-ml-0.5 max-[391px]:ml-0">{selectedTags.length || "All"}</span>
 					<Chevron open={openPanel === "programs"} />
 				</button>
 				<button
 					type="button"
 					onClick={() => onOpenPanel(openPanel === "pools" ? null : "pools")}
-					className="control min-w-0 px-2.5 text-body font-medium @max-[21rem]:gap-1 @max-[21rem]:px-2 @max-[21rem]:text-small"
+					className="control min-w-0 px-2.5 text-body font-medium max-[391px]:gap-1 max-[391px]:px-2 max-[391px]:text-small"
 					style={{
 						background: selectedPools.length ? "var(--color-ink)" : "#fff",
 						borderColor: selectedPools.length ? "var(--color-ink)" : undefined,
@@ -59,7 +61,7 @@ export function MobileChips({
 					}}
 				>
 					<span className="truncate">Pools:</span>
-					<span className="-ml-0.5 @max-[21rem]:ml-0">{selectedPools.length || "All"}</span>
+					<span className="-ml-0.5 max-[391px]:ml-0">{selectedPools.length || "All"}</span>
 					<Chevron open={openPanel === "pools"} />
 				</button>
 			</div>

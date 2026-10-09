@@ -46,6 +46,14 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	// stops scrolling, which frees the grid to take touch drags
 	const [focusMode, setFocusMode] = useState(false);
 	const scrollBeforeFocusRef = useRef<number | null>(null);
+	// the closure notices above the grid follow the pool filter, so picking
+	// a pool in the phone panel shrank the page above the chip bar and
+	// yanked the bar and the list out from under the finger. They catch up
+	// when the panel closes instead.
+	const [alertPools, setAlertPools] = useState(filters.pools);
+	if (openPanel !== "pools" && alertPools !== filters.pools) {
+		setAlertPools(filters.pools);
+	}
 
 	// keep the url shareable: every filter change, and the cell the reader
 	// settles on, but not each cell a drag passes over
@@ -118,7 +126,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	return (
 		<div className="font-sans py-6 text-ink">
 			{alerts?.poolAlerts && alerts.poolAlerts.length > 0 && (
-				<PoolAlerts alerts={alerts} pools={all} selectedPools={filters.pools} />
+				<PoolAlerts alerts={alerts} pools={all} selectedPools={alertPools} />
 			)}
 
 			{/* mobile: single column, sticky chip bar with accordion panels. Focus
