@@ -14,9 +14,10 @@ import posthog from "posthog-js";
 
 let enabled = false;
 
-export function initAnalytics() {
+// true when PostHog is on, so callers can skip work whose only output is an event
+export function initAnalytics(): boolean {
 	const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-	if (!key || typeof window === "undefined") return;
+	if (!key || typeof window === "undefined") return false;
 
 	posthog.init(key, {
 		// requests go through the /lane rewrite in next.config.ts rather than
@@ -46,6 +47,7 @@ export function initAnalytics() {
 		},
 	});
 	enabled = true;
+	return true;
 }
 
 function capture(event: string, properties?: Record<string, unknown>) {
@@ -109,4 +111,13 @@ export function trackFocusMode(on: boolean) {
 /** A section tab was followed. Pageviews cover arrivals; this covers intent. */
 export function trackSectionNav(from: string, to: string) {
 	capture("section_nav_clicked", { from, to });
+}
+
+/**
+ * A page that was open earlier ended without closing: crashed, or killed by
+ * the OS. Found on a later load by lib/crash-watch, which documents the
+ * properties.
+ */
+export function trackCrashSuspected(properties: Record<string, unknown>) {
+	capture("page_crash_suspected", properties);
 }
