@@ -17,12 +17,14 @@ export type PoolToken = {
 	fullName: string;
 };
 
+// COF and ROS swapped colors so the teal doesn't sit next to GAR's green in
+// the lanes: two blue-greens side by side were hard to tell apart.
 export const POOL_TOKENS: PoolToken[] = [
 	{ id: "balboa", code: "BAL", color: "#4f7ddb", chip: "#3f6cc9", chipText: "#fff", name: "Balboa", fullName: "Balboa Pool" },
-	{ id: "coffman", code: "COF", color: "#00a7a0", chip: "#00807a", chipText: "#fff", name: "Coffman", fullName: "Coffman Pool" },
+	{ id: "coffman", code: "COF", color: "#b5533c", chip: "#b5533c", chipText: "#fff", name: "Coffman", fullName: "Coffman Pool" },
 	{ id: "garfield", code: "GAR", color: "#58a854", chip: "#3b8438", chipText: "#fff", name: "Garfield", fullName: "Garfield Pool" },
 	// HAM is a lighter step of its lane orange with ink text: darkened enough
-	// for white, it turned the same rust as ROS.
+	// for white, it turned the same rust as COF.
 	{ id: "hamilton", code: "HAM", color: "#e0813c", chip: "#e8955a", chipText: "#0e2733", name: "Hamilton", fullName: "Hamilton Pool" },
 	{ id: "mission", code: "MIS", color: "#d65a78", chip: "#c44a69", chipText: "#fff", name: "Mission", fullName: "Mission Pool" },
 	{ id: "mlk", code: "MLK", color: "#8a5cd6", chip: "#7a4cc6", chipText: "#fff", name: "MLK", fullName: "Martin Luther King Jr. Pool" },
@@ -30,7 +32,7 @@ export const POOL_TOKENS: PoolToken[] = [
 	// NBW's chip keeps ink text: a fill dark enough for white would match NBC.
 	{ id: "northBeachCool", code: "NBC", color: "#2596be", chip: "#1f7fa3", chipText: "#fff", name: "North Beach (Cool)", fullName: "North Beach Pool (Cool)" },
 	{ id: "northBeachWarm", code: "NBW", color: "#85c8e0", chip: "#85c8e0", chipText: "#0e2733", name: "North Beach (Warm)", fullName: "North Beach Pool (Warm)" },
-	{ id: "rossi", code: "ROS", color: "#b5533c", chip: "#b5533c", chipText: "#fff", name: "Rossi", fullName: "Rossi Pool" },
+	{ id: "rossi", code: "ROS", color: "#00a7a0", chip: "#00807a", chipText: "#fff", name: "Rossi", fullName: "Rossi Pool" },
 	{ id: "sava", code: "SAV", color: "#a3993c", chip: "#7d752a", chipText: "#fff", name: "Sava", fullName: "Sava Pool" },
 ];
 
