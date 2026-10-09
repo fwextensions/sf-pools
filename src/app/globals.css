@@ -17,6 +17,9 @@
 	   selection; the left rule and label use the darker alert color */
 	--color-alert-tint: #fbf0ee;
 	--color-alert: #a4432f;
+	/* the selected cell's row and column on the week grid. Neutral, so the
+	   gaps in a schedule don't show a colour that could pass for another pool */
+	--color-band: #e6ebee;
 	/* 28 / 20 / 15 / 13px at the desktop root size */
 	--text-title: 1.75rem;
 	--text-heading: 1.25rem;
@@ -262,20 +265,21 @@ input[type="radio"] {
 	--dim: 0.4;
 }
 
-/* Amber means selection and nothing else: these three values (#fdf4dc,
-   #ffe6a1, #f0a202) appear only in this block, so a status or notice never
-   borrows it. The band is a pale wash of the ring's amber, run across the selected row
-   and column so the day and hour can be traced back to the axes */
+/* The band is a grey wash run across the selected row and column so the day
+   and hour can be traced back to the axes */
 [data-has-selection] .grid-cell[data-band] {
 	--dim: 0.6;
-	background: #fdf4dc;
+	background: var(--color-band);
 }
 
-/* amber rather than the ink used elsewhere: it has to stay legible on top of
-   the pool colours, which a dark ring disappeared into */
+/* Amber means selection and nothing else: the ring's #f0a202 appears only
+   here, so a status or notice never borrows it. Amber rather than the ink
+   used elsewhere: it has to stay legible on top of the pool colours, which a
+   dark ring disappeared into */
 [data-has-selection] .grid-cell[data-selected] {
 	--dim: 1;
-	background: #ffe6a1;
+	/* back to the plain cell colour, so the ring frames it against the band */
+	background: var(--color-tint);
 	outline: 4px solid #f0a202;
 	/* the ring sits outside the cell, past a 1px white gutter (.grid-ring),
 	   so it never covers the first and last lanes. It overlaps the
@@ -304,7 +308,7 @@ input[type="radio"] {
 .grid-day[data-band],
 .grid-hour[data-band] {
 	color: var(--color-ink);
-	background: #fdf4dc;
+	background: var(--color-band);
 }
 
 /* only the even hours are labelled, until the selection lands on an odd one */
