@@ -6,13 +6,13 @@
 			"poolName": "North Beach (Cool)",
 			"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 			"alertText": "Please note, North Beach Pool will be closed for its annual maintenance from October 13 and reopen on November 2. For schedules of our other pools please visit:",
-			"scrapedAt": "2026-10-08T23:20:54.925Z",
+			"scrapedAt": "2026-10-09T00:26:21.683Z",
 			"documentUrl": null,
 			"closure": {
-				"summary": "North Beach Pool will be closed for annual maintenance from October 13 through November 2.",
+				"summary": "North Beach Pool will be closed for annual maintenance from October 13 through November 1.",
 				"rawText": "Please note, North Beach Pool will be closed for its annual maintenance from October 13 and reopen on November 2. For schedules of our other pools please visit:",
-				"startDate": null,
-				"endDate": "2026-11-02",
+				"startDate": "2026-10-13",
+				"endDate": "2026-11-01",
 				"indefinite": false,
 				"sourceUrl": null,
 				"reason": "annual maintenance",
@@ -28,13 +28,13 @@
 			"poolName": "North Beach (Warm)",
 			"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 			"alertText": "Please note, North Beach Pool will be closed for its annual maintenance from October 13 and reopen on November 2. For schedules of our other pools please visit:",
-			"scrapedAt": "2026-10-08T23:20:54.925Z",
+			"scrapedAt": "2026-10-09T00:26:21.683Z",
 			"documentUrl": null,
 			"closure": {
-				"summary": "North Beach Pool will be closed for annual maintenance from October 13 through November 2.",
+				"summary": "North Beach Pool will be closed for annual maintenance from October 13 through November 1.",
 				"rawText": "Please note, North Beach Pool will be closed for its annual maintenance from October 13 and reopen on November 2. For schedules of our other pools please visit:",
-				"startDate": null,
-				"endDate": "2026-11-02",
+				"startDate": "2026-10-13",
+				"endDate": "2026-11-01",
 				"indefinite": false,
 				"sourceUrl": null,
 				"reason": "annual maintenance",
@@ -46,5 +46,5 @@
 			}
 		}
 	],
-	"lastUpdated": "2026-10-08T23:21:14.432Z"
+	"lastUpdated": "2026-10-09T00:26:30.484Z"
 }
