@@ -4,6 +4,9 @@ import {
 	detectClosure,
 	parseDateRange,
 	isClosureActive,
+	hasClosureEnded,
+	closedDays,
+	pacificToday,
 	formatClosurePeriod,
 	checkClosureSanity,
 	mergeClosure,
@@ -308,5 +311,50 @@ describe("mergeClosure", () => {
 		)!;
 		expect(merged.suppressPrograms).toBe(false);
 		expect(merged.disagreement).toMatch(/sanity/);
+	});
+});
+
+describe("hasClosureEnded", () => {
+	const closure = detectClosure("Pool Closure 10-13_11-1 2026", opts)!;
+
+	it("is false before and during the closure, true after its last day", () => {
+		expect(hasClosureEnded(closure, "2026-10-09")).toBe(false);
+		expect(hasClosureEnded(closure, "2026-11-01")).toBe(false);
+		expect(hasClosureEnded(closure, "2026-11-02")).toBe(true);
+	});
+
+	it("never ends an indefinite closure", () => {
+		expect(hasClosureEnded(detectClosure("Closed until further notice", opts)!, "2030-01-01")).toBe(false);
+	});
+});
+
+describe("closedDays", () => {
+	// North Beach: Tue Oct 13 through Sun Nov 1, 2026
+	const closure = detectClosure("Pool Closure 10-13_11-1 2026", opts)!;
+
+	it("is empty a week before the closure", () => {
+		expect(closedDays(closure, "2026-10-06").size).toBe(0);
+	});
+
+	it("covers only the days from the start when the week runs into it", () => {
+		// Fri Oct 9: Fri, Sat, Sun, Mon are open; Tue Oct 13 onward is closed
+		expect([...closedDays(closure, "2026-10-09")].sort()).toEqual(["Thursday", "Tuesday", "Wednesday"]);
+	});
+
+	it("covers every day in the middle of the closure", () => {
+		expect(closedDays(closure, "2026-10-20").size).toBe(7);
+	});
+
+	it("covers only the days before reopening when the week runs past the end", () => {
+		// Thu Oct 29: Thu, Fri, Sat, Sun are closed; Mon Nov 2 onward is open
+		expect([...closedDays(closure, "2026-10-29")].sort()).toEqual(["Friday", "Saturday", "Sunday", "Thursday"]);
+	});
+});
+
+describe("pacificToday", () => {
+	it("gives the San Francisco date, not the UTC one", () => {
+		// 2026-10-09 05:00 UTC is still the evening of Oct 8 in San Francisco
+		expect(pacificToday(new Date("2026-10-09T05:00:00Z"))).toBe("2026-10-08");
+		expect(pacificToday(new Date("2026-10-09T08:00:00Z"))).toBe("2026-10-09");
 	});
 });

@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { PoolSchedule } from "@/lib/pdf-processor";
-import { around, toSessions, type Day, type Session } from "@/lib/sessions";
+import { around, toSessions, withoutClosedDays, type Day, type Session } from "@/lib/sessions";
+import { formatClosurePeriod, isClosureActive, pacificToday } from "@/lib/closures";
 import { toTitleCase } from "@/lib/program-taxonomy";
 import { getPoolToken } from "@/lib/pool-tokens";
 import PoolChip from "./PoolChip";
@@ -26,7 +27,7 @@ const STATUS: Record<StatusKey, { label: string; glyph: string; text: string }> 
 	closed: { label: "CLOSED", glyph: "ring-2 ring-ink-2 ring-inset opacity-60", text: "text-ink-2" },
 };
 
-function getNowInPT(): { day: Day; minutes: number; display: string } {
+function getNowInPT(): { day: Day; date: string; minutes: number; display: string } {
 	const fmt = new Intl.DateTimeFormat("en-US", {
 		timeZone: "America/Los_Angeles",
 		hour: "numeric",
@@ -53,7 +54,7 @@ function getNowInPT(): { day: Day; minutes: number; display: string } {
 		hour12: true,
 	}).format(new Date());
 
-	return { day: weekday, minutes, display };
+	return { day: weekday, date: pacificToday(), minutes, display };
 }
 
 function comparePoolNames(a: { pool: PoolSchedule }, b: { pool: PoolSchedule }) {
@@ -169,15 +170,16 @@ export default function NowSoon({ all }: Props) {
 		return () => clearInterval(id);
 	}, []);
 
+	// recomputed when the day turns over, so a closure starts or ends at midnight
 	const sessionsByPool = useMemo(() => {
 		const byPool = new Map<string, Session[]>();
-		for (const s of toSessions(all)) {
+		for (const s of toSessions(withoutClosedDays(all, now.date))) {
 			const list = byPool.get(s.poolId);
 			if (list) list.push(s);
 			else byPool.set(s.poolId, [s]);
 		}
 		return byPool;
-	}, [all]);
+	}, [all, now.date]);
 
 	const perPool = useMemo(
 		() => all.map((pool) => ({ pool, ...around(sessionsByPool.get(pool.id) ?? [], now, windowMin) })),
@@ -264,7 +266,12 @@ export default function NowSoon({ all }: Props) {
 				{closed.map(({ pool, later }) => (
 					<PoolBlock key={pool.id} pool={pool} status="closed">
 						<div className="mt-1.5">
-							{later ? (
+							{pool.closure?.suppressPrograms && isClosureActive(pool.closure, now.date) ? (
+								<div className="text-small text-ink-2">
+									Closed {formatClosurePeriod(pool.closure)}
+									{pool.closure.reason ? ` for ${pool.closure.reason}` : ""}.
+								</div>
+							) : later ? (
 								<SessionLine time={`later ${later.startTime}`} name={later.title} />
 							) : (
 								<div className="text-small text-ink-2">No more sessions today.</div>
