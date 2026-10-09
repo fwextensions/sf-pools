@@ -7,7 +7,7 @@ import type { PoolSchedule } from "./pdf-processor";
 import { cleanProgramTitle, deriveTags, findCanonicalProgram, normalizeProgramName, toTitleCase } from "./program-taxonomy";
 import { getPoolIdFromName, getPoolById } from "./pool-mapping";
 import { detectScheduleAnomalies, detectRegressionAnomalies, repairMeridiemTypos } from "./schedule-validation";
-import { isClosureActive, type Closure } from "./closures";
+import { hasClosureEnded, isClosureActive, type Closure } from "./closures";
 
 /** the pools.json entry a PDF was downloaded for */
 export type SourcePool = {
@@ -43,8 +43,8 @@ export type ReleaseInput = {
 	previousSchedules: PoolSchedule[];
 	/** ids of every pool in pools.json */
 	knownPoolIds: Iterable<string>;
-	/** announced closures that hide a pool's programs, by pool id */
-	activeClosures: Map<string, Closure>;
+	/** announced closures that haven't ended, by pool id */
+	closures: Map<string, Closure>;
 	/** YYYY-MM-DD */
 	today: string;
 	/** ship extracts even when they fail health checks (local dev escape hatch) */
@@ -54,7 +54,7 @@ export type ReleaseInput = {
 
 export type ReleaseResult = {
 	schedules: PoolSchedule[];
-	/** pools whose programs were hidden because an announced closure is running */
+	/** pools with an announced closure running today */
 	closedPools: string[];
 	anomalies: string[];
 	/** session times corrected for an am/pm typo the published data doesn't already reflect */
@@ -124,18 +124,19 @@ export function canonicalizePrograms(programs: PoolSchedule["programs"]): PoolSc
 type PoolAlert = { poolId: string; closure?: Closure | null };
 
 /**
- * Active closures by pool id, from the alerts scrape. A closure that has
- * already ended is ignored, so a pool comes back on its own the day after it
- * reopens even if nothing re-scrapes in between.
+ * Closures by pool id, from the alerts scrape: those running today and those
+ * announced for later. A closure that has already ended is ignored. The site
+ * hides a pool's sessions on the dates a closure covers, so the published
+ * schedule never has to change for one.
  */
-export function selectActiveClosures(poolAlerts: PoolAlert[], today: string): Map<string, Closure> {
+export function selectClosures(poolAlerts: PoolAlert[], today: string): Map<string, Closure> {
 	const byPool = new Map<string, Closure>();
 	for (const alert of poolAlerts) {
 		const closure = alert.closure;
 		// suppressPrograms is the single gate on hiding a schedule: a partial
 		// closure, or one the model flagged as unsafe to act on, stays an alert
 		if (!closure || !closure.suppressPrograms) continue;
-		if (!isClosureActive(closure, today)) continue;
+		if (hasClosureEnded(closure, today)) continue;
 		// when a pool has several notices, keep the one that runs longest
 		const existing = byPool.get(alert.poolId);
 		if (existing) {
@@ -149,16 +150,16 @@ export function selectActiveClosures(poolAlerts: PoolAlert[], today: string): Ma
 
 /**
  * Turn this run's extracts into the schedules to publish. Per schedule:
- * settle identity, fill in source metadata, canonicalize programs, hide a
- * closed pool's programs, repair am/pm typos, then health-check and quarantine
- * a corrupt extract behind the previous data. Pools nothing was extracted for
+ * settle identity, fill in source metadata, canonicalize programs, attach any
+ * announced closure, repair am/pm typos, then health-check and quarantine a
+ * corrupt extract behind the previous data. Pools nothing was extracted for
  * keep their previous schedule, unless they're no longer in pools.json.
  */
 export function releaseSchedules(input: ReleaseInput): ReleaseResult {
 	const {
 		extracts,
 		previousSchedules,
-		activeClosures,
+		closures,
 		today,
 		allowUnhealthy = false,
 		log = silentLog,
@@ -207,24 +208,27 @@ export function releaseSchedules(input: ReleaseInput): ReleaseResult {
 
 				if (s.programs) s.programs = canonicalizePrograms(s.programs);
 
-				// A pool with an announced closure publishes no programs: a maintenance
-				// banner above a full schedule is too easy to read past. This also
-				// resolves the empty-extract ambiguity - when a closure explains why a
-				// PDF yielded nothing, the extract is not corrupt and must not be
-				// quarantined behind stale programs.
-				const closure = activeClosures.get(s.id);
-				if (closure) {
-					result.closedPools.push(s.shortName || s.name);
-					log.log(
-						`🚧 ${s.shortName || s.name} closed (${closure.startDate ?? "?"} -> ${closure.endDate ?? "indefinite"}) - hiding programs`
-					);
-					const { programs: _hidden, ...closedRest } = s;
-					aggregated.push({ ...closedRest, closure, programs: [] });
-					continue;
-				}
-
 				const label = s.shortName || s.name;
 				const previous = previousByName.get(s.name);
+
+				// A closure rides along with the regular schedule rather than
+				// replacing it: the site hides the sessions on the dates it covers,
+				// and the changelog doesn't report a closed pool's whole week as
+				// removed and then added back
+				const closure = closures.get(s.id) ?? null;
+				if (closure && isClosureActive(closure, today)) {
+					result.closedPools.push(label);
+					log.log(
+						`🚧 ${label} closed (${closure.startDate ?? "?"} -> ${closure.endDate ?? "indefinite"})`
+					);
+					// a PDF swapped for a closure notice yields nothing, which the
+					// closure explains: keep the last published week rather than
+					// quarantining the pool
+					if (!s.programs?.length) {
+						aggregated.push({ ...s, closure, programs: previous?.programs ?? [] });
+						continue;
+					}
+				}
 
 				// the city's PDFs occasionally flip an am/pm ("10:15am-11:15pm"), and
 				// the extractor copies it faithfully. Fix the ones a flip explains
@@ -270,7 +274,7 @@ export function releaseSchedules(input: ReleaseInput): ReleaseResult {
 					// for a quarantined pool, so the next run re-extracts it.
 					if (previous) {
 						result.quarantinedPools.push(label);
-						aggregated.push(previous);
+						aggregated.push({ ...previous, closure });
 						log.warn(`⛔ quarantined ${label} — keeping previous data`);
 					} else {
 						// no known-good data to fall back on, so publish nothing for it
@@ -282,7 +286,7 @@ export function releaseSchedules(input: ReleaseInput): ReleaseResult {
 				}
 
 				// a pool that is no longer closed drops any closure it was carrying
-				aggregated.push({ ...rest, closure: null, programs });
+				aggregated.push({ ...rest, closure, programs });
 			}
 		} catch (err) {
 			log.warn("failed to process", `${base}.pdf`, err);
@@ -300,7 +304,7 @@ export function releaseSchedules(input: ReleaseInput): ReleaseResult {
 			log.log("dropped (no longer a known pool):", prev.name);
 			continue;
 		}
-		aggregated.push(prev);
+		aggregated.push({ ...prev, closure: closures.get(prev.id) ?? null });
 		result.preservedCount++;
 		log.log("preserved (no new pdf):", prev.name);
 	}

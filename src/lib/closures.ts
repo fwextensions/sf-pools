@@ -269,15 +269,41 @@ function shiftYears(date: string, years: number): string {
 	return `${y! + years}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 }
 
-/**
- * True when the closure covers `today`. A closure that has already ended stops
- * suppressing the pool's programs on its own, without needing a re-scrape.
- */
+/** True when the closure covers `today`. */
 export function isClosureActive(closure: Closure, today: string): boolean {
 	if (closure.startDate && today < closure.startDate) return false;
 	if (closure.indefinite) return true;
 	if (!closure.endDate) return false;
 	return today <= closure.endDate;
+}
+
+/** True once the last day of a dated closure has passed. */
+export function hasClosureEnded(closure: Closure, today: string): boolean {
+	return !closure.indefinite && !!closure.endDate && today > closure.endDate;
+}
+
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] as const;
+
+/** today's date in San Francisco, YYYY-MM-DD */
+export function pacificToday(now: Date = new Date()): string {
+	// en-CA formats as YYYY-MM-DD
+	return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles" }).format(now);
+}
+
+/**
+ * The weekdays a closure shuts in the seven days starting `today`. The views
+ * show one week of a weekly schedule, so each weekday stands for its next
+ * occurrence: on a Friday, "Tuesday" means the coming Tuesday.
+ */
+export function closedDays(closure: Closure, today: string): Set<string> {
+	const days = new Set<string>();
+	const start = new Date(`${today}T00:00:00Z`);
+	for (let i = 0; i < 7; i++) {
+		const d = new Date(start);
+		d.setUTCDate(start.getUTCDate() + i);
+		if (isClosureActive(closure, d.toISOString().slice(0, 10))) days.add(WEEKDAYS[d.getUTCDay()]!);
+	}
+	return days;
 }
 
 /** "Aug 14 – Sep 7" / "through Sep 7" / "until further notice" */

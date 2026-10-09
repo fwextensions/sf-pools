@@ -10,7 +10,7 @@ import {
 	releaseSchedules,
 	releaseVerdict,
 	releaseWarnings,
-	selectActiveClosures,
+	selectClosures,
 	type PoolExtract,
 } from "@/lib/release-rules";
 import { formatUsageSummary, sessionUsage, USAGE_LOG } from "@/lib/llm-usage";
@@ -129,14 +129,14 @@ async function loadDiscoveredPools(): Promise<DiscoveredPool[]> {
 	}
 }
 
-/** active closures by pool id, read from the alerts scrape */
-async function loadActiveClosures(today: string): Promise<Map<string, Closure>> {
+/** current and upcoming closures by pool id, read from the alerts scrape */
+async function loadClosures(today: string): Promise<Map<string, Closure>> {
 	try {
 		const raw = await readFile(ALERTS_FILE, "utf-8");
 		const data = JSON.parse(raw) as {
 			poolAlerts?: Array<{ poolId: string; closure?: Closure | null }>;
 		};
-		return selectActiveClosures(data.poolAlerts ?? [], today);
+		return selectClosures(data.poolAlerts ?? [], today);
 	} catch {
 		// no alerts file yet - nothing is known to be closed
 		return new Map();
@@ -148,7 +148,7 @@ export type ProcessResult = {
 	changelog: ReturnType<typeof computeChangelog>;
 	extractedCount: number;
 	skippedCount: number;
-	/** pools whose programs were hidden because an announced closure is running */
+	/** pools with an announced closure running today */
 	closedPools: string[];
 	preservedCount: number;
 	anomalies: string[];
@@ -203,7 +203,7 @@ export async function main(): Promise<ProcessResult> {
 	let extractedCount = 0;
 	let skippedCount = 0;
 	const today = todayISO();
-	const activeClosures = await loadActiveClosures(today);
+	const closures = await loadClosures(today);
 
 	const extracts: PoolExtract[] = [];
 	const groundingWarnings: string[] = [];
@@ -281,7 +281,7 @@ export async function main(): Promise<ProcessResult> {
 		extracts,
 		previousSchedules,
 		knownPoolIds: pools.map((p) => p.id),
-		activeClosures,
+		closures,
 		today,
 		// escape hatch for local dev: ship extracts even when they fail health checks
 		allowUnhealthy: process.env.ALLOW_UNHEALTHY === "1",

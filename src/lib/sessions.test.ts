@@ -1,6 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
 import type { PoolSchedule } from "@/lib/pdf-processor";
-import { around, programMinutes, toSessions } from "./sessions";
+import { around, programMinutes, toSessions, withoutClosedDays } from "./sessions";
+import type { Closure } from "./closures";
 
 const pool = (id: string, programs: Array<[string, string, string]>) =>
 	({
@@ -77,5 +78,45 @@ describe("around", () => {
 			later: undefined,
 		});
 		expect(at(22 * 60)).toEqual({ current: undefined, upcoming: [], later: undefined });
+	});
+});
+
+describe("withoutClosedDays", () => {
+	const closure: Closure = {
+		summary: "",
+		rawText: "",
+		startDate: "2026-10-13",
+		endDate: "2026-11-01",
+		indefinite: false,
+		sourceUrl: null,
+		reason: null,
+		scope: "whole-pool",
+		source: "pattern",
+		suppressPrograms: true,
+		confidence: null,
+		disagreement: null,
+	};
+	const northBeach = {
+		...pool("northBeachCool", [
+			["Monday", "9:00a", "10:00a"],
+			["Tuesday", "9:00a", "10:00a"],
+			["Saturday", "9:00a", "10:00a"],
+		]),
+		closure,
+	};
+
+	it("drops the sessions on the days the closure covers this week", () => {
+		// Fri Oct 9: the coming Tuesday is Oct 13, the first closed day
+		const [open] = withoutClosedDays([northBeach], "2026-10-09");
+		expect(open!.programs.map((p) => p.dayOfWeek)).toEqual(["Monday", "Saturday"]);
+	});
+
+	it("leaves a pool alone before its closure reaches this week", () => {
+		expect(withoutClosedDays([northBeach], "2026-10-05")[0]).toBe(northBeach);
+	});
+
+	it("ignores a closure that isn't allowed to hide programs", () => {
+		const partial = { ...northBeach, closure: { ...closure, suppressPrograms: false } };
+		expect(withoutClosedDays([partial], "2026-10-20")[0]).toBe(partial);
 	});
 });

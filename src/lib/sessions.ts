@@ -6,6 +6,7 @@
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import { describeProgram } from "@/lib/program-display";
 import { parseTimeToMinutes } from "@/lib/time";
+import { closedDays } from "@/lib/closures";
 
 export type Day = ProgramEntry["dayOfWeek"];
 
@@ -38,6 +39,20 @@ export function programMinutes(
 	const startMin = parseTimeToMinutes(p.startTime);
 	const endMin = parseTimeToMinutes(p.endTime);
 	return startMin == null || endMin == null ? null : { startMin, endMin };
+}
+
+/**
+ * The schedules with each pool's sessions removed on the days its closure
+ * covers this week (the seven days from `today`). The published data keeps the
+ * regular weekly schedule; this is where a closure takes effect.
+ */
+export function withoutClosedDays(all: PoolSchedule[], today: string): PoolSchedule[] {
+	return all.map((pool) => {
+		if (!pool.closure?.suppressPrograms) return pool;
+		const closed = closedDays(pool.closure, today);
+		if (closed.size === 0) return pool;
+		return { ...pool, programs: pool.programs.filter((p) => !closed.has(p.dayOfWeek)) };
+	});
 }
 
 export function toSessions(all: PoolSchedule[]): Session[] {

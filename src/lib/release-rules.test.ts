@@ -4,7 +4,7 @@ import fc from "fast-check";
 import {
 	resolvePoolIdentity,
 	canonicalizePrograms,
-	selectActiveClosures,
+	selectClosures,
 	releaseSchedules,
 	releaseWarnings,
 	releaseVerdict,
@@ -92,7 +92,7 @@ function release(overrides: Partial<ReleaseInput> = {}) {
 		extracts: [],
 		previousSchedules: [],
 		knownPoolIds: POOLS.map((p) => p.id),
-		activeClosures: new Map(),
+		closures: new Map(),
 		today: TODAY,
 		...overrides,
 	});
@@ -228,9 +228,9 @@ describe("canonicalizePrograms", () => {
 	});
 });
 
-describe("selectActiveClosures", () => {
-	it("keeps only closures that suppress programs and cover today", () => {
-		const active = selectActiveClosures(
+describe("selectClosures", () => {
+	it("keeps closures that suppress programs and haven't ended", () => {
+		const active = selectClosures(
 			[
 				{ poolId: "balboa", closure: closure() },
 				{ poolId: "rossi", closure: closure({ suppressPrograms: false }) },
@@ -241,12 +241,12 @@ describe("selectActiveClosures", () => {
 			],
 			TODAY
 		);
-		expect([...active.keys()]).toEqual(["balboa"]);
+		expect([...active.keys()]).toEqual(["balboa", "mlk"]);
 	});
 
 	it("keeps the longest-running notice when a pool has several", () => {
 		const longer = closure({ endDate: "2026-11-01" });
-		const active = selectActiveClosures(
+		const active = selectClosures(
 			[
 				{ poolId: "balboa", closure: closure() },
 				{ poolId: "balboa", closure: longer },
@@ -259,7 +259,7 @@ describe("selectActiveClosures", () => {
 
 	it("prefers an indefinite closure over any dated one", () => {
 		const indefinite = closure({ endDate: null, indefinite: true });
-		const active = selectActiveClosures(
+		const active = selectClosures(
 			[
 				{ poolId: "balboa", closure: indefinite },
 				{ poolId: "balboa", closure: closure({ endDate: "2027-01-01" }) },
@@ -308,17 +308,49 @@ describe("releaseSchedules", () => {
 		expect(JSON.stringify(extract)).toBe(before);
 	});
 
-	it("hides a closed pool's programs and skips the health check", () => {
+	it("keeps a closed pool's programs and attaches the closure", () => {
+		const active = closure();
+		const result = release({
+			extracts: [balboaExtract()],
+			closures: new Map([["balboa", active]]),
+		});
+		expect(result.schedules[0]).toMatchObject({ id: "balboa", closure: active });
+		expect(result.schedules[0].programs).toHaveLength(week().length);
+		expect(result.closedPools).toEqual(["Balboa"]);
+	});
+
+	it("attaches an upcoming closure without counting the pool as closed", () => {
+		const upcoming = closure({ startDate: "2026-10-13", endDate: "2026-11-01" });
+		const result = release({
+			extracts: [balboaExtract()],
+			closures: new Map([["balboa", upcoming]]),
+		});
+		expect(result.schedules[0].closure).toBe(upcoming);
+		expect(result.schedules[0].programs).toHaveLength(week().length);
+		expect(result.closedPools).toEqual([]);
+	});
+
+	it("keeps the last published week when a closed pool's PDF yields nothing", () => {
 		const active = closure();
 		const result = release({
 			extracts: [balboaExtract({ programs: [] })],
 			previousSchedules: [publishedBalboa()],
-			activeClosures: new Map([["balboa", active]]),
+			closures: new Map([["balboa", active]]),
 		});
-		expect(result.schedules).toEqual([expect.objectContaining({ id: "balboa", closure: active, programs: [] })]);
-		expect(result.closedPools).toEqual(["Balboa"]);
+		expect(result.schedules).toEqual([expect.objectContaining({ id: "balboa", closure: active, programs: week() })]);
 		expect(result.healthCheckedCount).toBe(0);
 		expect(result.quarantinedPools).toEqual([]);
+	});
+
+	it("updates the closure on a pool whose PDF wasn't re-extracted", () => {
+		const active = closure();
+		const result = release({
+			previousSchedules: [publishedBalboa()],
+			closures: new Map([["balboa", active]]),
+		});
+		expect(result.schedules[0]).toMatchObject({ closure: active, programs: week() });
+		const reopened = release({ previousSchedules: [publishedBalboa({ closure: active })] });
+		expect(reopened.schedules[0].closure).toBeNull();
 	});
 
 	it("clears the closure from a pool that has reopened", () => {
@@ -424,7 +456,7 @@ describe("releaseSchedules", () => {
 				previousSchedules: [publishedBalboa(), rossi],
 			});
 			expect(result.schedules.map((s) => s.id)).toEqual(["balboa", "rossi"]);
-			expect(result.schedules[1]).toBe(rossi);
+			expect(result.schedules[1]).toEqual(rossi);
 			expect(result.preservedCount).toBe(1);
 		});
 

@@ -67,8 +67,8 @@ export const PoolScheduleSchema = z.object({
 	lanes: z.number().int().positive().optional().nullable(),
 	/**
 	 * Set by the pipeline (not the extractor) when a scraped alert says the pool
-	 * is shut. Programs are emptied while a closure is active, so every surface
-	 * hides them without having to know about closures itself.
+	 * is or will be shut. Programs stay the regular weekly schedule; the site
+	 * hides the sessions that fall on the closure's dates (see closedDays).
 	 */
 	closure: ClosureSchema.optional().nullable(),
 	programs: z.array(ProgramSchema),

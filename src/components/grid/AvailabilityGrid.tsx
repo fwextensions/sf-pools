@@ -6,7 +6,8 @@ import type { PoolSchedule } from "@/lib/pdf-processor";
 import PoolAlerts from "@/components/PoolAlerts";
 import { createGridModel } from "@/lib/grid/grid-model";
 import { trackGridChange } from "@/lib/grid/grid-analytics";
-import { toSessions } from "@/lib/sessions";
+import { toSessions, withoutClosedDays } from "@/lib/sessions";
+import { pacificToday } from "@/lib/closures";
 import { initialGridState, writeGridUrl } from "@/lib/grid/url";
 import { trackFocusMode } from "@/lib/analytics";
 import type { AlertsData } from "../../../scripts/scrape-alerts";
@@ -25,7 +26,10 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	const pathname = usePathname();
 	// created during the first render from the url rather than in an effect,
 	// so the grid never paints a frame unfiltered before the filters land
-	const [model] = useState(() => createGridModel(toSessions(all), initialGridState(searchParams)));
+	// a closed pool's sessions drop out on the days its closure covers this week
+	const [model] = useState(() =>
+		createGridModel(toSessions(withoutClosedDays(all, pacificToday())), initialGridState(searchParams))
+	);
 	const subscribeFilters = useCallback(
 		(onChange: () => void) =>
 			model.subscribe((change) => {
