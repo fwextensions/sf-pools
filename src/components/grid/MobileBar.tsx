@@ -26,35 +26,44 @@ export function MobileChips({
 }) {
 	const selectedTags = filters.tags;
 	const selectedPools = filters.pools;
+	// one row at every common phone width: below 21rem of bar (phones
+	// narrower than about 390px) the pickers drop to the small text size,
+	// which leaves room for both of them plus the reset and full-screen
+	// buttons down to 360px. Only the label word truncates, as a last resort
+	// on anything narrower, so the count always shows.
 	return (
-		<div className="flex items-center justify-between gap-1.5">
-			<div className="flex min-w-0 flex-wrap items-center gap-1.5">
+		<div className="@container flex items-center justify-between gap-1">
+			<div className="flex min-w-0 items-center gap-1">
 				<button
 					type="button"
 					onClick={() => onOpenPanel(openPanel === "programs" ? null : "programs")}
-					className="control text-body font-medium"
+					className="control min-w-0 px-2.5 text-body font-medium @max-[21rem]:gap-1 @max-[21rem]:px-2 @max-[21rem]:text-small"
 					style={{
 						background: selectedTags.length ? "var(--color-ink)" : "#fff",
 						borderColor: selectedTags.length ? "var(--color-ink)" : undefined,
 						color: selectedTags.length ? "#fff" : "var(--color-ink)",
 					}}
 				>
-					Programs: {selectedTags.length || "All"} <Chevron open={openPanel === "programs"} />
+					<span className="truncate">Programs:</span>
+					<span className="-ml-0.5 @max-[21rem]:ml-0">{selectedTags.length || "All"}</span>
+					<Chevron open={openPanel === "programs"} />
 				</button>
 				<button
 					type="button"
 					onClick={() => onOpenPanel(openPanel === "pools" ? null : "pools")}
-					className="control text-body font-medium"
+					className="control min-w-0 px-2.5 text-body font-medium @max-[21rem]:gap-1 @max-[21rem]:px-2 @max-[21rem]:text-small"
 					style={{
 						background: selectedPools.length ? "var(--color-ink)" : "#fff",
 						borderColor: selectedPools.length ? "var(--color-ink)" : undefined,
 						color: selectedPools.length ? "#fff" : "var(--color-ink)",
 					}}
 				>
-					Pools: {selectedPools.length || "All"} <Chevron open={openPanel === "pools"} />
+					<span className="truncate">Pools:</span>
+					<span className="-ml-0.5 @max-[21rem]:ml-0">{selectedPools.length || "All"}</span>
+					<Chevron open={openPanel === "pools"} />
 				</button>
 			</div>
-			<div className="flex flex-none items-center gap-1.5">
+			<div className="flex flex-none items-center gap-1">
 				{selectedTags.length || selectedPools.length ? <ClearIconButton model={model} /> : null}
 				{/* the grid can only take a touch drag when the page behind it
 				    holds still, so this is the way into that mode */}

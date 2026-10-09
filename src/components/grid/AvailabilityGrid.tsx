@@ -130,7 +130,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 					{/* the page container's 1rem gutter, and 430px inside it, so the
 					    grid keeps exactly its width from the scrolling view */}
 					<div className="mx-auto flex h-full w-full max-w-[calc(430px+2rem)] flex-col px-4">
-						<div className="flex-none border-b border-line px-3.5 py-2.5">
+						<div className="flex-none border-b border-line py-2.5">
 							{mobileChips}
 						</div>
 						<MobilePanel fill openPanel={openPanel}>{mobilePanelRows}</MobilePanel>
@@ -146,7 +146,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 				</div>
 			) : (
 				<div className="mx-auto max-w-[430px] min-[900px]:hidden">
-					<div className="sticky top-0 z-10 border-b border-line bg-tint px-3.5 py-2.5">
+					<div className="sticky top-0 z-10 border-b border-line bg-tint py-2.5">
 						{mobileChips}
 					</div>
 					<MobilePanel openPanel={openPanel}>{mobilePanelRows}</MobilePanel>
