@@ -221,9 +221,9 @@ export function releaseSchedules(input: ReleaseInput): ReleaseResult {
 					log.log(
 						`🚧 ${label} closed (${closure.startDate ?? "?"} -> ${closure.endDate ?? "indefinite"})`
 					);
-					// a PDF swapped for a closure notice yields nothing, which the
-					// closure explains: keep the last published week rather than
-					// quarantining the pool
+					// the city sometimes replaces the schedule PDF with a closure
+					// notice, which has no programs; keep last week's schedule instead
+					// of treating the empty read as a bad PDF
 					if (!s.programs?.length) {
 						aggregated.push({ ...s, closure, programs: previous?.programs ?? [] });
 						continue;
