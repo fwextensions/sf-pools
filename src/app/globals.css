@@ -17,11 +17,9 @@
 	   selection; the left rule and label use the darker alert color */
 	--color-alert-tint: #fbf0ee;
 	--color-alert: #a4432f;
-	/* the selected cell's row and column on the week grid, and a step darker
-	   for the cell itself. Neutral, so the gaps in a schedule don't show a
-	   colour that could pass for another pool */
+	/* the selected cell's row and column on the week grid. Neutral, so the
+	   gaps in a schedule don't show a colour that could pass for another pool */
 	--color-band: #e6ebee;
-	--color-band-strong: #d5dde1;
 	/* 28 / 20 / 15 / 13px at the desktop root size */
 	--text-title: 1.75rem;
 	--text-heading: 1.25rem;
@@ -280,7 +278,8 @@ input[type="radio"] {
    dark ring disappeared into */
 [data-has-selection] .grid-cell[data-selected] {
 	--dim: 1;
-	background: var(--color-band-strong);
+	/* back to the plain cell colour, so the ring frames it against the band */
+	background: var(--color-tint);
 	outline: 4px solid #f0a202;
 	/* the ring sits outside the cell, past a 1px white gutter (.grid-ring),
 	   so it never covers the first and last lanes. It overlaps the
