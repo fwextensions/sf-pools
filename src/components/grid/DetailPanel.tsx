@@ -27,11 +27,13 @@ const DetailPanel = memo(function DetailPanel({
 	filters,
 	canDrag,
 	ratchet,
+	holdFloor = false,
 }: {
 	model: GridModel;
 	filters: FilterView;
 	canDrag: boolean;
 	ratchet: boolean;
+	holdFloor?: boolean;
 }) {
 	const subscribe = useCallback(
 		(onChange: () => void) =>
@@ -77,7 +79,7 @@ const DetailPanel = memo(function DetailPanel({
 					</span>
 				) : null}
 			</div>
-			<HeightRatchet enabled={ratchet} resetKey={filterKey}>
+			<HeightRatchet enabled={ratchet} resetKey={filterKey} hold={holdFloor}>
 			{detail?.map((d, i) => {
 				const access = accessNote(d.tags);
 				return (

@@ -7,16 +7,22 @@ import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 // shifts under you. Hold the tallest list rendered so far as a floor: the
 // space can grow but never shrink, so switching cells never moves the page.
 // Changing the filters is the one time a smaller list is expected, so the
-// floor resets there rather than stranding a gap for the rest of the session.
+// floor resets there rather than stranding a gap for the rest of the session,
+// except while hold is set: on a phone the filters change under an open
+// panel, and dropping the floor then could shorten the page enough to pull
+// the panel out from under the finger (picking a closed pool empties it), so
+// the reset waits until the panel closes.
 // Focus mode opts out: the page doesn't scroll there and the list has its
 // own scroller, so a floor would only add one.
 export default function HeightRatchet({
 	enabled,
 	resetKey,
+	hold = false,
 	children,
 }: {
 	enabled: boolean;
 	resetKey: string;
+	hold?: boolean;
 	children: ReactNode;
 }) {
 	const inner = useRef<HTMLDivElement>(null);
@@ -26,7 +32,7 @@ export default function HeightRatchet({
 	// never committed for a frame before being cleared
 	const key = `${resetKey}|${enabled}`;
 	const [floorKey, setFloorKey] = useState(key);
-	if (floorKey !== key) {
+	if (!hold && floorKey !== key) {
 		setFloorKey(key);
 		setFloor(0);
 	}

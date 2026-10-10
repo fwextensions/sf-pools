@@ -159,7 +159,13 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 					</div>
 					<MobilePanel openPanel={openPanel}>{mobilePanelRows}</MobilePanel>
 					<GridBody model={model} filters={filters} cellHeightClass="h-[15px]" touchDrag={false} />
-					<DetailPanel model={model} filters={filters} canDrag={false} ratchet={true} />
+					<DetailPanel
+						model={model}
+						filters={filters}
+						canDrag={false}
+						ratchet={true}
+						holdFloor={openPanel !== null}
+					/>
 				</div>
 			)}
 
