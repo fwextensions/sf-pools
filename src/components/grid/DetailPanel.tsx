@@ -56,9 +56,9 @@ const DetailPanel = memo(function DetailPanel({
 	const emptyReason = cellView?.empty ?? null;
 	const emptyAction =
 		emptyReason?.kind === "programs"
-			? { what: "programs" as const, label: "SHOW ALL PROGRAMS" }
+			? { what: "programs" as const, label: "SHOW ALL" }
 			: emptyReason?.kind === "pools"
-				? { what: "pools" as const, label: "SHOW ALL POOLS" }
+				? { what: "pools" as const, label: "SHOW ALL" }
 				: emptyReason?.kind === "both"
 					? { what: "all" as const, label: "CLEAR FILTERS" }
 					: null;
@@ -106,20 +106,25 @@ const DetailPanel = memo(function DetailPanel({
 				);
 			})}
 			{emptyReason ? (
-				<div className="py-3.5 text-body text-ink-2">
-					{emptyCellMessage(emptyReason)}
-					{emptyAction ? (
+				emptyAction ? (
+					// a wrapping flex row, so the button starts flush left when it
+					// drops below the message instead of keeping its side gap
+					<div className="flex flex-wrap items-center gap-x-3 gap-y-2.5 py-3.5 text-body text-ink-2">
+						<span>{emptyCellMessage(emptyReason)}</span>
 						<button
 							type="button"
 							onClick={() => model.clearFilters(emptyAction.what, "empty_cell")}
-							className="ml-2 cursor-pointer border border-line-strong bg-white px-2 py-0.5 align-baseline font-mono text-label font-medium text-ink-2"
+							className="control font-mono text-label font-semibold tracking-[.08em] text-ink-2 hover:border-ink"
 						>
 							{emptyAction.label}
 						</button>
-					) : (
-						<> Try {canDrag ? "dragging across" : "tapping a colored cell in"} the grid.</>
-					)}
-				</div>
+					</div>
+				) : (
+					<div className="py-3.5 text-body text-ink-2">
+						{emptyCellMessage(emptyReason)}
+						{" "}Try {canDrag ? "dragging across" : "tapping a colored cell in"} the grid.
+					</div>
+				)
 			) : null}
 			</HeightRatchet>
 		</div>
