@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { trackError } from "@/lib/analytics";
+import { reloadForNewDeploy } from "@/lib/stale-deploy";
 
 /**
  * The last resort: a failure in the root layout itself, which replaces the
@@ -11,13 +12,15 @@ import { trackError } from "@/lib/analytics";
  */
 export default function GlobalError({
 	error,
-	reset,
 }: {
 	error: Error & { digest?: string };
 	reset: () => void;
 }) {
 	useEffect(() => {
 		trackError(error, "root", error.digest);
+		// a tab left open across a deploy asks for chunks that are gone;
+		// a full reload fixes it, so do that rather than show this page
+		reloadForNewDeploy(error);
 	}, [error]);
 
 	return (
@@ -39,7 +42,9 @@ export default function GlobalError({
 			<p style={{ marginTop: 24 }}>
 				<button
 					type="button"
-					onClick={reset}
+					// a full reload rather than reset(): the router is part of what
+					// broke, and a stale deploy's missing chunks need fresh HTML
+					onClick={() => window.location.reload()}
 					style={{
 						cursor: "pointer",
 						border: "1.5px solid #0e2733",
