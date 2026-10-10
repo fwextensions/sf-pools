@@ -46,6 +46,14 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	// stops scrolling, which frees the grid to take touch drags
 	const [focusMode, setFocusMode] = useState(false);
 	const scrollBeforeFocusRef = useRef<number | null>(null);
+	// the closure notices above the grid follow the pool filter, so picking
+	// a pool in the phone panel shrank the page above the chip bar and
+	// yanked the bar and the list out from under the finger. They catch up
+	// when the panel closes instead.
+	const [alertPools, setAlertPools] = useState(filters.pools);
+	if (openPanel !== "pools" && alertPools !== filters.pools) {
+		setAlertPools(filters.pools);
+	}
 
 	// keep the url shareable: every filter change, and the cell the reader
 	// settles on, but not each cell a drag passes over
@@ -118,7 +126,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	return (
 		<div className="font-sans py-6 text-ink">
 			{alerts?.poolAlerts && alerts.poolAlerts.length > 0 && (
-				<PoolAlerts alerts={alerts} pools={all} selectedPools={filters.pools} />
+				<PoolAlerts alerts={alerts} pools={all} selectedPools={alertPools} />
 			)}
 
 			{/* mobile: single column, sticky chip bar with accordion panels. Focus
@@ -130,7 +138,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 					{/* the page container's 1rem gutter, and 430px inside it, so the
 					    grid keeps exactly its width from the scrolling view */}
 					<div className="mx-auto flex h-full w-full max-w-[calc(430px+2rem)] flex-col px-4">
-						<div className="flex-none border-b border-line px-3.5 py-2.5">
+						<div className="flex-none border-b border-line py-2.5">
 							{mobileChips}
 						</div>
 						<MobilePanel fill openPanel={openPanel}>{mobilePanelRows}</MobilePanel>
@@ -146,12 +154,18 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 				</div>
 			) : (
 				<div className="mx-auto max-w-[430px] min-[900px]:hidden">
-					<div className="sticky top-0 z-10 border-b border-line bg-tint px-3.5 py-2.5">
+					<div className="sticky top-0 z-10 border-b border-line bg-tint py-2.5">
 						{mobileChips}
 					</div>
 					<MobilePanel openPanel={openPanel}>{mobilePanelRows}</MobilePanel>
 					<GridBody model={model} filters={filters} cellHeightClass="h-[15px]" touchDrag={false} />
-					<DetailPanel model={model} filters={filters} canDrag={false} ratchet={true} />
+					<DetailPanel
+						model={model}
+						filters={filters}
+						canDrag={false}
+						ratchet={true}
+						holdFloor={openPanel !== null}
+					/>
 				</div>
 			)}
 
