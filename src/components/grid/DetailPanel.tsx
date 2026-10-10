@@ -89,7 +89,7 @@ const DetailPanel = memo(function DetailPanel({
 					>
 						<PoolChip token={d.pool} />
 						{/* a wrapping flex row rather than inline text, so the lanes
-						    or the tag start flush left when they drop to a second
+						    and access note start flush left when they drop to a second
 						    line instead of keeping the gap that separates them from
 						    the name */}
 						<span className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-1.5 gap-y-1 font-medium text-ink">
@@ -97,7 +97,9 @@ const DetailPanel = memo(function DetailPanel({
 							{d.badges.length ? (
 								<span className="meta whitespace-nowrap">{d.badges.join(" · ")}</span>
 							) : null}
-							{access ? <span className="tag bg-tint text-ink-2">{access}</span> : null}
+							{/* set like the lanes rather than as a filled tag, whose
+							    padding and smaller type stood out in the list */}
+							{access ? <span className="meta whitespace-nowrap">{access}</span> : null}
 						</span>
 						<span className="font-mono text-small font-medium text-ink-2">
 							{d.startTime}–{d.endTime}
