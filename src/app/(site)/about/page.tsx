@@ -3,6 +3,7 @@ import path from "node:path";
 import type { Metadata } from "next";
 import BaseLink from "next/link";
 import PoolChip from "@/components/PoolChip";
+import { ExternalLinkIcon } from "@/components/icons";
 import { getPoolToken, type PoolToken } from "@/lib/pool-tokens";
 
 export const metadata: Metadata = {
@@ -173,7 +174,7 @@ export default async function AboutPage() {
 										rel="noreferrer"
 										className="link-utility ml-auto"
 									>
-										Pool page ↗
+										Pool page<ExternalLinkIcon />
 									</a>
 								</li>
 							))}

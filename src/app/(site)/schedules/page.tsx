@@ -4,6 +4,7 @@ import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import ClosureNotice from "@/components/ClosureNotice";
+import { ExternalLinkIcon } from "@/components/icons";
 import PoolChip from "@/components/PoolChip";
 import SessionBlock from "@/components/schedule/SessionBlock";
 import TimelineBlock from "@/components/schedule/TimelineBlock";
@@ -467,7 +468,7 @@ export default async function SchedulesPage() {
 												rel="noreferrer"
 												className="link-utility"
 											>
-												Source PDF ↗
+												Source PDF<ExternalLinkIcon />
 											</a>
 										) : null,
 									]}

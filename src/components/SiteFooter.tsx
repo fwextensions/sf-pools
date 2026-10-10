@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import Link from "next/link";
 import { formatShortDate, listChangelogs } from "@/lib/changelog-data";
+import { ExternalLinkIcon } from "@/components/icons";
 import type { AlertsData } from "../../scripts/scrape-alerts";
 
 const REC_PARK_URL = "https://sfrecpark.org";
@@ -55,10 +56,10 @@ export default async function SiteFooter() {
 					<nav aria-label="Elsewhere" className="flex flex-col min-[900px]:gap-3">
 						<div className={groupLabelClass}>ELSEWHERE</div>
 						<a href={REC_PARK_URL} target="_blank" rel="noreferrer" className={linkClass}>
-							SF Rec &amp; Parks ↗
+							SF Rec &amp; Parks<ExternalLinkIcon />
 						</a>
 						<a href={GITHUB_URL} target="_blank" rel="noreferrer" className={linkClass}>
-							Code on GitHub ↗
+							Code on GitHub<ExternalLinkIcon />
 						</a>
 					</nav>
 				</div>

@@ -8,6 +8,7 @@ import {
 	type PoolChanges,
 } from "@/lib/changelog-data";
 import PoolChip from "./PoolChip";
+import { ExternalLinkIcon } from "@/components/icons";
 
 const RAW_JSON_URL = "https://github.com/fwextensions/sf-pools/blob/main/data/changelog";
 
@@ -236,7 +237,7 @@ export default function ChangelogView({
 								rel="noreferrer"
 								className="link-utility"
 							>
-								Raw JSON ↗
+								Raw JSON<ExternalLinkIcon />
 							</a>
 						</div>
 					</article>
