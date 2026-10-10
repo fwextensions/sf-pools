@@ -92,7 +92,7 @@ const DetailPanel = memo(function DetailPanel({
 						    and access note start flush left when they drop to a second
 						    line instead of keeping the gap that separates them from
 						    the name */}
-						<span className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-1.5 gap-y-1 font-medium text-ink">
+						<span className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-3 gap-y-1 font-medium text-ink">
 							<span><ProgramName name={d.title} /></span>
 							{d.badges.length ? (
 								<span className="meta whitespace-nowrap">{d.badges.join(" · ")}</span>
