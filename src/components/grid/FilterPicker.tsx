@@ -2,6 +2,7 @@
 
 import { POOL_TOKENS } from "@/lib/pool-tokens";
 import { tagLabel } from "@/lib/program-taxonomy";
+import { Undo2 } from "lucide-react";
 import { Chevron } from "@/components/icons";
 import type { FilterView, GridModel } from "@/lib/grid/grid-model";
 
@@ -136,7 +137,7 @@ export function ClearButton({ model, compact = false }: { model: GridModel; comp
 
 // the word CLEAR wrapped the chip row to a second line once two pools were
 // picked (the counts widen both chips), which shoves the grid down in focus
-// mode, so on mobile it's a reset glyph sized like the focus toggle
+// mode, so on mobile it's Lucide's undo icon sized like the focus toggle
 export function ClearIconButton({ model }: { model: GridModel }) {
 	return (
 		<button
@@ -146,19 +147,7 @@ export function ClearIconButton({ model }: { model: GridModel }) {
 			title="Clear filters"
 			className="control w-11 flex-none px-0 text-ink"
 		>
-			<svg
-				aria-hidden
-				viewBox="0 0 14 14"
-				className="inline-block h-[14px] w-[14px] align-middle"
-				fill="none"
-				stroke="currentColor"
-				strokeWidth="2"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			>
-				<path d="M1.6 7a5.4 5.4 0 1 0 1.6-3.8" />
-				<path d="M1.4 1.6v3.2h3.2" />
-			</svg>
+			<Undo2 aria-hidden className="inline-block h-4 w-4 align-middle" />
 		</button>
 	);
 }
