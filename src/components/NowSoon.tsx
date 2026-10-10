@@ -8,6 +8,7 @@ import { toTitleCase } from "@/lib/program-taxonomy";
 import { getPoolToken } from "@/lib/pool-tokens";
 import PoolChip from "./PoolChip";
 import ProgramName from "@/components/ProgramName";
+import { ExternalLinkIcon } from "@/components/icons";
 
 type Props = {
 	all: PoolSchedule[];
@@ -108,8 +109,8 @@ function PoolBlock({
 			{children}
 			{pool.pdfScheduleUrl || pool.sfRecParkUrl ? (
 				<div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
-					<SourceLink href={pool.pdfScheduleUrl}>Source PDF ↗</SourceLink>
-					<SourceLink href={pool.sfRecParkUrl}>Pool page ↗</SourceLink>
+					<SourceLink href={pool.pdfScheduleUrl}>Source PDF<ExternalLinkIcon /></SourceLink>
+					<SourceLink href={pool.sfRecParkUrl}>Pool page<ExternalLinkIcon /></SourceLink>
 				</div>
 			) : null}
 		</li>

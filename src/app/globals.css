@@ -33,7 +33,7 @@
 
 /* Links come in two kinds. Inline links sit in running text: ink, with a 1px
    underline that thickens on hover rather than changing color, so no link
-   ever reads as a pool color. Utility links ("Source PDF ↗", "Pool page ↗")
+   ever reads as a pool color. Utility links ("Source PDF", "Pool page", each with the external-link icon)
    are the small secondary ones beside a heading or at the end of a block. */
 @utility link-inline {
 	color: var(--color-ink);

@@ -1,6 +1,7 @@
 import type { Closure } from "@/lib/closures";
 import { formatScheduleDate } from "@/lib/utils";
 import { formatClosurePeriod } from "@/lib/closures";
+import { ExternalLinkIcon } from "@/components/icons";
 
 type Props = {
 	closure: Closure;
@@ -39,7 +40,7 @@ export default function ClosureNotice({ closure, poolName }: Props) {
 					rel="noreferrer"
 					className="link-utility mt-1.5 inline-block"
 				>
-					Read the notice ↗
+					Read the notice<ExternalLinkIcon />
 				</a>
 			) : null}
 		</div>

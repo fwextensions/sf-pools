@@ -1,4 +1,5 @@
 import React from "react";
+import { ChevronDown, ExternalLink } from "lucide-react";
 
 type IconProps = {
 	className?: string;
@@ -32,16 +33,25 @@ export const CalendarIcon: React.FC<IconProps> = ({ className = "h-4 w-4", strok
 	</svg>
 );
 
-/** the 6px chevron on pickers and expanders; points up when open */
+/** the chevron on pickers and expanders; points up when open. Lucide's
+    chevron fills half its box, so a 16px icon draws about 8x4 and the
+    negative margins keep the box from padding out the control. */
 export function Chevron({ open = false, className = "" }: { open?: boolean; className?: string }) {
 	return (
-		<svg
-			viewBox="0 0 10 6"
-			fill="none"
+		<ChevronDown
 			aria-hidden
-			className={`inline-block h-[6px] w-[10px] flex-none ${open ? "rotate-180" : ""} ${className}`}
-		>
-			<path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-		</svg>
+			className={`-mx-0.5 -my-1 inline-block h-4 w-4 flex-none ${open ? "rotate-180" : ""} ${className}`}
+		/>
+	);
+}
+
+/** Lucide's external-link icon, sized to the link text beside it. It
+    replaces the ↗ arrow, which iOS draws as a heavy emoji. */
+export function ExternalLinkIcon({ className = "" }: { className?: string }) {
+	return (
+		<ExternalLink
+			aria-hidden
+			className={`ml-[0.3em] inline-block h-[0.9em] w-[0.9em] flex-none align-[-0.1em] ${className}`}
+		/>
 	);
 }

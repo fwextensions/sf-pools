@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import type { FilterView, GridModel } from "@/lib/grid/grid-model";
+import { Expand, X } from "lucide-react";
 import { Chevron } from "@/components/icons";
 import { ClearIconButton } from "./FilterPicker";
 
@@ -82,18 +83,9 @@ export function MobileChips({
 					}}
 				>
 					{focusMode ? (
-						<span className="text-body leading-none">✕</span>
+						<X aria-hidden className="inline-block h-4 w-4 align-middle" />
 					) : (
-						<svg
-							aria-hidden
-							viewBox="0 0 14 14"
-							className="inline-block h-[14px] w-[14px] align-middle"
-							fill="none"
-							stroke="currentColor"
-							strokeWidth="2"
-						>
-							<path d="M1 5V1h4M13 5V1H9M1 9v4h4M13 9v4H9" />
-						</svg>
+						<Expand aria-hidden className="inline-block h-4 w-4 align-middle" />
 					)}
 				</button>
 			</div>
