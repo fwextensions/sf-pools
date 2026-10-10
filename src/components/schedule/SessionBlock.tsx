@@ -79,7 +79,7 @@ export default function SessionBlock({
 			    under it: a program name rarely fills its column, and a stacked row
 			    cost every session a line of height it did not need. They're plain
 			    meta text, joined with a dot, not boxed */}
-			<div className="mt-0.5 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+			<div className="mt-0.5 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
 				<div className="min-w-0 text-small font-medium leading-snug text-ink">
 					<ProgramName name={title} />
 				</div>
