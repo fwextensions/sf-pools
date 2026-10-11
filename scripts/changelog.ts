@@ -1,4 +1,4 @@
-import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { readFile, writeFile, mkdir, unlink } from "node:fs/promises";
 import path from "node:path";
 import type { PoolSchedule, ProgramEntry } from "../src/lib/pdf-processor";
 
@@ -288,17 +288,117 @@ export async function loadPreviousSchedules(): Promise<PoolSchedule[]> {
 	}
 }
 
+const SEVERITY_ORDER: ChangeSeverity[] = ["none", "minor", "moderate", "major", "wholesale"];
+
+function severityFromTotal(totalChanges: number): ChangeSeverity {
+	if (totalChanges > 100) return "wholesale";
+	if (totalChanges > 50) return "major";
+	if (totalChanges > 10) return "moderate";
+	return totalChanges > 0 ? "minor" : "none";
+}
+
+/** a change as a move from one time to another; null is "not on the schedule" */
+type Step = { program: string; day: string; before: string | null; after: string | null };
+
+function toStep(c: ProgramChange): Step {
+	return {
+		program: c.program,
+		day: c.day,
+		before: c.type === "added" ? null : (c.oldTime ?? null),
+		after: c.type === "removed" ? null : (c.newTime ?? null),
+	};
+}
+
+function fromStep(s: Step): ProgramChange {
+	if (s.before === null) return { type: "added", program: s.program, day: s.day, newTime: s.after! };
+	if (s.after === null) return { type: "removed", program: s.program, day: s.day, oldTime: s.before };
+	return { type: "modified", program: s.program, day: s.day, oldTime: s.before, newTime: s.after };
+}
+
+/**
+ * Fold a later run's changes into the same day's earlier entry, so the day
+ * reads as one diff from its first run's starting point. A later step that
+ * continues an earlier one (same program and day, starting where the earlier
+ * one ended) is joined to it, which cancels a removal the later run undid.
+ */
+export function mergeChangelogs(earlier: ChangelogEntry, later: ChangelogEntry): ChangelogEntry {
+	const stepsByPool = new Map<string, Step[]>();
+	for (const pool of earlier.pools) {
+		stepsByPool.set(pool.poolName, pool.changes.map(toStep));
+	}
+	for (const pool of later.pools) {
+		const steps = stepsByPool.get(pool.poolName) ?? [];
+		for (const next of pool.changes.map(toStep)) {
+			const i = steps.findIndex(
+				(s) => s.program === next.program && s.day === next.day && s.after === next.before
+			);
+			if (i >= 0) steps[i] = { ...steps[i]!, after: next.after };
+			else steps.push(next);
+		}
+		stepsByPool.set(pool.poolName, steps);
+	}
+
+	const pools: PoolChange[] = [];
+	for (const [poolName, steps] of stepsByPool) {
+		const changes = steps.filter((s) => s.before !== s.after).map(fromStep);
+		if (changes.length === 0) continue;
+		pools.push({
+			poolName,
+			programsAdded: changes.filter((c) => c.type === "added").length,
+			programsRemoved: changes.filter((c) => c.type === "removed").length,
+			programsModified: changes.filter((c) => c.type === "modified").length,
+			changes,
+		});
+	}
+
+	const totalAdded = pools.reduce((sum, p) => sum + p.programsAdded, 0);
+	const totalRemoved = pools.reduce((sum, p) => sum + p.programsRemoved, 0);
+	const totalModified = pools.reduce((sum, p) => sum + p.programsModified, 0);
+	const totalChanges = totalAdded + totalRemoved + totalModified;
+	// the later run's own severity can come from a percentage the merged
+	// totals can't recompute, so keep it when it's the worse of the two
+	const severity = [severityFromTotal(totalChanges), later.changeSeverity].reduce((a, b) =>
+		SEVERITY_ORDER.indexOf(a) >= SEVERITY_ORDER.indexOf(b) ? a : b
+	);
+
+	return {
+		...later,
+		poolsChanged: pools.length,
+		totalProgramsAdded: totalAdded,
+		totalProgramsRemoved: totalRemoved,
+		totalProgramsModified: totalModified,
+		totalChanges,
+		changeSeverity: totalChanges > 0 ? severity : "none",
+		seasonChanged: earlier.seasonChanged || later.seasonChanged,
+		pools,
+		warnings: [...new Set([...earlier.warnings, ...later.warnings])],
+	};
+}
+
+async function readChangelog(filepath: string): Promise<ChangelogEntry | null> {
+	try {
+		return JSON.parse(await readFile(filepath, "utf-8")) as ChangelogEntry;
+	} catch {
+		return null;
+	}
+}
+
 export async function saveChangelog(entry: ChangelogEntry): Promise<string | null> {
+	// one changelog per day: a second run on the same date adds to the first
+	// run's entry rather than replacing it
+	const filepath = path.join(CHANGELOG_DIR, `${entry.date}.json`);
+	const existing = await readChangelog(filepath);
+	const merged = existing ? mergeChangelogs(existing, entry) : entry;
+
 	// only save if there are actual changes
-	if (entry.poolsChanged === 0 && entry.warnings.length === 0) {
+	if (merged.poolsChanged === 0 && merged.warnings.length === 0) {
+		// a later run that undid everything the day's first run changed
+		if (existing) await unlink(filepath);
 		return null;
 	}
 
 	await mkdir(CHANGELOG_DIR, { recursive: true });
-	// one changelog per day: re-runs on the same date overwrite the existing file
-	const filepath = path.join(CHANGELOG_DIR, `${entry.date}.json`);
-
-	await writeFile(filepath, JSON.stringify(entry, null, "\t"), "utf-8");
+	await writeFile(filepath, JSON.stringify(merged, null, "\t"), "utf-8");
 	return filepath;
 }
 
