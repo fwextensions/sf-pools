@@ -15,6 +15,7 @@
 	"pools": [
 		{
 			"poolName": "Coffman Aquatics Center",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29798",
 			"programsAdded": 0,
 			"programsRemoved": 1,
 			"programsModified": 0,
@@ -29,6 +30,7 @@
 		},
 		{
 			"poolName": "Garfield Aquatic Center",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29799",
 			"programsAdded": 8,
 			"programsRemoved": 2,
 			"programsModified": 20,
@@ -237,6 +239,7 @@
 		},
 		{
 			"poolName": "Hamilton Aquatic Center",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29800",
 			"programsAdded": 0,
 			"programsRemoved": 1,
 			"programsModified": 1,
@@ -258,6 +261,7 @@
 		},
 		{
 			"poolName": "Martin Luther King Jr. Swimming Pool",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29802",
 			"programsAdded": 1,
 			"programsRemoved": 1,
 			"programsModified": 1,
@@ -285,6 +289,7 @@
 		},
 		{
 			"poolName": "Sava Pool",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/30037",
 			"programsAdded": 0,
 			"programsRemoved": 0,
 			"programsModified": 3,

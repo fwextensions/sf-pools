@@ -88,7 +88,21 @@ function PoolSection({ pool }: { pool: PoolChanges }) {
 			<div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 border-b border-line pb-2.5">
 				{pool.token && <PoolChip token={pool.token} />}
 				<h3 className="flex-1 whitespace-nowrap text-body font-semibold">{pool.name}</h3>
-				<span className="font-mono text-label tracking-[.08em] text-ink-2">{poolCounts(pool)}</span>
+				{/* the counts and the link wrap together, so the link stays at the right */}
+				<span className="ml-auto flex items-baseline gap-x-2.5">
+					<span className="font-mono text-label tracking-[.08em] text-ink-2">{poolCounts(pool)}</span>
+					{pool.pdfUrl && (
+						<a
+							href={pool.pdfUrl}
+							target="_blank"
+							rel="noreferrer"
+							aria-label={`${pool.name} schedule PDF`}
+							className="link-utility"
+						>
+							PDF<ExternalLinkIcon />
+						</a>
+					)}
+				</span>
 			</div>
 			<div
 				aria-hidden

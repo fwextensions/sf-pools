@@ -13,6 +13,7 @@
 	"pools": [
 		{
 			"poolName": "Hamilton Aquatic Center",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/28496",
 			"programsAdded": 2,
 			"programsRemoved": 0,
 			"programsModified": 0,
@@ -33,6 +34,7 @@
 		},
 		{
 			"poolName": "DR. MARTIN LUTHER KING JR- SWIMMING POOL",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/28771",
 			"programsAdded": 6,
 			"programsRemoved": 10,
 			"programsModified": 2,
@@ -151,6 +153,7 @@
 		},
 		{
 			"poolName": "North Beach Aquatics Center - Warm Pool",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/28503",
 			"programsAdded": 0,
 			"programsRemoved": 0,
 			"programsModified": 4,
@@ -187,6 +190,7 @@
 		},
 		{
 			"poolName": "North Beach Aquatics Center - Cool Pool",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/28503",
 			"programsAdded": 0,
 			"programsRemoved": 0,
 			"programsModified": 2,
@@ -209,6 +213,7 @@
 		},
 		{
 			"poolName": "Rossi Pool",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/28501",
 			"programsAdded": 4,
 			"programsRemoved": 5,
 			"programsModified": 0,

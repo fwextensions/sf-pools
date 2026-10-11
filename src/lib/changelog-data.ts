@@ -22,6 +22,8 @@ export type ChangeRow = {
 export type PoolChanges = {
 	name: string;
 	token: PoolToken | null;
+	/** the schedule PDF the update read; older entries don't record one */
+	pdfUrl: string | null;
 	moved: number;
 	added: number;
 	removed: number;
@@ -139,6 +141,7 @@ export async function getChangelog(date?: string): Promise<ChangelogDetail | nul
 			return {
 				name: poolMeta?.displayName ?? pool.poolName,
 				token: poolMeta ? getPoolToken(poolMeta.id) : null,
+				pdfUrl: pool.pdfUrl ?? null,
 				moved: pool.programsModified,
 				added: pool.programsAdded,
 				removed: pool.programsRemoved,

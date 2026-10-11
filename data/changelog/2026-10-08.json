@@ -15,6 +15,7 @@
 	"pools": [
 		{
 			"poolName": "Balboa Aquatics Center",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29796",
 			"programsAdded": 0,
 			"programsRemoved": 1,
 			"programsModified": 0,
@@ -29,6 +30,7 @@
 		},
 		{
 			"poolName": "Garfield Aquatic Center",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29799",
 			"programsAdded": 0,
 			"programsRemoved": 1,
 			"programsModified": 5,
@@ -78,6 +80,7 @@
 		},
 		{
 			"poolName": "Martin Luther King Jr. Swimming Pool",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/30210",
 			"programsAdded": 4,
 			"programsRemoved": 9,
 			"programsModified": 1,
@@ -171,6 +174,7 @@
 		},
 		{
 			"poolName": "North Beach Aquatics Center - Warm Pool",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29954",
 			"programsAdded": 0,
 			"programsRemoved": 1,
 			"programsModified": 0,
@@ -185,6 +189,7 @@
 		},
 		{
 			"poolName": "Rossi Pool",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29804",
 			"programsAdded": 0,
 			"programsRemoved": 1,
 			"programsModified": 0,
