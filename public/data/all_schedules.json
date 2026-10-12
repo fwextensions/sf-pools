@@ -511,43 +511,6 @@
 					"activity:lap"
 				]
 			}
-		],
-		"scheduledClosures": [
-			{
-				"startDate": "2026-10-12",
-				"endDate": "2026-10-12",
-				"startTime": null,
-				"endTime": null,
-				"reason": "Indigenous Peoples Day"
-			},
-			{
-				"startDate": "2026-11-11",
-				"endDate": "2026-11-11",
-				"startTime": null,
-				"endTime": null,
-				"reason": "Veterans Day"
-			},
-			{
-				"startDate": "2026-11-26",
-				"endDate": "2026-11-27",
-				"startTime": null,
-				"endTime": null,
-				"reason": "Thanksgiving"
-			},
-			{
-				"startDate": "2026-10-22",
-				"endDate": "2026-10-22",
-				"startTime": "11:30a",
-				"endTime": "2:00p",
-				"reason": "Aquatics division training"
-			},
-			{
-				"startDate": "2026-12-12",
-				"endDate": "2026-12-12",
-				"startTime": null,
-				"endTime": null,
-				"reason": "Inservice trainings"
-			}
 		]
 	},
 	{
@@ -1789,36 +1752,6 @@
 					"activity:rec"
 				]
 			}
-		],
-		"scheduledClosures": [
-			{
-				"startDate": "2026-10-12",
-				"endDate": "2026-10-12",
-				"startTime": null,
-				"endTime": null,
-				"reason": "Indigenous Peoples Day"
-			},
-			{
-				"startDate": "2026-11-11",
-				"endDate": "2026-11-11",
-				"startTime": null,
-				"endTime": null,
-				"reason": "Veterans Day"
-			},
-			{
-				"startDate": "2026-11-26",
-				"endDate": "2026-11-27",
-				"startTime": null,
-				"endTime": null,
-				"reason": "Thanksgiving"
-			},
-			{
-				"startDate": "2026-10-22",
-				"endDate": "2026-10-22",
-				"startTime": "11:00a",
-				"endTime": "2:00p",
-				"reason": "staff training"
-			}
 		]
 	},
 	{
@@ -2439,22 +2372,6 @@
 					"audience:parent-child",
 					"audience:youth"
 				]
-			}
-		],
-		"scheduledClosures": [
-			{
-				"startDate": "2026-10-12",
-				"endDate": "2026-10-12",
-				"startTime": null,
-				"endTime": null,
-				"reason": "Indigenous Peoples Day"
-			},
-			{
-				"startDate": "2026-10-22",
-				"endDate": "2026-10-22",
-				"startTime": "12:00p",
-				"endTime": "2:00p",
-				"reason": "Aquatics Division Training"
 			}
 		]
 	},
@@ -3491,15 +3408,6 @@
 					"access:drop-in",
 					"activity:lap"
 				]
-			}
-		],
-		"scheduledClosures": [
-			{
-				"startDate": "2026-10-12",
-				"endDate": "2026-10-12",
-				"startTime": null,
-				"endTime": null,
-				"reason": "Indigenous Peoples Day"
 			}
 		]
 	},
@@ -5005,43 +4913,6 @@
 					"activity:rec"
 				]
 			}
-		],
-		"scheduledClosures": [
-			{
-				"startDate": "2026-10-12",
-				"endDate": "2026-10-12",
-				"startTime": null,
-				"endTime": null,
-				"reason": "Indigenous Peoples Day"
-			},
-			{
-				"startDate": "2026-11-11",
-				"endDate": "2026-11-11",
-				"startTime": null,
-				"endTime": null,
-				"reason": "Veterans Day"
-			},
-			{
-				"startDate": "2026-11-26",
-				"endDate": "2026-11-27",
-				"startTime": null,
-				"endTime": null,
-				"reason": "Thanksgiving"
-			},
-			{
-				"startDate": "2026-10-22",
-				"endDate": "2026-10-22",
-				"startTime": "12:00p",
-				"endTime": "2:00p",
-				"reason": "training"
-			},
-			{
-				"startDate": "2026-11-02",
-				"endDate": "2026-11-21",
-				"startTime": null,
-				"endTime": null,
-				"reason": "annual maintenance"
-			}
 		]
 	},
 	{
@@ -5538,22 +5409,6 @@
 					"access:drop-in",
 					"activity:lap"
 				]
-			}
-		],
-		"scheduledClosures": [
-			{
-				"startDate": "2026-10-12",
-				"endDate": "2026-10-12",
-				"startTime": null,
-				"endTime": null,
-				"reason": "Indigenous Peoples Day"
-			},
-			{
-				"startDate": "2026-11-11",
-				"endDate": "2026-11-11",
-				"startTime": null,
-				"endTime": null,
-				"reason": "Veterans Day"
 			}
 		]
 	}
