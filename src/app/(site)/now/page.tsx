@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { Metadata } from "next";
@@ -27,12 +28,15 @@ export default async function NowPage() {
 			<header className="pt-6">
 				<h1 className="text-title font-semibold leading-tight">Now &amp; soon</h1>
 				<p className="mt-1.5 max-w-[62ch] text-body text-ink-2">
-					What is running right now across the pools, and what starts soon. Times are Pacific.
+					Which pools you can swim at right now, what starts soon, and when the rest open next. Times are Pacific.
 				</p>
 			</header>
 
 			{all && all.length > 0 ? (
-				<NowSoon all={all} />
+				// the controls live in the url, which a static page only has in the browser
+				<Suspense fallback={<div className="mt-4 bg-tint px-3 py-2.5 text-body text-ink-2">Loading…</div>}>
+					<NowSoon all={all} />
+				</Suspense>
 			) : (
 				<div className="mt-6 bg-tint px-3 py-2.5">
 					<p className="text-body text-ink">No schedule data found yet.</p>
