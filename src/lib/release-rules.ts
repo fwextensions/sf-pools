@@ -7,7 +7,7 @@ import type { PoolSchedule } from "./pdf-processor";
 import { cleanProgramTitle, deriveTags, findCanonicalProgram, normalizeProgramName, toTitleCase } from "./program-taxonomy";
 import { getPoolIdFromName, getPoolById } from "./pool-mapping";
 import { detectScheduleAnomalies, detectRegressionAnomalies, repairMeridiemTypos } from "./schedule-validation";
-import { hasClosureEnded, isClosureActive, type Closure } from "./closures";
+import { checkScheduledClosure, hasClosureEnded, isClosureActive, type Closure, type ScheduledClosure } from "./closures";
 
 /** the pools.json entry a PDF was downloaded for */
 export type SourcePool = {
@@ -59,6 +59,8 @@ export type ReleaseResult = {
 	anomalies: string[];
 	/** session times corrected for an am/pm typo the published data doesn't already reflect */
 	repairs: string[];
+	/** closures read from a PDF's notes that failed checkScheduledClosure and weren't published */
+	rejectedClosures: string[];
 	/** pools held back at their previous data because this run's extract looked corrupt */
 	quarantinedPools: string[];
 	/** pools dropped entirely: extract looked corrupt and there was no previous data */
@@ -174,6 +176,7 @@ export function releaseSchedules(input: ReleaseInput): ReleaseResult {
 		closedPools: [],
 		anomalies: [],
 		repairs: [],
+		rejectedClosures: [],
 		quarantinedPools: [],
 		droppedPools: [],
 		preservedCount: 0,
@@ -210,6 +213,12 @@ export function releaseSchedules(input: ReleaseInput): ReleaseResult {
 
 				const label = s.shortName || s.name;
 				const previous = previousByName.get(s.name);
+
+				s.scheduledClosures = keepScheduledClosures(s, today, (closure, problem) => {
+					const msg = `${label}: ${closure.startDate}–${closure.endDate} (${closure.reason ?? "no reason"}) ${problem}`;
+					result.rejectedClosures.push(msg);
+					log.warn("⚠️  ignored a PDF closure:", msg);
+				});
 
 				// A closure rides along with the regular schedule rather than
 				// replacing it: the site hides the sessions on the dates it covers,
@@ -312,11 +321,32 @@ export function releaseSchedules(input: ReleaseInput): ReleaseResult {
 	return result;
 }
 
+/**
+ * The closures a schedule's PDF announces that are worth publishing: the ones
+ * that pass checkScheduledClosure and haven't already ended.
+ */
+export function keepScheduledClosures(
+	schedule: PoolSchedule,
+	today: string,
+	onReject: (closure: ScheduledClosure, problem: string) => void
+): ScheduledClosure[] {
+	const season = { startDate: schedule.scheduleStartDate, endDate: schedule.scheduleEndDate };
+	return (schedule.scheduledClosures ?? []).filter((closure) => {
+		const problem = checkScheduledClosure(closure, season);
+		if (problem) {
+			onReject(closure, problem);
+			return false;
+		}
+		return closure.endDate >= today;
+	});
+}
+
 /** the release's rule firings, worded for the changelog's warnings */
 export function releaseWarnings(release: ReleaseResult): string[] {
 	return [
 		...release.anomalies.map((a) => `anomaly: ${a}`),
 		...release.repairs.map((r) => `repaired: ${r}`),
+		...release.rejectedClosures.map((c) => `ignored closure: ${c}`),
 		...release.quarantinedPools.map((name) => `quarantined: ${name} held at previous data`),
 		...release.droppedPools.map((name) => `dropped: ${name} had no usable data`),
 	];

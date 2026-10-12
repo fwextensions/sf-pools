@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { PoolSchedule } from "@/lib/pdf-processor";
 import { around, toSessions, withoutClosedDays, type Day, type Session } from "@/lib/sessions";
-import { formatClosurePeriod, isClosureActive, pacificToday } from "@/lib/closures";
+import { formatClosurePeriod, isClosureActive, pacificToday, scheduledClosuresOn } from "@/lib/closures";
 import { toTitleCase } from "@/lib/program-taxonomy";
 import { getPoolToken } from "@/lib/pool-tokens";
 import PoolChip from "./PoolChip";
@@ -264,22 +264,29 @@ export default function NowSoon({ all }: Props) {
 				count={closed.length}
 				empty="Every pool is open now or opening soon."
 			>
-				{closed.map(({ pool, later }) => (
-					<PoolBlock key={pool.id} pool={pool} status="closed">
-						<div className="mt-1.5">
-							{pool.closure?.suppressPrograms && isClosureActive(pool.closure, now.date) ? (
-								<div className="text-small text-ink-2">
-									Closed {formatClosurePeriod(pool.closure)}
-									{pool.closure.reason ? ` for ${pool.closure.reason}` : ""}.
-								</div>
-							) : later ? (
-								<SessionLine time={`later ${later.startTime}`} name={later.title} />
-							) : (
-								<div className="text-small text-ink-2">No more sessions today.</div>
-							)}
-						</div>
-					</PoolBlock>
-				))}
+				{closed.map(({ pool, later }) => {
+					const holiday = scheduledClosuresOn(pool.scheduledClosures, now.date).find((c) => !c.startTime);
+					return (
+						<PoolBlock key={pool.id} pool={pool} status="closed">
+							<div className="mt-1.5">
+								{pool.closure?.suppressPrograms && isClosureActive(pool.closure, now.date) ? (
+									<div className="text-small text-ink-2">
+										Closed {formatClosurePeriod(pool.closure)}
+										{pool.closure.reason ? ` for ${pool.closure.reason}` : ""}.
+									</div>
+								) : holiday ? (
+									<div className="text-small text-ink-2">
+										Closed today{holiday.reason ? ` for ${holiday.reason}` : ""}.
+									</div>
+								) : later ? (
+									<SessionLine time={`later ${later.startTime}`} name={later.title} />
+								) : (
+									<div className="text-small text-ink-2">No more sessions today.</div>
+								)}
+							</div>
+						</PoolBlock>
+					);
+				})}
 			</Section>
 		</div>
 	);

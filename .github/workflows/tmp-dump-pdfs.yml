@@ -1,9 +1,9 @@
-name: TEMP dump PDF text
+name: TEMP dry-run pipeline
 on:
   push:
     branches: [claude/holiday-closures-4ko8ub]
 jobs:
-  dump:
+  dry-run:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -12,12 +12,14 @@ jobs:
           node-version: "24"
           cache: "npm"
       - run: npm ci
-      - name: Dump
+      # the pipeline without --notify and without committing anything
+      - name: Pipeline
+        run: npm run scrape && npm run download-pdfs && npm run scrape-alerts && npm run process-all-pdfs
+        env:
+          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          EXTRACT_MODEL: ${{ vars.EXTRACT_MODEL }}
+      - name: Closures
+        if: always()
         run: |
-          mkdir -p /tmp/pdfs
-          for id in $(jq -r 'to_entries[] | "\(.key)=\(.value.pdfUrl)"' data/pdf-manifest.json); do
-            name=${id%%=*}; url=${id#*=}
-            curl -sSL -A "Mozilla/5.0" -o /tmp/pdfs/$name.pdf "$url"
-            echo "===== $name $url"
-            npx tsx -e "import {readPdfLines} from './scripts/read-pdf-lines'; import fs from 'fs'; const ls=readPdfLines(fs.readFileSync('/tmp/pdfs/$name.pdf')); ls.sort((a,b)=>a.page-b.page||Math.round(a.y)-Math.round(b.y)||a.x-b.x); let k=''; let row=[]; for (const l of ls){const kk=l.page+':'+Math.round(l.y/3); if(kk!==k&&row.length){console.log(row.join(' | ')); row=[];} k=kk; row.push(l.text.trim());} console.log(row.join(' | '))"
-          done
+          jq -c '.[] | {id, closure: (.closure.summary // null), scheduledClosures}' public/data/all_schedules.json
+          git diff --stat

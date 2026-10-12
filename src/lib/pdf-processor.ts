@@ -1,7 +1,7 @@
 import { google } from "@ai-sdk/google";
 import { generateText, Output } from "ai";
 import { z } from "zod";
-import { ClosureSchema } from "./closures";
+import { ClosureSchema, ScheduledClosureSchema } from "./closures";
 import { trackUsage } from "./llm-usage";
 
 // EXTRACT_MODEL in the environment overrides this, to try another model without a code change
@@ -71,6 +71,16 @@ export const PoolScheduleSchema = z.object({
 	 * hides the sessions that fall on the closure's dates (see closedDays).
 	 */
 	closure: ClosureSchema.optional().nullable(),
+	/**
+	 * Closures the PDF's own notes announce (holidays, training, maintenance).
+	 * Like `closure`, the programs stay the regular week and the site hides the
+	 * sessions these cover.
+	 */
+	scheduledClosures: z
+		.array(ScheduledClosureSchema)
+		.optional()
+		.nullable()
+		.describe("every date or date range the PDF's notes say this pool is closed, one entry per date or range"),
 	programs: z.array(ProgramSchema),
 });
 
@@ -110,7 +120,15 @@ Important rules:
 - When a program name includes a lane count in parentheses, e.g., 'Lap Swim (8)', set the per-program 'lanes' field to that number.
 - If the block shows one program across all lanes (e.g., 'Lap Swim (10)'), set 'lanes' to that number. If no per-program lane count is shown, leave 'lanes' as null.
 - If the text indicates a pool section like '(shallow)', '(deep)', '(Main Pool)' or '(2 lanes + Small Pool)', put that text in notes, not in programName. Everything else in parentheses stays in programName as written, including lane counts like '(6)' and levels like '(Beginner/Intermediate)'.
-- Closure notices ('Pool CLOSED every 4th Thursday for staff training', 'Closed for In-Service August 22') are not sessions; don't output them as programs.`;
+- Closure notices ('Pool CLOSED every 4th Thursday for staff training', 'Closed for In-Service August 22') are not sessions; don't output them as programs.
+- Instead, list every closure the PDF's notes announce in scheduledClosures: holidays ('All city pools will be closed on Oct. 12 for Indigenous Peoples Day'), training or in-service days, and maintenance closures. Notices that say all city pools or all pools are closed apply to this pool too.
+  - One entry per date, or per consecutive range ('Nov. 26 and 27' or '11/2-11/21' is one entry with startDate and endDate). A list like '9/7, 10/12, 11/11' is three entries.
+  - Dates are YYYY-MM-DD in the schedule's year; a range that says the pool reopens on a date ends the day before it.
+  - When only part of the day is closed ('Pool closed 12pm-2pm 8/27, 9/24, 10/22'), set startTime and endTime to that window; otherwise leave both null.
+  - A recurring rule with its dates listed ('every 4th Thursday: 8/27, 9/24, 10/22') becomes those dates. Don't invent dates the PDF doesn't give.
+  - reason is the holiday or reason as written, e.g. 'Veterans Day' or 'staff training'.
+  - Closures of a single program (a note on one session saying 'CLOSED 10/22') stay in that program's notes, not here.
+  - If the PDF announces no closures, return an empty array.`;
 
 function cellsText(cells: string | undefined): string {
 	if (!cells) return "";
