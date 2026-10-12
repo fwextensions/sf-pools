@@ -4,6 +4,7 @@ import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import ClosureNotice from "@/components/ClosureNotice";
+import ScheduledClosures from "@/components/ScheduledClosures";
 import { ExternalLinkIcon } from "@/components/icons";
 import PoolChip from "@/components/PoolChip";
 import SessionBlock from "@/components/schedule/SessionBlock";
@@ -476,6 +477,10 @@ export default async function SchedulesPage() {
 										) : null,
 									]}
 								/>
+
+								{pool.scheduledClosures?.length ? (
+									<ScheduledClosures closures={pool.scheduledClosures} />
+								) : null}
 
 								{pool.closure ? (
 									<div className="mt-3">

@@ -442,3 +442,102 @@ export const ClosureSchema = z.object({
 	confidence: z.number().min(0).max(1).nullable(),
 	disagreement: z.string().nullable(),
 });
+
+/**
+ * A closure the schedule PDF itself announces in its notes: a holiday ("All
+ * city pools will be closed on Oct. 12 for Indigenous Peoples Day"), a staff
+ * training window ("Pool closed 12pm-2pm 8/27, 9/24, 10/22") or a maintenance
+ * stretch. Unlike an alert closure these are planned with the schedule, a pool
+ * can have several, and some shut only part of a day.
+ */
+export type ScheduledClosure = {
+	/** YYYY-MM-DD, the first closed day */
+	startDate: string;
+	/** YYYY-MM-DD, the last closed day; the same as startDate for a single day */
+	endDate: string;
+	/** h:mm[a|p] when only part of each day is closed, else null for all day */
+	startTime: string | null;
+	endTime: string | null;
+	/** why, as the PDF puts it ("Indigenous Peoples Day", "staff training") */
+	reason: string | null;
+};
+
+const TIME = /^(0?[1-9]|1[0-2]):[0-5]\d[ap]$/;
+const DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+export const ScheduledClosureSchema = z.object({
+	startDate: z.string().regex(DATE).describe("first closed day, YYYY-MM-DD"),
+	endDate: z.string().regex(DATE).describe("last closed day, YYYY-MM-DD; the same as startDate for one day"),
+	startTime: z
+		.string()
+		.regex(TIME)
+		.nullable()
+		.describe("h:mm[a|p] when only part of the day is closed, else null"),
+	endTime: z
+		.string()
+		.regex(TIME)
+		.nullable()
+		.describe("h:mm[a|p] when only part of the day is closed, else null"),
+	reason: z.string().nullable().describe("the holiday or reason as written, e.g. 'Veterans Day'"),
+});
+
+/** the longest stretch a schedule's own closure note may cover */
+export const MAX_SCHEDULED_CLOSURE_DAYS = 60;
+
+/**
+ * Why an extracted schedule closure can't be trusted, or null when it can. A
+ * misread date would hide a day of sessions that are actually running, so a
+ * closure has to sit inside the schedule's own season (when the PDF gives
+ * one), be a real range, and not run implausibly long.
+ */
+export function checkScheduledClosure(
+	closure: ScheduledClosure,
+	season: { startDate?: string | null; endDate?: string | null }
+): string | null {
+	if (!iso(...ymd(closure.startDate)) || !iso(...ymd(closure.endDate))) return "not a real date";
+	if (closure.endDate < closure.startDate) return "ends before it starts";
+	const span = daysBetween(closure.startDate, closure.endDate);
+	if (span > MAX_SCHEDULED_CLOSURE_DAYS) return `spans ${span} days`;
+	if ((closure.startTime == null) !== (closure.endTime == null)) return "has only one end of its time window";
+	if (season.startDate && closure.endDate < season.startDate) return `ends before the season starts (${season.startDate})`;
+	if (season.endDate && closure.startDate > season.endDate) return `starts after the season ends (${season.endDate})`;
+	return null;
+}
+
+function ymd(date: string): [number, number, number] {
+	const [y, m, d] = date.split("-").map(Number);
+	return [y!, m!, d!];
+}
+
+/** the scheduled closures covering `date`, all-day and partial alike */
+export function scheduledClosuresOn(closures: ScheduledClosure[] | null | undefined, date: string): ScheduledClosure[] {
+	return (closures ?? []).filter((c) => c.startDate <= date && date <= c.endDate);
+}
+
+/**
+ * The date each weekday falls on in the seven days from `today`, the same
+ * reading of a weekly schedule closedDays uses.
+ */
+export function weekDates(today: string): Map<string, string> {
+	const dates = new Map<string, string>();
+	const start = new Date(`${today}T00:00:00Z`);
+	for (let i = 0; i < 7; i++) {
+		const d = new Date(start);
+		d.setUTCDate(start.getUTCDate() + i);
+		dates.set(WEEKDAYS[d.getUTCDay()]!, d.toISOString().slice(0, 10));
+	}
+	return dates;
+}
+
+/** "Oct 12" / "Nov 26 – 27" / "Oct 22, 11:30a–2:00p" */
+export function formatScheduledClosure(closure: ScheduledClosure): string {
+	const fmt = (d: string) => formatScheduleDate(d, { month: "short", day: "numeric" });
+	let when = fmt(closure.startDate);
+	if (closure.endDate !== closure.startDate) {
+		// "Nov 26 – 27" when the month repeats, "Oct 30 – Nov 2" when it doesn't
+		const sameMonth = closure.startDate.slice(0, 7) === closure.endDate.slice(0, 7);
+		when += ` – ${sameMonth ? String(Number(closure.endDate.slice(8))) : fmt(closure.endDate)}`;
+	}
+	if (closure.startTime && closure.endTime) when += `, ${closure.startTime}–${closure.endTime}`;
+	return when;
+}

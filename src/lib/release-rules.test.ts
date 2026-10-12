@@ -296,6 +296,36 @@ describe("releaseSchedules", () => {
 		expect(releaseVerdict(result)).toEqual({ success: true, failure: null, reviewRequired: false });
 	});
 
+	it("publishes the PDF's own closures that pass the checks and haven't ended", () => {
+		const day = (date: string, reason: string) => ({
+			startDate: date,
+			endDate: date,
+			startTime: null,
+			endTime: null,
+			reason,
+		});
+		const result = release({
+			extracts: [
+				balboaExtract({
+					scheduleStartDate: "2026-09-01",
+					scheduleEndDate: "2026-12-12",
+					scheduledClosures: [
+						day("2026-09-07", "Labor Day"),
+						day("2026-10-12", "Indigenous Peoples Day"),
+						day("2025-11-11", "Veterans Day"),
+						day("2026-12-22", "staff training"),
+					],
+				}),
+			],
+		});
+		// Labor Day and the misread 2025 date are over by TODAY, so they drop
+		// quietly; the one after the season is reported
+		expect(result.schedules[0]!.scheduledClosures).toEqual([day("2026-10-12", "Indigenous Peoples Day")]);
+		expect(result.rejectedClosures).toEqual([
+			"Balboa: 2026-12-22–2026-12-22 (staff training) starts after the season ends (2026-12-12)",
+		]);
+	});
+
 	it("keeps a schedule date the PDF supplied", () => {
 		const result = release({ extracts: [balboaExtract({ scheduleLastUpdated: "2026-09-01" })] });
 		expect(result.schedules[0].scheduleLastUpdated).toBe("2026-09-01");
@@ -498,12 +528,14 @@ describe("releaseWarnings", () => {
 			...release(),
 			anomalies: ["Balboa: no programs extracted"],
 			repairs: ["Rossi: Lap Swim on Monday 9:00a-10:00p → 9:00a-10:00a"],
+			rejectedClosures: ["Coffman: 2025-10-12–2025-10-12 (Indigenous Peoples Day) ends before the season starts (2026-09-01)"],
 			quarantinedPools: ["Garfield"],
 			droppedPools: ["Sava"],
 		};
 		expect(releaseWarnings(result)).toEqual([
 			"anomaly: Balboa: no programs extracted",
 			"repaired: Rossi: Lap Swim on Monday 9:00a-10:00p → 9:00a-10:00a",
+			"ignored closure: Coffman: 2025-10-12–2025-10-12 (Indigenous Peoples Day) ends before the season starts (2026-09-01)",
 			"quarantined: Garfield held at previous data",
 			"dropped: Sava had no usable data",
 		]);

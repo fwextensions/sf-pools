@@ -39,7 +39,7 @@ type ExtractedMeta = {
 };
 
 /** bump when the extraction prompt or repair pass changes enough to redo cached extracts */
-const GROUNDING_VERSION = 1;
+const GROUNDING_VERSION = 2;
 
 type ExtractedManifest = Record<string, ExtractedMeta>;
 
