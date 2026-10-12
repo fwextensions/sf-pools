@@ -320,7 +320,7 @@ export default function NowSoon({ all }: Props) {
 		<div className="font-sans text-ink">
 			<div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
 				<span className="text-small text-ink-2">
-					{now.day}, {now.display} Pacific
+					{now.day.slice(0, 3)} {now.display} Pacific
 				</span>
 				<div className="grid w-full grid-cols-2 gap-2 min-[900px]:flex min-[900px]:w-auto min-[900px]:items-center">
 					<ModeSwitch mode={options.mode} onChange={(mode) => update({ mode })} />
