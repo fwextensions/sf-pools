@@ -297,7 +297,12 @@ const ACTIVITY_PATTERNS: Array<[typeof ACTIVITY_TAGS[number], RegExp]> = [
 	// a rental or a school class is still the thing occupying the water, so it
 	// is filed under Program as well as being restricted to get into
 	["rental", /\brentals?\b|private|permit|reserved/],
-	["school", /sfusd|unified school|school district|nvps/],
+	["school", /sfusd|unified school|school district|nvps|school groups?/],
+];
+
+// the activities a member of the public can simply show up for
+const OPEN_SWIM_ACTIVITIES: Array<typeof ACTIVITY_TAGS[number]> = [
+	"lap", "family", "rec", "senior", "therapy", "self-guided", "water-exercise",
 ];
 
 const AUDIENCE_PATTERNS: Array<[typeof AUDIENCE_TAGS[number], RegExp]> = [
@@ -311,7 +316,7 @@ const AUDIENCE_PATTERNS: Array<[typeof AUDIENCE_TAGS[number], RegExp]> = [
 
 const ACCESS_PATTERNS: Array<[typeof ACCESS_TAGS[number], RegExp]> = [
 	["rental", /\brentals?\b|private|permit|reserved/],
-	["school-group", /sfusd|unified school|school district|nvps/],
+	["school-group", /sfusd|unified school|school district|nvps|school groups?/],
 	["closed", /closure|closed|maintenance|staff training|department/],
 	["registration", /pre-?registration|registration req/],
 ];
@@ -336,10 +341,21 @@ export function deriveTags(raw: string): ProgramTag[] {
 	for (const [tag, re] of ACCESS_PATTERNS) if (re.test(s)) tags.add(`access:${tag}`);
 	for (const [re, tag] of MARKER_TAGS) if (re.test(raw)) { tags.add(tag); break; }
 
+	// Rec swim is the open swim the schedules also call family swim ("Rec/Family
+	// Swim"), and the canonical name already files it there; without the tag
+	// a Family filter would hide a slot printed only as "Rec Swim"
+	if (tags.has("activity:rec")) tags.add("activity:family");
+
 	// a session nobody has to register, rent or be enrolled for is one you can
-	// walk in on — the distinction the ActiveNet drop-in calendar draws too
+	// walk in on — the distinction the ActiveNet drop-in calendar draws too.
+	// Only open swims qualify: a lesson or a team practice needs a sign-up
+	// whether or not the PDF prints the registration marker on it.
 	const restricted: AccessTag[] = ["access:rental", "access:school-group", "access:closed", "access:registration", "access:contact-coach"];
-	if (tags.size > 0 && !restricted.some((t) => tags.has(t))) tags.add("access:drop-in");
+	// a parent-and-tot swim is open water too, a parent-and-tot lesson is not
+	const openSwim =
+		OPEN_SWIM_ACTIVITIES.some((a) => tags.has(`activity:${a}`)) ||
+		(tags.has("activity:parent-tot") && !tags.has("activity:lessons"));
+	if (openSwim && !restricted.some((t) => tags.has(t))) tags.add("access:drop-in");
 
 	// the grid filters on activity, so a session with none would drop out the
 	// moment any Program box is ticked. Added after the drop-in check, so an
