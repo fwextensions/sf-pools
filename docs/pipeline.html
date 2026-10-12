@@ -85,6 +85,7 @@
 		<li><code>suppressPrograms</code> is the single gate on hiding a schedule. Partial closures, or ones the model flagged as unsafe to act on, remain alerts only.</li>
 		<li>With <code>--notify</code>, new alerts and new/changed closures trigger Pushover notifications.</li>
 	</ul>
+	<p>The schedule PDFs announce their own closures too, in their notes: holidays, staff training windows, maintenance stretches. The extractor lists those in each pool's <code>scheduledClosures</code> (a date range, an optional time window, and the reason). The release step drops any that fall outside the schedule's season, run backwards or span more than 60 days, plus any that have already ended. Like an alert closure, they never remove programs from the published schedule; the week grid and Now &amp; Soon hide the sessions they cover in the coming seven days.</p>
 
 	<h2>4. Processing the PDFs</h2>
 	<p><code>process-all-pdfs.ts</code> does the real work. For every pool in <code>pools.json</code> with a PDF on disk:</p>

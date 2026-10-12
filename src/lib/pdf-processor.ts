@@ -126,7 +126,7 @@ Important rules:
   - Dates are YYYY-MM-DD in the schedule's year; a range that says the pool reopens on a date ends the day before it.
   - When only part of the day is closed ('Pool closed 12pm-2pm 8/27, 9/24, 10/22'), set startTime and endTime to that window; otherwise leave both null.
   - A recurring rule with its dates listed ('every 4th Thursday: 8/27, 9/24, 10/22') becomes those dates. Don't invent dates the PDF doesn't give.
-  - reason is the holiday or reason as written, e.g. 'Veterans Day' or 'staff training'.
+  - reason names the holiday or says why, e.g. 'Veterans Day', 'Thanksgiving' or 'staff training', never a date or a generic word like 'holidays'. When the PDF lists holiday dates without naming them, name the US holiday each date observes (10/12 is 'Indigenous Peoples Day'), or write 'Holiday' if you can't tell.
   - Closures of a single program (a note on one session saying 'CLOSED 10/22') stay in that program's notes, not here.
   - If the PDF announces no closures, return an empty array.`;
 

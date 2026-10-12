@@ -332,12 +332,12 @@ export function keepScheduledClosures(
 ): ScheduledClosure[] {
 	const season = { startDate: schedule.scheduleStartDate, endDate: schedule.scheduleEndDate };
 	return (schedule.scheduledClosures ?? []).filter((closure) => {
+		// a closure that's over can't hide anything, so whether its dates made
+		// sense no longer matters
+		if (closure.endDate < today) return false;
 		const problem = checkScheduledClosure(closure, season);
-		if (problem) {
-			onReject(closure, problem);
-			return false;
-		}
-		return closure.endDate >= today;
+		if (problem) onReject(closure, problem);
+		return !problem;
 	});
 }
 

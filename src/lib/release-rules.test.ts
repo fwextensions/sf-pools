@@ -313,14 +313,16 @@ describe("releaseSchedules", () => {
 						day("2026-09-07", "Labor Day"),
 						day("2026-10-12", "Indigenous Peoples Day"),
 						day("2025-11-11", "Veterans Day"),
+						day("2026-12-22", "staff training"),
 					],
 				}),
 			],
 		});
-		// Labor Day is over by TODAY, and the 2025 date is a misread year
+		// Labor Day and the misread 2025 date are over by TODAY, so they drop
+		// quietly; the one after the season is reported
 		expect(result.schedules[0]!.scheduledClosures).toEqual([day("2026-10-12", "Indigenous Peoples Day")]);
 		expect(result.rejectedClosures).toEqual([
-			"Balboa: 2025-11-11–2025-11-11 (Veterans Day) ends before the season starts (2026-09-01)",
+			"Balboa: 2026-12-22–2026-12-22 (staff training) starts after the season ends (2026-12-12)",
 		]);
 	});
 
