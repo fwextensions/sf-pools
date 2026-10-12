@@ -2,9 +2,9 @@
 	{
 		"id": "hamilton-aquatic-center",
 		"name": "Hamilton Aquatic Center",
-		"nameTitle": "Hamilton Aquatic Center",
+		"nameTitle": "Hamilton Pool",
 		"shortName": "Hamilton",
-		"address": "1900 Geary Boulevard, San Francisco, CA",
+		"address": "1900 Geary Boulevard",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Hamilton-Pool-215",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29800",
 		"scheduleLastUpdated": null,
@@ -13,46 +13,110 @@
 		"scheduleEndDate": "2026-12-12",
 		"lanes": null,
 		"closure": null,
+		"scheduledClosures": [
+			{
+				"startDate": "2026-08-22",
+				"endDate": "2026-08-22",
+				"startTime": "8:30a",
+				"endTime": "12:30p",
+				"reason": "Aq. In-Service Training"
+			},
+			{
+				"startDate": "2026-12-12",
+				"endDate": "2026-12-12",
+				"startTime": "8:30a",
+				"endTime": "12:30p",
+				"reason": "Aq. In-Service Training"
+			},
+			{
+				"startDate": "2026-09-07",
+				"endDate": "2026-09-07",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Labor Day"
+			},
+			{
+				"startDate": "2026-10-12",
+				"endDate": "2026-10-12",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Indigenous People's Day"
+			},
+			{
+				"startDate": "2026-11-11",
+				"endDate": "2026-11-11",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Veteran's Day"
+			},
+			{
+				"startDate": "2026-11-23",
+				"endDate": "2026-11-29",
+				"startTime": null,
+				"endTime": null,
+				"reason": "maintenance"
+			}
+		],
 		"programs": [
 			{
-				"programName": "Self-Guided Exercise",
+				"programName": "Self-Guided Exercise (2)",
 				"dayOfWeek": "Tuesday",
 				"startTime": "9:00a",
 				"endTime": "11:00a",
 				"lanes": 2,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Lap Swim",
+				"programName": "Lap Swim (4)",
 				"dayOfWeek": "Tuesday",
 				"startTime": "9:00a",
 				"endTime": "11:00a",
 				"lanes": 4,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Lap Swim",
+				"programName": "Lap Swim (6)",
 				"dayOfWeek": "Tuesday",
 				"startTime": "11:00a",
 				"endTime": "12:30p",
 				"lanes": 6,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Lap Swim",
+				"programName": "Lap Swim (4)",
 				"dayOfWeek": "Tuesday",
 				"startTime": "1:00p",
 				"endTime": "3:00p",
 				"lanes": 4,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Family Swim",
 				"dayOfWeek": "Tuesday",
 				"startTime": "1:00p",
 				"endTime": "3:00p",
-				"lanes": null,
-				"notes": "(2 lanes + Small Pool)"
+				"lanes": 2,
+				"notes": "2 lanes + Small Pool",
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Learn To Swim",
@@ -60,87 +124,131 @@
 				"startTime": "3:30p",
 				"endTime": "6:00p",
 				"lanes": null,
-				"notes": "(Small Pool)"
+				"notes": "Small Pool",
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Rentals",
+				"programName": "Rentals (Club)",
 				"dayOfWeek": "Tuesday",
 				"startTime": "4:00p",
 				"endTime": "6:00p",
 				"lanes": null,
-				"notes": "(Club)"
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Rentals",
+				"programName": "Rentals (Masters)",
 				"dayOfWeek": "Tuesday",
 				"startTime": "6:30p",
 				"endTime": "8:00p",
 				"lanes": null,
-				"notes": "(Masters)"
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Lap Swim",
+				"programName": "Lap Swim (6)",
 				"dayOfWeek": "Wednesday",
 				"startTime": "6:30a",
 				"endTime": "8:30a",
 				"lanes": 6,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Self-Guided Exercise",
+				"programName": "Self-Guided Exercise (2)",
 				"dayOfWeek": "Wednesday",
 				"startTime": "9:00a",
 				"endTime": "11:00a",
 				"lanes": 2,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Lap Swim",
+				"programName": "Lap Swim (4)",
 				"dayOfWeek": "Wednesday",
 				"startTime": "9:00a",
 				"endTime": "11:00a",
 				"lanes": 4,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Lap Swim",
+				"programName": "Lap Swim (6)",
 				"dayOfWeek": "Wednesday",
 				"startTime": "11:00a",
 				"endTime": "12:30p",
 				"lanes": 6,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Lap Swim",
+				"programName": "Lap Swim (4)",
 				"dayOfWeek": "Wednesday",
 				"startTime": "1:00p",
 				"endTime": "3:00p",
 				"lanes": 4,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Family Swim",
 				"dayOfWeek": "Wednesday",
 				"startTime": "1:00p",
 				"endTime": "3:00p",
-				"lanes": null,
-				"notes": "(2 lanes + Small Pool)"
+				"lanes": 2,
+				"notes": "2 lanes + Small Pool",
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Rentals",
+				"programName": "Rentals (Club)",
 				"dayOfWeek": "Wednesday",
 				"startTime": "4:00p",
 				"endTime": "6:00p",
 				"lanes": null,
-				"notes": "(Club)"
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Lap Swim",
+				"programName": "Lap Swim (6)",
 				"dayOfWeek": "Wednesday",
 				"startTime": "6:30p",
 				"endTime": "8:00p",
 				"lanes": 6,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Parent and Tot",
@@ -148,55 +256,83 @@
 				"startTime": "6:30p",
 				"endTime": "8:00p",
 				"lanes": null,
-				"notes": "(Small Pool)"
+				"notes": "Small Pool",
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Rentals",
+				"programName": "Rentals (Masters)",
 				"dayOfWeek": "Thursday",
 				"startTime": "6:45a",
 				"endTime": "8:15a",
 				"lanes": null,
-				"notes": "(Masters)"
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Self-Guided Exercise",
+				"programName": "Self-Guided Exercise (2)",
 				"dayOfWeek": "Thursday",
 				"startTime": "9:00a",
 				"endTime": "11:00a",
 				"lanes": 2,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Lap Swim",
+				"programName": "Lap Swim (4)",
 				"dayOfWeek": "Thursday",
 				"startTime": "9:00a",
 				"endTime": "11:00a",
 				"lanes": 4,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Lap Swim",
+				"programName": "Lap Swim (6)",
 				"dayOfWeek": "Thursday",
 				"startTime": "11:00a",
 				"endTime": "12:30p",
 				"lanes": 6,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Lap Swim",
+				"programName": "Lap Swim (4)",
 				"dayOfWeek": "Thursday",
 				"startTime": "1:00p",
 				"endTime": "3:00p",
 				"lanes": 4,
-				"notes": "(CLOSED - 8/27, 9/24, 10/22)"
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Family Swim",
 				"dayOfWeek": "Thursday",
 				"startTime": "1:00p",
 				"endTime": "3:00p",
-				"lanes": null,
-				"notes": "(2 lanes + Small Pool) (CLOSED - 8/27, 9/24, 10/22)"
+				"lanes": 2,
+				"notes": "2 lanes + Small Pool",
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Learn To Swim",
@@ -204,79 +340,119 @@
 				"startTime": "3:30p",
 				"endTime": "6:00p",
 				"lanes": null,
-				"notes": "(Small Pool)"
+				"notes": "Small Pool",
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Rentals",
+				"programName": "Rentals (Club)",
 				"dayOfWeek": "Thursday",
 				"startTime": "4:00p",
 				"endTime": "6:00p",
 				"lanes": null,
-				"notes": "(Club)"
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Rentals",
+				"programName": "Rentals (Masters)",
 				"dayOfWeek": "Thursday",
 				"startTime": "6:30p",
 				"endTime": "8:00p",
 				"lanes": null,
-				"notes": "(Masters)"
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Lap Swim",
+				"programName": "Lap Swim (6)",
 				"dayOfWeek": "Friday",
 				"startTime": "6:30a",
 				"endTime": "8:30a",
 				"lanes": 6,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Self-Guided Exercise",
+				"programName": "Self-Guided Exercise (2)",
 				"dayOfWeek": "Friday",
 				"startTime": "9:00a",
 				"endTime": "11:00a",
 				"lanes": 2,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Lap Swim",
+				"programName": "Lap Swim (4)",
 				"dayOfWeek": "Friday",
 				"startTime": "9:00a",
 				"endTime": "11:00a",
 				"lanes": 4,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Lap Swim",
+				"programName": "Lap Swim (6)",
 				"dayOfWeek": "Friday",
 				"startTime": "11:00a",
 				"endTime": "12:30p",
 				"lanes": 6,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Lap Swim",
+				"programName": "Lap Swim (4)",
 				"dayOfWeek": "Friday",
 				"startTime": "1:00p",
 				"endTime": "3:00p",
 				"lanes": 4,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Family Swim",
 				"dayOfWeek": "Friday",
 				"startTime": "1:00p",
 				"endTime": "3:00p",
-				"lanes": null,
-				"notes": "(2 lanes + Small Pool)"
+				"lanes": 2,
+				"notes": "2 lanes + Small Pool",
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Rentals",
+				"programName": "Rentals (Club)",
 				"dayOfWeek": "Friday",
 				"startTime": "4:00p",
 				"endTime": "6:00p",
 				"lanes": null,
-				"notes": "(Club)"
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Family Swim",
@@ -284,15 +460,23 @@
 				"startTime": "6:30p",
 				"endTime": "8:00p",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Lap Swim",
+				"programName": "Lap Swim (5)",
 				"dayOfWeek": "Saturday",
 				"startTime": "9:00a",
 				"endTime": "10:30a",
 				"lanes": 5,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Learn To Swim",
@@ -300,7 +484,11 @@
 				"startTime": "9:00a",
 				"endTime": "10:30a",
 				"lanes": 1,
-				"notes": "(1 lane + small pool)"
+				"notes": "1 lane + small pool",
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Learn To Swim",
@@ -308,7 +496,11 @@
 				"startTime": "10:30a",
 				"endTime": "12:00p",
 				"lanes": null,
-				"notes": "(All Lanes + Small Pool)"
+				"notes": "All Lanes + Small Pool",
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Family Swim",
@@ -316,15 +508,23 @@
 				"startTime": "1:30p",
 				"endTime": "3:30p",
 				"lanes": null,
-				"notes": "(Waterslide)"
+				"notes": "Waterslide",
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
-				"programName": "Lap Swim",
+				"programName": "Lap Swim (6)",
 				"dayOfWeek": "Saturday",
 				"startTime": "4:00p",
 				"endTime": "5:00p",
 				"lanes": 6,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Parent and Tot",
@@ -332,7 +532,11 @@
 				"startTime": "4:00p",
 				"endTime": "5:00p",
 				"lanes": null,
-				"notes": "(Small Pool)"
+				"notes": "Small Pool",
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			}
 		]
 	}

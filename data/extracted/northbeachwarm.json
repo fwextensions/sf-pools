@@ -3,16 +3,74 @@
 		"id": "north-beach-aquatics-center-warm-pool",
 		"name": "North Beach Aquatics Center - Warm Pool",
 		"nameTitle": "North Beach Pool (Warm)",
-		"shortName": "North Beach Warm",
-		"address": "661 Lombard St",
+		"shortName": "North Beach Warm Pool",
+		"address": "661 Lombard St, San Francisco, CA 94133",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29954",
 		"scheduleLastUpdated": null,
-		"scheduleSeason": "FALL 2026",
+		"scheduleSeason": "Fall 2026",
 		"scheduleStartDate": "2026-09-01",
 		"scheduleEndDate": "2026-12-12",
 		"lanes": null,
 		"closure": null,
+		"scheduledClosures": [
+			{
+				"startDate": "2026-10-13",
+				"endDate": "2026-10-31",
+				"startTime": null,
+				"endTime": null,
+				"reason": "ANNUAL MAINTENCE"
+			},
+			{
+				"startDate": "2026-08-27",
+				"endDate": "2026-08-27",
+				"startTime": "12:00p",
+				"endTime": "2:00p",
+				"reason": "Aquatics Division Training"
+			},
+			{
+				"startDate": "2026-09-24",
+				"endDate": "2026-09-24",
+				"startTime": "12:00p",
+				"endTime": "2:00p",
+				"reason": "Aquatics Division Training"
+			},
+			{
+				"startDate": "2026-10-22",
+				"endDate": "2026-10-22",
+				"startTime": "12:00p",
+				"endTime": "2:00p",
+				"reason": "Aquatics Division Training"
+			},
+			{
+				"startDate": "2026-11-26",
+				"endDate": "2026-11-26",
+				"startTime": "12:00p",
+				"endTime": "2:00p",
+				"reason": "Aquatics Division Training"
+			},
+			{
+				"startDate": "2026-11-11",
+				"endDate": "2026-11-11",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Veteran's Day"
+			},
+			{
+				"startDate": "2026-11-26",
+				"endDate": "2026-11-27",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Thanksgiving"
+			},
+			{
+				"startDate": "2026-12-12",
+				"endDate": "2026-12-12",
+				"startTime": "9:00a",
+				"endTime": "12:00p",
+				"reason": "Aquatics In-service Training"
+			}
+		],
 		"programs": [
 			{
 				"programName": "Lap Swim (Lap/ Therapy)",
@@ -21,7 +79,7 @@
 				"endTime": "9:00a",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (Lap/ Therapy)",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -33,7 +91,7 @@
 				"endTime": "10:15a",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Senior Swim (Lap/Therapy)",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -45,7 +103,7 @@
 				"endTime": "11:30a",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "SFUSD",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -57,7 +115,7 @@
 				"endTime": "3:00p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (Lap/Therapy)",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -69,7 +127,7 @@
 				"endTime": "5:30p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Rec/Family Swim",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -81,7 +139,7 @@
 				"endTime": "6:30p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Lap Swim",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -93,7 +151,7 @@
 				"endTime": "10:15a",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Senior Swim (Lap/Therapy)",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -105,7 +163,7 @@
 				"endTime": "11:30a",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "SFUSD",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -117,7 +175,7 @@
 				"endTime": "12:45p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Self Guided Exercise",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -129,7 +187,7 @@
 				"endTime": "3:15p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (Lap/Therapy)",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -141,7 +199,7 @@
 				"endTime": "4:15p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Learn to Swim *",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -153,7 +211,7 @@
 				"endTime": "5:00p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Learn to Swim*",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -165,7 +223,7 @@
 				"endTime": "6:30p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Rec/Family Swim",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -177,7 +235,7 @@
 				"endTime": "9:00a",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (Lap/ Therapy)",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -189,7 +247,7 @@
 				"endTime": "11:00a",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Senior Swim (Lap/Therapy)",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -200,8 +258,8 @@
 				"startTime": "11:15a",
 				"endTime": "2:00p",
 				"lanes": null,
-				"notes": "CLOSED 9/24 & 10/22",
-				"programNameOriginal": "Lap Swim (Lap/Therapy)",
+				"notes": null,
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -212,8 +270,8 @@
 				"startTime": "2:15p",
 				"endTime": "3:15p",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": "Lap Swim",
+				"notes": "CLOSED 9/24 & 10/22",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -225,7 +283,7 @@
 				"endTime": "3:50p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Adult Lessons* (Beginner/Intermediate)",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -237,7 +295,7 @@
 				"endTime": "5:30p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Rec/Family Swim",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -249,7 +307,7 @@
 				"endTime": "6:30p",
 				"lanes": null,
 				"notes": "Instructor Lead, Deep End",
-				"programNameOriginal": "Water Exercise (Instructor Lead, Deep End)",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -261,7 +319,7 @@
 				"endTime": "10:15a",
 				"lanes": 1,
 				"notes": null,
-				"programNameOriginal": "Rec/Family Swim (1)",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -273,7 +331,7 @@
 				"endTime": "10:15a",
 				"lanes": 1,
 				"notes": null,
-				"programNameOriginal": "Senior Swim (1)",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -285,7 +343,7 @@
 				"endTime": "11:30a",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "SFUSD",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -297,7 +355,7 @@
 				"endTime": "12:45p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Self Guided Exercise",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -309,7 +367,7 @@
 				"endTime": "3:15p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (Lap/Therapy)",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -321,7 +379,7 @@
 				"endTime": "4:15p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Learn to Swim*",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -333,7 +391,7 @@
 				"endTime": "5:00p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Learn to Swim*",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -345,7 +403,7 @@
 				"endTime": "7:00p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Rec/Family Swim",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -357,7 +415,7 @@
 				"endTime": "9:30a",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Learn to Swim*",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -369,7 +427,7 @@
 				"endTime": "10:15a",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Learn to Swim*",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -381,7 +439,7 @@
 				"endTime": "11:00a",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Preschool Lessons*",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -393,7 +451,7 @@
 				"endTime": "1:15p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Rec/Family Swim",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -405,7 +463,7 @@
 				"endTime": "3:00p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (Lap/Therapy)",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null
@@ -417,7 +475,7 @@
 				"endTime": "5:00p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Rec/Family Swim",
+				"programNameOriginal": null,
 				"programNameCanonical": null,
 				"title": null,
 				"tags": null

@@ -4,15 +4,80 @@
 		"name": "Balboa Aquatics Center",
 		"nameTitle": "Balboa Aquatics Center",
 		"shortName": "Balboa",
-		"address": "51 Havelock Street",
+		"address": "51 Havelock Street, San Francisco, CA 94112",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Balboa-Pool-212",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29796",
 		"scheduleLastUpdated": null,
-		"scheduleSeason": "Fall 2026",
+		"scheduleSeason": "FALL 2026",
 		"scheduleStartDate": "2026-09-01",
 		"scheduleEndDate": "2026-12-12",
 		"lanes": null,
 		"closure": null,
+		"scheduledClosures": [
+			{
+				"startDate": "2026-09-07",
+				"endDate": "2026-09-07",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Labor Day"
+			},
+			{
+				"startDate": "2026-10-12",
+				"endDate": "2026-10-12",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Indigenous Peoples Day"
+			},
+			{
+				"startDate": "2026-11-11",
+				"endDate": "2026-11-11",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Veterans Day"
+			},
+			{
+				"startDate": "2026-11-26",
+				"endDate": "2026-11-27",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Thanksgiving"
+			},
+			{
+				"startDate": "2026-08-27",
+				"endDate": "2026-08-27",
+				"startTime": "11:30a",
+				"endTime": "2:00p",
+				"reason": "Aquatics division training"
+			},
+			{
+				"startDate": "2026-09-24",
+				"endDate": "2026-09-24",
+				"startTime": "11:30a",
+				"endTime": "2:00p",
+				"reason": "Aquatics division training"
+			},
+			{
+				"startDate": "2026-10-22",
+				"endDate": "2026-10-22",
+				"startTime": "11:30a",
+				"endTime": "2:00p",
+				"reason": "Aquatics division training"
+			},
+			{
+				"startDate": "2026-08-22",
+				"endDate": "2026-08-22",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Inservice training"
+			},
+			{
+				"startDate": "2026-12-12",
+				"endDate": "2026-12-12",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Inservice training"
+			}
+		],
 		"programs": [
 			{
 				"programName": "Lap Swim",

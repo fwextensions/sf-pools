@@ -7,12 +7,49 @@
 		"address": "1000 Ocean Ave, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Balboa-Pool-212",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29796",
-		"scheduleLastUpdated": "2026-10-09",
-		"scheduleSeason": "Fall 2026",
+		"scheduleLastUpdated": "2026-10-12",
+		"scheduleSeason": "FALL 2026",
 		"scheduleStartDate": "2026-09-01",
 		"scheduleEndDate": "2026-12-12",
 		"lanes": null,
 		"closure": null,
+		"scheduledClosures": [
+			{
+				"startDate": "2026-10-12",
+				"endDate": "2026-10-12",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Indigenous Peoples Day"
+			},
+			{
+				"startDate": "2026-11-11",
+				"endDate": "2026-11-11",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Veterans Day"
+			},
+			{
+				"startDate": "2026-11-26",
+				"endDate": "2026-11-27",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Thanksgiving"
+			},
+			{
+				"startDate": "2026-10-22",
+				"endDate": "2026-10-22",
+				"startTime": "11:30a",
+				"endTime": "2:00p",
+				"reason": "Aquatics division training"
+			},
+			{
+				"startDate": "2026-12-12",
+				"endDate": "2026-12-12",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Inservice training"
+			}
+		],
 		"programs": [
 			{
 				"programName": "Lap Swim",
@@ -521,12 +558,42 @@
 		"address": "1701 Visitacion Ave, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Coffman-Pool-213",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29798",
-		"scheduleLastUpdated": "2026-10-09",
+		"scheduleLastUpdated": "2026-10-12",
 		"scheduleSeason": "Fall 2026",
 		"scheduleStartDate": "2026-08-18",
 		"scheduleEndDate": "2026-12-12",
 		"lanes": null,
 		"closure": null,
+		"scheduledClosures": [
+			{
+				"startDate": "2026-10-22",
+				"endDate": "2026-10-22",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Training"
+			},
+			{
+				"startDate": "2026-11-11",
+				"endDate": "2026-11-11",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Veterans Day"
+			},
+			{
+				"startDate": "2026-11-26",
+				"endDate": "2026-11-27",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Thanksgiving"
+			},
+			{
+				"startDate": "2026-12-12",
+				"endDate": "2026-12-12",
+				"startTime": "9:00a",
+				"endTime": "2:00p",
+				"reason": "In-Service"
+			}
+		],
 		"programs": [
 			{
 				"programName": "Lap Swim",
@@ -692,9 +759,9 @@
 				"endTime": "5:30p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Learn-To-Swim Lessons",
+				"programNameOriginal": "Learn-To -Swim Lessons",
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
-				"title": "Learn-to-Swim Lessons",
+				"title": "Learn-to - Swim Lessons",
 				"tags": [
 					"access:drop-in",
 					"activity:lessons"
@@ -893,9 +960,9 @@
 				"endTime": "5:30p",
 				"lanes": null,
 				"notes": null,
-				"programNameOriginal": "Learn-To-Swim Lessons",
+				"programNameOriginal": "Learn-To -Swim Lessons",
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
-				"title": "Learn-to-Swim Lessons",
+				"title": "Learn-to - Swim Lessons",
 				"tags": [
 					"access:drop-in",
 					"activity:lessons"
@@ -1022,20 +1089,127 @@
 		"address": "1475 Harrison St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Garfield-Pool-214",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29799",
-		"scheduleLastUpdated": "2026-10-09",
-		"scheduleSeason": "FALL 2026",
+		"scheduleLastUpdated": "2026-10-12",
+		"scheduleSeason": "Fall 2026",
 		"scheduleStartDate": "2026-09-08",
 		"scheduleEndDate": "2026-12-10",
 		"lanes": null,
 		"closure": null,
+		"scheduledClosures": [
+			{
+				"startDate": "2026-10-12",
+				"endDate": "2026-10-12",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Indigenous Peoples Day"
+			},
+			{
+				"startDate": "2026-11-11",
+				"endDate": "2026-11-11",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Veterans Day"
+			},
+			{
+				"startDate": "2026-11-26",
+				"endDate": "2026-11-27",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Thanksgiving"
+			},
+			{
+				"startDate": "2026-10-22",
+				"endDate": "2026-10-22",
+				"startTime": "11:00a",
+				"endTime": "2:00p",
+				"reason": "staff training"
+			}
+		],
 		"programs": [
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Sunday",
+				"startTime": "8:30a",
+				"endTime": "10:30a",
+				"lanes": null,
+				"notes": "(Main Pool)",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim",
+				"title": "Lap Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:lap"
+				]
+			},
+			{
+				"programName": "Swim Lessons (General/Youth/Community)",
+				"dayOfWeek": "Sunday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": null,
+				"notes": "(Small Pool)",
+				"programNameOriginal": "Swim Lessons",
+				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
+				"title": "Swim Lessons",
+				"tags": [
+					"access:drop-in",
+					"activity:lessons"
+				]
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Sunday",
+				"startTime": "12:30p",
+				"endTime": "2:00p",
+				"lanes": null,
+				"notes": "(Main Pool)",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim",
+				"title": "Lap Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:lap"
+				]
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Sunday",
+				"startTime": "12:30p",
+				"endTime": "2:00p",
+				"lanes": null,
+				"notes": "(Small Pool)",
+				"programNameOriginal": "Rec/Family Swim",
+				"programNameCanonical": "Family Swim",
+				"title": "Rec/Family Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:family",
+					"activity:rec"
+				]
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Sunday",
+				"startTime": "2:30p",
+				"endTime": "4:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Rec/Family Swim",
+				"programNameCanonical": "Family Swim",
+				"title": "Rec/Family Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:family",
+					"activity:rec"
+				]
+			},
 			{
 				"programName": "Lap Swim",
 				"dayOfWeek": "Monday",
 				"startTime": "7:00a",
 				"endTime": "8:45a",
 				"lanes": null,
-				"notes": "Main Pool",
+				"notes": "(Main Pool)",
 				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
 				"title": "Lap Swim",
@@ -1050,7 +1224,7 @@
 				"startTime": "7:00a",
 				"endTime": "8:45a",
 				"lanes": null,
-				"notes": "Small Pool",
+				"notes": "(Small Pool)",
 				"programNameOriginal": "Rec/Family Swim",
 				"programNameCanonical": "Family Swim",
 				"title": "Rec/Family Swim",
@@ -1066,7 +1240,7 @@
 				"startTime": "9:00a",
 				"endTime": "10:45a",
 				"lanes": null,
-				"notes": "Main Pool",
+				"notes": "(Main Pool)",
 				"programNameOriginal": "Senior /Therapy Swim",
 				"programNameCanonical": "Senior Swim / Therapy Swim",
 				"title": "Senior/Therapy Swim",
@@ -1083,7 +1257,7 @@
 				"startTime": "9:30a",
 				"endTime": "10:45a",
 				"lanes": null,
-				"notes": "Small Pool",
+				"notes": "(Small Pool)",
 				"programNameOriginal": "Swim Lessons",
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
@@ -1098,7 +1272,7 @@
 				"startTime": "11:00a",
 				"endTime": "1:00p",
 				"lanes": null,
-				"notes": "Main Pool",
+				"notes": "(Main Pool)",
 				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
 				"title": "Lap Swim",
@@ -1113,7 +1287,7 @@
 				"startTime": "11:30a",
 				"endTime": "12:30p",
 				"lanes": null,
-				"notes": "Small Pool",
+				"notes": "(Small Pool)",
 				"programNameOriginal": "Water Exercise-Instructor Led",
 				"programNameCanonical": "Water Exercise",
 				"title": "Water Exercise-Instructor Led",
@@ -1128,7 +1302,7 @@
 				"startTime": "2:00p",
 				"endTime": "3:45p",
 				"lanes": null,
-				"notes": "Main Pool",
+				"notes": "(Main Pool)",
 				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
 				"title": "Lap Swim",
@@ -1143,7 +1317,7 @@
 				"startTime": "2:00p",
 				"endTime": "3:45p",
 				"lanes": null,
-				"notes": "Small Pool",
+				"notes": "(Small Pool)",
 				"programNameOriginal": "Rec/Family Swim",
 				"programNameCanonical": "Family Swim",
 				"title": "Rec/Family Swim",
@@ -1176,7 +1350,7 @@
 				"startTime": "5:30p",
 				"endTime": "7:00p",
 				"lanes": null,
-				"notes": "Main Pool",
+				"notes": "(Main Pool)",
 				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
 				"title": "Lap Swim",
@@ -1191,7 +1365,7 @@
 				"startTime": "5:30p",
 				"endTime": "7:00p",
 				"lanes": null,
-				"notes": "Small Pool",
+				"notes": "(Small Pool)",
 				"programNameOriginal": "Rec/Family Swim",
 				"programNameCanonical": "Family Swim",
 				"title": "Rec/Family Swim",
@@ -1207,7 +1381,7 @@
 				"startTime": "7:00a",
 				"endTime": "8:45a",
 				"lanes": null,
-				"notes": "Main Pool",
+				"notes": "(Main Pool)",
 				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
 				"title": "Lap Swim",
@@ -1222,7 +1396,7 @@
 				"startTime": "7:00a",
 				"endTime": "8:45a",
 				"lanes": null,
-				"notes": "Small Pool",
+				"notes": "(Small Pool)",
 				"programNameOriginal": "Rec/Family Swim",
 				"programNameCanonical": "Family Swim",
 				"title": "Rec/Family Swim",
@@ -1238,7 +1412,7 @@
 				"startTime": "9:00a",
 				"endTime": "10:45a",
 				"lanes": null,
-				"notes": "Main Pool",
+				"notes": "(Main Pool)",
 				"programNameOriginal": "Senior /Therapy Swim",
 				"programNameCanonical": "Senior Swim / Therapy Swim",
 				"title": "Senior/Therapy Swim",
@@ -1255,7 +1429,7 @@
 				"startTime": "9:00a",
 				"endTime": "10:45a",
 				"lanes": null,
-				"notes": "Small Pool",
+				"notes": "(Small Pool)",
 				"programNameOriginal": "Rec/Family Swim",
 				"programNameCanonical": "Family Swim",
 				"title": "Rec/Family Swim",
@@ -1271,7 +1445,7 @@
 				"startTime": "11:00a",
 				"endTime": "1:00p",
 				"lanes": null,
-				"notes": "Main Pool",
+				"notes": "(Main Pool)",
 				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
 				"title": "Lap Swim",
@@ -1286,7 +1460,7 @@
 				"startTime": "11:15a",
 				"endTime": "12:15p",
 				"lanes": null,
-				"notes": "Small Pool",
+				"notes": "(Small Pool)",
 				"programNameOriginal": "Water Exercise-Instructor Led",
 				"programNameCanonical": "Water Exercise",
 				"title": "Water Exercise-Instructor Led",
@@ -1301,7 +1475,7 @@
 				"startTime": "2:00p",
 				"endTime": "3:30p",
 				"lanes": null,
-				"notes": "Main Pool",
+				"notes": "(Main Pool)",
 				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
 				"title": "Lap Swim",
@@ -1316,7 +1490,7 @@
 				"startTime": "2:00p",
 				"endTime": "3:30p",
 				"lanes": null,
-				"notes": "Small Pool",
+				"notes": "(Small Pool)",
 				"programNameOriginal": "Rec/Family Swim",
 				"programNameCanonical": "Family Swim",
 				"title": "Rec/Family Swim",
@@ -1365,7 +1539,7 @@
 				"startTime": "7:00a",
 				"endTime": "8:45a",
 				"lanes": null,
-				"notes": "Main Pool",
+				"notes": "(Main Pool)",
 				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
 				"title": "Lap Swim",
@@ -1380,7 +1554,7 @@
 				"startTime": "7:00a",
 				"endTime": "8:45a",
 				"lanes": null,
-				"notes": "Small Pool",
+				"notes": "(Small Pool)",
 				"programNameOriginal": "Rec/Family Swim",
 				"programNameCanonical": "Family Swim",
 				"title": "Rec/Family Swim",
@@ -1396,7 +1570,7 @@
 				"startTime": "9:00a",
 				"endTime": "10:45a",
 				"lanes": null,
-				"notes": "Main Pool",
+				"notes": "(Main Pool)",
 				"programNameOriginal": "Senior /Therapy Swim",
 				"programNameCanonical": "Senior Swim / Therapy Swim",
 				"title": "Senior/Therapy Swim",
@@ -1413,7 +1587,7 @@
 				"startTime": "9:00a",
 				"endTime": "10:45a",
 				"lanes": null,
-				"notes": "Small Pool",
+				"notes": "(Small Pool)",
 				"programNameOriginal": "Self-Guided Exercise",
 				"programNameCanonical": "Senior Swim / Therapy Swim",
 				"title": "Self-Guided Exercise",
@@ -1428,7 +1602,7 @@
 				"startTime": "11:00a",
 				"endTime": "1:00p",
 				"lanes": null,
-				"notes": "Main Pool",
+				"notes": "(Main Pool)",
 				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
 				"title": "Lap Swim",
@@ -1443,7 +1617,7 @@
 				"startTime": "11:00a",
 				"endTime": "1:00p",
 				"lanes": null,
-				"notes": "Small Pool",
+				"notes": "(Small Pool)",
 				"programNameOriginal": "Rec/Family Swim",
 				"programNameCanonical": "Family Swim",
 				"title": "Rec/Family Swim",
@@ -1492,7 +1666,7 @@
 				"startTime": "5:30p",
 				"endTime": "7:00p",
 				"lanes": null,
-				"notes": "Main Pool",
+				"notes": "(Main Pool)",
 				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
 				"title": "Lap Swim",
@@ -1507,7 +1681,7 @@
 				"startTime": "5:30p",
 				"endTime": "7:00p",
 				"lanes": null,
-				"notes": "Small Pool",
+				"notes": "(Small Pool)",
 				"programNameOriginal": "Rec/Family Swim",
 				"programNameCanonical": "Family Swim",
 				"title": "Rec/Family Swim",
@@ -1523,7 +1697,7 @@
 				"startTime": "7:00a",
 				"endTime": "8:45a",
 				"lanes": null,
-				"notes": "Main Pool",
+				"notes": "(Main Pool)",
 				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
 				"title": "Lap Swim",
@@ -1538,7 +1712,7 @@
 				"startTime": "7:00a",
 				"endTime": "8:45a",
 				"lanes": null,
-				"notes": "Small Pool",
+				"notes": "(Small Pool)",
 				"programNameOriginal": "Rec/Family Swim",
 				"programNameCanonical": "Family Swim",
 				"title": "Rec/Family Swim",
@@ -1554,7 +1728,7 @@
 				"startTime": "9:00a",
 				"endTime": "10:45a",
 				"lanes": 2,
-				"notes": "Main Pool",
+				"notes": "(Main Pool)",
 				"programNameOriginal": "Senior /Therapy Swim",
 				"programNameCanonical": "Senior Swim / Therapy Swim",
 				"title": "Senior/Therapy Swim",
@@ -1571,7 +1745,7 @@
 				"startTime": "9:30a",
 				"endTime": "10:30a",
 				"lanes": 1,
-				"notes": "Main Pool",
+				"notes": "(Main Pool)",
 				"programNameOriginal": "Deep Water Exercise-",
 				"programNameCanonical": "Water Exercise",
 				"title": "Deep Water Exercise",
@@ -1586,7 +1760,7 @@
 				"startTime": "11:00a",
 				"endTime": "1:00p",
 				"lanes": null,
-				"notes": "Main Pool",
+				"notes": "(Main Pool)",
 				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
 				"title": "Lap Swim",
@@ -1601,7 +1775,7 @@
 				"startTime": "11:00a",
 				"endTime": "1:00p",
 				"lanes": null,
-				"notes": "Small Pool",
+				"notes": "(Small Pool)",
 				"programNameOriginal": "Rec/Family Swim",
 				"programNameCanonical": "Family Swim",
 				"title": "Rec/Family Swim",
@@ -1617,7 +1791,7 @@
 				"startTime": "2:00p",
 				"endTime": "3:30p",
 				"lanes": null,
-				"notes": "Main Pool",
+				"notes": "(Main Pool)",
 				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
 				"title": "Lap Swim",
@@ -1632,7 +1806,7 @@
 				"startTime": "2:00p",
 				"endTime": "3:30p",
 				"lanes": null,
-				"notes": "Small Pool",
+				"notes": "(Small Pool)",
 				"programNameOriginal": "Rec/Family Swim",
 				"programNameCanonical": "Family Swim",
 				"title": "Rec/Family Swim",
@@ -1674,83 +1848,6 @@
 					"activity:masters",
 					"activity:rental"
 				]
-			},
-			{
-				"programName": "Lap Swim",
-				"dayOfWeek": "Sunday",
-				"startTime": "8:30a",
-				"endTime": "10:30a",
-				"lanes": null,
-				"notes": "Main Pool",
-				"programNameOriginal": "Lap Swim",
-				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim",
-				"tags": [
-					"access:drop-in",
-					"activity:lap"
-				]
-			},
-			{
-				"programName": "Swim Lessons (General/Youth/Community)",
-				"dayOfWeek": "Sunday",
-				"startTime": "9:00a",
-				"endTime": "11:00a",
-				"lanes": null,
-				"notes": "Small Pool",
-				"programNameOriginal": "Swim Lessons",
-				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
-				"title": "Swim Lessons",
-				"tags": [
-					"access:drop-in",
-					"activity:lessons"
-				]
-			},
-			{
-				"programName": "Lap Swim",
-				"dayOfWeek": "Sunday",
-				"startTime": "12:30p",
-				"endTime": "2:00p",
-				"lanes": null,
-				"notes": "Main Pool",
-				"programNameOriginal": "Lap Swim",
-				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim",
-				"tags": [
-					"access:drop-in",
-					"activity:lap"
-				]
-			},
-			{
-				"programName": "Family Swim",
-				"dayOfWeek": "Sunday",
-				"startTime": "12:30p",
-				"endTime": "2:00p",
-				"lanes": null,
-				"notes": "Small Pool",
-				"programNameOriginal": "Rec/Family Swim",
-				"programNameCanonical": "Family Swim",
-				"title": "Rec/Family Swim",
-				"tags": [
-					"access:drop-in",
-					"activity:family",
-					"activity:rec"
-				]
-			},
-			{
-				"programName": "Family Swim",
-				"dayOfWeek": "Sunday",
-				"startTime": "2:30p",
-				"endTime": "4:30p",
-				"lanes": null,
-				"notes": null,
-				"programNameOriginal": "Rec/Family Swim",
-				"programNameCanonical": "Family Swim",
-				"title": "Rec/Family Swim",
-				"tags": [
-					"access:drop-in",
-					"activity:family",
-					"activity:rec"
-				]
 			}
 		]
 	},
@@ -1762,12 +1859,42 @@
 		"address": "1900 Geary Blvd, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Hamilton-Pool-215",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29800",
-		"scheduleLastUpdated": "2026-10-09",
+		"scheduleLastUpdated": "2026-10-12",
 		"scheduleSeason": "FALL 2026",
 		"scheduleStartDate": "2026-08-18",
 		"scheduleEndDate": "2026-12-12",
 		"lanes": null,
 		"closure": null,
+		"scheduledClosures": [
+			{
+				"startDate": "2026-12-12",
+				"endDate": "2026-12-12",
+				"startTime": "8:30a",
+				"endTime": "12:30p",
+				"reason": "Aq. In-Service Training"
+			},
+			{
+				"startDate": "2026-10-12",
+				"endDate": "2026-10-12",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Indigenous People's Day"
+			},
+			{
+				"startDate": "2026-11-11",
+				"endDate": "2026-11-11",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Veteran's Day"
+			},
+			{
+				"startDate": "2026-11-23",
+				"endDate": "2026-11-29",
+				"startTime": null,
+				"endTime": null,
+				"reason": "maintenance"
+			}
+		],
 		"programs": [
 			{
 				"programName": "Senior Swim / Therapy Swim",
@@ -1776,9 +1903,9 @@
 				"endTime": "11:00a",
 				"lanes": 2,
 				"notes": null,
-				"programNameOriginal": "Self-Guided Exercise",
+				"programNameOriginal": "Self-Guided Exercise (2)",
 				"programNameCanonical": "Senior Swim / Therapy Swim",
-				"title": "Self-Guided Exercise",
+				"title": "Self-Guided Exercise (2)",
 				"tags": [
 					"access:drop-in",
 					"activity:self-guided"
@@ -1791,9 +1918,9 @@
 				"endTime": "11:00a",
 				"lanes": 4,
 				"notes": null,
-				"programNameOriginal": "Lap Swim",
+				"programNameOriginal": "Lap Swim (4)",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim",
+				"title": "Lap Swim (4)",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -1806,9 +1933,9 @@
 				"endTime": "12:30p",
 				"lanes": 6,
 				"notes": null,
-				"programNameOriginal": "Lap Swim",
+				"programNameOriginal": "Lap Swim (6)",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim",
+				"title": "Lap Swim (6)",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -1821,9 +1948,9 @@
 				"endTime": "3:00p",
 				"lanes": 4,
 				"notes": null,
-				"programNameOriginal": "Lap Swim",
+				"programNameOriginal": "Lap Swim (4)",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim",
+				"title": "Lap Swim (4)",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -1834,8 +1961,8 @@
 				"dayOfWeek": "Tuesday",
 				"startTime": "1:00p",
 				"endTime": "3:00p",
-				"lanes": null,
-				"notes": "(2 lanes + Small Pool)",
+				"lanes": 2,
+				"notes": "2 lanes + Small Pool",
 				"programNameOriginal": "Family Swim",
 				"programNameCanonical": "Family Swim",
 				"title": "Family Swim",
@@ -1850,7 +1977,7 @@
 				"startTime": "3:30p",
 				"endTime": "6:00p",
 				"lanes": null,
-				"notes": "(Small Pool)",
+				"notes": "Small Pool",
 				"programNameOriginal": "Learn To Swim",
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
@@ -1865,10 +1992,10 @@
 				"startTime": "4:00p",
 				"endTime": "6:00p",
 				"lanes": null,
-				"notes": "(Club)",
-				"programNameOriginal": "Rentals",
+				"notes": null,
+				"programNameOriginal": "Rentals (Club)",
 				"programNameCanonical": "Rentals / Private Use",
-				"title": "Rentals",
+				"title": "Rentals (Club)",
 				"tags": [
 					"access:rental",
 					"activity:rental"
@@ -1880,12 +2007,13 @@
 				"startTime": "6:30p",
 				"endTime": "8:00p",
 				"lanes": null,
-				"notes": "(Masters)",
-				"programNameOriginal": "Rentals",
+				"notes": null,
+				"programNameOriginal": "Rentals (Masters)",
 				"programNameCanonical": "Rentals / Private Use",
-				"title": "Rentals",
+				"title": "Rentals (Masters)",
 				"tags": [
 					"access:rental",
+					"activity:masters",
 					"activity:rental"
 				]
 			},
@@ -1896,9 +2024,9 @@
 				"endTime": "8:30a",
 				"lanes": 6,
 				"notes": null,
-				"programNameOriginal": "Lap Swim",
+				"programNameOriginal": "Lap Swim (6)",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim",
+				"title": "Lap Swim (6)",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -1911,9 +2039,9 @@
 				"endTime": "11:00a",
 				"lanes": 2,
 				"notes": null,
-				"programNameOriginal": "Self-Guided Exercise",
+				"programNameOriginal": "Self-Guided Exercise (2)",
 				"programNameCanonical": "Senior Swim / Therapy Swim",
-				"title": "Self-Guided Exercise",
+				"title": "Self-Guided Exercise (2)",
 				"tags": [
 					"access:drop-in",
 					"activity:self-guided"
@@ -1926,9 +2054,9 @@
 				"endTime": "11:00a",
 				"lanes": 4,
 				"notes": null,
-				"programNameOriginal": "Lap Swim",
+				"programNameOriginal": "Lap Swim (4)",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim",
+				"title": "Lap Swim (4)",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -1941,9 +2069,9 @@
 				"endTime": "12:30p",
 				"lanes": 6,
 				"notes": null,
-				"programNameOriginal": "Lap Swim",
+				"programNameOriginal": "Lap Swim (6)",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim",
+				"title": "Lap Swim (6)",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -1956,9 +2084,9 @@
 				"endTime": "3:00p",
 				"lanes": 4,
 				"notes": null,
-				"programNameOriginal": "Lap Swim",
+				"programNameOriginal": "Lap Swim (4)",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim",
+				"title": "Lap Swim (4)",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -1969,8 +2097,8 @@
 				"dayOfWeek": "Wednesday",
 				"startTime": "1:00p",
 				"endTime": "3:00p",
-				"lanes": null,
-				"notes": "(2 lanes + Small Pool)",
+				"lanes": 2,
+				"notes": "2 lanes + Small Pool",
 				"programNameOriginal": "Family Swim",
 				"programNameCanonical": "Family Swim",
 				"title": "Family Swim",
@@ -1985,10 +2113,10 @@
 				"startTime": "4:00p",
 				"endTime": "6:00p",
 				"lanes": null,
-				"notes": "(Club)",
-				"programNameOriginal": "Rentals",
+				"notes": null,
+				"programNameOriginal": "Rentals (Club)",
 				"programNameCanonical": "Rentals / Private Use",
-				"title": "Rentals",
+				"title": "Rentals (Club)",
 				"tags": [
 					"access:rental",
 					"activity:rental"
@@ -2001,9 +2129,9 @@
 				"endTime": "8:00p",
 				"lanes": 6,
 				"notes": null,
-				"programNameOriginal": "Lap Swim",
+				"programNameOriginal": "Lap Swim (6)",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim",
+				"title": "Lap Swim (6)",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2015,7 +2143,7 @@
 				"startTime": "6:30p",
 				"endTime": "8:00p",
 				"lanes": null,
-				"notes": "(Small Pool)",
+				"notes": "Small Pool",
 				"programNameOriginal": "Parent and Tot",
 				"programNameCanonical": "Parent & Child Swim",
 				"title": "Parent and Tot",
@@ -2032,12 +2160,13 @@
 				"startTime": "6:45a",
 				"endTime": "8:15a",
 				"lanes": null,
-				"notes": "(Masters)",
-				"programNameOriginal": "Rentals",
+				"notes": null,
+				"programNameOriginal": "Rentals (Masters)",
 				"programNameCanonical": "Rentals / Private Use",
-				"title": "Rentals",
+				"title": "Rentals (Masters)",
 				"tags": [
 					"access:rental",
+					"activity:masters",
 					"activity:rental"
 				]
 			},
@@ -2048,9 +2177,9 @@
 				"endTime": "11:00a",
 				"lanes": 2,
 				"notes": null,
-				"programNameOriginal": "Self-Guided Exercise",
+				"programNameOriginal": "Self-Guided Exercise (2)",
 				"programNameCanonical": "Senior Swim / Therapy Swim",
-				"title": "Self-Guided Exercise",
+				"title": "Self-Guided Exercise (2)",
 				"tags": [
 					"access:drop-in",
 					"activity:self-guided"
@@ -2063,9 +2192,9 @@
 				"endTime": "11:00a",
 				"lanes": 4,
 				"notes": null,
-				"programNameOriginal": "Lap Swim",
+				"programNameOriginal": "Lap Swim (4)",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim",
+				"title": "Lap Swim (4)",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2078,9 +2207,9 @@
 				"endTime": "12:30p",
 				"lanes": 6,
 				"notes": null,
-				"programNameOriginal": "Lap Swim",
+				"programNameOriginal": "Lap Swim (6)",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim",
+				"title": "Lap Swim (6)",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2092,10 +2221,10 @@
 				"startTime": "1:00p",
 				"endTime": "3:00p",
 				"lanes": 4,
-				"notes": "(CLOSED - 8/27, 9/24, 10/22)",
-				"programNameOriginal": "Lap Swim",
+				"notes": null,
+				"programNameOriginal": "Lap Swim (4)",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim",
+				"title": "Lap Swim (4)",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2106,8 +2235,8 @@
 				"dayOfWeek": "Thursday",
 				"startTime": "1:00p",
 				"endTime": "3:00p",
-				"lanes": null,
-				"notes": "(2 lanes + Small Pool) (CLOSED - 8/27, 9/24, 10/22)",
+				"lanes": 2,
+				"notes": "2 lanes + Small Pool",
 				"programNameOriginal": "Family Swim",
 				"programNameCanonical": "Family Swim",
 				"title": "Family Swim",
@@ -2122,7 +2251,7 @@
 				"startTime": "3:30p",
 				"endTime": "6:00p",
 				"lanes": null,
-				"notes": "(Small Pool)",
+				"notes": "Small Pool",
 				"programNameOriginal": "Learn To Swim",
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
@@ -2137,10 +2266,10 @@
 				"startTime": "4:00p",
 				"endTime": "6:00p",
 				"lanes": null,
-				"notes": "(Club)",
-				"programNameOriginal": "Rentals",
+				"notes": null,
+				"programNameOriginal": "Rentals (Club)",
 				"programNameCanonical": "Rentals / Private Use",
-				"title": "Rentals",
+				"title": "Rentals (Club)",
 				"tags": [
 					"access:rental",
 					"activity:rental"
@@ -2152,12 +2281,13 @@
 				"startTime": "6:30p",
 				"endTime": "8:00p",
 				"lanes": null,
-				"notes": "(Masters)",
-				"programNameOriginal": "Rentals",
+				"notes": null,
+				"programNameOriginal": "Rentals (Masters)",
 				"programNameCanonical": "Rentals / Private Use",
-				"title": "Rentals",
+				"title": "Rentals (Masters)",
 				"tags": [
 					"access:rental",
+					"activity:masters",
 					"activity:rental"
 				]
 			},
@@ -2168,9 +2298,9 @@
 				"endTime": "8:30a",
 				"lanes": 6,
 				"notes": null,
-				"programNameOriginal": "Lap Swim",
+				"programNameOriginal": "Lap Swim (6)",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim",
+				"title": "Lap Swim (6)",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2183,9 +2313,9 @@
 				"endTime": "11:00a",
 				"lanes": 2,
 				"notes": null,
-				"programNameOriginal": "Self-Guided Exercise",
+				"programNameOriginal": "Self-Guided Exercise (2)",
 				"programNameCanonical": "Senior Swim / Therapy Swim",
-				"title": "Self-Guided Exercise",
+				"title": "Self-Guided Exercise (2)",
 				"tags": [
 					"access:drop-in",
 					"activity:self-guided"
@@ -2198,9 +2328,9 @@
 				"endTime": "11:00a",
 				"lanes": 4,
 				"notes": null,
-				"programNameOriginal": "Lap Swim",
+				"programNameOriginal": "Lap Swim (4)",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim",
+				"title": "Lap Swim (4)",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2213,9 +2343,9 @@
 				"endTime": "12:30p",
 				"lanes": 6,
 				"notes": null,
-				"programNameOriginal": "Lap Swim",
+				"programNameOriginal": "Lap Swim (6)",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim",
+				"title": "Lap Swim (6)",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2228,9 +2358,9 @@
 				"endTime": "3:00p",
 				"lanes": 4,
 				"notes": null,
-				"programNameOriginal": "Lap Swim",
+				"programNameOriginal": "Lap Swim (4)",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim",
+				"title": "Lap Swim (4)",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2241,8 +2371,8 @@
 				"dayOfWeek": "Friday",
 				"startTime": "1:00p",
 				"endTime": "3:00p",
-				"lanes": null,
-				"notes": "(2 lanes + Small Pool)",
+				"lanes": 2,
+				"notes": "2 lanes + Small Pool",
 				"programNameOriginal": "Family Swim",
 				"programNameCanonical": "Family Swim",
 				"title": "Family Swim",
@@ -2257,10 +2387,10 @@
 				"startTime": "4:00p",
 				"endTime": "6:00p",
 				"lanes": null,
-				"notes": "(Club)",
-				"programNameOriginal": "Rentals",
+				"notes": null,
+				"programNameOriginal": "Rentals (Club)",
 				"programNameCanonical": "Rentals / Private Use",
-				"title": "Rentals",
+				"title": "Rentals (Club)",
 				"tags": [
 					"access:rental",
 					"activity:rental"
@@ -2288,9 +2418,9 @@
 				"endTime": "10:30a",
 				"lanes": 5,
 				"notes": null,
-				"programNameOriginal": "Lap Swim",
+				"programNameOriginal": "Lap Swim (5)",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim",
+				"title": "Lap Swim (5)",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2302,7 +2432,7 @@
 				"startTime": "9:00a",
 				"endTime": "10:30a",
 				"lanes": 1,
-				"notes": "(1 lane + small pool)",
+				"notes": "1 lane + small pool",
 				"programNameOriginal": "Learn To Swim",
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
@@ -2317,7 +2447,7 @@
 				"startTime": "10:30a",
 				"endTime": "12:00p",
 				"lanes": null,
-				"notes": "(All Lanes + Small Pool)",
+				"notes": "All Lanes + Small Pool",
 				"programNameOriginal": "Learn To Swim",
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
@@ -2332,7 +2462,7 @@
 				"startTime": "1:30p",
 				"endTime": "3:30p",
 				"lanes": null,
-				"notes": "(Waterslide)",
+				"notes": "Waterslide",
 				"programNameOriginal": "Family Swim",
 				"programNameCanonical": "Family Swim",
 				"title": "Family Swim",
@@ -2348,9 +2478,9 @@
 				"endTime": "5:00p",
 				"lanes": 6,
 				"notes": null,
-				"programNameOriginal": "Lap Swim",
+				"programNameOriginal": "Lap Swim (6)",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim",
+				"title": "Lap Swim (6)",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2362,7 +2492,7 @@
 				"startTime": "4:00p",
 				"endTime": "5:00p",
 				"lanes": null,
-				"notes": "(Small Pool)",
+				"notes": "Small Pool",
 				"programNameOriginal": "Parent and Tot",
 				"programNameCanonical": "Parent & Child Swim",
 				"title": "Parent and Tot",
@@ -2383,12 +2513,42 @@
 		"address": "5701 3rd St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Martin-Luther-King-Jr-Pool-216",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/30210",
-		"scheduleLastUpdated": "2026-10-09",
-		"scheduleSeason": "FALL 2026 pt.2",
+		"scheduleLastUpdated": "2026-10-12",
+		"scheduleSeason": "Fall 2026 pt.2",
 		"scheduleStartDate": "2026-09-29",
 		"scheduleEndDate": "2026-12-12",
 		"lanes": 10,
 		"closure": null,
+		"scheduledClosures": [
+			{
+				"startDate": "2026-11-11",
+				"endDate": "2026-11-11",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Veterans Day"
+			},
+			{
+				"startDate": "2026-11-26",
+				"endDate": "2026-11-26",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Thanksgiving"
+			},
+			{
+				"startDate": "2026-11-27",
+				"endDate": "2026-11-27",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Holiday"
+			},
+			{
+				"startDate": "2026-12-12",
+				"endDate": "2026-12-12",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Training Closures"
+			}
+		],
 		"programs": [
 			{
 				"programName": "Lap Swim",
@@ -2397,9 +2557,9 @@
 				"endTime": "9:00a",
 				"lanes": 10,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (10)",
+				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim (10)",
+				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2429,9 +2589,9 @@
 				"endTime": "12:00p",
 				"lanes": 4,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (4)",
+				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim (4)",
+				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2460,24 +2620,24 @@
 				"endTime": "3:30p",
 				"lanes": 8,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (8)",
+				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim (8)",
+				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
 				]
 			},
 			{
-				"programName": "Bayview Safety Swim & Splash (10)",
+				"programName": "Bayview Safety Swim & Splash",
 				"dayOfWeek": "Tuesday",
 				"startTime": "3:30p",
 				"endTime": "6:00p",
 				"lanes": 10,
 				"notes": null,
-				"programNameOriginal": "Bayview Safety Swim & Splash (10)",
-				"programNameCanonical": "Bayview Safety Swim & Splash (10)",
-				"title": "Bayview Safety Swim & Splash (10)",
+				"programNameOriginal": "Bayview Safety Swim & Splash",
+				"programNameCanonical": "Bayview Safety Swim & Splash",
+				"title": "Bayview Safety Swim & Splash",
 				"tags": [
 					"activity:other"
 				]
@@ -2504,9 +2664,9 @@
 				"endTime": "7:00p",
 				"lanes": 8,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (8)",
+				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim (8)",
+				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2519,9 +2679,9 @@
 				"endTime": "8:30p",
 				"lanes": 10,
 				"notes": null,
-				"programNameOriginal": "RENTALS (10) MASTERS",
+				"programNameOriginal": "RENTALS MASTERS",
 				"programNameCanonical": "Rentals / Private Use",
-				"title": "Rentals (10) Masters",
+				"title": "Rentals Masters",
 				"tags": [
 					"access:rental",
 					"activity:masters",
@@ -2552,9 +2712,9 @@
 				"endTime": "12:00p",
 				"lanes": 4,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (4)",
+				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim (4)",
+				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2598,24 +2758,24 @@
 				"endTime": "3:30p",
 				"lanes": 8,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (8)",
+				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim (8)",
+				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
 				]
 			},
 			{
-				"programName": "Bayview Safety Swim & Splash (10)",
+				"programName": "Bayview Safety Swim & Splash",
 				"dayOfWeek": "Wednesday",
 				"startTime": "3:30p",
 				"endTime": "6:00p",
 				"lanes": 10,
 				"notes": null,
-				"programNameOriginal": "Bayview Safety Swim & Splash (10)",
-				"programNameCanonical": "Bayview Safety Swim & Splash (10)",
-				"title": "Bayview Safety Swim & Splash (10)",
+				"programNameOriginal": "Bayview Safety Swim & Splash",
+				"programNameCanonical": "Bayview Safety Swim & Splash",
+				"title": "Bayview Safety Swim & Splash",
 				"tags": [
 					"activity:other"
 				]
@@ -2627,9 +2787,9 @@
 				"endTime": "8:00p",
 				"lanes": 10,
 				"notes": null,
-				"programNameOriginal": "RENTALS (10) SYNCHRO/HOCKEY",
+				"programNameOriginal": "RENTALS SYNCHRO/HOCKEY",
 				"programNameCanonical": "Rentals / Private Use",
-				"title": "Rentals (10) Synchro/Hockey",
+				"title": "Rentals Synchro/Hockey",
 				"tags": [
 					"access:rental",
 					"activity:hockey",
@@ -2644,9 +2804,9 @@
 				"endTime": "9:00a",
 				"lanes": 10,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (10)",
+				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim (10)",
+				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2676,9 +2836,9 @@
 				"endTime": "12:00p",
 				"lanes": 4,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (4)",
+				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim (4)",
+				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2690,7 +2850,7 @@
 				"startTime": "12:30p",
 				"endTime": "3:30p",
 				"lanes": null,
-				"notes": "shallow, CLOSED (10/22)",
+				"notes": "shallow; CLOSED (10/22)",
 				"programNameOriginal": "Rec/Family Swim",
 				"programNameCanonical": "Family Swim",
 				"title": "Rec/Family Swim",
@@ -2707,24 +2867,24 @@
 				"endTime": "3:30p",
 				"lanes": 8,
 				"notes": "CLOSED (10/22)",
-				"programNameOriginal": "Lap Swim (8)",
+				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim (8)",
+				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
 				]
 			},
 			{
-				"programName": "Bayview Safety Swim & Splash (10)",
+				"programName": "Bayview Safety Swim & Splash",
 				"dayOfWeek": "Thursday",
 				"startTime": "3:30p",
 				"endTime": "6:00p",
 				"lanes": 10,
 				"notes": null,
-				"programNameOriginal": "Bayview Safety Swim & Splash (10)",
-				"programNameCanonical": "Bayview Safety Swim & Splash (10)",
-				"title": "Bayview Safety Swim & Splash (10)",
+				"programNameOriginal": "Bayview Safety Swim & Splash",
+				"programNameCanonical": "Bayview Safety Swim & Splash",
+				"title": "Bayview Safety Swim & Splash",
 				"tags": [
 					"activity:other"
 				]
@@ -2751,9 +2911,9 @@
 				"endTime": "7:00p",
 				"lanes": 8,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (8)",
+				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim (8)",
+				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2766,9 +2926,9 @@
 				"endTime": "8:30p",
 				"lanes": 10,
 				"notes": null,
-				"programNameOriginal": "RENTALS (10) MASTERS",
+				"programNameOriginal": "RENTALS MASTERS",
 				"programNameCanonical": "Rentals / Private Use",
-				"title": "Rentals (10) Masters",
+				"title": "Rentals Masters",
 				"tags": [
 					"access:rental",
 					"activity:masters",
@@ -2799,9 +2959,9 @@
 				"endTime": "12:00p",
 				"lanes": 4,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (4)",
+				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim (4)",
+				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2845,24 +3005,24 @@
 				"endTime": "3:30p",
 				"lanes": 8,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (8)",
+				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim (8)",
+				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
 				]
 			},
 			{
-				"programName": "Bayview Safety Swim & Splash (10)",
+				"programName": "Bayview Safety Swim & Splash",
 				"dayOfWeek": "Friday",
 				"startTime": "3:30p",
 				"endTime": "6:00p",
 				"lanes": 10,
 				"notes": null,
-				"programNameOriginal": "Bayview Safety Swim & Splash (10)",
-				"programNameCanonical": "Bayview Safety Swim & Splash (10)",
-				"title": "Bayview Safety Swim & Splash (10)",
+				"programNameOriginal": "Bayview Safety Swim & Splash",
+				"programNameCanonical": "Bayview Safety Swim & Splash",
+				"title": "Bayview Safety Swim & Splash",
 				"tags": [
 					"activity:other"
 				]
@@ -2874,9 +3034,9 @@
 				"endTime": "8:00p",
 				"lanes": 10,
 				"notes": null,
-				"programNameOriginal": "RENTALS (10) YOUTH HOCKEY",
+				"programNameOriginal": "RENTALS YOUTH HOCKEY",
 				"programNameCanonical": "Rentals / Private Use",
-				"title": "Rentals (10) Youth Hockey",
+				"title": "Rentals Youth Hockey",
 				"tags": [
 					"access:rental",
 					"activity:hockey",
@@ -2891,9 +3051,9 @@
 				"endTime": "8:30a",
 				"lanes": 10,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (10)",
+				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim (10)",
+				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2906,9 +3066,9 @@
 				"endTime": "11:00a",
 				"lanes": 7,
 				"notes": null,
-				"programNameOriginal": "RENTALS (7) MASTERS/SYNCHRO",
+				"programNameOriginal": "RENTALS MASTERS/SYNCHRO",
 				"programNameCanonical": "Rentals / Private Use",
-				"title": "Rentals (7) Masters/Synchro",
+				"title": "Rentals Masters/Synchro",
 				"tags": [
 					"access:rental",
 					"activity:masters",
@@ -2938,9 +3098,9 @@
 				"endTime": "3:00p",
 				"lanes": 10,
 				"notes": null,
-				"programNameOriginal": "Rec/Family Swim (10)",
+				"programNameOriginal": "Rec/Family Swim",
 				"programNameCanonical": "Family Swim",
-				"title": "Rec/Family Swim (10)",
+				"title": "Rec/Family Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:family",
@@ -2954,9 +3114,9 @@
 				"endTime": "5:00p",
 				"lanes": 10,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (10)",
+				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim (10)",
+				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -2972,12 +3132,21 @@
 		"address": "19th St & Linda St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Mission-Community-Pool-217",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/30001",
-		"scheduleLastUpdated": "2026-10-09",
+		"scheduleLastUpdated": "2026-10-12",
 		"scheduleSeason": "FALL 2026",
 		"scheduleStartDate": "2026-08-18",
 		"scheduleEndDate": "2026-10-17",
 		"lanes": null,
 		"closure": null,
+		"scheduledClosures": [
+			{
+				"startDate": "2026-10-12",
+				"endDate": "2026-10-12",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Indigenous Peoples Day"
+			}
+		],
 		"programs": [
 			{
 				"programName": "Lap Swim",
@@ -3355,7 +3524,7 @@
 				"startTime": "9:00a",
 				"endTime": "11:00a",
 				"lanes": null,
-				"notes": null,
+				"notes": "Pre-registration required for Swim Lessons",
 				"programNameOriginal": "Swim Lessons",
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
@@ -3419,7 +3588,7 @@
 		"address": "661 Lombard St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29953",
-		"scheduleLastUpdated": "2026-10-09",
+		"scheduleLastUpdated": "2026-10-12",
 		"scheduleSeason": "FALL 2026",
 		"scheduleStartDate": "2026-09-01",
 		"scheduleEndDate": "2026-12-12",
@@ -3438,6 +3607,43 @@
 			"confidence": 1,
 			"disagreement": null
 		},
+		"scheduledClosures": [
+			{
+				"startDate": "2026-10-13",
+				"endDate": "2026-10-31",
+				"startTime": null,
+				"endTime": null,
+				"reason": "ANNUAL MAINTENANCE"
+			},
+			{
+				"startDate": "2026-11-11",
+				"endDate": "2026-11-11",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Veteran's Day"
+			},
+			{
+				"startDate": "2026-11-26",
+				"endDate": "2026-11-27",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Thanksgiving"
+			},
+			{
+				"startDate": "2026-12-12",
+				"endDate": "2026-12-12",
+				"startTime": "9:00a",
+				"endTime": "12:00p",
+				"reason": "Aquatics In-service Training"
+			},
+			{
+				"startDate": "2026-10-22",
+				"endDate": "2026-10-22",
+				"startTime": "12:00p",
+				"endTime": "2:00p",
+				"reason": "Aquatics Division Training"
+			}
+		],
 		"programs": [
 			{
 				"programName": "Lap Swim",
@@ -3595,7 +3801,7 @@
 				"startTime": "11:00a",
 				"endTime": "2:00p",
 				"lanes": null,
-				"notes": "CLOSED 9/24 & 10/22",
+				"notes": null,
 				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
 				"title": "Lap Swim",
@@ -3796,8 +4002,8 @@
 		"address": "661 Lombard St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29954",
-		"scheduleLastUpdated": "2026-10-09",
-		"scheduleSeason": "FALL 2026",
+		"scheduleLastUpdated": "2026-10-12",
+		"scheduleSeason": "Fall 2026",
 		"scheduleStartDate": "2026-09-01",
 		"scheduleEndDate": "2026-12-12",
 		"lanes": null,
@@ -3815,6 +4021,50 @@
 			"confidence": 1,
 			"disagreement": null
 		},
+		"scheduledClosures": [
+			{
+				"startDate": "2026-10-13",
+				"endDate": "2026-10-31",
+				"startTime": null,
+				"endTime": null,
+				"reason": "ANNUAL MAINTENCE"
+			},
+			{
+				"startDate": "2026-10-22",
+				"endDate": "2026-10-22",
+				"startTime": "12:00p",
+				"endTime": "2:00p",
+				"reason": "Aquatics Division Training"
+			},
+			{
+				"startDate": "2026-11-26",
+				"endDate": "2026-11-26",
+				"startTime": "12:00p",
+				"endTime": "2:00p",
+				"reason": "Aquatics Division Training"
+			},
+			{
+				"startDate": "2026-11-11",
+				"endDate": "2026-11-11",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Veteran's Day"
+			},
+			{
+				"startDate": "2026-11-26",
+				"endDate": "2026-11-27",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Thanksgiving"
+			},
+			{
+				"startDate": "2026-12-12",
+				"endDate": "2026-12-12",
+				"startTime": "9:00a",
+				"endTime": "12:00p",
+				"reason": "Aquatics In-service Training"
+			}
+		],
 		"programs": [
 			{
 				"programName": "Senior Swim / Therapy Swim",
@@ -4062,7 +4312,7 @@
 				"startTime": "11:15a",
 				"endTime": "2:00p",
 				"lanes": null,
-				"notes": "CLOSED 9/24 & 10/22",
+				"notes": null,
 				"programNameOriginal": "Lap Swim (Lap/Therapy)",
 				"programNameCanonical": "Senior Swim / Therapy Swim",
 				"title": "Lap Swim (Lap/Therapy)",
@@ -4078,7 +4328,7 @@
 				"startTime": "2:15p",
 				"endTime": "3:15p",
 				"lanes": null,
-				"notes": null,
+				"notes": "CLOSED 9/24 & 10/22",
 				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
 				"title": "Lap Swim",
@@ -4362,12 +4612,56 @@
 		"address": "600 Arguello Blvd, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Rossi-Pool-219",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29804",
-		"scheduleLastUpdated": "2026-10-09",
+		"scheduleLastUpdated": "2026-10-12",
 		"scheduleSeason": "FALL 2026",
 		"scheduleStartDate": "2026-08-16",
 		"scheduleEndDate": "2026-12-10",
 		"lanes": null,
 		"closure": null,
+		"scheduledClosures": [
+			{
+				"startDate": "2026-10-12",
+				"endDate": "2026-10-12",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Indigenous Peoples Day"
+			},
+			{
+				"startDate": "2026-11-11",
+				"endDate": "2026-11-11",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Veterans Day"
+			},
+			{
+				"startDate": "2026-11-26",
+				"endDate": "2026-11-26",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Thanksgiving"
+			},
+			{
+				"startDate": "2026-11-27",
+				"endDate": "2026-11-27",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Holiday"
+			},
+			{
+				"startDate": "2026-10-22",
+				"endDate": "2026-10-22",
+				"startTime": "12:00p",
+				"endTime": "2:00p",
+				"reason": "training"
+			},
+			{
+				"startDate": "2026-11-02",
+				"endDate": "2026-11-21",
+				"startTime": null,
+				"endTime": null,
+				"reason": "annual maintenance"
+			}
+		],
 		"programs": [
 			{
 				"programName": "Lap Swim",
@@ -4672,9 +4966,9 @@
 				"endTime": "7:30p",
 				"lanes": 3,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (3)",
+				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim (3)",
+				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -4687,9 +4981,9 @@
 				"endTime": "7:30p",
 				"lanes": 3,
 				"notes": null,
-				"programNameOriginal": "Rec/Family Swim (3)",
+				"programNameOriginal": "Rec/Family Swim",
 				"programNameCanonical": "Family Swim",
-				"title": "Rec/Family Swim (3)",
+				"title": "Rec/Family Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:family",
@@ -4735,9 +5029,9 @@
 				"endTime": "3:30p",
 				"lanes": 3,
 				"notes": null,
-				"programNameOriginal": "Rec/Family Swim (3)",
+				"programNameOriginal": "Rec/Family Swim",
 				"programNameCanonical": "Family Swim",
-				"title": "Rec/Family Swim (3)",
+				"title": "Rec/Family Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:family",
@@ -4751,9 +5045,9 @@
 				"endTime": "3:30p",
 				"lanes": 3,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (3)",
+				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim (3)",
+				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -4889,9 +5183,9 @@
 				"endTime": "7:30p",
 				"lanes": 3,
 				"notes": null,
-				"programNameOriginal": "Lap Swim (3)",
+				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
-				"title": "Lap Swim (3)",
+				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:lap"
@@ -4904,9 +5198,9 @@
 				"endTime": "7:30p",
 				"lanes": 3,
 				"notes": null,
-				"programNameOriginal": "Rec/Family Swim (3)",
+				"programNameOriginal": "Rec/Family Swim",
 				"programNameCanonical": "Family Swim",
-				"title": "Rec/Family Swim (3)",
+				"title": "Rec/Family Swim",
 				"tags": [
 					"access:drop-in",
 					"activity:family",
@@ -4923,12 +5217,49 @@
 		"address": "19th Ave & Wawona St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Sava-Pool-220",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/30037",
-		"scheduleLastUpdated": "2026-10-09",
-		"scheduleSeason": "FALL 2026",
+		"scheduleLastUpdated": "2026-10-12",
+		"scheduleSeason": "Fall 2026",
 		"scheduleStartDate": "2026-08-29",
 		"scheduleEndDate": "2026-12-12",
 		"lanes": null,
 		"closure": null,
+		"scheduledClosures": [
+			{
+				"startDate": "2026-10-12",
+				"endDate": "2026-10-12",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Indigenous Peoples Day"
+			},
+			{
+				"startDate": "2026-11-11",
+				"endDate": "2026-11-11",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Veterans Day"
+			},
+			{
+				"startDate": "2026-11-26",
+				"endDate": "2026-11-27",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Thanksgiving"
+			},
+			{
+				"startDate": "2026-10-22",
+				"endDate": "2026-10-22",
+				"startTime": "12:00p",
+				"endTime": "2:00p",
+				"reason": "staff training"
+			},
+			{
+				"startDate": "2026-12-01",
+				"endDate": "2026-12-19",
+				"startTime": null,
+				"endTime": null,
+				"reason": "annual maintenance"
+			}
+		],
 		"programs": [
 			{
 				"programName": "High School Swim Programs",
@@ -5201,7 +5532,7 @@
 				"startTime": "12:30p",
 				"endTime": "3:00p",
 				"lanes": null,
-				"notes": null,
+				"notes": "CLOSED 9/24, 10/22 FOR STAFF TRAINING",
 				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
 				"title": "Lap Swim",
