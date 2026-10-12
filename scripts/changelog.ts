@@ -15,6 +15,8 @@ export type ProgramChange = {
 
 export type PoolChange = {
 	poolName: string;
+	/** the schedule PDF this run read, so a reader can check the changes against it */
+	pdfUrl?: string;
 	programsAdded: number;
 	programsRemoved: number;
 	programsModified: number;
@@ -55,6 +57,10 @@ function programTimeKey(p: ProgramEntry): string {
 	return `${p.programName}|${p.dayOfWeek}`;
 }
 
+function pdfUrlOf(pool: PoolSchedule): Pick<PoolChange, "pdfUrl"> {
+	return pool.pdfScheduleUrl ? { pdfUrl: pool.pdfScheduleUrl } : {};
+}
+
 function formatTime(start: string, end: string): string {
 	return `${start}–${end}`;
 }
@@ -89,6 +95,7 @@ export function computeChangelog(
 			const newPool = newByPool.get(poolName)!;
 			poolChanges.push({
 				poolName,
+				...pdfUrlOf(newPool),
 				programsAdded: newPool.programs?.length || 0,
 				programsRemoved: 0,
 				programsModified: 0,
@@ -184,6 +191,7 @@ export function computeChangelog(
 		if (changes.length > 0) {
 			poolChanges.push({
 				poolName,
+				...pdfUrlOf(newPool),
 				programsAdded: changes.filter((c) => c.type === "added").length,
 				programsRemoved: changes.filter((c) => c.type === "removed").length,
 				programsModified: changes.filter((c) => c.type === "modified").length,
@@ -323,10 +331,14 @@ function fromStep(s: Step): ProgramChange {
  */
 export function mergeChangelogs(earlier: ChangelogEntry, later: ChangelogEntry): ChangelogEntry {
 	const stepsByPool = new Map<string, Step[]>();
+	// the later run read the PDF the merged changes end at
+	const pdfUrls = new Map<string, string>();
 	for (const pool of earlier.pools) {
 		stepsByPool.set(pool.poolName, pool.changes.map(toStep));
+		if (pool.pdfUrl) pdfUrls.set(pool.poolName, pool.pdfUrl);
 	}
 	for (const pool of later.pools) {
+		if (pool.pdfUrl) pdfUrls.set(pool.poolName, pool.pdfUrl);
 		const steps = stepsByPool.get(pool.poolName) ?? [];
 		for (const next of pool.changes.map(toStep)) {
 			const i = steps.findIndex(
@@ -342,8 +354,10 @@ export function mergeChangelogs(earlier: ChangelogEntry, later: ChangelogEntry):
 	for (const [poolName, steps] of stepsByPool) {
 		const changes = steps.filter((s) => s.before !== s.after).map(fromStep);
 		if (changes.length === 0) continue;
+		const pdfUrl = pdfUrls.get(poolName);
 		pools.push({
 			poolName,
+			...(pdfUrl ? { pdfUrl } : {}),
 			programsAdded: changes.filter((c) => c.type === "added").length,
 			programsRemoved: changes.filter((c) => c.type === "removed").length,
 			programsModified: changes.filter((c) => c.type === "modified").length,

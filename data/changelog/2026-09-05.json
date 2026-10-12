@@ -15,6 +15,7 @@
 	"pools": [
 		{
 			"poolName": "Balboa Aquatics Center",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29796",
 			"programsAdded": 13,
 			"programsRemoved": 11,
 			"programsModified": 8,
@@ -223,6 +224,7 @@
 		},
 		{
 			"poolName": "Coffman Aquatics Center",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29798",
 			"programsAdded": 11,
 			"programsRemoved": 16,
 			"programsModified": 14,
@@ -491,6 +493,7 @@
 		},
 		{
 			"poolName": "Hamilton Aquatic Center",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29800",
 			"programsAdded": 8,
 			"programsRemoved": 10,
 			"programsModified": 16,
@@ -719,6 +722,7 @@
 		},
 		{
 			"poolName": "Martin Luther King Jr. Swimming Pool",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29802",
 			"programsAdded": 6,
 			"programsRemoved": 7,
 			"programsModified": 7,
@@ -854,6 +858,7 @@
 		},
 		{
 			"poolName": "Mission Aquatic Center",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/30001",
 			"programsAdded": 4,
 			"programsRemoved": 7,
 			"programsModified": 21,
@@ -1075,6 +1080,7 @@
 		},
 		{
 			"poolName": "North Beach Aquatics Center - Cool Pool",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29953",
 			"programsAdded": 7,
 			"programsRemoved": 11,
 			"programsModified": 14,
@@ -1289,6 +1295,7 @@
 		},
 		{
 			"poolName": "North Beach Aquatics Center - Warm Pool",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29954",
 			"programsAdded": 13,
 			"programsRemoved": 11,
 			"programsModified": 12,
@@ -1525,6 +1532,7 @@
 		},
 		{
 			"poolName": "Rossi Pool",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29804",
 			"programsAdded": 5,
 			"programsRemoved": 7,
 			"programsModified": 15,
@@ -1710,6 +1718,7 @@
 		},
 		{
 			"poolName": "Sava Pool",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29805",
 			"programsAdded": 5,
 			"programsRemoved": 8,
 			"programsModified": 15,

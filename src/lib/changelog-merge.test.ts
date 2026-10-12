@@ -73,6 +73,14 @@ describe("mergeChangelogs", () => {
 		expect(merged.totalProgramsRemoved).toBe(1);
 	});
 
+	it("links each pool to the PDF the latest run read", () => {
+		const first = { ...pool("Balboa", [removedLap]), pdfUrl: "https://example.com/old.pdf" };
+		const second = { ...pool("Balboa", [{ ...addedLap, program: "Family Swim" }]), pdfUrl: "https://example.com/new.pdf" };
+		const rossi = { ...pool("Rossi", [addedLap]), pdfUrl: "https://example.com/rossi.pdf" };
+		const merged = mergeChangelogs(entry([first, rossi]), entry([second]));
+		expect(merged.pools.map((p) => p.pdfUrl)).toEqual(["https://example.com/new.pdf", "https://example.com/rossi.pdf"]);
+	});
+
 	it("doesn't repeat a warning both runs raised", () => {
 		const merged = mergeChangelogs(entry([], { warnings: ["a", "b"] }), entry([], { warnings: ["b", "c"] }));
 		expect(merged.warnings).toEqual(["a", "b", "c"]);
