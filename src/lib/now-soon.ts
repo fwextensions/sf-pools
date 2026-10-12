@@ -57,7 +57,8 @@ export type NextOpening = {
 };
 
 export type OpenStanding = { pool: PoolSchedule; stretch: Stretch };
-export type ClosedStanding = { pool: PoolSchedule; reason: string; next: NextOpening | null };
+/** a pool that isn't open: when it next is, or, when not within a week, why */
+export type ClosedStanding = { pool: PoolSchedule; next: NextOpening | null; note: string | null };
 
 export type NowSoonView = {
 	/** whether the view is anchored on the clock (countdowns) or on a slot of tomorrow */
@@ -100,20 +101,6 @@ export function formatDuration(minutes: number): string {
 export function joinNames(names: string[]): string {
 	if (names.length <= 2) return names.join(" · ");
 	return `${names[0]} +${names.length - 1} more`;
-}
-
-// the wording a restricted session gets when it is the reason a pool is quiet,
-// or the tag on its row in Everything mode
-const RESTRICTED_LABELS: Array<[string, string]> = [
-	["access:rental", "Private rental"],
-	["access:school-group", "School group"],
-	["access:registration", "Registration only"],
-	["access:contact-coach", "Team practice"],
-];
-
-function accessLabel(tags: string[]): string | null {
-	for (const [tag, label] of RESTRICTED_LABELS) if (tags.includes(tag)) return label;
-	return null;
 }
 
 // the tag on a row in Everything mode, in the words the grid's tags use
@@ -275,18 +262,8 @@ export function nowSoon(
 			: null;
 		closed.push({
 			pool,
-			reason: quietReason(pool, onDay(anchor), {
-				anchorDate,
-				from,
-				to,
-				planned,
-				slotLabel: slot?.label,
-				noun,
-				found,
-				nowDay: now.date,
-				hadToday: anchorWanted.some((s) => s.startMin < from),
-			}),
 			next,
+			note: next ? null : absenceNote(pool, now.date, noun),
 		});
 	}
 
@@ -309,56 +286,20 @@ function comparePools(a: { pool: PoolSchedule }, b: { pool: PoolSchedule }): num
 
 const shortDate = (date: string) => formatScheduleDate(date, { month: "short", day: "numeric" });
 
-/** why a pool has nothing the reader is looking for, most specific reason first */
-function quietReason(
-	pool: PoolSchedule,
-	anchorSessions: Session[],
-	ctx: {
-		anchorDate: string;
-		from: number;
-		to: number;
-		planned: boolean;
-		slotLabel?: string;
-		noun: string;
-		found: NextFound | null;
-		nowDay: string;
-		/** whether the pool had something qualifying earlier on the anchor day */
-		hadToday: boolean;
-	}
-): string {
+/**
+ * Why a pool has nothing for a week: a closure, a printed schedule that has
+ * run out or not begun, or simply nothing that matches. Only shown when there
+ * is no next opening to say it instead.
+ */
+function absenceNote(pool: PoolSchedule, today: string, noun: string): string {
 	const closure = pool.closure;
-	if (closure?.suppressPrograms && isClosureActive(closure, ctx.anchorDate)) {
-		return ["Closed", formatClosurePeriod(closure), closure.reason ? `for ${closure.reason}` : ""].filter(Boolean).join(" ");
+	if (closure?.suppressPrograms && (!closure.startDate || closure.startDate <= addDays(today, 6))) {
+		const verb = isClosureActive(closure, today) ? "Closed" : "Closes";
+		return [verb, formatClosurePeriod(closure), closure.reason ? `for ${closure.reason}` : ""].filter(Boolean).join(" ");
 	}
-	if (pool.scheduleEndDate && ctx.anchorDate > pool.scheduleEndDate) {
-		return `Schedule ended ${shortDate(pool.scheduleEndDate)}`;
-	}
-	if (pool.scheduleStartDate && ctx.anchorDate < pool.scheduleStartDate) {
+	if (pool.scheduleEndDate && today > pool.scheduleEndDate) return `Schedule ended ${shortDate(pool.scheduleEndDate)}`;
+	if (pool.scheduleStartDate && addDays(today, 6) < pool.scheduleStartDate) {
 		return `New schedule starts ${shortDate(pool.scheduleStartDate)}`;
 	}
-
-	// something is in the water, just not something the reader can use
-	const busy = anchorSessions.find((s) =>
-		ctx.planned ? s.startMin < ctx.to && s.endMin > ctx.from : s.startMin <= ctx.from && ctx.from < s.endMin
-	);
-	if (busy && !busy.tags.includes("access:closed")) {
-		// "Private rental" says more than a club's name; a lesson's own name
-		// says more than "Sign-up only"
-		const label = accessLabel(busy.tags) ?? busy.title;
-		return ctx.planned ? `${label} ${busy.startTime}–${busy.endTime}` : `${label} until ${busy.endTime}`;
-	}
-
-	if (!ctx.found) {
-		// nothing for a week, often because a closure starts in the meantime
-		if (closure?.suppressPrograms && closure.startDate && closure.startDate <= addDays(ctx.nowDay, 6)) {
-			return ["Closes", formatClosurePeriod(closure), closure.reason ? `for ${closure.reason}` : ""].filter(Boolean).join(" ");
-		}
-		return `No ${ctx.noun} this week`;
-	}
-	if (ctx.planned) return `No ${ctx.noun} ${ctx.slotLabel}`;
-	if (ctx.found.offset === 0) return `No ${ctx.noun} in the next 2 hours`;
-	if (ctx.found.offset === 1) return ctx.hadToday ? "Done for today" : `No ${ctx.noun} today`;
-	const today = weekdayOf(ctx.nowDay).slice(0, 3);
-	const lastQuiet = weekdayOf(addDays(ctx.nowDay, ctx.found.offset - 1)).slice(0, 3);
-	return `No ${ctx.noun} ${today}–${lastQuiet}`;
+	return `No ${noun} this week`;
 }

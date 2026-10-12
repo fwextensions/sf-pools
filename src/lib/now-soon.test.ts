@@ -97,7 +97,6 @@ describe("nowSoon", () => {
 		];
 		const dropIn = view(pools, at(18));
 		expect(dropIn.open).toEqual([]);
-		expect(dropIn.closed[0]!.reason).toBe("Private rental until 7:00p");
 		expect(dropIn.closed[0]!.next).toEqual({ day: "Sat", time: "9:00a", names: ["Rec Swim"] });
 
 		const everything = view(pools, at(18), { mode: "all" });
@@ -118,10 +117,7 @@ describe("nowSoon", () => {
 		expect(v.open).toEqual([]);
 		expect(v.soon[0]!.stretch.startTime).toBe("7:00p");
 		expect(v.noun).toBe("lap swim");
-		expect(view(pools, at(16), { program: "lap" }).closed[0]!.reason).toBe("No lap swim in the next 2 hours");
-		// a session the filter leaves out is still why the pool is quiet
-		const busy = [pool("mission", [["Friday", "3:00p", "5:00p", "Family Swim", FAMILY], ["Friday", "8:00p", "9:00p", "Lap Swim"]])];
-		expect(view(busy, at(16), { program: "lap" }).closed[0]!.reason).toBe("Family Swim until 5:00p");
+		expect(view(pools, at(16), { program: "lap" }).closed[0]!.next).toEqual({ day: "Today", time: "7:00p", names: ["Lap Swim"] });
 	});
 
 	it("widens the window to the rest of the day", () => {
@@ -139,22 +135,18 @@ describe("nowSoon", () => {
 		const v = view(pools, at(21), { when: "tomorrow-am" });
 		expect(v.planned).toBe(true);
 		expect(v.open.map((x) => x.pool.id)).toEqual(["mlk", "balboa"]);
-		expect(v.closed[0]!.reason).toBe("No drop-in tomorrow morning");
 		expect(v.closed[0]!.next).toEqual({ day: "Sat", time: "1:00p", names: ["Lap Swim"] });
 	});
 
-	it("explains a quiet pool by the days until it opens", () => {
+	it("finds the next opening up to a week out, and leaves the note for when there is none", () => {
 		const pools = [pool("garfield", [["Sunday", "8:30a", "10:00a", "Lap Swim"]])];
 		const v = view(pools, at(18));
-		expect(v.closed[0]!.reason).toBe("No drop-in Fri–Sat");
-		expect(v.closed[0]!.next).toEqual({ day: "Sun", time: "8:30a", names: ["Lap Swim"] });
-		const saturday: Row = ["Saturday", "8:00a", "9:00a", "Lap Swim"];
-		expect(view([pool("x", [saturday])], at(18)).closed[0]!.reason).toBe("No drop-in today");
-		expect(view([pool("x", [["Friday", "8:00a", "9:00a", "Lap Swim"], saturday])], at(18)).closed[0]!.reason).toBe("Done for today");
+		expect(v.closed[0]).toMatchObject({ next: { day: "Sun", time: "8:30a", names: ["Lap Swim"] }, note: null });
+		expect(view(pools, at(18), { program: "family" }).closed[0]).toMatchObject({ next: null, note: "No family swim this week" });
 		expect(view([pool("x", [["Friday", "9:00p", "9:30p", "Lap Swim"]])], at(18)).closed[0]!.next!.day).toBe("Today");
 	});
 
-	it("skips days a closure covers and gives its reason", () => {
+	it("skips days a closure covers", () => {
 		const closure: Closure = {
 			summary: "",
 			rawText: "",
@@ -173,7 +165,6 @@ describe("nowSoon", () => {
 		// sessions are the ones withoutClosedDays left
 		const pools = [pool("northBeachCool", [["Monday", "7:00a", "8:00a", "Lap Swim"]], { closure })];
 		const v = view(pools, at(10));
-		expect(v.closed[0]!.reason).toBe("Closed Oct 9 – Oct 11 for maintenance");
 		expect(v.closed[0]!.next!.day).toBe("Mon");
 	});
 
@@ -193,14 +184,14 @@ describe("nowSoon", () => {
 			disagreement: null,
 		} satisfies Closure;
 		const v = view([pool("northBeachWarm", [], { closure })], at(18));
-		expect(v.closed[0]!.reason).toBe("Closes Oct 10 – Nov 1 for annual maintenance");
+		expect(v.closed[0]!.note).toBe("Closes Oct 10 – Nov 1 for annual maintenance");
 	});
 
 	it("stops at the end of the printed schedule", () => {
 		const pools = [pool("mlk", [["Friday", "6:00p", "7:00p", "Lap Swim"]], { scheduleEndDate: "2026-09-26" })];
 		const v = view(pools, at(18, 30));
 		expect(v.open).toEqual([]);
-		expect(v.closed[0]!.reason).toBe("Schedule ended Sep 26");
+		expect(v.closed[0]!.note).toBe("Schedule ended Sep 26");
 		expect(v.closed[0]!.next).toBeNull();
 	});
 });

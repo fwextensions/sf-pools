@@ -74,12 +74,8 @@ function getNowInPT(): { day: Day; date: string; minutes: number; display: strin
 	let minutes = h * 60 + min;
 	if (dayPeriod.startsWith("p")) minutes += 12 * 60;
 
-	const display = new Intl.DateTimeFormat("en-US", {
-		timeZone: "America/Los_Angeles",
-		hour: "numeric",
-		minute: "2-digit",
-		hour12: true,
-	}).format(new Date());
+	// written the way the schedules write times, "1:23p"
+	const display = `${h % 12 || 12}:${String(min).padStart(2, "0")}${dayPeriod.startsWith("p") ? "p" : "a"}`;
 
 	return { day: weekday, date: pacificToday(), minutes, display };
 }
@@ -161,8 +157,8 @@ function OpenRow({
 				) : null}
 				{pool.pdfScheduleUrl || pool.sfRecParkUrl ? (
 					<div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1">
-						<SourceLink href={pool.pdfScheduleUrl}>Source PDF<ExternalLinkIcon /></SourceLink>
-						<SourceLink href={pool.sfRecParkUrl}>Pool page<ExternalLinkIcon /></SourceLink>
+						<SourceLink href={pool.pdfScheduleUrl}>PDF<ExternalLinkIcon /></SourceLink>
+						<SourceLink href={pool.sfRecParkUrl}>Pool<ExternalLinkIcon /></SourceLink>
 					</div>
 				) : null}
 			</div>
@@ -175,12 +171,11 @@ function OpenRow({
 }
 
 function ClosedRow({ standing }: { standing: ClosedStanding }) {
-	const { pool, reason, next } = standing;
+	const { pool, next, note } = standing;
 	return (
 		<li className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line py-2.5">
 			<div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
 				<PoolName pool={pool} weight="font-normal" />
-				<span className="text-small text-ink-2">{reason}</span>
 			</div>
 			{next ? (
 				<div className="text-small text-ink-2">
@@ -190,7 +185,9 @@ function ClosedRow({ standing }: { standing: ClosedStanding }) {
 					</span>{" "}
 					<Names names={next.names} />
 				</div>
-			) : null}
+			) : (
+				<div className="text-small text-ink-2">{note}</div>
+			)}
 		</li>
 	);
 }
@@ -279,7 +276,11 @@ function Select<T extends string>({
 					</option>
 				))}
 			</select>
-			<Chevron className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-ink-2" />
+			{/* centered by flex rather than top-1/2, which the chevron's negative
+			    margins pushed off center */}
+			<span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-ink-2">
+				<Chevron />
+			</span>
 		</label>
 	);
 }
