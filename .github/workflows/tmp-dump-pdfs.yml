@@ -12,7 +12,6 @@ jobs:
           node-version: "24"
           cache: "npm"
       - run: npm ci
-      - run: sudo apt-get install -y poppler-utils >/dev/null
       - name: Dump
         run: |
           mkdir -p /tmp/pdfs
@@ -20,7 +19,5 @@ jobs:
             name=${id%%=*}; url=${id#*=}
             curl -sSL -A "Mozilla/5.0" -o /tmp/pdfs/$name.pdf "$url"
             echo "===== $name $url"
-            pdftotext -layout /tmp/pdfs/$name.pdf - | sed 's/  */ /g' | grep -v '^ *$'
-            echo "----- pdf-inspector lines"
-            npx tsx -e "import {readPdfLines} from './scripts/read-pdf-lines'; import fs from 'fs'; const ls=readPdfLines(fs.readFileSync('/tmp/pdfs/$name.pdf')); for (const l of ls) if (/clos|holiday|day|[0-9]+\/[0-9]+/i.test(l.text)) console.log(l.page, Math.round(l.x), Math.round(l.y), l.text)"
+            npx tsx -e "import {readPdfLines} from './scripts/read-pdf-lines'; import fs from 'fs'; const ls=readPdfLines(fs.readFileSync('/tmp/pdfs/$name.pdf')); ls.sort((a,b)=>a.page-b.page||Math.round(a.y)-Math.round(b.y)||a.x-b.x); let k=''; let row=[]; for (const l of ls){const kk=l.page+':'+Math.round(l.y/3); if(kk!==k&&row.length){console.log(row.join(' | ')); row=[];} k=kk; row.push(l.text.trim());} console.log(row.join(' | '))"
           done
