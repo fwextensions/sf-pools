@@ -1,6 +1,6 @@
 import { describe, it, expect } from "@jest/globals";
 import type { PoolSchedule } from "@/lib/pdf-processor";
-import { around, programMinutes, toSessions, withoutClosedDays } from "./sessions";
+import { around, closuresThisWeek, programMinutes, toSessions, withoutClosedDays } from "./sessions";
 import type { Closure } from "./closures";
 
 const pool = (id: string, programs: Array<[string, string, string]>) =>
@@ -164,5 +164,60 @@ describe("withoutClosedDays", () => {
 		it("leaves the week alone when no closure date falls in it", () => {
 			expect(withoutClosedDays([withClosures], "2026-10-13")[0]).toBe(withClosures);
 		});
+	});
+});
+
+describe("closuresThisWeek", () => {
+	const day = (startDate: string, reason: string, more: object = {}) => ({
+		startDate,
+		endDate: startDate,
+		startTime: null,
+		endTime: null,
+		reason,
+		...more,
+	});
+	const withClosures = (id: string, scheduledClosures: object[], closure: Closure | null = null) =>
+		({ ...pool(id, []), scheduledClosures, closure }) as unknown as PoolSchedule;
+	const maintenance: Closure = {
+		summary: "",
+		rawText: "",
+		startDate: "2026-10-13",
+		endDate: "2026-11-01",
+		indefinite: false,
+		sourceUrl: null,
+		reason: "maintenance",
+		scope: "whole-pool",
+		source: "pattern",
+		suppressPrograms: true,
+		confidence: null,
+		disagreement: null,
+	};
+
+	it("groups a holiday every pool lists into one closure, in the PDFs' majority wording", () => {
+		const all = [
+			withClosures("balboa", [day("2026-10-12", "Indigenous Peoples Day")]),
+			withClosures("hamilton", [day("2026-10-12", "Indigenous People's Day")]),
+			withClosures("rossi", [day("2026-10-12", "Indigenous Peoples Day"), day("2026-11-11", "Veterans Day")]),
+		];
+		expect(closuresThisWeek(all, "2026-10-12")).toEqual([
+			{ ...day("2026-10-12", "Indigenous Peoples Day"), poolIds: ["balboa", "hamilton", "rossi"] },
+		]);
+	});
+
+	it("keeps different time windows on the same day apart, all-day first", () => {
+		const all = [
+			withClosures("rossi", [day("2026-10-22", "training", { startTime: "12:00p", endTime: "2:00p" })]),
+			withClosures("garfield", [day("2026-10-22", "training", { startTime: "11:00a", endTime: "2:00p" })]),
+			withClosures("coffman", [day("2026-10-22", "training")]),
+		];
+		expect(closuresThisWeek(all, "2026-10-20").map((c) => c.poolIds)).toEqual([["coffman"], ["garfield"], ["rossi"]]);
+	});
+
+	it("includes a range that overlaps the week and leaves out pools an alert already closes", () => {
+		const all = [
+			withClosures("rossi", [day("2026-11-02", "annual maintenance", { endDate: "2026-11-21" })]),
+			withClosures("northBeachCool", [day("2026-10-13", "ANNUAL MAINTENANCE", { endDate: "2026-10-31" })], maintenance),
+		];
+		expect(closuresThisWeek(all, "2026-10-30").map((c) => c.poolIds)).toEqual([["rossi"]]);
 	});
 });

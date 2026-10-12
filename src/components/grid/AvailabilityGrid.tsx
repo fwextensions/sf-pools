@@ -6,7 +6,7 @@ import type { PoolSchedule } from "@/lib/pdf-processor";
 import PoolAlerts from "@/components/PoolAlerts";
 import { createGridModel } from "@/lib/grid/grid-model";
 import { trackGridChange } from "@/lib/grid/grid-analytics";
-import { toSessions, withoutClosedDays } from "@/lib/sessions";
+import { closuresThisWeek, toSessions, withoutClosedDays } from "@/lib/sessions";
 import { pacificToday } from "@/lib/closures";
 import { initialGridState, writeGridUrl } from "@/lib/grid/url";
 import { trackFocusMode } from "@/lib/analytics";
@@ -30,6 +30,9 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	const [model] = useState(() =>
 		createGridModel(toSessions(withoutClosedDays(all, pacificToday())), initialGridState(searchParams))
 	);
+	// the PDFs' own closures this week, said above the grid since their
+	// sessions are already gone from it
+	const [weekClosures] = useState(() => closuresThisWeek(all, pacificToday()));
 	const subscribeFilters = useCallback(
 		(onChange: () => void) =>
 			model.subscribe((change) => {
@@ -125,9 +128,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 
 	return (
 		<div className="font-sans py-6 text-ink">
-			{alerts?.poolAlerts && alerts.poolAlerts.length > 0 && (
-				<PoolAlerts alerts={alerts} pools={all} selectedPools={alertPools} />
-			)}
+			<PoolAlerts alerts={alerts} pools={all} selectedPools={alertPools} weekClosures={weekClosures} />
 
 			{/* mobile: single column, sticky chip bar with accordion panels. Focus
 			    mode pins those same pieces to the viewport instead, so the page
