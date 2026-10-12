@@ -431,7 +431,10 @@ export default async function SchedulesPage() {
 							.join(" ");
 
 						return (
-							<section key={pool.id} id={`pool-${pool.id}`} className="scroll-mt-[var(--schedule-nav-h)] pt-7">
+							// the space above each pool is margin, not padding: scroll-margin
+							// is measured from the border box, so padding would land a jump
+							// that far below the nav, with the previous pool showing through
+							<section key={pool.id} id={`pool-${pool.id}`} className="mt-7 scroll-mt-[var(--schedule-nav-h)]">
 								{/* the pool's name follows its programs down the page, pinned
 								    directly under the jump nav, so a session three screens into
 								    a schedule still says whose pool it is. Only the identity row
