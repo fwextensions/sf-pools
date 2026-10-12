@@ -199,7 +199,10 @@ function layoutDay(programs: ProgramEntry[]): LaidOutProgram[] {
 }
 
 const PX_PER_MIN = 1.15;
-const GUTTER_PX = 44;
+// wide enough for "10:30a" plus the labels' right inset. In rem, since the
+// labels are: a px gutter let the longest ones poke out past the left edge,
+// beyond the white of the pinned headers that cover the rest of the column
+const GUTTER = "3.125rem";
 // a block ends this many px short of its true end time, so back-to-back
 // sessions (Learn to Swim into Rentals at the same 5:30 mark) get a hairline
 // of open track between them instead of two borders touching edge to edge
@@ -246,7 +249,7 @@ function WeekTimeline({
 	return (
 		<div
 			className="hidden min-[900px]:grid"
-			style={{ gridTemplateColumns: `${GUTTER_PX}px repeat(7, minmax(0, 1fr))`, columnGap: 3 }}
+			style={{ gridTemplateColumns: `${GUTTER} repeat(7, minmax(0, 1fr))`, columnGap: 3 }}
 		>
 			{/* the day names ride down the page under the pool's pinned name, so a
 			    session two screens into a schedule still has a column heading. The
