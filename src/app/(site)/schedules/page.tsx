@@ -204,6 +204,11 @@ const PX_PER_MIN = 1.15;
 // labels are: a px gutter let the longest ones poke out past the left edge,
 // beyond the white of the pinned headers that cover the rest of the column
 const GUTTER = "3.125rem";
+// the hour labels are centred on their rules, so the first one rides half a
+// line above the top of the axis. Dropping the axis this far keeps that label
+// clear of the day row's white strip while the grid is still in its place on
+// the page; once the day row pins, labels pass under it as they should
+const AXIS_HEADROOM = "0.625rem";
 // a block ends this many px short of its true end time, so back-to-back
 // sessions (Learn to Swim into Rentals at the same 5:30 mark) get a hairline
 // of open track between them instead of two borders touching edge to edge
@@ -269,14 +274,14 @@ function WeekTimeline({
 					// itself, not a margin above the grid: a margin is outside the
 					// sticky box, so it collapses the moment the row pins and the
 					// sessions scroll up through the space it was holding
-					className="sticky z-[4] border-b border-line bg-white pt-3 pb-1 font-mono text-label font-semibold tracking-[.08em] text-ink-2"
+					className="sticky z-[4] bg-white pt-3 pb-1 text-center font-mono text-label font-semibold tracking-[.08em] text-ink-2"
 				>
 					{day.slice(0, 3).toUpperCase()}
 				</div>
 			))}
 
 			{/* time gutter */}
-			<div style={{ gridRow: 2, gridColumn: 1, height: heightPx }} className="relative">
+			<div style={{ gridRow: 2, gridColumn: 1, height: heightPx, marginTop: AXIS_HEADROOM }} className="relative">
 				{ticks.map((t) => (
 					<div
 						key={t}
@@ -291,7 +296,7 @@ function WeekTimeline({
 			{laidOutByDay.map(({ day, items }, dayIndex) => (
 				<div
 					key={day}
-					style={{ gridRow: 2, gridColumn: dayIndex + 2, height: heightPx }}
+					style={{ gridRow: 2, gridColumn: dayIndex + 2, height: heightPx, marginTop: AXIS_HEADROOM }}
 					className="relative border-l border-line"
 				>
 					{/* hour/half-hour rules, so a quiet stretch still reads as time
