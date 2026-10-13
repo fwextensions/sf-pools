@@ -5,7 +5,7 @@
 // this returns. Times are minutes past midnight on a Pacific date; a date is
 // "YYYY-MM-DD", which compares correctly as a string.
 import type { PoolSchedule } from "@/lib/pdf-processor";
-import { formatClosurePeriod, isClosureActive } from "@/lib/closures";
+import { formatClosurePeriod, isClosureActive, scheduledClosuresOn } from "@/lib/closures";
 import { formatScheduleDate } from "@/lib/utils";
 import type { Day, Session } from "@/lib/sessions";
 
@@ -57,8 +57,16 @@ export type NextOpening = {
 };
 
 export type OpenStanding = { pool: PoolSchedule; stretch: Stretch };
-/** a pool that isn't open: when it next is, or, when not within a week, why */
-export type ClosedStanding = { pool: PoolSchedule; next: NextOpening | null; note: string | null };
+/**
+ * a pool that isn't open: when it next is, or, when not within a week, why;
+ * `closedFor` names a whole-day closure the PDF lists on the day in view
+ */
+export type ClosedStanding = {
+	pool: PoolSchedule;
+	next: NextOpening | null;
+	note: string | null;
+	closedFor: string | null;
+};
 
 export type NowSoonView = {
 	/** whether the view is anchored on the clock (countdowns) or on a slot of tomorrow */
@@ -260,10 +268,13 @@ export function nowSoon(
 					names: found.names,
 				}
 			: null;
+		const closedFor = dayClosure(pool, anchorDate, anchor ? "tomorrow" : "today");
 		closed.push({
 			pool,
 			next,
-			note: next ? null : absenceNote(pool, now.date, noun),
+			// the closure says why the week is empty, so it stands in for the note
+			note: next || closedFor ? null : absenceNote(pool, now.date, noun),
+			closedFor,
 		});
 	}
 
@@ -285,6 +296,27 @@ function comparePools(a: { pool: PoolSchedule }, b: { pool: PoolSchedule }): num
 }
 
 const shortDate = (date: string) => formatScheduleDate(date, { month: "short", day: "numeric" });
+
+/**
+ * "Closed today for Indigenous Peoples Day", or "Closed through Nov 1 for
+ * annual maintenance", when the pool is closed all day on `date`, whether the
+ * facility page or the PDF says so. Where both do, the longer closure wins.
+ */
+function dayClosure(pool: PoolSchedule, date: string, when: string): string | null {
+	// a null end is a closure until further notice
+	const covering: Array<{ end: string | null; reason: string | null }> = scheduledClosuresOn(pool.scheduledClosures, date)
+		.filter((c) => !c.startTime)
+		.map((c) => ({ end: c.endDate, reason: c.reason }));
+	const closure = pool.closure;
+	if (closure?.suppressPrograms && isClosureActive(closure, date)) {
+		covering.push({ end: closure.indefinite ? null : closure.endDate, reason: closure.reason });
+	}
+	if (!covering.length) return null;
+	const longest = covering.reduce((a, b) => (a.end === null || (b.end !== null && a.end >= b.end) ? a : b));
+	const until =
+		longest.end === null ? "until further notice" : longest.end > date ? `through ${shortDate(longest.end)}` : when;
+	return `Closed ${until}${longest.reason ? ` for ${longest.reason}` : ""}`;
+}
 
 /**
  * Why a pool has nothing for a week: a closure, a printed schedule that has

@@ -171,11 +171,12 @@ function OpenRow({
 }
 
 function ClosedRow({ standing }: { standing: ClosedStanding }) {
-	const { pool, next, note } = standing;
+	const { pool, next, note, closedFor } = standing;
 	return (
 		<li className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line py-2.5">
 			<div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
 				<PoolName pool={pool} weight="font-normal" />
+				{closedFor ? <span className="text-small font-medium text-alert">{closedFor}</span> : null}
 			</div>
 			{next ? (
 				<div className="text-small text-ink-2">
