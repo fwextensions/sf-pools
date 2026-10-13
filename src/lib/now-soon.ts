@@ -298,16 +298,24 @@ function comparePools(a: { pool: PoolSchedule }, b: { pool: PoolSchedule }): num
 const shortDate = (date: string) => formatScheduleDate(date, { month: "short", day: "numeric" });
 
 /**
- * "Closed today for Indigenous Peoples Day", or "Closed through Nov 21 for
- * annual maintenance", when the PDF closes the pool all day. A closure the
- * facility page announces is left to the note, which already names it.
+ * "Closed today for Indigenous Peoples Day", or "Closed through Nov 1 for
+ * annual maintenance", when the pool is closed all day on `date`, whether the
+ * facility page or the PDF says so. Where both do, the longer closure wins.
  */
 function dayClosure(pool: PoolSchedule, date: string, when: string): string | null {
-	if (pool.closure?.suppressPrograms && isClosureActive(pool.closure, date)) return null;
-	const closure = scheduledClosuresOn(pool.scheduledClosures, date).find((c) => !c.startTime);
-	if (!closure) return null;
-	const until = closure.endDate > date ? `through ${shortDate(closure.endDate)}` : when;
-	return `Closed ${until}${closure.reason ? ` for ${closure.reason}` : ""}`;
+	// a null end is a closure until further notice
+	const covering: Array<{ end: string | null; reason: string | null }> = scheduledClosuresOn(pool.scheduledClosures, date)
+		.filter((c) => !c.startTime)
+		.map((c) => ({ end: c.endDate, reason: c.reason }));
+	const closure = pool.closure;
+	if (closure?.suppressPrograms && isClosureActive(closure, date)) {
+		covering.push({ end: closure.indefinite ? null : closure.endDate, reason: closure.reason });
+	}
+	if (!covering.length) return null;
+	const longest = covering.reduce((a, b) => (a.end === null || (b.end !== null && a.end >= b.end) ? a : b));
+	const until =
+		longest.end === null ? "until further notice" : longest.end > date ? `through ${shortDate(longest.end)}` : when;
+	return `Closed ${until}${longest.reason ? ` for ${longest.reason}` : ""}`;
 }
 
 /**

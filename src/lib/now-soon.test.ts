@@ -203,7 +203,7 @@ describe("nowSoon", () => {
 		expect(tomorrow.closed[0]!.closedFor).toBe("Closed tomorrow");
 	});
 
-	it("gives the end of a longer closure, and leaves one the facility page announces to the note", () => {
+	it("gives the end of a longer closure, from the PDF or the facility page", () => {
 		const maintenance = [{ startDate: "2026-10-05", endDate: "2026-10-21", startTime: null, endTime: null, reason: "annual maintenance" }];
 		const v = view([pool("sava", [], { scheduledClosures: maintenance })], at(10));
 		expect(v.closed[0]).toMatchObject({ closedFor: "Closed through Oct 21 for annual maintenance", note: null });
@@ -222,7 +222,7 @@ describe("nowSoon", () => {
 			disagreement: null,
 		} satisfies Closure;
 		const both = view([pool("northBeachCool", [], { closure, scheduledClosures: maintenance })], at(10));
-		expect(both.closed[0]).toMatchObject({ closedFor: null, note: "Closed Oct 5 – Oct 22 for annual maintenance" });
+		expect(both.closed[0]).toMatchObject({ closedFor: "Closed through Oct 22 for annual maintenance", note: null });
 	});
 
 	it("stops at the end of the printed schedule", () => {
