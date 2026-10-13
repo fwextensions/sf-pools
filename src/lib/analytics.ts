@@ -47,7 +47,51 @@ export function initAnalytics(): boolean {
 		},
 	});
 	enabled = true;
+	applyInternalTag();
 	return true;
+}
+
+/**
+ * What a page load says about whether this browser is the site owner's.
+ * `?me=1` marks it, `?me=0` unmarks it, and a dev server always counts.
+ * "keep" means the URL says nothing, so whatever was set before stands.
+ */
+export function internalTagFor(search: string, hostname: string): "mark" | "unmark" | "keep" {
+	const me = new URLSearchParams(search).get("me");
+	if (me === "1") return "mark";
+	if (me === "0") return "unmark";
+	if (hostname === "localhost" || hostname === "127.0.0.1") return "mark";
+	return "keep";
+}
+
+/**
+ * Tags the owner's own visits so PostHog's "filter out internal and test
+ * users" toggle can hide them, while their errors and crash reports stay
+ * queryable. The person property is what that filter reads (via a cohort,
+ * so visits from before the tag drop out too); the super property puts the
+ * flag on each event as well. posthog-js persists both, so a browser only
+ * needs `?me=1` once.
+ */
+function applyInternalTag() {
+	const { search, hostname, pathname, hash } = window.location;
+	const tag = internalTagFor(search, hostname);
+
+	if (tag === "mark") {
+		posthog.register({ internal: true });
+		posthog.setPersonProperties({ internal: true });
+	} else if (tag === "unmark") {
+		posthog.unregister("internal");
+		posthog.setPersonProperties({ internal: false });
+	}
+
+	// drop the parameter before the app reads the URL, so a link copied
+	// afterwards can't tag whoever opens it
+	const params = new URLSearchParams(search);
+	if (params.has("me")) {
+		params.delete("me");
+		const qs = params.toString();
+		window.history.replaceState(window.history.state, "", `${pathname}${qs ? `?${qs}` : ""}${hash}`);
+	}
 }
 
 function capture(event: string, properties?: Record<string, unknown>) {
