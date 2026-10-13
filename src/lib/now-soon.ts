@@ -268,11 +268,13 @@ export function nowSoon(
 					names: found.names,
 				}
 			: null;
+		const closedFor = dayClosure(pool, anchorDate, anchor ? "tomorrow" : "today");
 		closed.push({
 			pool,
 			next,
-			note: next ? null : absenceNote(pool, now.date, noun),
-			closedFor: dayClosure(pool, anchorDate, anchor ? "tomorrow" : "today"),
+			// the closure says why the week is empty, so it stands in for the note
+			note: next || closedFor ? null : absenceNote(pool, now.date, noun),
+			closedFor,
 		});
 	}
 
@@ -295,11 +297,17 @@ function comparePools(a: { pool: PoolSchedule }, b: { pool: PoolSchedule }): num
 
 const shortDate = (date: string) => formatScheduleDate(date, { month: "short", day: "numeric" });
 
-/** "Closed today for Indigenous Peoples Day" when the PDF closes the pool all day */
+/**
+ * "Closed today for Indigenous Peoples Day", or "Closed through Nov 21 for
+ * annual maintenance", when the PDF closes the pool all day. A closure the
+ * facility page announces is left to the note, which already names it.
+ */
 function dayClosure(pool: PoolSchedule, date: string, when: string): string | null {
+	if (pool.closure?.suppressPrograms && isClosureActive(pool.closure, date)) return null;
 	const closure = scheduledClosuresOn(pool.scheduledClosures, date).find((c) => !c.startTime);
 	if (!closure) return null;
-	return `Closed ${when}${closure.reason ? ` for ${closure.reason}` : ""}`;
+	const until = closure.endDate > date ? `through ${shortDate(closure.endDate)}` : when;
+	return `Closed ${until}${closure.reason ? ` for ${closure.reason}` : ""}`;
 }
 
 /**
