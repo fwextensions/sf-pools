@@ -1,32 +1,58 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import type { PoolSchedule } from "@/lib/pdf-processor";
-import { around, toSessions, withoutClosedDays, type Day, type Session } from "@/lib/sessions";
-import { formatClosurePeriod, isClosureActive, pacificToday, scheduledClosuresOn } from "@/lib/closures";
+import { toSessions, withoutClosedDays, type Day, type Session } from "@/lib/sessions";
+import { pacificToday } from "@/lib/closures";
 import { toTitleCase } from "@/lib/program-taxonomy";
 import { getPoolToken } from "@/lib/pool-tokens";
+import {
+	formatDuration,
+	joinNames,
+	nowSoon,
+	type ClosedStanding,
+	type Mode,
+	type NowSoonOptions,
+	type OpenStanding,
+	type ProgramChoice,
+	type When,
+} from "@/lib/now-soon";
+import { initialNowSoonOptions, writeNowSoonUrl } from "@/lib/now-soon-url";
 import PoolChip from "./PoolChip";
 import ProgramName from "@/components/ProgramName";
-import { ExternalLinkIcon } from "@/components/icons";
+import { Chevron, ExternalLinkIcon } from "@/components/icons";
 
 type Props = {
 	all: PoolSchedule[];
 };
 
-type StatusKey = "open" | "soon" | "closed";
-
 /**
- * Status is deliberately a separate channel from pool identity: the left rule
- * and code chip always carry the pool's token color, so status reads from a
- * glyph and a word in ink rather than from a color. A filled dot is open, a
- * ring is soon, and a faint ring is closed.
+ * Status is deliberately a separate channel from pool identity: the chip
+ * always carries the pool's token color, so status reads from a glyph and a
+ * word in ink rather than from a color. A filled dot is open, a ring is soon,
+ * and a faint ring is not open. The group heading carries it, once.
  */
-const STATUS: Record<StatusKey, { label: string; glyph: string; text: string }> = {
-	open: { label: "OPEN NOW", glyph: "bg-ink", text: "text-ink" },
-	soon: { label: "SOON", glyph: "ring-2 ring-ink ring-inset", text: "text-ink" },
-	closed: { label: "CLOSED", glyph: "ring-2 ring-ink-2 ring-inset opacity-60", text: "text-ink-2" },
+const GLYPHS = {
+	open: "bg-ink",
+	soon: "ring-2 ring-ink ring-inset",
+	closed: "ring-2 ring-ink-2 ring-inset opacity-60",
 };
+
+const PROGRAM_OPTIONS: Array<[ProgramChoice | "", string]> = [
+	["", "All programs"],
+	["lap", "Lap swim"],
+	["family", "Family swim"],
+	["senior", "Senior swim"],
+];
+
+const WHEN_OPTIONS: Array<[When, string]> = [
+	["next", "Next 2 hours"],
+	["today", "Rest of today"],
+	["tomorrow-am", "Tomorrow morning"],
+	["tomorrow-pm", "Tomorrow afternoon"],
+	["tomorrow-eve", "Tomorrow evening"],
+];
 
 function getNowInPT(): { day: Day; date: string; minutes: number; display: string } {
 	const fmt = new Intl.DateTimeFormat("en-US", {
@@ -48,21 +74,10 @@ function getNowInPT(): { day: Day; date: string; minutes: number; display: strin
 	let minutes = h * 60 + min;
 	if (dayPeriod.startsWith("p")) minutes += 12 * 60;
 
-	const display = new Intl.DateTimeFormat("en-US", {
-		timeZone: "America/Los_Angeles",
-		hour: "numeric",
-		minute: "2-digit",
-		hour12: true,
-	}).format(new Date());
+	// written the way the schedules write times, "1:23p"
+	const display = `${h % 12 || 12}:${String(min).padStart(2, "0")}${dayPeriod.startsWith("p") ? "p" : "a"}`;
 
 	return { day: weekday, date: pacificToday(), minutes, display };
-}
-
-function comparePoolNames(a: { pool: PoolSchedule }, b: { pool: PoolSchedule }) {
-	const aPoolName = a.pool.shortName || a.pool.name || "";
-	const bPoolName = b.pool.shortName || b.pool.name || "";
-
-	return aPoolName.localeCompare(bPoolName);
 }
 
 function poolLabel(pool: PoolSchedule): string {
@@ -79,74 +94,122 @@ function SourceLink({ href, children }: { href?: string | null; children: React.
 	);
 }
 
-function PoolBlock({
-	pool,
-	status,
-	children,
+/** the program names, with the full list on hover when it is shortened */
+function Names({ names }: { names: string[] }) {
+	const joined = joinNames(names);
+	return (
+		<span title={names.length > 2 ? names.join(", ") : undefined}>
+			<ProgramName name={joined} />
+		</span>
+	);
+}
+
+/** chip and pool name, the name linking to the pool's full schedule */
+function PoolName({ pool, weight }: { pool: PoolSchedule; weight: "font-semibold" | "font-normal" }) {
+	return (
+		<>
+			<PoolChip token={getPoolToken(pool.id)} className="self-center" />
+			<a
+				href={`/schedules#pool-${pool.id}`}
+				className={`text-body ${weight} text-ink decoration-1 underline-offset-[3px] hover:underline`}
+			>
+				{poolLabel(pool)}
+			</a>
+		</>
+	);
+}
+
+function OpenRow({
+	standing,
+	kind,
+	now,
 }: {
-	pool: PoolSchedule;
-	status: StatusKey;
-	children: React.ReactNode;
+	standing: OpenStanding;
+	kind: "open" | "soon" | "planned";
+	now: number;
 }) {
-	const token = getPoolToken(pool.id);
-	const color = token?.color ?? "var(--color-ink-2)";
-	const tag = STATUS[status];
+	const { pool, stretch } = standing;
+	// a session you can't walk in on reads in the secondary ink, tagged; never
+	// dimmed with opacity, which failed contrast
+	const tone = stretch.restricted ? "text-ink-2" : "text-ink";
+	const headline =
+		kind === "open"
+			? `Closes in ${formatDuration(stretch.end - now)}`
+			: kind === "soon"
+				? `Starts in ${formatDuration(stretch.start - now)}`
+				: `${stretch.startTime}–${stretch.endTime}`;
+	const detail = kind === "open" ? `until ${stretch.endTime}` : kind === "soon" ? `${stretch.startTime}–${stretch.endTime}` : null;
 
 	return (
-		<li className="border-l-[3px] bg-tint px-3 py-2.5" style={{ borderColor: color }}>
-			<div className="flex items-center gap-2">
-				<PoolChip token={token} />
-				<span className="min-w-0 flex-1 truncate text-body font-semibold text-ink">
-					{poolLabel(pool)}
-				</span>
-				<span
-					className={`flex-none whitespace-nowrap font-mono text-label font-semibold tracking-[.08em] ${tag.text}`}
-				>
-					<span aria-hidden className={`status-dot ${tag.glyph}`} />
-					{tag.label}
-				</span>
-			</div>
-			{children}
-			{pool.pdfScheduleUrl || pool.sfRecParkUrl ? (
-				<div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
-					<SourceLink href={pool.pdfScheduleUrl}>Source PDF<ExternalLinkIcon /></SourceLink>
-					<SourceLink href={pool.sfRecParkUrl}>Pool page<ExternalLinkIcon /></SourceLink>
+		<li className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 border-b border-line py-3">
+			<div className="min-w-0">
+				<div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+					<PoolName pool={pool} weight="font-semibold" />
+					<span className="text-body text-ink-2">
+						<Names names={stretch.names} />
+					</span>
+					{stretch.restricted ? <span className="tag self-center">{stretch.restricted}</span> : null}
 				</div>
-			) : null}
+				{stretch.then ? (
+					<p className="mt-1 text-small text-ink-2">
+						then <Names names={stretch.then.names} /> at {stretch.then.at}
+					</p>
+				) : null}
+				{pool.pdfScheduleUrl || pool.sfRecParkUrl ? (
+					<div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1">
+						<SourceLink href={pool.pdfScheduleUrl}>PDF<ExternalLinkIcon /></SourceLink>
+						<SourceLink href={pool.sfRecParkUrl}>Pool<ExternalLinkIcon /></SourceLink>
+					</div>
+				) : null}
+			</div>
+			<div className="text-right">
+				<div className={`whitespace-nowrap text-body font-semibold ${tone}`}>{headline}</div>
+				{detail ? <div className="whitespace-nowrap font-mono text-label font-medium text-ink-2">{detail}</div> : null}
+			</div>
 		</li>
 	);
 }
 
-/** one session line: mono time range in a fixed column, then the program
-    name, so the names in a block line up and a long one wraps under itself
-    rather than under the time. 14ch holds the longest, "11:00a–12:30p",
-    with room for the rounding that left 13ch a hair short. */
-function SessionLine({ time, name }: { time: string; name: string }) {
+function ClosedRow({ standing }: { standing: ClosedStanding }) {
+	const { pool, next, note } = standing;
 	return (
-		<div className="grid grid-cols-[auto_minmax(0,1fr)] items-baseline gap-2 text-small leading-snug">
-			<span className="w-[14ch] whitespace-nowrap font-mono text-label font-medium text-ink-2">{time}</span>
-			<span className="min-w-0 text-ink-2">
-				<ProgramName name={name} />
-			</span>
-		</div>
+		<li className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line py-2.5">
+			<div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+				<PoolName pool={pool} weight="font-normal" />
+			</div>
+			{next ? (
+				<div className="text-small text-ink-2">
+					Next:{" "}
+					<span className="font-mono text-ink">
+						{next.day} {next.time}
+					</span>{" "}
+					<Names names={next.names} />
+				</div>
+			) : (
+				<div className="text-small text-ink-2">{note}</div>
+			)}
+		</li>
 	);
 }
 
 function Section({
 	label,
+	glyph,
 	count,
 	empty,
 	children,
 }: {
 	label: string;
+	glyph: string;
 	count: number;
 	empty: string;
 	children: React.ReactNode;
 }) {
 	return (
-		<section className="mt-6">
+		<section className="mt-8">
 			<div className="flex items-baseline justify-between border-t-2 border-ink pt-2.5">
-				<span className="font-mono text-label font-semibold tracking-[.08em] text-ink">
+				<span className="font-mono text-label font-semibold uppercase tracking-[.08em] text-ink">
+					<span aria-hidden className={`status-dot ${glyph}`} />
 					{label}
 				</span>
 				<span className="font-mono text-label font-medium text-ink-2">
@@ -156,20 +219,88 @@ function Section({
 			{count === 0 ? (
 				<p className="mt-2.5 text-body text-ink-2">{empty}</p>
 			) : (
-				<ul className="mt-2.5 grid gap-[3px] min-[900px]:grid-cols-2">{children}</ul>
+				<ul className="mt-1 grid gap-x-10 min-[900px]:grid-cols-2">{children}</ul>
 			)}
 		</section>
 	);
 }
 
+function ModeSwitch({ mode, onChange }: { mode: Mode; onChange: (mode: Mode) => void }) {
+	const options: Array<[Mode, string]> = [
+		["drop-in", "Drop-in"],
+		["all", "Everything"],
+	];
+	return (
+		<div role="group" aria-label="Which sessions" className="col-span-2 flex">
+			{options.map(([value, label], i) => (
+				<button
+					key={value}
+					type="button"
+					aria-pressed={mode === value}
+					onClick={() => onChange(value)}
+					className={`control flex-1 text-small min-[900px]:flex-none ${i > 0 ? "-ml-px" : ""} ${
+						mode === value ? "relative z-10 border-ink text-white" : "text-ink"
+					}`}
+					// inline, since the control utility sets its own white background
+					style={mode === value ? { background: "var(--color-ink)" } : undefined}
+				>
+					{label}
+				</button>
+			))}
+		</div>
+	);
+}
+
+function Select<T extends string>({
+	label,
+	value,
+	options,
+	onChange,
+}: {
+	label: string;
+	value: T;
+	options: Array<[T, string]>;
+	onChange: (value: T) => void;
+}) {
+	return (
+		<label className="relative flex min-w-0">
+			<span className="sr-only">{label}</span>
+			<select
+				value={value}
+				onChange={(e) => onChange(e.target.value as T)}
+				className="control w-full appearance-none justify-start pr-9 text-small text-ink focus:border-ink focus:outline-none"
+			>
+				{options.map(([v, text]) => (
+					<option key={v} value={v}>
+						{text}
+					</option>
+				))}
+			</select>
+			{/* centered by flex rather than top-1/2, which the chevron's negative
+			    margins pushed off center */}
+			<span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-ink-2">
+				<Chevron />
+			</span>
+		</label>
+	);
+}
+
 export default function NowSoon({ all }: Props) {
-	const [windowMin, setWindowMin] = useState<number>(120);
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
+	const [options, setOptions] = useState<NowSoonOptions>(() => initialNowSoonOptions(searchParams));
 	const [now, setNow] = useState(() => getNowInPT());
 
 	useEffect(() => {
 		const id = setInterval(() => setNow(getNowInPT()), 60_000);
 		return () => clearInterval(id);
 	}, []);
+
+	const update = (change: Partial<NowSoonOptions>) => {
+		const next = { ...options, ...change };
+		setOptions(next);
+		writeNowSoonUrl(pathname, next);
+	};
 
 	// recomputed when the day turns over, so a closure starts or ends at midnight
 	const sessionsByPool = useMemo(() => {
@@ -182,112 +313,60 @@ export default function NowSoon({ all }: Props) {
 		return byPool;
 	}, [all, now.date]);
 
-	const perPool = useMemo(
-		() => all.map((pool) => ({ pool, ...around(sessionsByPool.get(pool.id) ?? [], now, windowMin) })),
-		[all, sessionsByPool, now, windowMin]
-	);
-
-	const openNow = perPool
-		.filter((x) => !!x.current)
-		.sort((a, b) => a.current!.endMin - b.current!.endMin || comparePoolNames(a, b));
-	const openingSoon = perPool
-		.filter((x) => !x.current && x.upcoming.length > 0)
-		.sort((a, b) => a.upcoming[0]!.startMin - b.upcoming[0]!.startMin || comparePoolNames(a, b));
-	const closed = perPool
-		.filter((x) => !x.current && x.upcoming.length === 0)
-		.sort((a, b) => comparePoolNames(a, b));
+	const view = useMemo(() => nowSoon(all, sessionsByPool, now, options), [all, sessionsByPool, now, options]);
+	const quiet = `No ${view.noun} ${view.span}`;
 
 	return (
 		<div className="font-sans text-ink">
-			<div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-				<label className="flex items-center gap-2">
-					<span className="font-mono text-label font-semibold tracking-[.08em] text-ink-2">
-						WINDOW
-					</span>
-					<input
-						type="number"
-						className="control w-[76px] cursor-text px-2 font-mono text-small font-medium text-ink focus:border-ink focus:outline-none"
-						min={15}
-						max={360}
-						step={15}
-						value={windowMin}
-						onChange={(e) =>
-							setWindowMin(Math.max(15, Math.min(360, Number(e.target.value) || 0)))
-						}
-					/>
-					<span className="font-mono text-label font-medium text-ink-2">MIN</span>
-				</label>
-				<span className="font-mono text-label font-medium text-ink-2">
-					PACIFIC {now.display.toUpperCase()} · {now.day.slice(0, 3).toUpperCase()}
+			<div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+				<span className="text-small text-ink-2">
+					{now.day.slice(0, 3)} {now.display} Pacific
 				</span>
+				<div className="grid w-full grid-cols-2 gap-2 min-[900px]:flex min-[900px]:w-auto min-[900px]:items-center">
+					<ModeSwitch mode={options.mode} onChange={(mode) => update({ mode })} />
+					<Select
+						label="Program"
+						value={options.program ?? ""}
+						options={PROGRAM_OPTIONS}
+						onChange={(program) => update({ program: program || null })}
+					/>
+					<Select label="When" value={options.when} options={WHEN_OPTIONS} onChange={(when) => update({ when })} />
+				</div>
 			</div>
 
-			<Section
-				label="OPEN NOW"
-				count={openNow.length}
-				empty="No pools have a session running right now."
-			>
-				{openNow.map(({ pool, current }) => (
-					<PoolBlock key={pool.id} pool={pool} status="open">
-						<div className="mt-1.5">
-							<SessionLine
-								time={`until ${current!.endTime}`}
-								name={current!.title}
-							/>
-						</div>
-					</PoolBlock>
-				))}
-			</Section>
+			{view.planned ? (
+				<Section label={`Open ${view.span}`} glyph={GLYPHS.open} count={view.open.length} empty={`No pools have ${view.noun} ${view.span}.`}>
+					{view.open.map((s) => (
+						<OpenRow key={s.pool.id} standing={s} kind="planned" now={now.minutes} />
+					))}
+				</Section>
+			) : (
+				<>
+					<Section label="Open now" glyph={GLYPHS.open} count={view.open.length} empty={`No pools have ${view.noun} running right now.`}>
+						{view.open.map((s) => (
+							<OpenRow key={s.pool.id} standing={s} kind="open" now={now.minutes} />
+						))}
+					</Section>
+					<Section
+						label={`Starting ${view.span}`}
+						glyph={GLYPHS.soon}
+						count={view.soon.length}
+						empty={`Nothing else starts ${view.span}.`}
+					>
+						{view.soon.map((s) => (
+							<OpenRow key={s.pool.id} standing={s} kind="soon" now={now.minutes} />
+						))}
+					</Section>
+				</>
+			)}
 
-			<Section
-				label={`STARTING WITHIN ${windowMin} MIN`}
-				count={openingSoon.length}
-				empty="Nothing starts inside the current window."
-			>
-				{openingSoon.map(({ pool, upcoming }) => (
-					<PoolBlock key={pool.id} pool={pool} status="soon">
-						<div className="mt-1.5 flex flex-col gap-0.5">
-							{upcoming.slice(0, 2).map((u, idx) => (
-								<SessionLine
-									key={idx}
-									time={`${u.startTime}–${u.endTime}`}
-									name={u.title}
-								/>
-							))}
-						</div>
-					</PoolBlock>
-				))}
-			</Section>
-
-			<Section
-				label="CLOSED"
-				count={closed.length}
-				empty="Every pool is open now or opening soon."
-			>
-				{closed.map(({ pool, later }) => {
-					const holiday = scheduledClosuresOn(pool.scheduledClosures, now.date).find((c) => !c.startTime);
-					return (
-						<PoolBlock key={pool.id} pool={pool} status="closed">
-							<div className="mt-1.5">
-								{pool.closure?.suppressPrograms && isClosureActive(pool.closure, now.date) ? (
-									<div className="text-small text-ink-2">
-										Closed {formatClosurePeriod(pool.closure)}
-										{pool.closure.reason ? ` for ${pool.closure.reason}` : ""}.
-									</div>
-								) : holiday ? (
-									<div className="text-small text-ink-2">
-										Closed today{holiday.reason ? ` for ${holiday.reason}` : ""}.
-									</div>
-								) : later ? (
-									<SessionLine time={`later ${later.startTime}`} name={later.title} />
-								) : (
-									<div className="text-small text-ink-2">No more sessions today.</div>
-								)}
-							</div>
-						</PoolBlock>
-					);
-				})}
-			</Section>
+			{view.closed.length ? (
+				<Section label={quiet} glyph={GLYPHS.closed} count={view.closed.length} empty="">
+					{view.closed.map((s) => (
+						<ClosedRow key={s.pool.id} standing={s} />
+					))}
+				</Section>
+			) : null}
 		</div>
 	);
 }

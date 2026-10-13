@@ -109,7 +109,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Parent/Tot Lesson",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons",
 					"activity:parent-tot",
 					"audience:parent-child",
@@ -158,7 +157,6 @@
 				"programNameCanonical": "Adult Swim Lessons",
 				"title": "Adult Swim Lessons",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons",
 					"audience:adult"
 				]
@@ -268,7 +266,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -453,7 +450,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -499,7 +495,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -748,6 +743,7 @@
 				"title": "SFUSD/Rec Swim",
 				"tags": [
 					"access:school-group",
+					"activity:family",
 					"activity:rec",
 					"activity:school"
 				]
@@ -763,7 +759,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn-to - Swim Lessons",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -778,7 +773,6 @@
 				"programNameCanonical": "Adult Swim Lessons",
 				"title": "Adult Swim Lessons",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons",
 					"audience:adult"
 				]
@@ -950,6 +944,7 @@
 				"title": "Rec Swim",
 				"tags": [
 					"access:drop-in",
+					"activity:family",
 					"activity:rec"
 				]
 			},
@@ -964,7 +959,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn-to - Swim Lessons",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -979,7 +973,6 @@
 				"programNameCanonical": "Adult Swim Lessons",
 				"title": "Adult Swim Lessons",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons",
 					"audience:adult"
 				]
@@ -1011,7 +1004,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -1152,7 +1144,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -1262,7 +1253,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -1338,7 +1328,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Youth Lessons/Swim Team",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons",
 					"activity:swim-team",
 					"audience:youth"
@@ -1511,7 +1500,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Youth Lessons/Swim Team",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons",
 					"activity:swim-team",
 					"audience:youth"
@@ -1638,9 +1626,10 @@
 				"programNameCanonical": "Family Swim",
 				"title": "Rec/Family Swim School Groups",
 				"tags": [
-					"access:drop-in",
+					"access:school-group",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"activity:school"
 				]
 			},
 			{
@@ -1654,7 +1643,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Youth Lessons/Swim Team",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons",
 					"activity:swim-team",
 					"audience:youth"
@@ -1827,7 +1815,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Youth Lessons/Swim Team",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons",
 					"activity:swim-team",
 					"audience:youth"
@@ -1982,7 +1969,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -2256,7 +2242,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -2437,7 +2422,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -2452,7 +2436,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -2731,7 +2714,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -2978,7 +2960,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -3087,7 +3068,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -3529,7 +3509,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -4689,7 +4668,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -4704,7 +4682,6 @@
 				"programNameCanonical": "Adult Swim Lessons",
 				"title": "Adult Swim Lessons",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons",
 					"audience:adult"
 				]
@@ -4784,7 +4761,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -4799,7 +4775,6 @@
 				"programNameCanonical": "Adult Swim Lessons",
 				"title": "Adult Swim Lessons",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons",
 					"audience:adult"
 				]
@@ -4847,7 +4822,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -4877,7 +4851,6 @@
 				"programNameCanonical": "Adult Swim Lessons",
 				"title": "Adult Swim Lessons",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons",
 					"audience:adult"
 				]
@@ -5064,7 +5037,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -5094,7 +5066,6 @@
 				"programNameCanonical": "Adult Swim Lessons",
 				"title": "Adult Swim Lessons",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons",
 					"audience:adult"
 				]
@@ -5351,7 +5322,6 @@
 				"programNameCanonical": "Special Olympics",
 				"title": "Special Olympics",
 				"tags": [
-					"access:drop-in",
 					"activity:special-olympics"
 				]
 			},
@@ -5443,7 +5413,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lesson",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -5458,7 +5427,6 @@
 				"programNameCanonical": "Adult Swim Lessons",
 				"title": "Adult Swim Lessons",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons",
 					"audience:adult"
 				]
@@ -5616,7 +5584,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Preschool Swim Lessons",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons",
 					"audience:preschool"
 				]
@@ -5647,7 +5614,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
@@ -5692,7 +5658,6 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"access:drop-in",
 					"activity:lessons"
 				]
 			},
