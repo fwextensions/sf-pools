@@ -67,21 +67,25 @@ export function internalTagFor(search: string, hostname: string): "mark" | "unma
 /**
  * Tags the owner's own visits so PostHog's "filter out internal and test
  * users" toggle can hide them, while their errors and crash reports stay
- * queryable. The person property is what that filter reads (via a cohort,
- * so visits from before the tag drop out too); the super property puts the
- * flag on each event as well. posthog-js persists both, so a browser only
- * needs `?me=1` once.
+ * queryable. $internal_or_test_user is the person property the project's
+ * built-in "Internal / Test users" cohort checks, and that filter excludes
+ * the cohort; cohorts are evaluated at query time, so a browser's visits
+ * from before it was tagged drop out too. The super property puts the flag
+ * on each event as well. posthog-js persists both, so a browser only needs
+ * `?me=1` once.
  */
+const INTERNAL = "$internal_or_test_user";
+
 function applyInternalTag() {
 	const { search, hostname, pathname, hash } = window.location;
 	const tag = internalTagFor(search, hostname);
 
 	if (tag === "mark") {
-		posthog.register({ internal: true });
-		posthog.setPersonProperties({ internal: true });
+		posthog.register({ [INTERNAL]: true });
+		posthog.setPersonProperties({ [INTERNAL]: true });
 	} else if (tag === "unmark") {
-		posthog.unregister("internal");
-		posthog.setPersonProperties({ internal: false });
+		posthog.unregister(INTERNAL);
+		posthog.setPersonProperties({ [INTERNAL]: false });
 	}
 
 	// drop the parameter before the app reads the URL, so a link copied
