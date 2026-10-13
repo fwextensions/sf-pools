@@ -274,7 +274,7 @@ function WeekTimeline({
 					// itself, not a margin above the grid: a margin is outside the
 					// sticky box, so it collapses the moment the row pins and the
 					// sessions scroll up through the space it was holding
-					className="sticky z-[4] border-b border-line bg-white pt-3 pb-1 font-mono text-label font-semibold tracking-[.08em] text-ink-2"
+					className="sticky z-[4] bg-white pt-3 pb-1 text-center font-mono text-label font-semibold tracking-[.08em] text-ink-2"
 				>
 					{day.slice(0, 3).toUpperCase()}
 				</div>
