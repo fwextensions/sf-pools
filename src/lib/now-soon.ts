@@ -5,7 +5,7 @@
 // this returns. Times are minutes past midnight on a Pacific date; a date is
 // "YYYY-MM-DD", which compares correctly as a string.
 import type { PoolSchedule } from "@/lib/pdf-processor";
-import { formatClosurePeriod, isClosureActive } from "@/lib/closures";
+import { formatClosurePeriod, isClosureActive, scheduledClosuresOn } from "@/lib/closures";
 import { formatScheduleDate } from "@/lib/utils";
 import type { Day, Session } from "@/lib/sessions";
 
@@ -57,8 +57,16 @@ export type NextOpening = {
 };
 
 export type OpenStanding = { pool: PoolSchedule; stretch: Stretch };
-/** a pool that isn't open: when it next is, or, when not within a week, why */
-export type ClosedStanding = { pool: PoolSchedule; next: NextOpening | null; note: string | null };
+/**
+ * a pool that isn't open: when it next is, or, when not within a week, why;
+ * `closedFor` names a whole-day closure the PDF lists on the day in view
+ */
+export type ClosedStanding = {
+	pool: PoolSchedule;
+	next: NextOpening | null;
+	note: string | null;
+	closedFor: string | null;
+};
 
 export type NowSoonView = {
 	/** whether the view is anchored on the clock (countdowns) or on a slot of tomorrow */
@@ -264,6 +272,7 @@ export function nowSoon(
 			pool,
 			next,
 			note: next ? null : absenceNote(pool, now.date, noun),
+			closedFor: dayClosure(pool, anchorDate, anchor ? "tomorrow" : "today"),
 		});
 	}
 
@@ -285,6 +294,13 @@ function comparePools(a: { pool: PoolSchedule }, b: { pool: PoolSchedule }): num
 }
 
 const shortDate = (date: string) => formatScheduleDate(date, { month: "short", day: "numeric" });
+
+/** "Closed today for Indigenous Peoples Day" when the PDF closes the pool all day */
+function dayClosure(pool: PoolSchedule, date: string, when: string): string | null {
+	const closure = scheduledClosuresOn(pool.scheduledClosures, date).find((c) => !c.startTime);
+	if (!closure) return null;
+	return `Closed ${when}${closure.reason ? ` for ${closure.reason}` : ""}`;
+}
 
 /**
  * Why a pool has nothing for a week: a closure, a printed schedule that has

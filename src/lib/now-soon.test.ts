@@ -187,6 +187,22 @@ describe("nowSoon", () => {
 		expect(v.closed[0]!.note).toBe("Closes Oct 10 – Nov 1 for annual maintenance");
 	});
 
+	it("says a pool is closed for the day the PDF lists, alongside its next opening", () => {
+		const scheduledClosures = [
+			{ startDate: "2026-10-09", endDate: "2026-10-09", startTime: null, endTime: null, reason: "Staff Training" },
+			{ startDate: "2026-10-10", endDate: "2026-10-10", startTime: "12:00p", endTime: "2:00p", reason: "Swim Meet" },
+		];
+		// withoutClosedDays has already dropped Friday's sessions
+		const pools = [pool("hamilton", [["Saturday", "9:00a", "10:00a", "Lap Swim"]], { scheduledClosures })];
+		const v = view(pools, at(10));
+		expect(v.closed[0]).toMatchObject({ closedFor: "Closed today for Staff Training", next: { day: "Sat" } });
+		// a closure for part of the day isn't the whole day's story
+		expect(view(pools, at(21), { when: "tomorrow-pm" }).closed[0]!.closedFor).toBeNull();
+		const holiday = [{ startDate: "2026-10-10", endDate: "2026-10-10", startTime: null, endTime: null, reason: null }];
+		const tomorrow = view([pool("rossi", [], { scheduledClosures: holiday })], at(21), { when: "tomorrow-am" });
+		expect(tomorrow.closed[0]!.closedFor).toBe("Closed tomorrow");
+	});
+
 	it("stops at the end of the printed schedule", () => {
 		const pools = [pool("mlk", [["Friday", "6:00p", "7:00p", "Lap Swim"]], { scheduleEndDate: "2026-09-26" })];
 		const v = view(pools, at(18, 30));
