@@ -2,9 +2,9 @@
 	{
 		"id": "north-beach-aquatics-center-cool-pool",
 		"name": "North Beach Aquatics Center - Cool Pool",
-		"nameTitle": "North Beach Pool (Cool)",
+		"nameTitle": "North Beach Aquatics Center",
 		"shortName": "North Beach Pool",
-		"address": "661 Lombard Street, San Francisco, CA 94133",
+		"address": "661 Lombard Street, San Francisco, CA",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29953",
 		"scheduleLastUpdated": null,
@@ -13,6 +13,57 @@
 		"scheduleEndDate": "2026-12-12",
 		"lanes": null,
 		"closure": null,
+		"scheduledClosures": [
+			{
+				"startDate": "2026-10-13",
+				"endDate": "2026-10-31",
+				"startTime": null,
+				"endTime": null,
+				"reason": "ANNUAL MAINTENANCE"
+			},
+			{
+				"startDate": "2026-11-11",
+				"endDate": "2026-11-11",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Veteran's Day"
+			},
+			{
+				"startDate": "2026-11-26",
+				"endDate": "2026-11-27",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Thanksgiving"
+			},
+			{
+				"startDate": "2026-12-12",
+				"endDate": "2026-12-12",
+				"startTime": "9:00a",
+				"endTime": "12:00p",
+				"reason": "Aquatics In-service Training"
+			},
+			{
+				"startDate": "2026-08-27",
+				"endDate": "2026-08-27",
+				"startTime": "12:00p",
+				"endTime": "2:00p",
+				"reason": "Aquatics Division Training"
+			},
+			{
+				"startDate": "2026-09-24",
+				"endDate": "2026-09-24",
+				"startTime": "12:00p",
+				"endTime": "2:00p",
+				"reason": "Aquatics Division Training"
+			},
+			{
+				"startDate": "2026-10-22",
+				"endDate": "2026-10-22",
+				"startTime": "12:00p",
+				"endTime": "2:00p",
+				"reason": "Aquatics Division Training"
+			}
+		],
 		"programs": [
 			{
 				"programName": "Lap Swim",
@@ -140,7 +191,7 @@
 				"startTime": "11:00a",
 				"endTime": "2:00p",
 				"lanes": null,
-				"notes": "CLOSED 9/24 & 10/22",
+				"notes": null,
 				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": null,
 				"title": null,

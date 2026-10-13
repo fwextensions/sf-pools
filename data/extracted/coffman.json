@@ -1,6 +1,6 @@
 [
 	{
-		"id": "coffman-aquatics-center",
+		"id": "coffman-pool",
 		"name": "Coffman Aquatics Center",
 		"nameTitle": "Coffman Pool",
 		"shortName": "Coffman",
@@ -13,6 +13,57 @@
 		"scheduleEndDate": "2026-12-12",
 		"lanes": null,
 		"closure": null,
+		"scheduledClosures": [
+			{
+				"startDate": "2026-08-22",
+				"endDate": "2026-08-22",
+				"startTime": "9:00a",
+				"endTime": "1:00p",
+				"reason": "In-Service"
+			},
+			{
+				"startDate": "2026-08-27",
+				"endDate": "2026-08-27",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Training"
+			},
+			{
+				"startDate": "2026-09-24",
+				"endDate": "2026-09-24",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Training"
+			},
+			{
+				"startDate": "2026-10-22",
+				"endDate": "2026-10-22",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Training"
+			},
+			{
+				"startDate": "2026-11-11",
+				"endDate": "2026-11-11",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Veterans Day"
+			},
+			{
+				"startDate": "2026-11-26",
+				"endDate": "2026-11-27",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Thanksgiving"
+			},
+			{
+				"startDate": "2026-12-12",
+				"endDate": "2026-12-12",
+				"startTime": "9:00a",
+				"endTime": "2:00p",
+				"reason": "In-Service"
+			}
+		],
 		"programs": [
 			{
 				"programName": "Lap Swim",
@@ -20,11 +71,7 @@
 				"startTime": "7:00a",
 				"endTime": "8:30a",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Senior/Therapy Swim",
@@ -32,11 +79,7 @@
 				"startTime": "8:45a",
 				"endTime": "10:00a",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Self-Guided Exercise",
@@ -44,11 +87,7 @@
 				"startTime": "10:00a",
 				"endTime": "11:00a",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -56,11 +95,7 @@
 				"startTime": "11:30a",
 				"endTime": "1:00p",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Senior Swim",
@@ -68,11 +103,7 @@
 				"startTime": "2:00p",
 				"endTime": "4:00p",
 				"lanes": 4,
-				"notes": "may vary",
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": "may vary"
 			},
 			{
 				"programName": "Family Swim",
@@ -80,11 +111,7 @@
 				"startTime": "2:00p",
 				"endTime": "4:00p",
 				"lanes": 2,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Rentals (Synchro)",
@@ -92,11 +119,7 @@
 				"startTime": "4:30p",
 				"endTime": "7:00p",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Senior Swim/ Self-Guided Exercise",
@@ -104,11 +127,7 @@
 				"startTime": "9:00a",
 				"endTime": "10:30a",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -116,11 +135,7 @@
 				"startTime": "11:00a",
 				"endTime": "1:00p",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Sfusd/Rec Swim",
@@ -128,23 +143,15 @@
 				"startTime": "1:30p",
 				"endTime": "2:30p",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
-				"programName": "Learn-To-Swim Lessons",
+				"programName": "Learn-To -Swim Lessons",
 				"dayOfWeek": "Wednesday",
 				"startTime": "3:30p",
 				"endTime": "5:30p",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Adult Swim Lessons",
@@ -152,11 +159,7 @@
 				"startTime": "5:00p",
 				"endTime": "5:30p",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Family Swim",
@@ -164,11 +167,7 @@
 				"startTime": "6:00p",
 				"endTime": "7:00p",
 				"lanes": 3,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -176,11 +175,7 @@
 				"startTime": "6:00p",
 				"endTime": "7:00p",
 				"lanes": 3,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -188,11 +183,7 @@
 				"startTime": "7:00a",
 				"endTime": "8:30a",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Senior/Therapy Swim",
@@ -200,11 +191,7 @@
 				"startTime": "8:45a",
 				"endTime": "10:00a",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Self-Guided Exercise",
@@ -212,11 +199,7 @@
 				"startTime": "10:00a",
 				"endTime": "11:00a",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -224,11 +207,7 @@
 				"startTime": "11:30a",
 				"endTime": "1:00p",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -236,11 +215,7 @@
 				"startTime": "2:30p",
 				"endTime": "4:00p",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Rentals (Synchro)",
@@ -248,11 +223,7 @@
 				"startTime": "4:30p",
 				"endTime": "7:00p",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Senior Swim/ Self-Guided Exercise",
@@ -260,11 +231,7 @@
 				"startTime": "9:00a",
 				"endTime": "10:30a",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -272,11 +239,7 @@
 				"startTime": "11:00a",
 				"endTime": "1:00p",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Rec Swim",
@@ -284,23 +247,15 @@
 				"startTime": "2:00p",
 				"endTime": "3:00p",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
-				"programName": "Learn-To-Swim Lessons",
+				"programName": "Learn-To -Swim Lessons",
 				"dayOfWeek": "Friday",
 				"startTime": "3:30p",
 				"endTime": "5:30p",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Adult Swim Lessons",
@@ -308,11 +263,7 @@
 				"startTime": "5:00p",
 				"endTime": "5:30p",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Rentals (Synchro)",
@@ -320,11 +271,7 @@
 				"startTime": "5:30p",
 				"endTime": "7:00p",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Learn To Swim",
@@ -332,11 +279,7 @@
 				"startTime": "9:00a",
 				"endTime": "11:00a",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Senior Swim",
@@ -344,11 +287,7 @@
 				"startTime": "11:45a",
 				"endTime": "12:45p",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Parent and Tots Family Swim",
@@ -356,11 +295,7 @@
 				"startTime": "1:00p",
 				"endTime": "2:00p",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Family Swim",
@@ -368,11 +303,7 @@
 				"startTime": "2:30p",
 				"endTime": "3:45p",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -380,11 +311,7 @@
 				"startTime": "4:00p",
 				"endTime": "5:00p",
 				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
+				"notes": null
 			}
 		]
 	}

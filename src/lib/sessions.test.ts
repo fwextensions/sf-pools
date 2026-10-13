@@ -78,4 +78,50 @@ describe("withoutClosedDays", () => {
 		const partial = { ...northBeach, closure: { ...closure, suppressPrograms: false } };
 		expect(withoutClosedDays([partial], "2026-10-20")[0]).toBe(partial);
 	});
+
+	describe("closures from the PDF's notes", () => {
+		const rossi = pool("rossi", [
+			["Monday", "9:00a", "10:00a"],
+			["Thursday", "10:15a", "12:00p"],
+			["Thursday", "11:00a", "1:30p"],
+			["Thursday", "2:00p", "3:30p"],
+		]);
+		const holiday = {
+			startDate: "2026-10-12",
+			endDate: "2026-10-12",
+			startTime: null,
+			endTime: null,
+			reason: "Indigenous Peoples Day",
+		};
+		const training = {
+			...holiday,
+			startDate: "2026-10-22",
+			endDate: "2026-10-22",
+			startTime: "12:00p",
+			endTime: "2:00p",
+			reason: "training",
+		};
+		const withClosures = { ...rossi, scheduledClosures: [holiday, training] };
+
+		it("drops every session on a holiday this week", () => {
+			// Sat Oct 10: the coming Monday is the holiday
+			const [open] = withoutClosedDays([withClosures], "2026-10-10");
+			expect(open!.programs.map((p) => p.dayOfWeek)).toEqual(["Thursday", "Thursday", "Thursday"]);
+		});
+
+		it("drops only the sessions a partial closure overlaps", () => {
+			// Tue Oct 20: the coming Thursday is the training day, closed 12-2;
+			// sessions that end as it starts or start as it ends still run
+			const [open] = withoutClosedDays([withClosures], "2026-10-20");
+			expect(open!.programs.map((p) => `${p.dayOfWeek} ${p.startTime}`)).toEqual([
+				"Monday 9:00a",
+				"Thursday 10:15a",
+				"Thursday 2:00p",
+			]);
+		});
+
+		it("leaves the week alone when no closure date falls in it", () => {
+			expect(withoutClosedDays([withClosures], "2026-10-13")[0]).toBe(withClosures);
+		});
+	});
 });

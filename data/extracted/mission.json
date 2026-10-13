@@ -4,7 +4,7 @@
 		"name": "Mission Aquatic Center",
 		"nameTitle": "Mission Aquatic Center",
 		"shortName": "Mission",
-		"address": "101 Linda Street, San Francisco, CA 94110",
+		"address": "101 Linda Street",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Mission-Community-Pool-217",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/30001",
 		"scheduleLastUpdated": null,
@@ -13,6 +13,43 @@
 		"scheduleEndDate": "2026-10-17",
 		"lanes": null,
 		"closure": null,
+		"scheduledClosures": [
+			{
+				"startDate": "2026-09-07",
+				"endDate": "2026-09-07",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Labor Day"
+			},
+			{
+				"startDate": "2026-10-12",
+				"endDate": "2026-10-12",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Indigenous Peoples Day"
+			},
+			{
+				"startDate": "2026-08-22",
+				"endDate": "2026-08-22",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"reason": "staff training"
+			},
+			{
+				"startDate": "2026-08-27",
+				"endDate": "2026-08-27",
+				"startTime": "12:00p",
+				"endTime": "2:00p",
+				"reason": "Aquatic Division Training"
+			},
+			{
+				"startDate": "2026-09-24",
+				"endDate": "2026-09-24",
+				"startTime": "12:00p",
+				"endTime": "2:00p",
+				"reason": "Aquatic Division Training"
+			}
+		],
 		"programs": [
 			{
 				"programName": "Lap Swim",
@@ -20,7 +57,11 @@
 				"startTime": "7:30a",
 				"endTime": "9:00a",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Parent & Tot",
@@ -28,7 +69,11 @@
 				"startTime": "9:15a",
 				"endTime": "11:00a",
 				"lanes": 1,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Senior Swim",
@@ -36,7 +81,11 @@
 				"startTime": "9:15a",
 				"endTime": "11:00a",
 				"lanes": 3,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -44,7 +93,11 @@
 				"startTime": "11:15a",
 				"endTime": "1:30p",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -52,7 +105,11 @@
 				"startTime": "2:00p",
 				"endTime": "3:30p",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Family Swim",
@@ -60,7 +117,11 @@
 				"startTime": "3:45p",
 				"endTime": "5:15p",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -68,7 +129,11 @@
 				"startTime": "5:45p",
 				"endTime": "7:00p",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -76,7 +141,11 @@
 				"startTime": "7:30a",
 				"endTime": "9:00a",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Senior / Therapy Swim",
@@ -84,7 +153,11 @@
 				"startTime": "9:15a",
 				"endTime": "11:00a",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -92,7 +165,11 @@
 				"startTime": "11:30a",
 				"endTime": "1:30p",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Family Swim",
@@ -100,7 +177,11 @@
 				"startTime": "2:30p",
 				"endTime": "4:30p",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -108,7 +189,11 @@
 				"startTime": "5:00p",
 				"endTime": "7:00p",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -116,7 +201,11 @@
 				"startTime": "7:30a",
 				"endTime": "9:00a",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Parent & Tot",
@@ -124,7 +213,11 @@
 				"startTime": "9:15a",
 				"endTime": "11:00a",
 				"lanes": 1,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Senior Swim",
@@ -132,7 +225,11 @@
 				"startTime": "9:15a",
 				"endTime": "11:00a",
 				"lanes": 3,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -140,7 +237,11 @@
 				"startTime": "11:15a",
 				"endTime": "1:30p",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -148,7 +249,11 @@
 				"startTime": "2:00p",
 				"endTime": "3:30p",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Family Swim",
@@ -156,7 +261,11 @@
 				"startTime": "3:45p",
 				"endTime": "5:15p",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -164,7 +273,11 @@
 				"startTime": "5:45p",
 				"endTime": "7:00p",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -172,7 +285,11 @@
 				"startTime": "7:30a",
 				"endTime": "9:00a",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Senior / Therapy Swim",
@@ -180,7 +297,11 @@
 				"startTime": "9:15a",
 				"endTime": "11:00a",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -188,7 +309,11 @@
 				"startTime": "11:30a",
 				"endTime": "1:30p",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -196,7 +321,11 @@
 				"startTime": "2:30p",
 				"endTime": "4:30p",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Family Swim",
@@ -204,7 +333,11 @@
 				"startTime": "5:00p",
 				"endTime": "7:00p",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Swim Lessons",
@@ -212,7 +345,11 @@
 				"startTime": "9:00a",
 				"endTime": "11:00a",
 				"lanes": null,
-				"notes": null
+				"notes": "Pre-registration required for Swim Lessons",
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -220,7 +357,11 @@
 				"startTime": "11:30a",
 				"endTime": "12:45p",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Family Swim",
@@ -228,7 +369,11 @@
 				"startTime": "2:00p",
 				"endTime": "3:30p",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			},
 			{
 				"programName": "Lap Swim",
@@ -236,7 +381,11 @@
 				"startTime": "4:00p",
 				"endTime": "5:30p",
 				"lanes": null,
-				"notes": null
+				"notes": null,
+				"programNameOriginal": null,
+				"programNameCanonical": null,
+				"title": null,
+				"tags": null
 			}
 		]
 	}

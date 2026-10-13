@@ -1,21 +1,51 @@
 [
 	{
-		"id": "martin-luther-king-jr-swimming-pool",
+		"id": "martin-luther-king-jr-pool",
 		"name": "Martin Luther King Jr. Swimming Pool",
 		"nameTitle": "Martin Luther King Jr. Swimming Pool",
-		"shortName": "Martin Luther King Jr. Pool",
+		"shortName": "MLK Pool",
 		"address": "5701 3rd Street, San Francisco, CA 94124",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Martin-Luther-King-Jr-Pool-216",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/30210",
 		"scheduleLastUpdated": null,
-		"scheduleSeason": "FALL 2026 pt.2",
+		"scheduleSeason": "Fall 2026 pt.2",
 		"scheduleStartDate": "2026-09-29",
 		"scheduleEndDate": "2026-12-12",
 		"lanes": 10,
 		"closure": null,
+		"scheduledClosures": [
+			{
+				"startDate": "2026-11-11",
+				"endDate": "2026-11-11",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Veterans Day"
+			},
+			{
+				"startDate": "2026-11-26",
+				"endDate": "2026-11-26",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Thanksgiving"
+			},
+			{
+				"startDate": "2026-11-27",
+				"endDate": "2026-11-27",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Holiday"
+			},
+			{
+				"startDate": "2026-12-12",
+				"endDate": "2026-12-12",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Training Closures"
+			}
+		],
 		"programs": [
 			{
-				"programName": "Lap Swim (10)",
+				"programName": "Lap Swim",
 				"dayOfWeek": "Tuesday",
 				"startTime": "7:30a",
 				"endTime": "9:00a",
@@ -31,7 +61,7 @@
 				"notes": "shallow"
 			},
 			{
-				"programName": "Lap Swim (4)",
+				"programName": "Lap Swim",
 				"dayOfWeek": "Tuesday",
 				"startTime": "9:00a",
 				"endTime": "12:00p",
@@ -47,7 +77,7 @@
 				"notes": "shallow"
 			},
 			{
-				"programName": "Lap Swim (8)",
+				"programName": "Lap Swim",
 				"dayOfWeek": "Tuesday",
 				"startTime": "12:30p",
 				"endTime": "3:30p",
@@ -55,7 +85,7 @@
 				"notes": null
 			},
 			{
-				"programName": "Bayview Safety Swim & Splash (10)",
+				"programName": "Bayview Safety Swim & Splash",
 				"dayOfWeek": "Tuesday",
 				"startTime": "3:30p",
 				"endTime": "6:00p",
@@ -71,7 +101,7 @@
 				"notes": "shallow"
 			},
 			{
-				"programName": "Lap Swim (8)",
+				"programName": "Lap Swim",
 				"dayOfWeek": "Tuesday",
 				"startTime": "6:00p",
 				"endTime": "7:00p",
@@ -79,7 +109,7 @@
 				"notes": null
 			},
 			{
-				"programName": "RENTALS (10) MASTERS",
+				"programName": "RENTALS MASTERS",
 				"dayOfWeek": "Tuesday",
 				"startTime": "7:00p",
 				"endTime": "8:30p",
@@ -95,7 +125,7 @@
 				"notes": "shallow"
 			},
 			{
-				"programName": "Lap Swim (4)",
+				"programName": "Lap Swim",
 				"dayOfWeek": "Wednesday",
 				"startTime": "9:00a",
 				"endTime": "12:00p",
@@ -119,7 +149,7 @@
 				"notes": "shallow"
 			},
 			{
-				"programName": "Lap Swim (8)",
+				"programName": "Lap Swim",
 				"dayOfWeek": "Wednesday",
 				"startTime": "12:30p",
 				"endTime": "3:30p",
@@ -127,7 +157,7 @@
 				"notes": null
 			},
 			{
-				"programName": "Bayview Safety Swim & Splash (10)",
+				"programName": "Bayview Safety Swim & Splash",
 				"dayOfWeek": "Wednesday",
 				"startTime": "3:30p",
 				"endTime": "6:00p",
@@ -135,7 +165,7 @@
 				"notes": null
 			},
 			{
-				"programName": "RENTALS (10) SYNCHRO/HOCKEY",
+				"programName": "RENTALS SYNCHRO/HOCKEY",
 				"dayOfWeek": "Wednesday",
 				"startTime": "6:00p",
 				"endTime": "8:00p",
@@ -143,7 +173,7 @@
 				"notes": null
 			},
 			{
-				"programName": "Lap Swim (10)",
+				"programName": "Lap Swim",
 				"dayOfWeek": "Thursday",
 				"startTime": "7:30a",
 				"endTime": "9:00a",
@@ -159,7 +189,7 @@
 				"notes": "shallow"
 			},
 			{
-				"programName": "Lap Swim (4)",
+				"programName": "Lap Swim",
 				"dayOfWeek": "Thursday",
 				"startTime": "9:00a",
 				"endTime": "12:00p",
@@ -172,10 +202,10 @@
 				"startTime": "12:30p",
 				"endTime": "3:30p",
 				"lanes": null,
-				"notes": "shallow, CLOSED (10/22)"
+				"notes": "shallow; CLOSED (10/22)"
 			},
 			{
-				"programName": "Lap Swim (8)",
+				"programName": "Lap Swim",
 				"dayOfWeek": "Thursday",
 				"startTime": "12:30p",
 				"endTime": "3:30p",
@@ -183,7 +213,7 @@
 				"notes": "CLOSED (10/22)"
 			},
 			{
-				"programName": "Bayview Safety Swim & Splash (10)",
+				"programName": "Bayview Safety Swim & Splash",
 				"dayOfWeek": "Thursday",
 				"startTime": "3:30p",
 				"endTime": "6:00p",
@@ -199,7 +229,7 @@
 				"notes": "shallow"
 			},
 			{
-				"programName": "Lap Swim (8)",
+				"programName": "Lap Swim",
 				"dayOfWeek": "Thursday",
 				"startTime": "6:00p",
 				"endTime": "7:00p",
@@ -207,7 +237,7 @@
 				"notes": null
 			},
 			{
-				"programName": "RENTALS (10) MASTERS",
+				"programName": "RENTALS MASTERS",
 				"dayOfWeek": "Thursday",
 				"startTime": "7:00p",
 				"endTime": "8:30p",
@@ -223,7 +253,7 @@
 				"notes": "shallow"
 			},
 			{
-				"programName": "Lap Swim (4)",
+				"programName": "Lap Swim",
 				"dayOfWeek": "Friday",
 				"startTime": "9:00a",
 				"endTime": "12:00p",
@@ -247,7 +277,7 @@
 				"notes": "shallow"
 			},
 			{
-				"programName": "Lap Swim (8)",
+				"programName": "Lap Swim",
 				"dayOfWeek": "Friday",
 				"startTime": "12:30p",
 				"endTime": "3:30p",
@@ -255,7 +285,7 @@
 				"notes": null
 			},
 			{
-				"programName": "Bayview Safety Swim & Splash (10)",
+				"programName": "Bayview Safety Swim & Splash",
 				"dayOfWeek": "Friday",
 				"startTime": "3:30p",
 				"endTime": "6:00p",
@@ -263,7 +293,7 @@
 				"notes": null
 			},
 			{
-				"programName": "RENTALS (10) YOUTH HOCKEY",
+				"programName": "RENTALS YOUTH HOCKEY",
 				"dayOfWeek": "Friday",
 				"startTime": "6:00p",
 				"endTime": "8:00p",
@@ -271,7 +301,7 @@
 				"notes": null
 			},
 			{
-				"programName": "Lap Swim (10)",
+				"programName": "Lap Swim",
 				"dayOfWeek": "Saturday",
 				"startTime": "7:00a",
 				"endTime": "8:30a",
@@ -279,7 +309,7 @@
 				"notes": null
 			},
 			{
-				"programName": "RENTALS (7) MASTERS/SYNCHRO",
+				"programName": "RENTALS MASTERS/SYNCHRO",
 				"dayOfWeek": "Saturday",
 				"startTime": "9:00a",
 				"endTime": "11:00a",
@@ -295,7 +325,7 @@
 				"notes": "shallow"
 			},
 			{
-				"programName": "Rec/Family Swim (10)",
+				"programName": "Rec/Family Swim",
 				"dayOfWeek": "Saturday",
 				"startTime": "1:30p",
 				"endTime": "3:00p",
@@ -303,7 +333,7 @@
 				"notes": null
 			},
 			{
-				"programName": "Lap Swim (10)",
+				"programName": "Lap Swim",
 				"dayOfWeek": "Saturday",
 				"startTime": "3:30p",
 				"endTime": "5:00p",

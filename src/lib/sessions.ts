@@ -6,7 +6,7 @@
 import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
 import { describeProgram } from "@/lib/program-display";
 import { parseTimeToMinutes } from "@/lib/time";
-import { closedDays } from "@/lib/closures";
+import { closedDays, scheduledClosuresOn, weekDates } from "@/lib/closures";
 
 export type Day = ProgramEntry["dayOfWeek"];
 
@@ -42,16 +42,30 @@ export function programMinutes(
 }
 
 /**
- * The schedules with each pool's sessions removed on the days its closure
- * covers this week (the seven days from `today`). The published data keeps the
- * regular weekly schedule; this is where a closure takes effect.
+ * The schedules with each pool's sessions removed where a closure covers them
+ * this week (the seven days from `today`): every day of an alert closure, and
+ * the dates (or the hours of a date) the PDF's own notes close. The published
+ * data keeps the regular weekly schedule; this is where a closure takes effect.
  */
 export function withoutClosedDays(all: PoolSchedule[], today: string): PoolSchedule[] {
+	const dates = weekDates(today);
 	return all.map((pool) => {
-		if (!pool.closure?.suppressPrograms) return pool;
-		const closed = closedDays(pool.closure, today);
-		if (closed.size === 0) return pool;
-		return { ...pool, programs: pool.programs.filter((p) => !closed.has(p.dayOfWeek)) };
+		const closed = pool.closure?.suppressPrograms ? closedDays(pool.closure, today) : new Set<string>();
+		const programs = pool.programs.filter(
+			(p) => !closed.has(p.dayOfWeek) && !closedByScheduledClosure(pool, p, dates.get(p.dayOfWeek)!)
+		);
+		return programs.length === pool.programs.length ? pool : { ...pool, programs };
+	});
+}
+
+/** whether a closure from the PDF's notes shuts any part of this session on `date` */
+function closedByScheduledClosure(pool: PoolSchedule, program: ProgramEntry, date: string): boolean {
+	return scheduledClosuresOn(pool.scheduledClosures, date).some((c) => {
+		if (!c.startTime || !c.endTime) return true;
+		const session = programMinutes(program);
+		const window = programMinutes({ startTime: c.startTime, endTime: c.endTime });
+		// a window we can't read closes nothing rather than the whole day
+		return !!session && !!window && session.startMin < window.endMin && window.startMin < session.endMin;
 	});
 }
 

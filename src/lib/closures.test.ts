@@ -10,7 +10,12 @@ import {
 	formatClosurePeriod,
 	checkClosureSanity,
 	mergeClosure,
+	checkScheduledClosure,
+	formatScheduledClosure,
+	scheduledClosuresOn,
+	weekDates,
 	type ClosureEnrichment,
+	type ScheduledClosure,
 } from "./closures";
 
 const opts = { referenceDate: "2026-09-04" };
@@ -356,5 +361,61 @@ describe("pacificToday", () => {
 		// 2026-10-09 05:00 UTC is still the evening of Oct 8 in San Francisco
 		expect(pacificToday(new Date("2026-10-09T05:00:00Z"))).toBe("2026-10-08");
 		expect(pacificToday(new Date("2026-10-09T08:00:00Z"))).toBe("2026-10-09");
+	});
+});
+
+describe("scheduled closures", () => {
+	const holiday = (overrides: Partial<ScheduledClosure> = {}): ScheduledClosure => ({
+		startDate: "2026-10-12",
+		endDate: "2026-10-12",
+		startTime: null,
+		endTime: null,
+		reason: "Indigenous Peoples Day",
+		...overrides,
+	});
+	const season = { startDate: "2026-09-01", endDate: "2026-12-12" };
+
+	it("accepts a holiday, a range and a time window inside the season", () => {
+		expect(checkScheduledClosure(holiday(), season)).toBeNull();
+		expect(checkScheduledClosure(holiday({ startDate: "2026-11-26", endDate: "2026-11-27" }), season)).toBeNull();
+		expect(checkScheduledClosure(holiday({ startTime: "12:00p", endTime: "2:00p" }), season)).toBeNull();
+		expect(checkScheduledClosure(holiday(), {})).toBeNull();
+	});
+
+	it("rejects dates that would hide sessions on a misread", () => {
+		expect(checkScheduledClosure(holiday({ startDate: "2026-02-30", endDate: "2026-02-30" }), {})).toBe("not a real date");
+		expect(checkScheduledClosure(holiday({ endDate: "2026-10-11" }), season)).toBe("ends before it starts");
+		expect(checkScheduledClosure(holiday({ endDate: "2026-12-31" }), season)).toMatch(/spans/);
+		expect(checkScheduledClosure(holiday({ startTime: "12:00p" }), season)).toMatch(/time window/);
+		// a year misread as last year's holiday
+		expect(checkScheduledClosure(holiday({ startDate: "2025-10-12", endDate: "2025-10-12" }), season)).toMatch(
+			/before the season/
+		);
+		expect(checkScheduledClosure(holiday({ startDate: "2027-01-01", endDate: "2027-01-01" }), season)).toMatch(
+			/after the season/
+		);
+	});
+
+	it("finds the closures covering a date", () => {
+		const thanksgiving = holiday({ startDate: "2026-11-26", endDate: "2026-11-27", reason: "Thanksgiving" });
+		expect(scheduledClosuresOn([holiday(), thanksgiving], "2026-11-27")).toEqual([thanksgiving]);
+		expect(scheduledClosuresOn([holiday()], "2026-10-13")).toEqual([]);
+		expect(scheduledClosuresOn(null, "2026-10-12")).toEqual([]);
+	});
+
+	it("dates each weekday in the seven days from today", () => {
+		const dates = weekDates("2026-10-09");
+		expect(dates.get("Friday")).toBe("2026-10-09");
+		expect(dates.get("Monday")).toBe("2026-10-12");
+		expect(dates.get("Thursday")).toBe("2026-10-15");
+	});
+
+	it("formats a day, a range and a window", () => {
+		expect(formatScheduledClosure(holiday())).toBe("Oct 12");
+		expect(formatScheduledClosure(holiday({ startDate: "2026-11-26", endDate: "2026-11-27" }))).toBe("Nov 26 – 27");
+		expect(formatScheduledClosure(holiday({ startDate: "2026-10-30", endDate: "2026-11-02" }))).toBe(
+			"Oct 30 – Nov 2"
+		);
+		expect(formatScheduledClosure(holiday({ startTime: "12:00p", endTime: "2:00p" }))).toBe("Oct 12, 12:00p–2:00p");
 	});
 });
