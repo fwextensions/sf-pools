@@ -47,7 +47,55 @@ export function initAnalytics(): boolean {
 		},
 	});
 	enabled = true;
+	applyInternalTag();
 	return true;
+}
+
+/**
+ * What a page load says about whether this browser is the site owner's.
+ * `?me=1` marks it, `?me=0` unmarks it, and a dev server always counts.
+ * "keep" means the URL says nothing, so whatever was set before stands.
+ */
+export function internalTagFor(search: string, hostname: string): "mark" | "unmark" | "keep" {
+	const me = new URLSearchParams(search).get("me");
+	if (me === "1") return "mark";
+	if (me === "0") return "unmark";
+	if (hostname === "localhost" || hostname === "127.0.0.1") return "mark";
+	return "keep";
+}
+
+/**
+ * Tags the owner's own visits so PostHog's "filter out internal and test
+ * users" toggle can hide them, while their errors and crash reports stay
+ * queryable. $internal_or_test_user is the person property the project's
+ * built-in "Internal / Test users" cohort checks, and that filter excludes
+ * the cohort; cohorts are evaluated at query time, so a browser's visits
+ * from before it was tagged drop out too. The super property puts the flag
+ * on each event as well. posthog-js persists both, so a browser only needs
+ * `?me=1` once.
+ */
+const INTERNAL = "$internal_or_test_user";
+
+function applyInternalTag() {
+	const { search, hostname, pathname, hash } = window.location;
+	const tag = internalTagFor(search, hostname);
+
+	if (tag === "mark") {
+		posthog.register({ [INTERNAL]: true });
+		posthog.setPersonProperties({ [INTERNAL]: true });
+	} else if (tag === "unmark") {
+		posthog.unregister(INTERNAL);
+		posthog.setPersonProperties({ [INTERNAL]: false });
+	}
+
+	// drop the parameter before the app reads the URL, so a link copied
+	// afterwards can't tag whoever opens it
+	const params = new URLSearchParams(search);
+	if (params.has("me")) {
+		params.delete("me");
+		const qs = params.toString();
+		window.history.replaceState(window.history.state, "", `${pathname}${qs ? `?${qs}` : ""}${hash}`);
+	}
 }
 
 function capture(event: string, properties?: Record<string, unknown>) {
