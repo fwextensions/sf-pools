@@ -95,32 +95,3 @@ export function toSessions(all: PoolSchedule[]): Session[] {
 export function overlaps(s: Session, from: number, to: number): boolean {
 	return s.startMin < to && s.endMin > from;
 }
-
-export type SessionsAround = {
-	// the running session that ends first
-	current: Session | undefined;
-	// sessions starting from now until the window closes, earliest first
-	upcoming: Session[];
-	// the first session after the window
-	later: Session | undefined;
-};
-
-/** where a set of sessions (usually one pool's) stand at a moment on a day */
-export function around(
-	sessions: Session[],
-	now: { day: Day; minutes: number },
-	windowMin: number
-): SessionsAround {
-	const today = sessions
-		.filter((s) => s.dayOfWeek === now.day)
-		.sort((a, b) => a.startMin - b.startMin);
-	const windowEnd = now.minutes + windowMin;
-
-	return {
-		current: today
-			.filter((s) => s.startMin <= now.minutes && now.minutes < s.endMin)
-			.sort((a, b) => a.endMin - b.endMin)[0],
-		upcoming: today.filter((s) => s.startMin >= now.minutes && s.startMin < windowEnd),
-		later: today.find((s) => s.startMin >= windowEnd),
-	};
-}

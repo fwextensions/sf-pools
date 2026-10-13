@@ -119,6 +119,24 @@ describe("deriveTags", () => {
 		expect(deriveTags("*SMALL POOL-SFUSD CLASS")).not.toContain("access:drop-in");
 	});
 
+	it("keeps lessons and teams out of drop-in even without a registration marker", () => {
+		expect(deriveTags("Learn To Swim")).not.toContain("access:drop-in");
+		expect(deriveTags("Youth Lessons/Swim Team")).not.toContain("access:drop-in");
+		expect(deriveTags("Parent/Tot Lesson")).not.toContain("access:drop-in");
+		expect(deriveTags("Special Olympics")).not.toContain("access:drop-in");
+		expect(deriveTags("Parent and Tot Swim")).toContain("access:drop-in");
+	});
+
+	it("reads a school group booking as one", () => {
+		const tags = deriveTags("Rec/Family Swim School Groups");
+		expect(tags).toContain("access:school-group");
+		expect(tags).not.toContain("access:drop-in");
+	});
+
+	it("files rec swim as family swim too", () => {
+		expect(deriveTags("Rec Swim")).toEqual(["access:drop-in", "activity:family", "activity:rec"]);
+	});
+
 	it("files rentals and school use under a program", () => {
 		expect(deriveTags("Rentals (Club)")).toContain("activity:rental");
 		expect(deriveTags("RENTALS")).toContain("activity:rental");
