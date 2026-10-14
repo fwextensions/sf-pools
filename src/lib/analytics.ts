@@ -121,7 +121,7 @@ export function trackProgramFilter(tag: string, selected: boolean, total: number
 	capture("program_filter_toggled", { tag, selected, selected_count: total });
 }
 
-/** A whole tag category ("activity", …) was ticked or unticked at once. */
+/** A whole program group ("swim", …) was ticked or unticked at once. */
 export function trackCategoryFilter(category: string, selected: boolean, total: number) {
 	capture("program_category_toggled", { category, selected, selected_count: total });
 }

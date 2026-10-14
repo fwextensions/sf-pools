@@ -10,6 +10,7 @@ import { closuresThisWeek, toSessions, withoutClosedDays } from "@/lib/sessions"
 import { pacificToday } from "@/lib/closures";
 import { initialGridState, writeGridUrl } from "@/lib/grid/url";
 import { trackFocusMode } from "@/lib/analytics";
+import { CATEGORY_GROUPS } from "@/lib/program-taxonomy";
 import type { AlertsData } from "../../../scripts/scrape-alerts";
 import GridBody from "./GridBody";
 import DetailPanel from "./DetailPanel";
@@ -44,7 +45,9 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	// read by the parts that show it
 	const filters = useSyncExternalStore(subscribeFilters, model.getFilters, model.getFilters);
 	const [openPanel, setOpenPanel] = useState<OpenPanel>(null);
-	const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({ activity: true });
+	const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>(
+		() => Object.fromEntries(CATEGORY_GROUPS.map((g) => [g.id, true]))
+	);
 	// phones only: pins the whole thing to the viewport so the page itself
 	// stops scrolling, which frees the grid to take touch drags
 	const [focusMode, setFocusMode] = useState(false);

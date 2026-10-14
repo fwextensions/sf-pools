@@ -56,7 +56,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -71,7 +72,8 @@
 				"title": "SFUSD Class",
 				"tags": [
 					"access:school-group",
-					"activity:school"
+					"activity:school",
+					"program:school"
 				]
 			},
 			{
@@ -88,7 +90,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -105,7 +108,8 @@
 					"activity:lessons",
 					"activity:parent-tot",
 					"audience:parent-child",
-					"audience:youth"
+					"audience:youth",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -120,7 +124,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -136,7 +141,9 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:lap"
+					"activity:lap",
+					"program:family",
+					"program:lap"
 				]
 			},
 			{
@@ -151,7 +158,8 @@
 				"title": "Adult Swim Lessons",
 				"tags": [
 					"activity:lessons",
-					"audience:adult"
+					"audience:adult",
+					"program:adult-lessons"
 				]
 			},
 			{
@@ -167,7 +175,9 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:lap"
+					"activity:lap",
+					"program:family",
+					"program:lap"
 				]
 			},
 			{
@@ -183,7 +193,8 @@
 				"tags": [
 					"access:rental",
 					"activity:rental",
-					"activity:synchro"
+					"activity:synchro",
+					"program:rentals"
 				]
 			},
 			{
@@ -198,7 +209,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -215,7 +227,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -230,7 +243,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -245,7 +259,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -259,7 +274,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -275,7 +291,8 @@
 				"tags": [
 					"access:rental",
 					"activity:rental",
-					"activity:synchro"
+					"activity:synchro",
+					"program:rentals"
 				]
 			},
 			{
@@ -290,7 +307,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -305,7 +323,8 @@
 				"title": "SFUSD Class",
 				"tags": [
 					"access:school-group",
-					"activity:school"
+					"activity:school",
+					"program:school"
 				]
 			},
 			{
@@ -322,7 +341,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -337,7 +357,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -352,7 +373,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -367,7 +389,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -382,7 +405,8 @@
 				"title": "SFUSD Class",
 				"tags": [
 					"access:school-group",
-					"activity:school"
+					"activity:school",
+					"program:school"
 				]
 			},
 			{
@@ -399,7 +423,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -414,7 +439,8 @@
 				"title": "Water Exercise",
 				"tags": [
 					"access:drop-in",
-					"activity:water-exercise"
+					"activity:water-exercise",
+					"program:water-exercise"
 				]
 			},
 			{
@@ -429,7 +455,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -443,7 +470,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -459,7 +487,8 @@
 				"tags": [
 					"access:rental",
 					"activity:masters",
-					"activity:rental"
+					"activity:rental",
+					"program:rentals"
 				]
 			},
 			{
@@ -474,7 +503,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -488,7 +518,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -503,7 +534,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -518,7 +550,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -533,7 +566,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			}
 		]
@@ -595,7 +629,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -612,7 +647,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -627,7 +663,8 @@
 				"title": "Self-Guided Exercise",
 				"tags": [
 					"access:drop-in",
-					"activity:self-guided"
+					"activity:self-guided",
+					"program:self-guided"
 				]
 			},
 			{
@@ -642,7 +679,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -658,7 +696,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:senior",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -673,7 +712,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -689,7 +729,8 @@
 				"tags": [
 					"access:rental",
 					"activity:rental",
-					"activity:synchro"
+					"activity:synchro",
+					"program:rentals"
 				]
 			},
 			{
@@ -706,7 +747,8 @@
 					"access:drop-in",
 					"activity:self-guided",
 					"activity:senior",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -721,7 +763,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -738,7 +781,8 @@
 					"access:school-group",
 					"activity:family",
 					"activity:rec",
-					"activity:school"
+					"activity:school",
+					"program:school"
 				]
 			},
 			{
@@ -752,7 +796,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn-to - Swim Lessons",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -767,7 +812,8 @@
 				"title": "Adult Swim Lessons",
 				"tags": [
 					"activity:lessons",
-					"audience:adult"
+					"audience:adult",
+					"program:adult-lessons"
 				]
 			},
 			{
@@ -782,7 +828,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -797,7 +844,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -812,7 +860,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -829,7 +878,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -844,7 +894,8 @@
 				"title": "Self-Guided Exercise",
 				"tags": [
 					"access:drop-in",
-					"activity:self-guided"
+					"activity:self-guided",
+					"program:self-guided"
 				]
 			},
 			{
@@ -859,7 +910,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -874,7 +926,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -890,7 +943,8 @@
 				"tags": [
 					"access:rental",
 					"activity:rental",
-					"activity:synchro"
+					"activity:synchro",
+					"program:rentals"
 				]
 			},
 			{
@@ -907,7 +961,8 @@
 					"access:drop-in",
 					"activity:self-guided",
 					"activity:senior",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -922,7 +977,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -938,7 +994,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -952,7 +1009,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn-to - Swim Lessons",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -967,7 +1025,8 @@
 				"title": "Adult Swim Lessons",
 				"tags": [
 					"activity:lessons",
-					"audience:adult"
+					"audience:adult",
+					"program:adult-lessons"
 				]
 			},
 			{
@@ -983,7 +1042,8 @@
 				"tags": [
 					"access:rental",
 					"activity:rental",
-					"activity:synchro"
+					"activity:synchro",
+					"program:rentals"
 				]
 			},
 			{
@@ -997,7 +1057,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -1013,7 +1074,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:senior",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -1031,7 +1093,8 @@
 					"activity:family",
 					"activity:parent-tot",
 					"audience:parent-child",
-					"audience:youth"
+					"audience:youth",
+					"program:parent-tot"
 				]
 			},
 			{
@@ -1046,7 +1109,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -1061,7 +1125,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			}
 		]
@@ -1116,7 +1181,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -1130,7 +1196,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -1145,7 +1212,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -1161,7 +1229,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -1177,7 +1246,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -1192,7 +1262,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -1208,7 +1279,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -1225,7 +1297,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -1239,7 +1312,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -1254,7 +1328,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -1269,7 +1344,8 @@
 				"title": "Water Exercise-Instructor Led",
 				"tags": [
 					"access:drop-in",
-					"activity:water-exercise"
+					"activity:water-exercise",
+					"program:water-exercise"
 				]
 			},
 			{
@@ -1284,7 +1360,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -1300,7 +1377,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -1316,7 +1394,8 @@
 				"tags": [
 					"activity:lessons",
 					"activity:swim-team",
-					"audience:youth"
+					"audience:youth",
+					"program:swim-team"
 				]
 			},
 			{
@@ -1331,7 +1410,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -1347,7 +1427,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -1362,7 +1443,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -1378,7 +1460,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -1395,7 +1478,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -1411,7 +1495,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -1426,7 +1511,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -1441,7 +1527,8 @@
 				"title": "Water Exercise-Instructor Led",
 				"tags": [
 					"access:drop-in",
-					"activity:water-exercise"
+					"activity:water-exercise",
+					"program:water-exercise"
 				]
 			},
 			{
@@ -1456,7 +1543,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -1472,7 +1560,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -1488,7 +1577,8 @@
 				"tags": [
 					"activity:lessons",
 					"activity:swim-team",
-					"audience:youth"
+					"audience:youth",
+					"program:swim-team"
 				]
 			},
 			{
@@ -1504,7 +1594,8 @@
 				"tags": [
 					"access:rental",
 					"activity:masters",
-					"activity:rental"
+					"activity:rental",
+					"program:rentals"
 				]
 			},
 			{
@@ -1519,7 +1610,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -1535,7 +1627,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -1552,7 +1645,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -1567,7 +1661,8 @@
 				"title": "Self-Guided Exercise",
 				"tags": [
 					"access:drop-in",
-					"activity:self-guided"
+					"activity:self-guided",
+					"program:self-guided"
 				]
 			},
 			{
@@ -1582,7 +1677,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -1598,7 +1694,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -1615,7 +1712,8 @@
 					"access:school-group",
 					"activity:family",
 					"activity:rec",
-					"activity:school"
+					"activity:school",
+					"program:school"
 				]
 			},
 			{
@@ -1631,7 +1729,8 @@
 				"tags": [
 					"activity:lessons",
 					"activity:swim-team",
-					"audience:youth"
+					"audience:youth",
+					"program:swim-team"
 				]
 			},
 			{
@@ -1646,7 +1745,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -1662,7 +1762,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -1677,7 +1778,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -1693,7 +1795,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -1710,7 +1813,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -1725,7 +1829,8 @@
 				"title": "Deep Water Exercise",
 				"tags": [
 					"access:drop-in",
-					"activity:water-exercise"
+					"activity:water-exercise",
+					"program:water-exercise"
 				]
 			},
 			{
@@ -1740,7 +1845,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -1756,7 +1862,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -1771,7 +1878,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -1787,7 +1895,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -1803,7 +1912,8 @@
 				"tags": [
 					"activity:lessons",
 					"activity:swim-team",
-					"audience:youth"
+					"audience:youth",
+					"program:swim-team"
 				]
 			},
 			{
@@ -1819,7 +1929,8 @@
 				"tags": [
 					"access:rental",
 					"activity:masters",
-					"activity:rental"
+					"activity:rental",
+					"program:rentals"
 				]
 			}
 		]
@@ -1874,7 +1985,8 @@
 				"title": "Self-Guided Exercise (2)",
 				"tags": [
 					"access:drop-in",
-					"activity:self-guided"
+					"activity:self-guided",
+					"program:self-guided"
 				]
 			},
 			{
@@ -1889,7 +2001,8 @@
 				"title": "Lap Swim (4)",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -1904,7 +2017,8 @@
 				"title": "Lap Swim (6)",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -1919,7 +2033,8 @@
 				"title": "Lap Swim (4)",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -1934,7 +2049,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -1948,7 +2064,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -1963,7 +2080,8 @@
 				"title": "Rentals (Club)",
 				"tags": [
 					"access:rental",
-					"activity:rental"
+					"activity:rental",
+					"program:rentals"
 				]
 			},
 			{
@@ -1979,7 +2097,8 @@
 				"tags": [
 					"access:rental",
 					"activity:masters",
-					"activity:rental"
+					"activity:rental",
+					"program:rentals"
 				]
 			},
 			{
@@ -1994,7 +2113,8 @@
 				"title": "Lap Swim (6)",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2009,7 +2129,8 @@
 				"title": "Self-Guided Exercise (2)",
 				"tags": [
 					"access:drop-in",
-					"activity:self-guided"
+					"activity:self-guided",
+					"program:self-guided"
 				]
 			},
 			{
@@ -2024,7 +2145,8 @@
 				"title": "Lap Swim (4)",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2039,7 +2161,8 @@
 				"title": "Lap Swim (6)",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2054,7 +2177,8 @@
 				"title": "Lap Swim (4)",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2069,7 +2193,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -2084,7 +2209,8 @@
 				"title": "Rentals (Club)",
 				"tags": [
 					"access:rental",
-					"activity:rental"
+					"activity:rental",
+					"program:rentals"
 				]
 			},
 			{
@@ -2099,7 +2225,8 @@
 				"title": "Lap Swim (6)",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2116,7 +2243,8 @@
 					"access:drop-in",
 					"activity:parent-tot",
 					"audience:parent-child",
-					"audience:youth"
+					"audience:youth",
+					"program:parent-tot"
 				]
 			},
 			{
@@ -2132,7 +2260,8 @@
 				"tags": [
 					"access:rental",
 					"activity:masters",
-					"activity:rental"
+					"activity:rental",
+					"program:rentals"
 				]
 			},
 			{
@@ -2147,7 +2276,8 @@
 				"title": "Self-Guided Exercise (2)",
 				"tags": [
 					"access:drop-in",
-					"activity:self-guided"
+					"activity:self-guided",
+					"program:self-guided"
 				]
 			},
 			{
@@ -2162,7 +2292,8 @@
 				"title": "Lap Swim (4)",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2177,7 +2308,8 @@
 				"title": "Lap Swim (6)",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2192,7 +2324,8 @@
 				"title": "Lap Swim (4)",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2207,7 +2340,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -2221,7 +2355,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -2236,7 +2371,8 @@
 				"title": "Rentals (Club)",
 				"tags": [
 					"access:rental",
-					"activity:rental"
+					"activity:rental",
+					"program:rentals"
 				]
 			},
 			{
@@ -2252,7 +2388,8 @@
 				"tags": [
 					"access:rental",
 					"activity:masters",
-					"activity:rental"
+					"activity:rental",
+					"program:rentals"
 				]
 			},
 			{
@@ -2267,7 +2404,8 @@
 				"title": "Lap Swim (6)",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2282,7 +2420,8 @@
 				"title": "Self-Guided Exercise (2)",
 				"tags": [
 					"access:drop-in",
-					"activity:self-guided"
+					"activity:self-guided",
+					"program:self-guided"
 				]
 			},
 			{
@@ -2297,7 +2436,8 @@
 				"title": "Lap Swim (4)",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2312,7 +2452,8 @@
 				"title": "Lap Swim (6)",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2327,7 +2468,8 @@
 				"title": "Lap Swim (4)",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2342,7 +2484,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -2357,7 +2500,8 @@
 				"title": "Rentals (Club)",
 				"tags": [
 					"access:rental",
-					"activity:rental"
+					"activity:rental",
+					"program:rentals"
 				]
 			},
 			{
@@ -2372,7 +2516,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -2387,7 +2532,8 @@
 				"title": "Lap Swim (5)",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2401,7 +2547,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -2415,7 +2562,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -2430,7 +2578,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -2445,7 +2594,8 @@
 				"title": "Lap Swim (6)",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2462,7 +2612,8 @@
 					"access:drop-in",
 					"activity:parent-tot",
 					"audience:parent-child",
-					"audience:youth"
+					"audience:youth",
+					"program:parent-tot"
 				]
 			}
 		]
@@ -2524,7 +2675,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2541,7 +2693,8 @@
 					"access:drop-in",
 					"activity:lap",
 					"activity:senior",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -2556,7 +2709,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2572,7 +2726,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -2587,7 +2742,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2601,7 +2757,8 @@
 				"programNameCanonical": "Bayview Safety Swim & Splash",
 				"title": "Bayview Safety Swim & Splash",
 				"tags": [
-					"activity:other"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -2616,7 +2773,8 @@
 				"title": "Water Exercise",
 				"tags": [
 					"access:drop-in",
-					"activity:water-exercise"
+					"activity:water-exercise",
+					"program:water-exercise"
 				]
 			},
 			{
@@ -2631,7 +2789,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2647,7 +2806,8 @@
 				"tags": [
 					"access:rental",
 					"activity:masters",
-					"activity:rental"
+					"activity:rental",
+					"program:rentals"
 				]
 			},
 			{
@@ -2664,7 +2824,8 @@
 					"access:drop-in",
 					"activity:lap",
 					"activity:senior",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -2679,7 +2840,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2693,7 +2855,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -2709,7 +2872,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -2724,7 +2888,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2738,7 +2903,8 @@
 				"programNameCanonical": "Bayview Safety Swim & Splash",
 				"title": "Bayview Safety Swim & Splash",
 				"tags": [
-					"activity:other"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -2755,7 +2921,8 @@
 					"access:rental",
 					"activity:hockey",
 					"activity:rental",
-					"activity:synchro"
+					"activity:synchro",
+					"program:rentals"
 				]
 			},
 			{
@@ -2770,7 +2937,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2787,7 +2955,8 @@
 					"access:drop-in",
 					"activity:lap",
 					"activity:senior",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -2802,7 +2971,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2818,7 +2988,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -2833,7 +3004,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2847,7 +3019,8 @@
 				"programNameCanonical": "Bayview Safety Swim & Splash",
 				"title": "Bayview Safety Swim & Splash",
 				"tags": [
-					"activity:other"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -2862,7 +3035,8 @@
 				"title": "Water Exercise",
 				"tags": [
 					"access:drop-in",
-					"activity:water-exercise"
+					"activity:water-exercise",
+					"program:water-exercise"
 				]
 			},
 			{
@@ -2877,7 +3051,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2893,7 +3068,8 @@
 				"tags": [
 					"access:rental",
 					"activity:masters",
-					"activity:rental"
+					"activity:rental",
+					"program:rentals"
 				]
 			},
 			{
@@ -2910,7 +3086,8 @@
 					"access:drop-in",
 					"activity:lap",
 					"activity:senior",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -2925,7 +3102,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2939,7 +3117,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -2955,7 +3134,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -2970,7 +3150,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -2984,7 +3165,8 @@
 				"programNameCanonical": "Bayview Safety Swim & Splash",
 				"title": "Bayview Safety Swim & Splash",
 				"tags": [
-					"activity:other"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -3001,7 +3183,8 @@
 					"access:rental",
 					"activity:hockey",
 					"activity:rental",
-					"audience:youth"
+					"audience:youth",
+					"program:rentals"
 				]
 			},
 			{
@@ -3016,7 +3199,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3033,7 +3217,8 @@
 					"access:rental",
 					"activity:masters",
 					"activity:rental",
-					"activity:synchro"
+					"activity:synchro",
+					"program:rentals"
 				]
 			},
 			{
@@ -3047,7 +3232,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -3063,7 +3249,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -3078,7 +3265,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			}
 		]
@@ -3111,7 +3299,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3128,7 +3317,8 @@
 					"access:drop-in",
 					"activity:parent-tot",
 					"audience:parent-child",
-					"audience:youth"
+					"audience:youth",
+					"program:parent-tot"
 				]
 			},
 			{
@@ -3144,7 +3334,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:senior",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -3159,7 +3350,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3174,7 +3366,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3189,7 +3382,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -3204,7 +3398,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3219,7 +3414,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3236,7 +3432,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -3251,7 +3448,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3266,7 +3464,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -3281,7 +3480,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3296,7 +3496,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3313,7 +3514,8 @@
 					"access:drop-in",
 					"activity:parent-tot",
 					"audience:parent-child",
-					"audience:youth"
+					"audience:youth",
+					"program:parent-tot"
 				]
 			},
 			{
@@ -3329,7 +3531,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:senior",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -3344,7 +3547,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3359,7 +3563,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3374,7 +3579,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -3389,7 +3595,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3404,7 +3611,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3421,7 +3629,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -3436,7 +3645,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3451,7 +3661,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3466,7 +3677,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -3480,7 +3692,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -3495,7 +3708,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3510,7 +3724,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -3525,7 +3740,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			}
 		]
@@ -3607,7 +3823,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3622,7 +3839,8 @@
 				"title": "SFUSD",
 				"tags": [
 					"access:school-group",
-					"activity:school"
+					"activity:school",
+					"program:school"
 				]
 			},
 			{
@@ -3637,7 +3855,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3652,7 +3871,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3667,7 +3887,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3682,7 +3903,8 @@
 				"title": "SFUSD",
 				"tags": [
 					"access:school-group",
-					"activity:school"
+					"activity:school",
+					"program:school"
 				]
 			},
 			{
@@ -3697,7 +3919,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3712,7 +3935,8 @@
 				"title": "Learn to Swim",
 				"tags": [
 					"access:registration",
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -3727,7 +3951,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3742,7 +3967,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3757,7 +3983,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3772,7 +3999,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3788,7 +4016,8 @@
 				"tags": [
 					"access:registration",
 					"activity:lessons",
-					"audience:adult"
+					"audience:adult",
+					"program:adult-lessons"
 				]
 			},
 			{
@@ -3803,7 +4032,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3818,7 +4048,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3833,7 +4064,8 @@
 				"title": "SFUSD",
 				"tags": [
 					"access:school-group",
-					"activity:school"
+					"activity:school",
+					"program:school"
 				]
 			},
 			{
@@ -3848,7 +4080,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3863,7 +4096,8 @@
 				"title": "Learn to Swim",
 				"tags": [
 					"access:registration",
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -3878,7 +4112,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3893,7 +4128,8 @@
 				"title": "Learn to Swim",
 				"tags": [
 					"access:registration",
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -3908,7 +4144,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3923,7 +4160,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -3939,7 +4177,8 @@
 				"tags": [
 					"access:registration",
 					"activity:lessons",
-					"audience:adult"
+					"audience:adult",
+					"program:adult-lessons"
 				]
 			}
 		]
@@ -4029,7 +4268,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:lap",
-					"activity:therapy"
+					"activity:therapy",
+					"program:lap"
 				]
 			},
 			{
@@ -4047,7 +4287,8 @@
 					"activity:lap",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -4062,7 +4303,8 @@
 				"title": "SFUSD",
 				"tags": [
 					"access:school-group",
-					"activity:school"
+					"activity:school",
+					"program:school"
 				]
 			},
 			{
@@ -4078,7 +4320,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:lap",
-					"activity:therapy"
+					"activity:therapy",
+					"program:lap"
 				]
 			},
 			{
@@ -4094,7 +4337,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -4109,7 +4353,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -4127,7 +4372,8 @@
 					"activity:lap",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -4142,7 +4388,8 @@
 				"title": "SFUSD",
 				"tags": [
 					"access:school-group",
-					"activity:school"
+					"activity:school",
+					"program:school"
 				]
 			},
 			{
@@ -4157,7 +4404,8 @@
 				"title": "Self Guided Exercise",
 				"tags": [
 					"access:drop-in",
-					"activity:self-guided"
+					"activity:self-guided",
+					"program:self-guided"
 				]
 			},
 			{
@@ -4173,7 +4421,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:lap",
-					"activity:therapy"
+					"activity:therapy",
+					"program:lap"
 				]
 			},
 			{
@@ -4188,7 +4437,8 @@
 				"title": "Learn to Swim",
 				"tags": [
 					"access:registration",
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -4203,7 +4453,8 @@
 				"title": "Learn to Swim",
 				"tags": [
 					"access:registration",
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -4219,7 +4470,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -4235,7 +4487,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:lap",
-					"activity:therapy"
+					"activity:therapy",
+					"program:lap"
 				]
 			},
 			{
@@ -4253,7 +4506,8 @@
 					"activity:lap",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -4269,7 +4523,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:lap",
-					"activity:therapy"
+					"activity:therapy",
+					"program:lap"
 				]
 			},
 			{
@@ -4284,7 +4539,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -4300,7 +4556,8 @@
 				"tags": [
 					"access:registration",
 					"activity:lessons",
-					"audience:adult"
+					"audience:adult",
+					"program:adult-lessons"
 				]
 			},
 			{
@@ -4316,7 +4573,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -4331,7 +4589,8 @@
 				"title": "Water Exercise",
 				"tags": [
 					"access:drop-in",
-					"activity:water-exercise"
+					"activity:water-exercise",
+					"program:water-exercise"
 				]
 			},
 			{
@@ -4347,7 +4606,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -4363,7 +4623,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:senior",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -4378,7 +4639,8 @@
 				"title": "SFUSD",
 				"tags": [
 					"access:school-group",
-					"activity:school"
+					"activity:school",
+					"program:school"
 				]
 			},
 			{
@@ -4393,7 +4655,8 @@
 				"title": "Self Guided Exercise",
 				"tags": [
 					"access:drop-in",
-					"activity:self-guided"
+					"activity:self-guided",
+					"program:self-guided"
 				]
 			},
 			{
@@ -4409,7 +4672,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:lap",
-					"activity:therapy"
+					"activity:therapy",
+					"program:lap"
 				]
 			},
 			{
@@ -4424,7 +4688,8 @@
 				"title": "Learn to Swim",
 				"tags": [
 					"access:registration",
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -4439,7 +4704,8 @@
 				"title": "Learn to Swim",
 				"tags": [
 					"access:registration",
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -4455,7 +4721,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -4470,7 +4737,8 @@
 				"title": "Learn to Swim",
 				"tags": [
 					"access:registration",
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -4485,7 +4753,8 @@
 				"title": "Learn to Swim",
 				"tags": [
 					"access:registration",
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -4501,7 +4770,8 @@
 				"tags": [
 					"access:registration",
 					"activity:lessons",
-					"audience:preschool"
+					"audience:preschool",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -4517,7 +4787,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -4533,7 +4804,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:lap",
-					"activity:therapy"
+					"activity:therapy",
+					"program:lap"
 				]
 			},
 			{
@@ -4549,7 +4821,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			}
 		]
@@ -4618,7 +4891,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -4632,7 +4906,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -4647,7 +4922,8 @@
 				"title": "Adult Swim Lessons",
 				"tags": [
 					"activity:lessons",
-					"audience:adult"
+					"audience:adult",
+					"program:adult-lessons"
 				]
 			},
 			{
@@ -4664,7 +4940,8 @@
 					"access:drop-in",
 					"activity:parent-tot",
 					"audience:parent-child",
-					"audience:youth"
+					"audience:youth",
+					"program:parent-tot"
 				]
 			},
 			{
@@ -4680,7 +4957,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -4696,7 +4974,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -4711,7 +4990,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -4725,7 +5005,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -4740,7 +5021,8 @@
 				"title": "Adult Swim Lessons",
 				"tags": [
 					"activity:lessons",
-					"audience:adult"
+					"audience:adult",
+					"program:adult-lessons"
 				]
 			},
 			{
@@ -4757,7 +5039,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -4772,7 +5055,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -4786,7 +5070,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -4801,7 +5086,8 @@
 				"title": "Rentals (Club)",
 				"tags": [
 					"access:rental",
-					"activity:rental"
+					"activity:rental",
+					"program:rentals"
 				]
 			},
 			{
@@ -4816,7 +5102,8 @@
 				"title": "Adult Swim Lessons",
 				"tags": [
 					"activity:lessons",
-					"audience:adult"
+					"audience:adult",
+					"program:adult-lessons"
 				]
 			},
 			{
@@ -4831,7 +5118,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -4846,7 +5134,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -4863,7 +5152,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -4878,7 +5168,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -4893,7 +5184,8 @@
 				"title": "Rentals (Club)",
 				"tags": [
 					"access:rental",
-					"activity:rental"
+					"activity:rental",
+					"program:rentals"
 				]
 			},
 			{
@@ -4908,7 +5200,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -4924,7 +5217,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -4941,7 +5235,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -4956,7 +5251,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -4972,7 +5268,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			},
 			{
@@ -4987,7 +5284,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -5001,7 +5299,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -5016,7 +5315,8 @@
 				"title": "Rentals (Club)",
 				"tags": [
 					"access:rental",
-					"activity:rental"
+					"activity:rental",
+					"program:rentals"
 				]
 			},
 			{
@@ -5031,7 +5331,8 @@
 				"title": "Adult Swim Lessons",
 				"tags": [
 					"activity:lessons",
-					"audience:adult"
+					"audience:adult",
+					"program:adult-lessons"
 				]
 			},
 			{
@@ -5046,7 +5347,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -5063,7 +5365,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -5078,7 +5381,8 @@
 				"title": "Water Exercise (Instructor Lead)",
 				"tags": [
 					"access:drop-in",
-					"activity:water-exercise"
+					"activity:water-exercise",
+					"program:water-exercise"
 				]
 			},
 			{
@@ -5093,7 +5397,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -5108,7 +5413,8 @@
 				"title": "Rentals (Club)",
 				"tags": [
 					"access:rental",
-					"activity:rental"
+					"activity:rental",
+					"program:rentals"
 				]
 			},
 			{
@@ -5123,7 +5429,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -5139,7 +5446,8 @@
 				"tags": [
 					"access:drop-in",
 					"activity:family",
-					"activity:rec"
+					"activity:rec",
+					"program:family"
 				]
 			}
 		]
@@ -5201,7 +5509,8 @@
 				"title": "SFUSD",
 				"tags": [
 					"access:school-group",
-					"activity:school"
+					"activity:school",
+					"program:school"
 				]
 			},
 			{
@@ -5218,7 +5527,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -5233,7 +5543,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -5248,7 +5559,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -5265,7 +5577,8 @@
 					"access:rental",
 					"activity:rental",
 					"activity:swim-team",
-					"audience:youth"
+					"audience:youth",
+					"program:rentals"
 				]
 			},
 			{
@@ -5279,7 +5592,8 @@
 				"programNameCanonical": "Special Olympics",
 				"title": "Special Olympics",
 				"tags": [
-					"activity:special-olympics"
+					"activity:special-olympics",
+					"program:special-olympics"
 				]
 			},
 			{
@@ -5294,7 +5608,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -5311,7 +5626,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -5326,7 +5642,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -5341,7 +5658,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -5356,7 +5674,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -5370,7 +5689,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lesson",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -5385,7 +5705,8 @@
 				"title": "Adult Swim Lessons",
 				"tags": [
 					"activity:lessons",
-					"audience:adult"
+					"audience:adult",
+					"program:adult-lessons"
 				]
 			},
 			{
@@ -5401,7 +5722,8 @@
 				"tags": [
 					"access:rental",
 					"activity:masters",
-					"activity:rental"
+					"activity:rental",
+					"program:rentals"
 				]
 			},
 			{
@@ -5416,7 +5738,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -5431,7 +5754,8 @@
 				"title": "SFUSD",
 				"tags": [
 					"access:school-group",
-					"activity:school"
+					"activity:school",
+					"program:school"
 				]
 			},
 			{
@@ -5448,7 +5772,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -5463,7 +5788,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -5478,7 +5804,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -5495,7 +5822,8 @@
 					"access:rental",
 					"activity:rental",
 					"activity:swim-team",
-					"audience:youth"
+					"audience:youth",
+					"program:rentals"
 				]
 			},
 			{
@@ -5510,7 +5838,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -5527,7 +5856,8 @@
 					"access:drop-in",
 					"activity:senior",
 					"activity:therapy",
-					"audience:senior"
+					"audience:senior",
+					"program:senior"
 				]
 			},
 			{
@@ -5542,7 +5872,8 @@
 				"title": "Preschool Swim Lessons",
 				"tags": [
 					"activity:lessons",
-					"audience:preschool"
+					"audience:preschool",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -5557,7 +5888,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -5571,7 +5903,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -5586,7 +5919,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -5601,7 +5935,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
@@ -5615,7 +5950,8 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
-					"activity:lessons"
+					"activity:lessons",
+					"program:kids-lessons"
 				]
 			},
 			{
@@ -5630,7 +5966,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -5645,7 +5982,8 @@
 				"title": "Family Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:family"
+					"activity:family",
+					"program:family"
 				]
 			},
 			{
@@ -5660,7 +5998,8 @@
 				"title": "Lap Swim",
 				"tags": [
 					"access:drop-in",
-					"activity:lap"
+					"activity:lap",
+					"program:lap"
 				]
 			}
 		]

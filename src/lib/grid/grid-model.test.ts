@@ -22,9 +22,9 @@ function session(poolId: string, startTime: string, endTime: string, tags: strin
 }
 
 const sessions = [
-	session("mlk", "7:00", "8:00", ["activity:lap", "audience:adult"]),
-	session("balboa", "7:00", "8:00", ["activity:family", "audience:youth"]),
-	session("mlk", "18:00", "19:00", ["activity:rec"]),
+	session("mlk", "7:00", "8:00", ["program:lap"]),
+	session("balboa", "7:00", "8:00", ["program:family"]),
+	session("mlk", "18:00", "19:00", ["program:senior"]),
 ];
 
 function setup(initial: Partial<{ tags: string[]; pools: string[] }> = {}) {
@@ -36,9 +36,9 @@ function setup(initial: Partial<{ tags: string[]; pools: string[] }> = {}) {
 
 describe("createGridModel", () => {
 	it("starts from the state it was given", () => {
-		const { model } = setup({ tags: ["activity:lap"], pools: ["mlk"] });
+		const { model } = setup({ tags: ["program:lap"], pools: ["mlk"] });
 		const f = model.getFilters();
-		expect(f.tags).toEqual(["activity:lap"]);
+		expect(f.tags).toEqual(["program:lap"]);
 		expect(f.pools).toEqual(["mlk"]);
 		expect(f.hours[0]).toBe(7);
 		expect(f.hours[f.hours.length - 1]).toBe(18);
@@ -50,41 +50,46 @@ describe("createGridModel", () => {
 		const before = model.getFilters();
 		expect(before.hitMatrix.has(hitKey("Monday", 7, "balboa"))).toBe(true);
 
-		model.toggleTag("activity:lap");
+		model.toggleTag("program:lap");
 		const after = model.getFilters();
 		expect(after).not.toBe(before);
-		expect(after.tags).toEqual(["activity:lap"]);
+		expect(after.tags).toEqual(["program:lap"]);
 		expect(after.hitMatrix.has(hitKey("Monday", 7, "mlk"))).toBe(true);
 		expect(after.hitMatrix.has(hitKey("Monday", 7, "balboa"))).toBe(false);
 		// the fade still knows the faded session is there
 		expect(after.anyHitMatrix.has(hitKey("Monday", 7, "balboa"))).toBe(true);
 		expect(changes).toEqual([
-			{ kind: "filters", action: { type: "toggleTag", tag: "activity:lap", selected: true, total: 1 } },
+			{ kind: "filters", action: { type: "toggleTag", tag: "program:lap", selected: true, total: 1 } },
 		]);
 
-		model.toggleTag("activity:lap");
+		model.toggleTag("program:lap");
 		expect(model.getFilters().tags).toEqual([]);
 		expect(changes[1]).toEqual({
 			kind: "filters",
-			action: { type: "toggleTag", tag: "activity:lap", selected: false, total: 0 },
+			action: { type: "toggleTag", tag: "program:lap", selected: false, total: 0 },
 		});
 	});
 
-	it("ticks every box in a group, which filters nothing and stays out of the url", () => {
+	it("ticks every box in a group", () => {
 		const { model, changes } = setup();
-		model.toggleGroup("audience");
+		model.toggleGroup("swim");
 		const f = model.getFilters();
-		expect(f.tags.sort()).toEqual(["audience:adult", "audience:youth"]);
-		expect(f.filter.urlTags).toEqual([]);
-		expect(f.groups.find((g) => g.id === "audience")?.allSelected).toBe(true);
+		expect(f.tags.sort()).toEqual(["program:family", "program:lap"]);
+		expect(f.filter.urlTags.sort()).toEqual(["program:family", "program:lap"]);
+		expect(f.groups.find((g) => g.id === "swim")?.allSelected).toBe(true);
 		expect(changes[0]).toEqual({
 			kind: "filters",
-			action: { type: "toggleGroup", group: "audience", selected: true, total: 2 },
+			action: { type: "toggleGroup", group: "swim", selected: true, total: 2 },
 		});
 
-		model.toggleGroup("audience");
+		// every group ticked filters nothing and stays out of the url
+		model.toggleGroup("exercise");
+		expect(model.getFilters().filter.urlTags).toEqual([]);
+		model.toggleGroup("exercise");
+
+		model.toggleGroup("swim");
 		expect(model.getFilters().tags).toEqual([]);
-		expect(changes[1].kind === "filters" && changes[1].action).toMatchObject({ selected: false, total: 0 });
+		expect(changes[3].kind === "filters" && changes[3].action).toMatchObject({ selected: false, total: 0 });
 	});
 
 	it("ignores a group it doesn't offer", () => {
@@ -105,7 +110,7 @@ describe("createGridModel", () => {
 	});
 
 	it("clears both filters, or only the one an empty cell blamed", () => {
-		const initial = { tags: ["activity:lap", "activity:rec"], pools: ["mlk"] };
+		const initial = { tags: ["program:lap", "program:senior"], pools: ["mlk"] };
 
 		const all = setup(initial);
 		all.model.clearFilters("all");

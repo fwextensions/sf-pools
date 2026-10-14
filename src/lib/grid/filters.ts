@@ -2,16 +2,16 @@
 // selection matches, and how the toggles change it. Selections are tag ids
 // from the closed vocabulary in program-taxonomy, so they survive the churn
 // in the PDFs' own wording.
-import { TAG_FACETS, tagFacet, tagLabel } from "@/lib/program-taxonomy";
+import { CATEGORY_GROUPS, PROGRAM_CATEGORIES, tagFacet, tagLabel } from "@/lib/program-taxonomy";
 import type { Session } from "@/lib/sessions";
 
-// the facets the picker offers; a tag from any other is dropped
-const FILTER_FACETS = new Set<string>(TAG_FACETS.map((f) => f.id));
+// the tags the picker offers, one per program category
+const PICKER_TAGS = new Set<string>(PROGRAM_CATEGORIES.map((c) => `program:${c.id}`));
 
-// drop tags from a facet the picker no longer offers, so an old link with a
-// "Getting in" choice doesn't filter with no visible chip
+// drop any tag the picker doesn't offer, so an old link with an activity or
+// audience choice doesn't filter with no visible chip
 export function pickerTags(tags: string[]): string[] {
-	return tags.filter((t) => FILTER_FACETS.has(tagFacet(t)));
+	return tags.filter((t) => PICKER_TAGS.has(t));
 }
 
 // how many sessions carry each tag, so the picker can show real counts and
@@ -43,9 +43,8 @@ export function createFilter(
 		byFacet.get(facet)!.add(tag);
 	}
 
-	// A facet with every chip ticked is no filter at all: most sessions say
-	// nothing about who they are for, and ticking every audience must not
-	// hide them
+	// A facet with every chip ticked is no filter at all, and leaves the url
+	// as clean as ticking none
 	const facetSize = new Map<string, number>();
 	for (const t of tagCounts.keys()) facetSize.set(tagFacet(t), (facetSize.get(tagFacet(t)) ?? 0) + 1);
 	const filtering = [...byFacet].filter(
@@ -55,10 +54,8 @@ export function createFilter(
 	const filteringFacets = new Set(filtering.map(([facet]) => facet));
 
 	return {
-		// Picking "Lap swim" and "Youth" means lap swim for youth, not either one
 		matchesTags: (s) => wantedSets.every((wanted) => s.tags.some((t) => wanted.has(t))),
 		poolSet: pools.length ? new Set(pools) : null,
-		// so ticking every audience leaves the link as clean as ticking none
 		urlTags: tags.filter((t) => filteringFacets.has(tagFacet(t))),
 	};
 }
@@ -71,20 +68,21 @@ export type FacetGroup = {
 	someSelected: boolean;
 };
 
-// one picker group per facet, listing only the tags this season's schedules
-// actually use, alphabetized by the label the picker shows
+// one picker group per category group, listing only the categories this
+// season's schedules actually use, alphabetized by the label the picker shows
 export function facetGroups(tagCounts: Map<string, number>, selected: string[]): FacetGroup[] {
 	const selectedSet = new Set(selected);
 	const groups: FacetGroup[] = [];
-	for (const facet of TAG_FACETS) {
-		const tags = [...tagCounts.keys()]
-			.filter((t) => tagFacet(t) === facet.id)
+	for (const group of CATEGORY_GROUPS) {
+		const tags = PROGRAM_CATEGORIES
+			.filter((c) => c.group === group.id && tagCounts.has(`program:${c.id}`))
+			.map((c) => `program:${c.id}`)
 			.sort((a, b) => tagLabel(a).localeCompare(tagLabel(b)));
 		if (!tags.length) continue;
 		const selCount = tags.filter((t) => selectedSet.has(t)).length;
 		groups.push({
-			id: facet.id,
-			label: facet.label,
+			id: group.id,
+			label: group.label,
 			tags,
 			allSelected: selCount === tags.length,
 			someSelected: selCount > 0,
