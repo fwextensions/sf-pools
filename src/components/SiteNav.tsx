@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { headerPinScrollPx } from "@/components/header/HeaderPlaceholder";
 import { trackSectionNav } from "@/lib/analytics";
 
 // The three sections of the site, in the order they read left to right. The
@@ -25,6 +27,18 @@ function isCurrent(pathname: string, href: string) {
  */
 export default function SiteNav() {
 	const pathname = usePathname();
+	const tabClicked = useRef(false);
+
+	// A tab click keeps the header where it is rather than letting the router
+	// scroll the whole page back to the top: scrolled past the point where the
+	// header pins, the new section opens at the top of its content, just under
+	// the tabs; above that point the page stays put. Only after a tab click, so
+	// back and forward still get the browser's own scroll restoration.
+	useEffect(() => {
+		if (!tabClicked.current) return;
+		tabClicked.current = false;
+		window.scrollTo(0, Math.min(window.scrollY, headerPinScrollPx(window.innerWidth)));
+	}, [pathname]);
 
 	return (
 		// under 900px the labels have to hold one line each or the strip doubles
@@ -43,7 +57,12 @@ export default function SiteNav() {
 						key={href}
 						href={href}
 						aria-current={current ? "page" : undefined}
-						onClick={() => trackSectionNav(pathname, href)}
+						scroll={false}
+						onClick={() => {
+							// the current tab doesn't navigate, so no effect would clear it
+							tabClicked.current = href !== pathname;
+							trackSectionNav(pathname, href);
+						}}
 						className={`font-mono -mb-px whitespace-nowrap border-b-2 pb-3 pt-2 text-small leading-5 min-[900px]:pt-6 min-[900px]:tracking-[.08em] ${
 							current
 								? "border-ink font-semibold text-ink"

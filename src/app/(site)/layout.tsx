@@ -1,13 +1,8 @@
 import type { CSSProperties } from "react";
 import HeaderAnimation from "@/components/header/HeaderAnimation";
-import { HEADER_HEIGHT, TILE } from "@/components/header/HeaderPlaceholder";
+import { HEADER_HEIGHT, PEEK_ROWS, TILE } from "@/components/header/HeaderPlaceholder";
 import SiteFooter from "@/components/SiteFooter";
 import SiteNav from "@/components/SiteNav";
-
-// How many rows of tiles stay on screen once the header pins: enough to keep
-// the water in view as a strip above the tabs, not so much that it eats into
-// the page on a phone.
-const PEEK_ROWS = 2;
 
 /**
  * The shell every public page shares: the water, then the section tabs, then

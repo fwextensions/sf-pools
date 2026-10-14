@@ -19,6 +19,10 @@
 export const HEADER_TARGET_HEIGHT_PX = 198; // 9 rows of 22px tiles on wide screens
 export const TILE_MAX_PX = 22;
 export const TILE_MIN_COLS = 33; // 29 for the text + margin
+// How many rows of tiles stay on screen once the site layout pins the header:
+// enough to keep the water in view as a strip above the tabs, not so much that
+// it eats into the page on a phone.
+export const PEEK_ROWS = 2;
 
 export const TILE = `min(${TILE_MAX_PX}px, round(down, calc(100vw / ${TILE_MIN_COLS}), 1px))`;
 
@@ -35,6 +39,12 @@ export function tileCssPx(width: number) {
 export function headerHeightPx(width: number) {
 	const tile = tileCssPx(width);
 	return Math.round(HEADER_TARGET_HEIGHT_PX / tile) * tile;
+}
+
+// How far the page scrolls before the header pins, in CSS px: the header's
+// height less the rows that stay showing.
+export function headerPinScrollPx(width: number) {
+	return headerHeightPx(width) - PEEK_ROWS * tileCssPx(width);
 }
 //const GROUT = "#4f89aa"; // vec3(0.28, 0.48, 0.58)
 const GROUT = "#477a94"; // vec3(0.28, 0.48, 0.58)
