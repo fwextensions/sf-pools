@@ -224,7 +224,7 @@ const GridBody = memo(function GridBody({
 							onPointerMove={handlers.pointerMove}
 							onPointerUp={handlers.pointerUp}
 							onPointerCancel={handlers.pointerUp}
-							className={`grid-cell relative flex cursor-crosshair ${cellHeightClass}`}
+							className={`grid-cell relative flex cursor-pointer ${cellHeightClass}`}
 							style={{
 								// only claim the touch gesture where nothing behind the
 								// grid scrolls; elsewhere the browser keeps it
