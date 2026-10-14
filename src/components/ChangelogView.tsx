@@ -143,7 +143,7 @@ function PoolSection({ pool }: { pool: PoolChanges }) {
 
 function UpdateList({ updates, current }: { updates: ChangelogSummary[]; current: string }) {
 	return (
-		<nav aria-label="Updates" className="flex flex-col border-t-2 border-ink min-[900px]:sticky min-[900px]:top-4">
+		<nav aria-label="Updates" className="flex flex-col border-t-2 border-ink min-[900px]:sticky min-[900px]:top-[calc(var(--site-sticky-h)+1rem)]">
 			<div className="font-mono pb-2 pt-3 text-label font-semibold tracking-[.08em]">ALL UPDATES</div>
 			{updates.map((update) => {
 				const selected = update.date === current;

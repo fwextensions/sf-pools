@@ -263,13 +263,13 @@ function WeekTimeline({
 			    the seven cells alone would let the rows show through. */}
 			<div
 				aria-hidden
-				style={{ gridRow: 1, gridColumn: "1 / -1", top: "var(--schedule-day-row-top)" }}
+				style={{ gridRow: 1, gridColumn: "1 / -1", top: "calc(var(--site-sticky-h) + var(--schedule-day-row-top))" }}
 				className="sticky z-[3] bg-white"
 			/>
 			{DAYS.map((day, i) => (
 				<div
 					key={day}
-					style={{ gridRow: 1, gridColumn: i + 2, top: "var(--schedule-day-row-top)" }}
+					style={{ gridRow: 1, gridColumn: i + 2, top: "calc(var(--site-sticky-h) + var(--schedule-day-row-top))" }}
 					// the breathing room above the labels is padding on the pinned row
 					// itself, not a margin above the grid: a margin is outside the
 					// sticky box, so it collapses the moment the row pins and the
@@ -384,7 +384,7 @@ export default async function SchedulesPage() {
 					    legend calls these pools. */}
 					<nav
 						aria-label="Jump to a pool"
-						className="sticky top-0 z-10 grid h-[var(--schedule-nav-h)] grid-cols-5 content-center gap-0.5 overflow-hidden border-b border-line bg-white min-[900px]:flex min-[900px]:items-center min-[900px]:gap-1"
+						className="sticky top-[var(--site-sticky-h)] z-10 grid h-[var(--schedule-nav-h)] grid-cols-5 content-center gap-0.5 overflow-hidden border-b border-line bg-white min-[900px]:flex min-[900px]:items-center min-[900px]:gap-1"
 					>
 						{pools.map(({ pool, token }) => {
 							const label = token?.name ?? pool.shortName ?? toTitleCase(pool.name);
@@ -443,7 +443,7 @@ export default async function SchedulesPage() {
 							// the space above each pool is margin, not padding: scroll-margin
 							// is measured from the border box, so padding would land a jump
 							// that far below the nav, with the previous pool showing through
-							<section key={pool.id} id={`pool-${pool.id}`} className="mt-7 scroll-mt-[var(--schedule-nav-h)]">
+							<section key={pool.id} id={`pool-${pool.id}`} className="mt-7 scroll-mt-[calc(var(--site-sticky-h)+var(--schedule-nav-h))]">
 								{/* the pool's name follows its programs down the page, pinned
 								    directly under the jump nav, so a session three screens into
 								    a schedule still says whose pool it is. Only the identity row
@@ -455,7 +455,7 @@ export default async function SchedulesPage() {
 									// the hairline is drawn outside the box so it reads as the
 									// pinned bar's edge over the sessions passing under it,
 									// without adding a rule between the name and the meta line
-									className="sticky top-[var(--schedule-nav-h)] z-[5] border-t-[3px] bg-white pt-2.5 pb-2 shadow-[0_1px_0_var(--color-line)]"
+									className="sticky top-[calc(var(--site-sticky-h)+var(--schedule-nav-h))] z-[5] border-t-[3px] bg-white pt-2.5 pb-2 shadow-[0_1px_0_var(--color-line)]"
 									style={{ borderColor: color }}
 								>
 									<div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">

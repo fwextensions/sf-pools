@@ -13,12 +13,12 @@ export default function HeaderAnimation()
 		const water = mountWater(renderRef.current);
 		if (!water) return;
 
-		// Run the draw loop only while it can be seen. The header sits at the top
-		// of a long page, so it is scrolled away for most of a visit; without this
-		// the three sim passes and the display pass keep running every frame
-		// underneath the schedule grid the user is actually using. Backgrounded
-		// tabs already stop (the browser withholds animation frames), so this only
-		// has to cover the header leaving the viewport.
+		// Run the draw loop only while it can be seen. The site layout pins the
+		// header's last rows of tiles above the tabs, so on those pages it stays
+		// in view (and keeps animating) for the whole visit; this covers anywhere
+		// it can still scroll fully away. Backgrounded tabs already stop (the
+		// browser withholds animation frames), so this only has to cover the
+		// header leaving the viewport.
 		//
 		// prefers-reduced-motion stops the loop outright. The water still draws
 		// its first frame, which is what we want: the lit, tiled pool as a still
