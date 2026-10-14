@@ -134,11 +134,17 @@
 	   their scroll anchor by exactly this so a jump never lands under it.
 	   Two rows of five chips on a phone, one row of ten from 900px up. */
 	--schedule-nav-h: 76px;
+	/* height of the section tabs under the water: each tab's top padding, its
+	   one 1.25rem line and bottom padding, and its 2px underline. The pinned
+	   header is the water's last rows plus this (--site-sticky-h, set in the
+	   site layout), so it has to match the padding in SiteNav. */
+	--site-nav-h: calc(0.5rem + 1.25rem + 0.75rem + 2px);
 }
 
 @media (min-width: 900px) {
 	:root {
 		--schedule-nav-h: 47px;
+		--site-nav-h: calc(1.5rem + 1.25rem + 0.75rem + 2px);
 	}
 }
 
