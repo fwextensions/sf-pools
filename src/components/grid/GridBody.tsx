@@ -3,7 +3,7 @@
 import { memo, useLayoutEffect, useMemo, useRef, type PointerEvent } from "react";
 import { POOL_TOKENS } from "@/lib/pool-tokens";
 import type { FilterView, GridModel } from "@/lib/grid/grid-model";
-import { DAYS, formatHour, hitKey, type Day, type GridCell } from "@/lib/grid/sessions";
+import { DAYS, formatHour, hitKey, sameCell, type Day, type GridCell } from "@/lib/grid/sessions";
 
 // Marks the selection with attributes that globals.css styles: data-selected
 // on the cell, data-band on everything in its row and column (the cells, the
@@ -65,9 +65,16 @@ type GridHandlers = {
 //
 // the url trails the grid by a gesture: previewCell only paints, selectCell
 // is what the reader settled on and the only thing the address bar hears about
+//
+// clicking the cell that's already selected clears the selection, so the
+// whole grid shows undimmed again. A press that wanders off to another cell
+// is a drag, and still ends on whatever cell it settles on, even if that's
+// the one it started from.
 function useGestures(model: GridModel): GridHandlers {
 	const isDraggingRef = useRef(false);
 	const suppressClickRef = useRef(false);
+	// the selected cell a press started on, until the pointer leaves it
+	const pressedSelectedRef = useRef<GridCell | null>(null);
 
 	return useMemo<GridHandlers>(() => {
 		function pointerUp(e: PointerEvent<HTMLDivElement>) {
@@ -76,30 +83,40 @@ function useGestures(model: GridModel): GridHandlers {
 				// synthesizes right after, or it'd snap the selection back to
 				// wherever the gesture started
 				suppressClickRef.current = true;
-				// the gesture is over, so wherever it ended is the real selection
-				model.selectCell(model.getCell(), "drag");
+				if (pressedSelectedRef.current && e.type === "pointerup") {
+					// never left the selected cell: a click on it, not a drag
+					model.selectCell(null, "click");
+				} else {
+					// the gesture is over, so wherever it ended is the real selection
+					model.selectCell(model.getCell(), "drag");
+				}
 			}
 			isDraggingRef.current = false;
+			pressedSelectedRef.current = null;
 			if (e.currentTarget.hasPointerCapture(e.pointerId)) {
 				e.currentTarget.releasePointerCapture(e.pointerId);
 			}
 		}
 
 		function choose(day: Day, hour: number) {
-			model.selectCell({ day, hour }, "click");
+			const cell = { day, hour };
+			model.selectCell(sameCell(cell, model.getCell()) ? null : cell, "click");
 		}
 
 		return {
 			pointerDown(e, day, hour, touchDrag) {
 				if (e.pointerType !== "mouse" && !touchDrag) return;
+				const cell = { day, hour };
 				isDraggingRef.current = true;
+				pressedSelectedRef.current = sameCell(cell, model.getCell()) ? cell : null;
 				e.currentTarget.setPointerCapture(e.pointerId);
-				model.previewCell({ day, hour });
+				model.previewCell(cell);
 			},
 			pointerMove(e) {
 				if (!isDraggingRef.current) return;
 				e.preventDefault();
 				const cell = cellAtPoint(e.clientX, e.clientY);
+				if (!sameCell(cell, pressedSelectedRef.current)) pressedSelectedRef.current = null;
 				if (cell) model.previewCell(cell);
 			},
 			pointerUp,
