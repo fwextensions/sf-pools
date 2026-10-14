@@ -6,8 +6,8 @@ import { formatDuration, joinNames, nowSoon, stretchAt, type Moment, type NowSoo
 
 type Row = [day: string, start: string, end: string, name: string, tags?: string[]];
 
-const LAP = ["access:drop-in", "activity:lap"];
-const FAMILY = ["access:drop-in", "activity:family"];
+const LAP = ["access:drop-in", "activity:lap", "program:lap"];
+const FAMILY = ["access:drop-in", "activity:family", "program:family"];
 const RENTAL = ["access:rental", "activity:rental"];
 const LESSONS = ["activity:lessons"];
 

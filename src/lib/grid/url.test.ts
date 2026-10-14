@@ -4,14 +4,14 @@ import { formatGridQuery, parseGridQuery } from "./url";
 const q = (s: string) => new URLSearchParams(s);
 
 describe("formatGridQuery", () => {
-	it("writes one param per facet with bare slugs and literal commas", () => {
+	it("writes the categories with bare slugs and literal commas", () => {
 		expect(
 			formatGridQuery({
-				tags: ["audience:preschool", "activity:lap", "audience:youth"],
+				tags: ["program:lap", "program:kids-lessons"],
 				pools: ["balboa", "mlk"],
 				cell: { day: "Thursday", hour: 20 },
 			})
-		).toBe("program=lap&audience=preschool,youth&pools=balboa,mlk&cell=thu-20");
+		).toBe("program=lap,kids-lessons&pools=balboa,mlk&cell=thu-20");
 	});
 
 	it("is empty with no filters", () => {
@@ -24,21 +24,21 @@ describe("formatGridQuery", () => {
 });
 
 describe("parseGridQuery", () => {
-	it("reads the per-facet params back into tag ids", () => {
-		expect(parseGridQuery(q("program=lap,family&audience=youth&pools=balboa&cell=sat-9"))).toEqual({
-			tags: ["activity:lap", "activity:family", "audience:youth"],
+	it("reads the params back into tag ids", () => {
+		expect(parseGridQuery(q("program=lap,family&pools=balboa&cell=sat-9"))).toEqual({
+			tags: ["program:lap", "program:family"],
 			pools: ["balboa"],
 			cell: { day: "Saturday", hour: 9 },
 		});
 	});
 
-	it("still reads the old ?tags= links", () => {
-		expect(parseGridQuery(q("tags=audience%3Aadult%2Cactivity%3Alap")).tags).toEqual(["audience:adult", "activity:lap"]);
+	it("ignores the old ?tags= and ?audience= params", () => {
+		expect(parseGridQuery(q("tags=audience%3Aadult%2Cactivity%3Alap&audience=youth")).tags).toEqual([]);
 	});
 
 	it("drops what the grid can't show", () => {
-		expect(parseGridQuery(q("tags=access:drop-in,activity:lap&pools=balboa,atlantis&cell=thu-23"))).toEqual({
-			tags: ["activity:lap"],
+		expect(parseGridQuery(q("program=rec,lap,therapy&pools=balboa,atlantis&cell=thu-23"))).toEqual({
+			tags: ["program:lap"],
 			pools: ["balboa"],
 			cell: null,
 		});
@@ -51,7 +51,7 @@ describe("parseGridQuery", () => {
 
 	it("round-trips what it writes", () => {
 		const state = {
-			tags: ["activity:water-exercise", "audience:parent-child"],
+			tags: ["program:water-exercise", "program:parent-tot"],
 			pools: ["hamilton"],
 			cell: { day: "Monday" as const, hour: 6 },
 		};

@@ -12,7 +12,7 @@ import type { Day, Session } from "@/lib/sessions";
 /** Drop-in counts only the sessions you can walk in on; Everything counts all */
 export type Mode = "drop-in" | "all";
 
-/** the programs the page filters on, as the activity tag slugs */
+/** the programs the page filters on, as program category slugs, shared with the grid's ?program= */
 export const PROGRAM_CHOICES = ["lap", "family", "senior"] as const;
 export type ProgramChoice = (typeof PROGRAM_CHOICES)[number];
 
@@ -128,7 +128,7 @@ export function restrictedLabel(tags: string[]): string | null {
 export function qualifies(s: Pick<Session, "tags">, { mode, program }: Pick<NowSoonOptions, "mode" | "program">): boolean {
 	if (s.tags.includes("access:closed")) return false;
 	if (mode === "drop-in" && !s.tags.includes("access:drop-in")) return false;
-	return !program || s.tags.includes(`activity:${program}`);
+	return !program || s.tags.includes(`program:${program}`);
 }
 
 function unique(list: string[]): string[] {
