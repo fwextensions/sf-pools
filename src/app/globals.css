@@ -234,11 +234,14 @@ input[type="radio"] {
    Availability grid (home)
    =========================================== */
 
-/* grid cells are short (15/19px), so expand the touch target invisibly */
+/* grid cells are short (15/19px), so stretch each one's hit area halfway
+   across the 2px gap to its neighbours. Any further and a later row, which
+   paints on top, would claim the bottom of the row above it, so a click near
+   a cell's lower edge would land on the cell below */
 .grid-cell::after {
 	content: "";
 	position: absolute;
-	inset: -6px 0;
+	inset: -1px 0;
 }
 
 /* the long-press that starts a drag would otherwise trigger the browser's
