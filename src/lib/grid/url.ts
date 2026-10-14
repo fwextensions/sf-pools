@@ -4,7 +4,7 @@ import { pickerTags } from "./filters";
 import { DAYS, FIRST_HOUR, LAST_HOUR, type GridCell } from "./sessions";
 
 // The grid's state in the query string, one param per facet with the tag's
-// slug alone: ?program=lap,family&audience=youth&pools=balboa,mlk&cell=thu-14.
+// slug alone: ?program=lap,family&pools=balboa,mlk&cell=thu-14.
 // The facet is already in the param name, so repeating it on every value
 // (and escaping the colon) only made links long and hard to read.
 
@@ -13,13 +13,8 @@ export type GridUrlState = { tags: string[]; pools: string[]; cell: GridCell | n
 // the param each picker facet is written under, named for what the picker
 // calls it rather than the taxonomy's internal facet id
 const FACET_PARAMS: Record<(typeof TAG_FACETS)[number]["id"], string> = {
-	activity: "program",
-	audience: "audience",
+	program: "program",
 };
-
-// the pre-facet format, ?tags=activity:lap,audience:youth, still read so
-// links already shared keep working
-const LEGACY_TAGS_PARAM = "tags";
 
 // commas stay literal: URLSearchParams would escape them to %2C, which is
 // legal but turns every list back into noise
@@ -59,10 +54,10 @@ export function formatGridQuery({ tags, pools, cell }: GridUrlState): string {
 	return parts.join("&");
 }
 
-// anything the grid can't show is dropped: tags from facets the picker
-// doesn't offer, unknown pools, a cell outside the grid's hours
+// anything the grid can't show is dropped: tags the picker doesn't
+// offer, unknown pools, a cell outside the grid's hours
 export function parseGridQuery(params: Pick<URLSearchParams, "get">): GridUrlState {
-	const tags = parseList(params.get(LEGACY_TAGS_PARAM));
+	const tags: string[] = [];
 	for (const facet of TAG_FACETS) {
 		tags.push(...parseList(params.get(FACET_PARAMS[facet.id])).map((s) => `${facet.id}:${s}`));
 	}

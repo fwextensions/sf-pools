@@ -3,12 +3,13 @@ import { countTags, createFilter, facetGroups, pickerTags, toggleGroup, toggleIt
 
 const s = (...tags: string[]) => ({ tags });
 
-// what the season's schedules use: three programs, two audiences
+// what the season's schedules use: three categories in two groups, with the
+// activity tags they were worked out from
 const sessions = [
-	s("activity:lap", "audience:adult"),
-	s("activity:lap"),
-	s("activity:family", "audience:youth"),
-	s("activity:rec", "access:drop-in"),
+	s("program:lap", "activity:lap", "activity:senior"),
+	s("program:lap", "activity:lap"),
+	s("program:family", "activity:family"),
+	s("program:senior", "activity:senior", "access:drop-in"),
 ];
 const counts = countTags(sessions);
 
@@ -20,28 +21,28 @@ describe("createFilter", () => {
 		expect(urlTags).toEqual([]);
 	});
 
-	it("ORs tags within a facet", () => {
-		const { matchesTags } = createFilter({ tags: ["activity:lap", "activity:family"], pools: [] }, counts);
+	it("ORs the picked categories", () => {
+		const { matchesTags } = createFilter({ tags: ["program:lap", "program:family"], pools: [] }, counts);
 		expect(sessions.map(matchesTags)).toEqual([true, true, true, false]);
 	});
 
-	it("ANDs across facets", () => {
-		const { matchesTags } = createFilter({ tags: ["activity:lap", "audience:adult"], pools: [] }, counts);
-		expect(sessions.map(matchesTags)).toEqual([true, false, false, false]);
+	it("hides a category's sessions when it is unticked, whatever their activities", () => {
+		const { matchesTags } = createFilter({ tags: ["program:senior", "program:family"], pools: [] }, counts);
+		// the first session is senior lap swim by its activities, filed under lap
+		expect(sessions.map(matchesTags)).toEqual([false, false, true, true]);
 	});
 
-	it("treats a facet with every tag ticked as no filter, and leaves it out of the url", () => {
-		const tags = ["audience:adult", "audience:youth", "activity:lap"];
+	it("treats every category ticked as no filter, and leaves it out of the url", () => {
+		const tags = ["program:lap", "program:family", "program:senior"];
 		const { matchesTags, urlTags } = createFilter({ tags, pools: [] }, counts);
-		// the second session says nothing about its audience and still matches
-		expect(sessions.map(matchesTags)).toEqual([true, true, false, false]);
-		expect(urlTags).toEqual(["activity:lap"]);
+		expect(sessions.every(matchesTags)).toBe(true);
+		expect(urlTags).toEqual([]);
 	});
 
 	it("counts only tags the schedules use toward every-tag-ticked", () => {
 		// a stale tag no session carries doesn't make the facet look complete
-		const { urlTags } = createFilter({ tags: ["audience:adult", "audience:senior"], pools: [] }, counts);
-		expect(urlTags).toEqual(["audience:adult", "audience:senior"]);
+		const tags = ["program:lap", "program:family", "program:rentals"];
+		expect(createFilter({ tags, pools: [] }, counts).urlTags).toEqual(tags);
 	});
 
 	it("keeps the picked pools", () => {
@@ -50,11 +51,11 @@ describe("createFilter", () => {
 });
 
 describe("facetGroups", () => {
-	it("lists the tags in use per picker facet, alphabetized by label, with selection state", () => {
-		const groups = facetGroups(counts, ["activity:lap", "activity:family", "activity:rec", "audience:youth"]);
-		expect(groups.map((g) => [g.id, g.tags, g.allSelected, g.someSelected])).toEqual([
-			["activity", ["activity:family", "activity:lap", "activity:rec"], true, true],
-			["audience", ["audience:adult", "audience:youth"], false, true],
+	it("lists the categories in use per group, in group order and alphabetized by label, with selection state", () => {
+		const groups = facetGroups(counts, ["program:lap", "program:family"]);
+		expect(groups.map((g) => [g.id, g.label, g.tags, g.allSelected, g.someSelected])).toEqual([
+			["swim", "Swim", ["program:family", "program:lap"], true, true],
+			["exercise", "Exercise & therapy", ["program:senior"], false, false],
 		]);
 	});
 });
@@ -66,20 +67,22 @@ describe("toggles", () => {
 	});
 
 	it("toggleGroup ticks the whole group, or clears it when all are ticked", () => {
-		const group = { tags: ["audience:adult", "audience:youth"], allSelected: false };
-		expect(toggleGroup(["activity:lap", "audience:adult"], group)).toEqual([
-			"activity:lap",
-			"audience:adult",
-			"audience:youth",
+		const group = { tags: ["program:lap", "program:family"], allSelected: false };
+		expect(toggleGroup(["program:senior", "program:lap"], group)).toEqual([
+			"program:senior",
+			"program:lap",
+			"program:family",
 		]);
-		expect(toggleGroup(["activity:lap", "audience:adult", "audience:youth"], { ...group, allSelected: true })).toEqual([
-			"activity:lap",
+		expect(toggleGroup(["program:senior", "program:lap", "program:family"], { ...group, allSelected: true })).toEqual([
+			"program:senior",
 		]);
 	});
 });
 
 describe("pickerTags", () => {
-	it("drops tags from facets the picker doesn't offer", () => {
-		expect(pickerTags(["activity:lap", "access:drop-in", "audience:youth"])).toEqual(["activity:lap", "audience:youth"]);
+	it("keeps only the categories the picker offers", () => {
+		expect(pickerTags(["program:lap", "activity:lap", "access:drop-in", "audience:youth", "program:nonsense"])).toEqual([
+			"program:lap",
+		]);
 	});
 });

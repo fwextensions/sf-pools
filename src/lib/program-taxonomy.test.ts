@@ -5,7 +5,7 @@ import path from "node:path";
 import { describe, it, expect } from "@jest/globals";
 import {
 	ACCESS_TAGS, ACTIVITY_TAGS, AUDIENCE_TAGS, CANONICAL_CATEGORIES,
-	cleanProgramTitle, deriveTags, findCanonicalProgram,
+	cleanProgramTitle, deriveTags, findCanonicalProgram, PROGRAM_CATEGORIES,
 } from "./program-taxonomy";
 
 describe("findCanonicalProgram", () => {
@@ -82,6 +82,7 @@ describe("deriveTags", () => {
 			...ACTIVITY_TAGS.map((t) => `activity:${t}`),
 			...AUDIENCE_TAGS.map((t) => `audience:${t}`),
 			...ACCESS_TAGS.map((t) => `access:${t}`),
+			...PROGRAM_CATEGORIES.map((c) => `program:${c.id}`),
 		]);
 		for (const raw of ["REC/FAMILY/LAP SWIM", "Summer LTS^", "Rentals (Masters)", "◆MASTER'S SWIM TEAM", "*SMALL POOL- NVPS CLASS"]) {
 			for (const tag of deriveTags(raw)) expect(known).toContain(tag);
@@ -114,7 +115,7 @@ describe("deriveTags", () => {
 	});
 
 	it("marks an unrestricted session as drop-in", () => {
-		expect(deriveTags("Lap Swim")).toEqual(["access:drop-in", "activity:lap"]);
+		expect(deriveTags("Lap Swim")).toEqual(["access:drop-in", "activity:lap", "program:lap"]);
 		expect(deriveTags("CLOSED FOR STAFF TRAINING")).not.toContain("access:drop-in");
 		expect(deriveTags("*SMALL POOL-SFUSD CLASS")).not.toContain("access:drop-in");
 	});
@@ -134,7 +135,7 @@ describe("deriveTags", () => {
 	});
 
 	it("files rec swim as family swim too", () => {
-		expect(deriveTags("Rec Swim")).toEqual(["access:drop-in", "activity:family", "activity:rec"]);
+		expect(deriveTags("Rec Swim")).toEqual(["access:drop-in", "activity:family", "activity:rec", "program:family"]);
 	});
 
 	it("files rentals and school use under a program", () => {
@@ -145,7 +146,7 @@ describe("deriveTags", () => {
 	});
 
 	it("falls back to other, without promising drop-in, for a name no pattern knows", () => {
-		expect(deriveTags("BAYVIEW SPLASH")).toEqual(["activity:other"]);
+		expect(deriveTags("BAYVIEW SPLASH")).toEqual(["activity:other", "program:other"]);
 		expect(deriveTags("Lap Swim")).not.toContain("activity:other");
 	});
 
@@ -157,6 +158,35 @@ describe("deriveTags", () => {
 			.filter((p) => !(p.tags ?? []).some((t) => t.startsWith("activity:")))
 			.map((p) => p.programNameOriginal);
 		expect(missing).toEqual([]);
+	});
+
+	it("files every session in the current data under one category, or two for a split slot", () => {
+		const file = path.join(process.cwd(), "public", "data", "all_schedules.json");
+		const pools = JSON.parse(fs.readFileSync(file, "utf8")) as Array<{ programs?: Array<{ programNameOriginal: string; tags?: string[] }> }>;
+		const off = pools
+			.flatMap((pool) => pool.programs ?? [])
+			.map((p) => [p.programNameOriginal, (p.tags ?? []).filter((t) => t.startsWith("program:"))] as const)
+			.filter(([, cats]) => cats.length !== 1 && cats.join() !== "program:family,program:lap");
+		expect(off).toEqual([]);
+	});
+
+	it("files a title under one program category, who can get in first", () => {
+		const category = (raw: string) => deriveTags(raw).filter((t) => t.startsWith("program:"));
+		expect(category("Senior/Therapy Swim")).toEqual(["program:senior"]);
+		expect(category("Senior Swim/Self-Guided Exercise")).toEqual(["program:senior"]);
+		expect(category("Senior Lap Swim")).toEqual(["program:senior"]);
+		expect(category("Lap Swim (Lap/Therapy)")).toEqual(["program:lap"]);
+		expect(category("Rec/Family Swim")).toEqual(["program:family"]);
+		expect(category("Parent and Tots Family Swim")).toEqual(["program:parent-tot"]);
+		expect(category("Parent/Tot Lesson")).toEqual(["program:kids-lessons"]);
+		expect(category("Adult Swim Lessons")).toEqual(["program:adult-lessons"]);
+		expect(category("Bayview Safety Swim & Splash (10)")).toEqual(["program:kids-lessons"]);
+		expect(category("Youth Lessons/Swim Team")).toEqual(["program:swim-team"]);
+		expect(category("Rentals (Masters)")).toEqual(["program:rentals"]);
+		expect(category("SFUSD/Rec Swim")).toEqual(["program:school"]);
+		expect(category("CLOSED FOR STAFF TRAINING")).toEqual(["program:closed"]);
+		// a divider splits Balboa's lap lanes from the shallow end
+		expect(category("Family/Lap Swim")).toEqual(["program:family", "program:lap"]);
 	});
 
 	it("returns nothing for an empty name", () => {

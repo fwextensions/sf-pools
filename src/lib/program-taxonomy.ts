@@ -255,6 +255,8 @@ export function normalizeProgramName(raw: string): string {
 //   activity:  what is happening in the water
 //   audience:  who it is for, when the PDF says
 //   access:    how you get in — the facet the footnote symbols encode
+//   program:   the one category the grid and Now & Soon filter on, worked out
+//              from the other three (see PROGRAM_CATEGORIES)
 //
 // The vocabulary is closed: derivation is regex over the raw PDF title, so a
 // name we have not seen yields fewer tags, never a new tag. See
@@ -274,7 +276,8 @@ export const ACCESS_TAGS = ["drop-in", "registration", "rental", "school-group",
 export type ActivityTag = `activity:${typeof ACTIVITY_TAGS[number]}`;
 export type AudienceTag = `audience:${typeof AUDIENCE_TAGS[number]}`;
 export type AccessTag = `access:${typeof ACCESS_TAGS[number]}`;
-export type ProgramTag = ActivityTag | AudienceTag | AccessTag;
+export type CategoryTag = `program:${ProgramCategory}`;
+export type ProgramTag = ActivityTag | AudienceTag | AccessTag | CategoryTag;
 
 const ACTIVITY_PATTERNS: Array<[typeof ACTIVITY_TAGS[number], RegExp]> = [
 	["lap", /\blap\b/],
@@ -285,7 +288,8 @@ const ACTIVITY_PATTERNS: Array<[typeof ACTIVITY_TAGS[number], RegExp]> = [
 	["self-guided", /self.?guided/],
 	// "expercise" is a standing typo in the Rossi and Garfield schedules
 	["water-exercise", /water exercise|water expercise|aerobic|aqua/],
-	["lessons", /lesson|\blts\b|learn.?to.?swim/],
+	// "Bayview Safety Swim & Splash" at MLK is a water safety class
+	["lessons", /lesson|\blts\b|learn.?to.?swim|safety swim/],
 	["swim-team", /swim team|\bteams?\b|piranha|barracuda|gator|catfish/],
 	["masters", /master/],
 	["synchro", /synchro/],
@@ -362,7 +366,77 @@ export function deriveTags(raw: string): ProgramTag[] {
 	// unrecognized name is not also promised as walk-in.
 	if (![...tags].some((t) => t.startsWith("activity:"))) tags.add("activity:other");
 
+	for (const category of programCategories(tags)) tags.add(`program:${category}`);
+
 	return [...tags].sort();
+}
+
+// ---------------------------------------------------------------------------
+// program categories
+//
+// The activity tags describe a title; they can't filter it. "Senior/Therapy
+// Swim" carries both senior and therapy, so unticking Therapy hid nothing
+// while Senior stayed ticked, and the same went for rec and family, and for
+// every masters or synchro rental. A category is the one place a session is
+// filed, so unticking it hides exactly the sessions its count says.
+//
+// When a title fits two categories, who can get in wins over what you do:
+// closed to the public first, then seniors only, then the activity. "Senior
+// Lap Swim" is a senior session; a lap swimmer under 60 can't go.
+// ---------------------------------------------------------------------------
+
+export const CATEGORY_GROUPS = [
+	{ id: "swim", label: "Swim" },
+	{ id: "exercise", label: "Exercise & therapy" },
+	{ id: "lessons", label: "Lessons & teams" },
+	{ id: "private", label: "Not open to the public" },
+	{ id: "other", label: "Other" },
+] as const;
+
+export const PROGRAM_CATEGORIES = [
+	{ id: "lap", label: "Lap swim", group: "swim" },
+	{ id: "family", label: "Family & rec swim", group: "swim" },
+	{ id: "parent-tot", label: "Parent & tot swim", group: "swim" },
+	{ id: "senior", label: "Senior & therapy swim", group: "exercise" },
+	{ id: "self-guided", label: "Self-guided exercise", group: "exercise" },
+	{ id: "water-exercise", label: "Water exercise", group: "exercise" },
+	{ id: "kids-lessons", label: "Kids' lessons", group: "lessons" },
+	{ id: "adult-lessons", label: "Adult lessons", group: "lessons" },
+	{ id: "swim-team", label: "Swim team", group: "lessons" },
+	{ id: "special-olympics", label: "Special Olympics", group: "lessons" },
+	{ id: "rentals", label: "Rentals", group: "private" },
+	{ id: "school", label: "School classes", group: "private" },
+	{ id: "camps", label: "Camps", group: "private" },
+	{ id: "closed", label: "Pool closed", group: "private" },
+	{ id: "other", label: "Other", group: "other" },
+] as const satisfies ReadonlyArray<{ id: string; label: string; group: (typeof CATEGORY_GROUPS)[number]["id"] }>;
+
+export type ProgramCategory = (typeof PROGRAM_CATEGORIES)[number]["id"];
+
+// the categories a session is filed under, from its other tags: one, except
+// a slot that really is two open swims side by side, like Balboa's
+// "Family/Lap Swim", where a divider splits the lap lanes from the shallow end
+function programCategories(tags: Set<ProgramTag>): ProgramCategory[] {
+	const has = (tag: ProgramTag) => tags.has(tag);
+
+	if (has("access:closed")) return ["closed"];
+	if (has("access:school-group")) return ["school"];
+	if (has("activity:rental")) return ["rentals"];
+	if (has("activity:camp")) return ["camps"];
+	if (has("activity:special-olympics")) return ["special-olympics"];
+	// "Youth Lessons/Swim Team" is a team's feeder, and you join it like one
+	if (["swim-team", "masters", "synchro", "water-polo", "hockey"].some((a) => has(`activity:${a}` as ActivityTag))) {
+		return ["swim-team"];
+	}
+	if (has("activity:lessons")) return has("audience:adult") ? ["adult-lessons"] : ["kids-lessons"];
+	// "Lap Swim (Lap/Therapy)" is lap lanes beside therapy lanes, open to all
+	if (has("activity:senior") || (has("activity:therapy") && !has("activity:lap"))) return ["senior"];
+	if (has("activity:self-guided")) return ["self-guided"];
+	if (has("activity:water-exercise")) return ["water-exercise"];
+	if (has("activity:lap")) return has("activity:family") ? ["lap", "family"] : ["lap"];
+	if (has("activity:parent-tot")) return ["parent-tot"];
+	if (has("activity:family")) return ["family"];
+	return ["other"];
 }
 
 // the title as the PDF wrote it, minus the footnote markers and the stray
@@ -383,12 +457,11 @@ export function cleanProgramTitle(raw: string): string {
 
 // display labels and facet order for the filter UI. Keys are the full tag ids;
 // anything missing falls back to the tag's own slug.
-// access tags are still derived, and the detail list shows the restrictive
-// ones, but they are not offered as a filter: rentals and school use are
-// Program tags, and the rest were too thin to filter on.
+// only the program categories are offered as a filter. The activity and
+// audience tags feed them, and the detail list shows the restrictive access
+// tags; picking among them directly is what made checkboxes that hid nothing.
 export const TAG_FACETS = [
-	{ id: "activity", label: "Program" },
-	{ id: "audience", label: "Who it's for" },
+	{ id: "program", label: "Program" },
 ] as const;
 
 export const TAG_LABELS: Record<string, string> = {
@@ -425,6 +498,8 @@ export const TAG_LABELS: Record<string, string> = {
 	"access:shared-pool": "Shared pool",
 	"access:contact-coach": "Contact the coach",
 };
+
+for (const c of PROGRAM_CATEGORIES) TAG_LABELS[`program:${c.id}`] = c.label;
 
 export function tagLabel(tag: string): string {
 	return TAG_LABELS[tag] ?? toTitleCase(tag.split(":")[1]?.replace(/-/g, " ") ?? tag);
