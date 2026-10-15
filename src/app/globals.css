@@ -139,12 +139,16 @@
 	   header is the water's last rows plus this (--site-sticky-h, set in the
 	   site layout), so it has to match the padding in SiteNav. */
 	--site-nav-h: calc(0.5rem + 1.25rem + 0.75rem + 2px);
+	/* from the top of the tabs to the middle of their labels: the top padding
+	   and half the line. The tabs pin with this on the water strip's middle. */
+	--site-nav-text-mid: calc(0.5rem + 0.625rem);
 }
 
 @media (min-width: 900px) {
 	:root {
 		--schedule-nav-h: 47px;
 		--site-nav-h: calc(1.5rem + 1.25rem + 0.75rem + 2px);
+		--site-nav-text-mid: calc(1.5rem + 0.625rem);
 	}
 }
 
@@ -196,6 +200,12 @@
 html,
 body {
 	height: 100%;
+}
+
+/* A section tab pinned over the water: the white labels get a faint halo on
+   top of their dark patch, for the brightest caustics showing through it. */
+.site-tab-water {
+	text-shadow: 0 1px 2px rgb(14 39 51 / 0.5);
 }
 
 /* containers */
