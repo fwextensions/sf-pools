@@ -13,15 +13,18 @@ import SiteNav from "@/components/SiteNav";
  * it draws its own water.
  *
  * The water and the tabs pin separately, so the tabs ride up onto the water.
- * The water is sticky with a negative top of its height less a strip just
- * tall enough to hold the tabs (their height rounded up to whole tiles), so
- * it scrolls with the page until only that strip is left. The tabs follow it
- * up and pin centered in the strip, where SiteNav turns them white.
+ * The water is sticky with a negative top of its height less a strip of its
+ * bottom rows (--site-strip-rows), so it scrolls with the page until only
+ * that strip is left. Two rows on desktop, which is all there is below the
+ * "SF POOLS" letters; phones have smaller tiles and more rows under the
+ * letters, so they keep enough to hold the tabs. The tabs follow the water up
+ * and pin with their labels centered in the strip, where SiteNav turns them
+ * white.
  * --site-sticky-h is the strip's height, which anything sticky inside a page
  * offsets its own top by.
  */
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
-	const strip = `round(up, var(--site-nav-h), ${TILE})`;
+	const strip = `calc(var(--site-strip-rows) * ${TILE})`;
 
 	return (
 		<div
