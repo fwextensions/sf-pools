@@ -29,7 +29,7 @@ function stripBottom() {
 /**
  * The tab strip that sits flush under the water on every page, and rides up
  * onto the water's pinned strip as the page scrolls. Over the water it turns
- * white on a darkened band. It is a client
+ * white. It is a client
  * component only so it can read the pathname for the active tab; the links
  * themselves are ordinary next/link navigations, which keep the (site) layout
  * (and the water running in it) mounted while the page below swaps.
@@ -75,10 +75,17 @@ export default function SiteNav() {
 	useEffect(() => {
 		if (!tabClicked.current) return;
 		tabClicked.current = false;
-		const content = navRef.current?.parentElement?.nextElementSibling;
-		if (!content) return;
-		const contentTop = content.getBoundingClientRect().top + window.scrollY;
-		window.scrollTo(0, Math.min(window.scrollY, contentTop - stripBottom()));
+		// where the tabs pin: the scroll that brings their unpinned place in the
+		// page up to their sticky top. Not where the content meets the strip,
+		// which can come a few px sooner, leaving the tabs short of pinned.
+		// The bar's place in the page is just below the water's full height,
+		// since the water is the layout's first child.
+		const bar = navRef.current?.parentElement;
+		const water = bar?.previousElementSibling;
+		if (!bar?.parentElement || !(water instanceof HTMLElement)) return;
+		const placeInPage = bar.parentElement.getBoundingClientRect().top + window.scrollY + water.offsetHeight;
+		const pinsAt = placeInPage - parseFloat(getComputedStyle(bar).top);
+		window.scrollTo(0, Math.min(window.scrollY, pinsAt));
 	}, [pathname]);
 
 	return (
@@ -111,25 +118,14 @@ export default function SiteNav() {
 						className={`font-mono -mb-px whitespace-nowrap border-b-2 pb-3 pt-2 text-small leading-5 min-[900px]:pt-6 min-[900px]:tracking-[.08em] ${
 							overWater
 								? current
-									? "site-tab-water border-white font-semibold text-white"
+									? "site-tab-water border-transparent font-semibold text-white"
 									: "site-tab-water border-transparent font-medium text-white/85 hover:text-white"
 								: current
 									? "border-ink font-semibold text-ink"
 									: "border-transparent font-medium text-ink-2 hover:text-ink"
 						}`}
 					>
-						{/* over the water each label sits on its own dark, frosted
-						    patch, padded out with negative margins so the tabs keep
-						    their spacing */}
-						<span
-							className={
-								overWater
-									? "-mx-2 -my-1 bg-[rgb(14_39_51/0.5)] px-2 py-1 backdrop-blur-[3px]"
-									: undefined
-							}
-						>
-							{label}
-						</span>
+						{label}
 					</Link>
 				);
 			})}
