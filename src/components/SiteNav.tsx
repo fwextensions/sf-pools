@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { headerPinScrollPx } from "@/components/header/HeaderPlaceholder";
 import { trackSectionNav } from "@/lib/analytics";
 
 // The three sections of the site, in the order they read left to right. The
@@ -25,14 +27,28 @@ function isCurrent(pathname: string, href: string) {
  */
 export default function SiteNav() {
 	const pathname = usePathname();
+	const tabClicked = useRef(false);
+
+	// A tab click keeps the header where it is rather than letting the router
+	// scroll the whole page back to the top: scrolled past the point where the
+	// header pins, the new section opens at the top of its content, just under
+	// the tabs; above that point the page stays put. Only after a tab click, so
+	// back and forward still get the browser's own scroll restoration.
+	useEffect(() => {
+		if (!tabClicked.current) return;
+		tabClicked.current = false;
+		window.scrollTo(0, Math.min(window.scrollY, headerPinScrollPx(window.innerWidth)));
+	}, [pathname]);
 
 	return (
 		// under 900px the labels have to hold one line each or the strip doubles
 		// in height: they drop their tracking and spread across the width instead
-		// of sitting a fixed gap apart, which fits them down to a 320px screen
+		// of sitting a fixed gap apart, which fits them down to a 320px screen.
+		// Its height is fixed because the pinned header's height, which every
+		// sticky bar on a page offsets itself by, is built from it.
 		<nav
 			aria-label="Sections"
-			className="flex justify-between border-b border-line min-[900px]:justify-start min-[900px]:gap-7"
+			className="flex h-[var(--site-nav-h)] justify-between border-b border-line min-[900px]:justify-start min-[900px]:gap-7"
 		>
 			{SECTIONS.map(({ href, label }) => {
 				const current = isCurrent(pathname, href);
@@ -41,8 +57,13 @@ export default function SiteNav() {
 						key={href}
 						href={href}
 						aria-current={current ? "page" : undefined}
-						onClick={() => trackSectionNav(pathname, href)}
-						className={`font-mono -mb-px whitespace-nowrap border-b-2 pb-3 pt-2 text-small min-[900px]:pt-6 min-[900px]:tracking-[.08em] ${
+						scroll={false}
+						onClick={() => {
+							// the current tab doesn't navigate, so no effect would clear it
+							tabClicked.current = href !== pathname;
+							trackSectionNav(pathname, href);
+						}}
+						className={`font-mono -mb-px whitespace-nowrap border-b-2 pb-3 pt-2 text-small leading-5 min-[900px]:pt-6 min-[900px]:tracking-[.08em] ${
 							current
 								? "border-ink font-semibold text-ink"
 								: "border-transparent font-medium text-ink-2 hover:text-ink"

@@ -1,5 +1,6 @@
+import type { CSSProperties } from "react";
 import HeaderAnimation from "@/components/header/HeaderAnimation";
-import { HEADER_HEIGHT } from "@/components/header/HeaderPlaceholder";
+import { HEADER_HEIGHT, PEEK_ROWS, TILE } from "@/components/header/HeaderPlaceholder";
 import SiteFooter from "@/components/SiteFooter";
 import SiteNav from "@/components/SiteNav";
 
@@ -10,19 +11,36 @@ import SiteNav from "@/components/SiteNav";
  * page between the tabs and the footer — the water keeps its simulation state
  * and never remounts. The header lab sits outside this route group on purpose;
  * it draws its own water.
+ *
+ * The water and the tabs pin together. The pair is sticky with a negative top
+ * of the water's height less its last PEEK_ROWS rows, so it scrolls with the
+ * page until only that bottom strip of tiles is left, then holds there with
+ * the tabs under it. --site-sticky-h is the height of what stays pinned, which
+ * anything sticky inside a page offsets its own top by.
  */
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
+	const peek = `calc(${PEEK_ROWS} * ${TILE})`;
+
 	return (
-		<div className="font-sans container pb-8 text-ink">
-			{/* no top padding: the water is positioned from the top of the page,
-			    not from this box, so padding here would only push the space the
-			    header holds for it down below it, leaving a band above the tabs */}
-			<header style={{ height: HEADER_HEIGHT }}>
-				<HeaderAnimation />
-			</header>
-			<SiteNav />
-			{children}
-			<SiteFooter />
+		<div
+			className="font-sans pb-8 text-ink"
+			style={{ "--site-sticky-h": `calc(${peek} + var(--site-nav-h))` } as CSSProperties}
+		>
+			{/* full width rather than inside the container, so the water still
+			    spans the window; only the tabs sit in the container. Above every
+			    sticky bar a page has, so those pass under it. */}
+			<div className="sticky z-20 bg-white" style={{ top: `calc(${peek} - ${HEADER_HEIGHT})` }}>
+				<header className="relative" style={{ height: HEADER_HEIGHT }}>
+					<HeaderAnimation />
+				</header>
+				<div className="container">
+					<SiteNav />
+				</div>
+			</div>
+			<div className="container">
+				{children}
+				<SiteFooter />
+			</div>
 		</div>
 	);
 }
