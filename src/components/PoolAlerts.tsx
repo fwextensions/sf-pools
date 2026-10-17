@@ -1,7 +1,7 @@
 import { AlertsData } from "../../scripts/scrape-alerts";
 import { PoolSchedule } from "@/lib/pdf-processor";
 import ClosureNotice from "@/components/ClosureNotice";
-import type { SharedClosure } from "@/lib/sessions";
+import type { ClosureWindow, SharedClosure } from "@/lib/sessions";
 import { formatScheduleDate } from "@/lib/utils";
 
 type Props = {
@@ -18,9 +18,14 @@ export default function PoolAlerts({ alerts, pools, selectedPools, weekClosures 
 	const relevantClosures = weekClosures
 		.map((c) => ({
 			...c,
-			poolIds: selectedPools.length === 0 ? c.poolIds : c.poolIds.filter((id) => selectedPools.includes(id)),
+			windows: c.windows
+				.map((w) => ({
+					...w,
+					poolIds: selectedPools.length === 0 ? w.poolIds : w.poolIds.filter((id) => selectedPools.includes(id)),
+				}))
+				.filter((w) => w.poolIds.length > 0),
 		}))
-		.filter((c) => c.poolIds.length > 0);
+		.filter((c) => c.windows.length > 0);
 
 	// filter alerts to match selected pools (or show all if no pools selected)
 	const relevantAlerts = selectedPools.length === 0
@@ -70,20 +75,42 @@ export default function PoolAlerts({ alerts, pools, selectedPools, weekClosures 
 		<div className="mt-3 mb-6 grid grid-cols-[repeat(auto-fit,minmax(min(100%,24rem),1fr))] gap-2">
 			{relevantClosures.map((c) => (
 				<div
-					key={`week-${c.startDate}-${c.endDate}-${c.startTime}`}
+					key={`week-${c.startDate}-${c.endDate}-${c.reason}`}
 					className="font-sans border-l-[3px] border-alert bg-alert-tint px-3 py-2.5"
 				>
 					<div className="font-mono text-label font-semibold tracking-[.08em] text-alert">
 						<span aria-hidden className="status-dot ring-2 ring-alert ring-inset" />
 						CLOSED
 					</div>
-					<p className="mt-1 text-body font-medium text-ink">
-						{formatWhen(c)}
-						{c.reason ? ` for ${c.reason}` : ""}
-					</p>
-					<p className="mt-0.5 text-small text-ink-2">
-						{c.poolIds.map(poolName).join(", ")}
-					</p>
+					{c.windows.length === 1 ? (
+						<>
+							<p className="mt-1 text-body font-medium text-ink">
+								{formatWhen(c, c.windows[0])}
+								{c.reason ? ` for ${c.reason}` : ""}
+							</p>
+							<p className="mt-0.5 text-small text-ink-2">
+								{c.windows[0].poolIds.map(poolName).join(", ")}
+							</p>
+						</>
+					) : (
+						// pools closing different hours for the same thing, such
+						// as a training day, share a notice with a line per window
+						<>
+							<p className="mt-1 text-body font-medium text-ink">
+								{formatWhen(c)}
+								{c.reason ? ` for ${c.reason}` : ""}
+							</p>
+							<ul className="mt-0.5 text-small text-ink-2">
+								{c.windows.map((w) => (
+									<li key={`${w.startTime}-${w.endTime}`}>
+										{w.poolIds.map(poolName).join(", ")}
+										{" · "}
+										{w.startTime && w.endTime ? `${w.startTime}–${w.endTime}` : "all day"}
+									</li>
+								))}
+							</ul>
+						</>
+					)}
 				</div>
 			))}
 			{relevantAlerts.map((alert, i) =>
@@ -126,10 +153,10 @@ export default function PoolAlerts({ alerts, pools, selectedPools, weekClosures 
 }
 
 /** "Mon Oct 12" / "Mon Nov 2 – Sat Nov 21" / "Thu Oct 22, 12:00p–2:00p" */
-function formatWhen(c: SharedClosure): string {
+function formatWhen(c: SharedClosure, window?: ClosureWindow): string {
 	const fmt = (d: string) => formatScheduleDate(d, { weekday: "short", month: "short", day: "numeric" }).replace(",", "");
 	let when = fmt(c.startDate);
 	if (c.endDate !== c.startDate) when += ` – ${fmt(c.endDate)}`;
-	if (c.startTime && c.endTime) when += `, ${c.startTime}–${c.endTime}`;
+	if (window?.startTime && window.endTime) when += `, ${window.startTime}–${window.endTime}`;
 	return when;
 }

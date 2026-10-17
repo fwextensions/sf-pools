@@ -159,17 +159,44 @@ describe("closuresThisWeek", () => {
 			withClosures("rossi", [day("2026-10-12", "Indigenous Peoples Day"), day("2026-11-11", "Veterans Day")]),
 		];
 		expect(closuresThisWeek(all, "2026-10-12")).toEqual([
-			{ ...day("2026-10-12", "Indigenous Peoples Day"), poolIds: ["balboa", "hamilton", "rossi"] },
+			{
+				startDate: "2026-10-12",
+				endDate: "2026-10-12",
+				reason: "Indigenous Peoples Day",
+				windows: [{ startTime: null, endTime: null, poolIds: ["balboa", "hamilton", "rossi"] }],
+			},
 		]);
 	});
 
-	it("keeps different time windows on the same day apart, all-day first", () => {
+	it("puts a training day each PDF words and times differently in one closure, a window per set of hours", () => {
 		const all = [
+			withClosures("balboa", [day("2026-10-22", "Aquatics division training", { startTime: "11:30a", endTime: "2:00p" })]),
+			withClosures("coffman", [day("2026-10-22", "Training")]),
+			withClosures("garfield", [day("2026-10-22", "staff training", { startTime: "11:00a", endTime: "2:00p" })]),
 			withClosures("rossi", [day("2026-10-22", "training", { startTime: "12:00p", endTime: "2:00p" })]),
-			withClosures("garfield", [day("2026-10-22", "training", { startTime: "11:00a", endTime: "2:00p" })]),
-			withClosures("coffman", [day("2026-10-22", "training")]),
+			withClosures("sava", [day("2026-10-22", "staff training", { startTime: "12:00p", endTime: "2:00p" })]),
 		];
-		expect(closuresThisWeek(all, "2026-10-20").map((c) => c.poolIds)).toEqual([["coffman"], ["garfield"], ["rossi"]]);
+		expect(closuresThisWeek(all, "2026-10-20")).toEqual([
+			{
+				startDate: "2026-10-22",
+				endDate: "2026-10-22",
+				reason: "Training",
+				windows: [
+					{ startTime: null, endTime: null, poolIds: ["coffman"] },
+					{ startTime: "11:00a", endTime: "2:00p", poolIds: ["garfield"] },
+					{ startTime: "11:30a", endTime: "2:00p", poolIds: ["balboa"] },
+					{ startTime: "12:00p", endTime: "2:00p", poolIds: ["rossi", "sava"] },
+				],
+			},
+		]);
+	});
+
+	it("keeps unrelated closures on the same day apart, the one with an all-day closure first", () => {
+		const all = [
+			withClosures("rossi", [day("2026-11-11", "staff training", { startTime: "12:00p", endTime: "2:00p" })]),
+			withClosures("balboa", [day("2026-11-11", "Veterans Day")]),
+		];
+		expect(closuresThisWeek(all, "2026-11-09").map((c) => c.reason)).toEqual(["Veterans Day", "staff training"]);
 	});
 
 	it("includes a range that overlaps the week and leaves out pools an alert already closes", () => {
@@ -177,6 +204,6 @@ describe("closuresThisWeek", () => {
 			withClosures("rossi", [day("2026-11-02", "annual maintenance", { endDate: "2026-11-21" })]),
 			withClosures("northBeachCool", [day("2026-10-13", "ANNUAL MAINTENANCE", { endDate: "2026-10-31" })], maintenance),
 		];
-		expect(closuresThisWeek(all, "2026-10-30").map((c) => c.poolIds)).toEqual([["rossi"]]);
+		expect(closuresThisWeek(all, "2026-10-30").map((c) => c.windows.map((w) => w.poolIds))).toEqual([[["rossi"]]]);
 	});
 });
