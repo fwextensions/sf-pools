@@ -205,22 +205,25 @@ body {
 	height: 100%;
 }
 
-/* A section tab pinned over the water: white labels with a tight dark edge
-   and a soft halo, so they hold up over the brightest caustics, which are
-   close to white themselves. The current tab is marked by an underline drawn
-   under the text rather than the tab's bottom border, which on desktop would
-   hang below the two-row strip. */
-.site-tab-water {
-	text-shadow:
-		0 0 1px rgb(14 39 51 / 0.9),
-		0 1px 3px rgb(14 39 51 / 0.7),
-		0 0 12px rgb(14 39 51 / 0.5);
+/* The bar behind the section tabs once they're pinned over the water: light
+   and frosted, so the labels keep their usual ink and the water still shows
+   through. It's centered on the labels' midline and leaves a few px of water
+   above and below it in the strip. */
+.site-tab-bar {
+	top: calc(var(--site-nav-text-mid) - 0.95rem);
+	height: 1.9rem;
+	background: rgb(255 255 255 / 0.78);
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
 }
 
+/* Over the water the current tab is marked by an underline under its text
+   rather than the tab's bottom border, which on desktop would hang below
+   the two-row strip. */
 .site-tab-water[aria-current="page"] {
 	text-decoration-line: underline;
 	text-decoration-thickness: 2px;
-	text-underline-offset: 5px;
+	text-underline-offset: 3px;
 }
 
 /* containers */

@@ -28,8 +28,8 @@ function stripBottom() {
 
 /**
  * The tab strip that sits flush under the water on every page, and rides up
- * onto the water's pinned strip as the page scrolls. Over the water it turns
- * white. It is a client
+ * onto the water's pinned strip as the page scrolls, where the tabs sit on a
+ * light bar. It is a client
  * component only so it can read the pathname for the active tab; the links
  * themselves are ordinary next/link navigations, which keep the (site) layout
  * (and the water running in it) mounted while the page below swaps.
@@ -98,10 +98,19 @@ export default function SiteNav() {
 			ref={navRef}
 			aria-label="Sections"
 			data-over-water={overWater || undefined}
-			className={`flex h-[var(--site-nav-h)] justify-between border-b transition-colors duration-150 min-[900px]:justify-start min-[900px]:gap-7 ${
-				overWater ? "border-transparent" : "border-line"
+			className={`relative flex h-[var(--site-nav-h)] justify-between border-b transition-colors duration-150 min-[900px]:justify-start min-[900px]:gap-7 ${
+				overWater ? "border-transparent min-[900px]:w-fit" : "border-line"
 			}`}
 		>
+			{/* over the water the tabs share one light, frosted bar, centered on
+			    their labels: as wide as the screen on a phone, and just around
+			    the three tabs from 900px up, where the nav shrinks to fit them */}
+			<div
+				aria-hidden
+				className={`site-tab-bar pointer-events-none absolute -inset-x-4 transition-opacity duration-150 min-[900px]:-inset-x-3 ${
+					overWater ? "opacity-100" : "opacity-0"
+				}`}
+			/>
 			{SECTIONS.map(({ href, label }) => {
 				const current = isCurrent(pathname, href);
 				return (
@@ -118,8 +127,8 @@ export default function SiteNav() {
 						className={`font-mono -mb-px whitespace-nowrap border-b-2 pb-3 pt-2 text-small leading-5 min-[900px]:pt-6 min-[900px]:tracking-[.08em] ${
 							overWater
 								? current
-									? "site-tab-water border-transparent font-semibold text-white"
-									: "site-tab-water border-transparent font-medium text-white/85 hover:text-white"
+									? "site-tab-water relative border-transparent font-semibold text-ink"
+									: "site-tab-water relative border-transparent font-medium text-ink-2 hover:text-ink"
 								: current
 									? "border-ink font-semibold text-ink"
 									: "border-transparent font-medium text-ink-2 hover:text-ink"
