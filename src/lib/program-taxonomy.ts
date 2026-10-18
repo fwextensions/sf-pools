@@ -402,8 +402,7 @@ export const PROGRAM_CATEGORIES = [
 	{ id: "water-exercise", label: "Water exercise", group: "exercise" },
 	{ id: "kids-lessons", label: "Kids' lessons", group: "lessons" },
 	{ id: "adult-lessons", label: "Adult lessons", group: "lessons" },
-	{ id: "swim-team", label: "Swim team", group: "lessons" },
-	{ id: "special-olympics", label: "Special Olympics", group: "lessons" },
+	{ id: "swim-team", label: "Swim teams", group: "lessons" },
 	{ id: "rentals", label: "Rentals", group: "private" },
 	{ id: "school", label: "School classes", group: "private" },
 	{ id: "camps", label: "Camps", group: "private" },
@@ -423,9 +422,9 @@ function programCategories(tags: Set<ProgramTag>): ProgramCategory[] {
 	if (has("access:school-group")) return ["school"];
 	if (has("activity:rental")) return ["rentals"];
 	if (has("activity:camp")) return ["camps"];
-	if (has("activity:special-olympics")) return ["special-olympics"];
-	// "Youth Lessons/Swim Team" is a team's feeder, and you join it like one
-	if (["swim-team", "masters", "synchro", "water-polo", "hockey"].some((a) => has(`activity:${a}` as ActivityTag))) {
+	// "Youth Lessons/Swim Team" is a team's feeder, and you join it like one;
+	// Special Olympics is a team too, and too rare for a category of its own
+	if (["swim-team", "special-olympics", "masters", "synchro", "water-polo", "hockey"].some((a) => has(`activity:${a}` as ActivityTag))) {
 		return ["swim-team"];
 	}
 	if (has("activity:lessons")) return has("audience:adult") ? ["adult-lessons"] : ["kids-lessons"];
