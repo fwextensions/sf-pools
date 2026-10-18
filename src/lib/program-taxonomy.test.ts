@@ -182,6 +182,7 @@ describe("deriveTags", () => {
 		expect(category("Adult Swim Lessons")).toEqual(["program:adult-lessons"]);
 		expect(category("Bayview Safety Swim & Splash (10)")).toEqual(["program:kids-lessons"]);
 		expect(category("Youth Lessons/Swim Team")).toEqual(["program:swim-team"]);
+		expect(category("Special Olympics")).toEqual(["program:swim-team"]);
 		expect(category("Rentals (Masters)")).toEqual(["program:rentals"]);
 		expect(category("SFUSD/Rec Swim")).toEqual(["program:school"]);
 		expect(category("CLOSED FOR STAFF TRAINING")).toEqual(["program:closed"]);
