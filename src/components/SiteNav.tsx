@@ -28,8 +28,8 @@ function stripBottom() {
 
 /**
  * The tab strip that sits flush under the water on every page, and rides up
- * onto the water's pinned strip as the page scrolls, where the tabs sit on a
- * light bar. It is a client
+ * onto the water's pinned strip as the page scrolls, where the labels turn
+ * white and larger over a blurred band of the water. It is a client
  * component only so it can read the pathname for the active tab; the links
  * themselves are ordinary next/link navigations, which keep the (site) layout
  * (and the water running in it) mounted while the page below swaps.
@@ -102,7 +102,7 @@ export default function SiteNav() {
 				overWater ? "border-transparent min-[900px]:w-fit" : "border-line"
 			}`}
 		>
-			{/* over the water the tabs share one light, frosted bar, centered on
+			{/* over the water the tabs share one bar that blurs the water behind
 			    their labels: as wide as the screen on a phone, and just around
 			    the three tabs from 900px up, where the nav shrinks to fit them */}
 			<div
@@ -124,11 +124,17 @@ export default function SiteNav() {
 							tabClicked.current = href !== pathname;
 							trackSectionNav(pathname, href);
 						}}
-						className={`font-mono -mb-px whitespace-nowrap border-b-2 pb-3 pt-2 text-small leading-5 min-[900px]:pt-6 min-[900px]:tracking-[.08em] ${
+						className={`font-mono -mb-px whitespace-nowrap border-b-2 pb-3 pt-2 leading-5 min-[900px]:pt-6 min-[900px]:tracking-[.08em] ${
+							// a step up over the water, where white on moving water
+							// needs the extra size; the line height stays put so the
+							// labels keep their midline in the strip. Not below 360px,
+							// where the three larger labels run past the screen edge.
+							overWater ? "text-body max-[359px]:text-small" : "text-small"
+						} ${
 							overWater
 								? current
-									? "site-tab-water relative border-transparent font-semibold text-ink"
-									: "site-tab-water relative border-transparent font-medium text-ink-2 hover:text-ink"
+									? "site-tab-water relative border-transparent font-semibold text-white"
+									: "site-tab-water relative border-transparent font-medium text-white/90 hover:text-white"
 								: current
 									? "border-ink font-semibold text-ink"
 									: "border-transparent font-medium text-ink-2 hover:text-ink"

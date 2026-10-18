@@ -205,16 +205,22 @@ body {
 	height: 100%;
 }
 
-/* The bar behind the section tabs once they're pinned over the water: light
-   and frosted, so the labels keep their usual ink and the water still shows
-   through. It's centered on the labels' midline and leaves a few px of water
-   above and below it in the strip. */
+/* The bar behind the section tabs once they're pinned over the water: no
+   color of its own, just a blur of the water under the labels, so the white
+   text sits on softened ripples rather than sharp caustics. It's centered on
+   the labels' midline and leaves a few px of crisp water above and below it
+   in the strip. */
 .site-tab-bar {
 	top: calc(var(--site-nav-text-mid) - 0.95rem);
 	height: 1.9rem;
-	background: rgb(255 255 255 / 0.78);
 	backdrop-filter: blur(4px);
 	-webkit-backdrop-filter: blur(4px);
+}
+
+/* White labels over the water, with a faint dark edge for the brightest
+   caustics. */
+.site-tab-water {
+	text-shadow: 0 1px 2px rgb(14 39 51 / 0.45);
 }
 
 /* Over the water the current tab is marked by an underline under its text
