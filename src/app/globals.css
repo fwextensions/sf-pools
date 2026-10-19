@@ -138,10 +138,10 @@
 	   one 1.25rem line and bottom padding, and its 2px underline. The pinned
 	   header is the water's last rows plus this (--site-sticky-h, set in the
 	   site layout), so it has to match the padding in SiteNav. */
-	--site-nav-h: calc(0.5rem + 1.25rem + 0.75rem + 2px);
+	--site-nav-h: calc(0.75rem + 1.25rem + 0.75rem + 2px);
 	/* from the top of the tabs to the middle of their labels: the top padding
 	   and half the line. The tabs pin with this on the water strip's middle. */
-	--site-nav-text-mid: calc(0.5rem + 0.625rem);
+	--site-nav-text-mid: calc(0.75rem + 0.625rem);
 	/* rows of water left showing once the header pins, with the tabs over them */
 	--site-strip-rows: 4;
 }
