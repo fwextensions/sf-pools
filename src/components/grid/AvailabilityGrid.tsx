@@ -197,11 +197,9 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			{/* desktop, and from 560px up (a phone on its side, an upright tablet):
 			    fixed sidebar (the pool list doubles as the legend) + main column,
 			    spanning the full container so the sidebar's edge lines up with
-			    the tabs and the footer. Below 900px the sidebar is narrower and
-			    pins under the header with its own scroll, so the filters stay in
-			    reach on a short screen while the grid scrolls past */}
-			<div className="hidden items-start min-[560px]:flex min-[900px]:items-stretch">
-				<div className="sticky top-[var(--site-sticky-h)] max-h-[calc(100dvh-var(--site-sticky-h))] w-[260px] flex-none self-start overflow-y-auto overscroll-contain border-r border-line bg-tint pb-4 min-[900px]:static min-[900px]:max-h-none min-[900px]:w-[280px] min-[900px]:self-auto min-[900px]:overflow-visible min-[900px]:pb-0">
+			    the tabs and the footer. Below 900px the sidebar is narrower */}
+			<div className="hidden items-stretch min-[560px]:flex">
+				<div className="w-[260px] flex-none border-r border-line bg-tint min-[900px]:w-[280px]">
 					<div className="mx-4 mt-4 flex items-baseline justify-between border-t-2 border-ink pb-1.5 pt-2.5">
 						<span className="font-mono text-label font-semibold tracking-[.08em] text-ink-2">
 							PROGRAMS
