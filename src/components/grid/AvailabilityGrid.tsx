@@ -141,24 +141,33 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 				<div className="fixed inset-0 z-50 flex flex-col bg-tint min-[900px]:hidden">
 					{/* the page container's 1rem gutter, and 430px inside it, so the
 					    grid keeps exactly its width from the scrolling view */}
-					<div className="mx-auto flex h-full w-full max-w-[calc(430px+2rem)] flex-col px-4">
-						<div className="flex-none border-b border-line py-2.5">
+					<div className="mx-auto flex h-full w-full max-w-[calc(430px+2rem)] flex-col px-4 min-[560px]:max-w-none">
+						<div className="flex-none border-b border-line py-2.5 short:py-1.5">
 							{mobileChips}
 						</div>
 						<MobilePanel fill openPanel={openPanel}>{mobilePanelRows}</MobilePanel>
-						<div className="flex-none"><GridBody model={model} filters={filters} cellHeightClass="h-[19px]" touchDrag /></div>
-						{/* while filtering, the grid itself is the live feedback; the
-						    list gives its space to the panel and comes back after */}
-						{openPanel ? null : (
-							<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4">
-								<DetailPanel model={model} filters={filters} canDrag={true} ratchet={false} />
+						{/* on a phone on its side the list sits beside the grid rather
+						    than under it, and the cells shorten so the whole week fits
+						    the height */}
+						<div className={`flex flex-col short:flex-row short:gap-4 ${openPanel ? "flex-none" : "min-h-0 flex-1"}`}>
+							<div className="flex-none short:min-w-0 short:flex-1">
+								<GridBody model={model} filters={filters} cellHeightClass="h-[19px] short:h-[13px]" touchDrag />
 							</div>
-						)}
+							{/* while filtering, the grid itself is the live feedback; the
+							    list gives its space to the panel and comes back after */}
+							{openPanel ? null : (
+								<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4 short:w-2/5 short:flex-none">
+									<DetailPanel model={model} filters={filters} canDrag={true} ratchet={false} />
+								</div>
+							)}
+						</div>
 					</div>
 				</div>
 			) : (
-				<div className="mx-auto max-w-[430px] min-[900px]:hidden">
-					<div className="sticky top-[var(--site-sticky-h)] z-10 border-b border-line bg-tint py-2.5">
+				// a phone column up to 430px; on a phone on its side or an upright
+				// tablet the grid takes the whole width instead
+				<div className="mx-auto max-w-[430px] min-[560px]:max-w-none min-[900px]:hidden">
+					<div className="sticky top-[var(--site-sticky-h)] z-10 border-b border-line bg-tint py-2.5 short:py-1.5">
 						{mobileChips}
 					</div>
 					<MobilePanel openPanel={openPanel}>{mobilePanelRows}</MobilePanel>
