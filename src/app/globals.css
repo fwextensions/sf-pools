@@ -207,15 +207,23 @@ body {
 
 /* The bar behind the section tabs once they're pinned over the water: no
    color of its own, just a blur of the water under the labels, so the white
-   text sits on softened ripples rather than sharp caustics. It's centered on
-   the labels' midline and leaves a few px of crisp water above and below it
-   in the strip. */
+   text sits on softened ripples rather than sharp caustics. On phones it
+   fills the whole pinned strip, since thin bands of crisp tile edges above
+   and below it were distracting. On desktop it's a band centered on the
+   labels' midline, leaving a few px of crisp water above and below. */
 .site-tab-bar {
-	top: calc(var(--site-nav-text-mid) - 0.95rem);
-	height: 1.9rem;
+	top: calc(var(--site-nav-text-mid) - var(--site-sticky-h) / 2);
+	height: var(--site-sticky-h);
 	/* unprefixed only: the build adds the -webkit- copy Safari needs, and
 	   listing both made it keep just the prefixed one, which Chrome ignores */
 	backdrop-filter: blur(4px);
+}
+
+@media (min-width: 900px) {
+	.site-tab-bar {
+		top: calc(var(--site-nav-text-mid) - 0.95rem);
+		height: 1.9rem;
+	}
 }
 
 /* White labels over the water, with a faint dark edge for the brightest
