@@ -226,8 +226,9 @@ body {
    color of its own, just a blur of the water under the labels, so the white
    text sits on softened ripples rather than sharp caustics. On phones it
    fills the whole pinned strip, since thin bands of crisp tile edges above
-   and below it were distracting. On desktop it's a band centered on the
-   labels' midline, leaving a few px of crisp water above and below. */
+   and below it were distracting. From 560px up, where the tabs sit together
+   at the left, it's a band centered on the labels' midline, leaving a few px
+   of crisp water above and below. */
 .site-tab-bar {
 	top: calc(var(--site-nav-text-mid) - var(--site-sticky-h) / 2);
 	height: var(--site-sticky-h);
@@ -236,7 +237,7 @@ body {
 	backdrop-filter: blur(4px);
 }
 
-@media (min-width: 900px) {
+@media (min-width: 560px) {
 	.site-tab-bar {
 		top: calc(var(--site-nav-text-mid) - 0.95rem);
 		height: 1.9rem;
