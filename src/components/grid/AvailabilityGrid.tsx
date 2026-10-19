@@ -91,6 +91,20 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		}
 	}, [focusMode]);
 
+	// focus mode only exists in the phone layout; turning a phone on its side
+	// switches to the sidebar layout, which would leave the page locked behind
+	// an overlay that's no longer shown
+	useEffect(() => {
+		if (!focusMode) return;
+		const wide = window.matchMedia("(min-width: 560px)");
+		const leave = () => {
+			if (wide.matches) setFocusMode(false);
+		};
+		leave();
+		wide.addEventListener("change", leave);
+		return () => wide.removeEventListener("change", leave);
+	}, [focusMode]);
+
 	const hasAnyFilter = filters.tags.length > 0 || filters.pools.length > 0;
 
 	function toggleExpanded(id: string) {
@@ -138,7 +152,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			    stops scrolling and the grid is free to take touch drags while the
 			    results keep their own native scroll */}
 			{focusMode ? (
-				<div className="fixed inset-0 z-50 flex flex-col bg-tint min-[900px]:hidden">
+				<div className="fixed inset-0 z-50 flex flex-col bg-tint min-[560px]:hidden">
 					{/* the page container's 1rem gutter, and 430px inside it, so the
 					    grid keeps exactly its width from the scrolling view */}
 					<div className="mx-auto flex h-full w-full max-w-[calc(430px+2rem)] flex-col px-4 min-[560px]:max-w-none">
@@ -164,9 +178,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 					</div>
 				</div>
 			) : (
-				// a phone column up to 430px; on a phone on its side or an upright
-				// tablet the grid takes the whole width instead
-				<div className="mx-auto max-w-[430px] min-[560px]:max-w-none min-[900px]:hidden">
+				<div className="mx-auto max-w-[430px] min-[560px]:hidden">
 					<div className="sticky top-[var(--site-sticky-h)] z-10 border-b border-line bg-tint py-2.5 short:py-1.5">
 						{mobileChips}
 					</div>
@@ -182,11 +194,14 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 				</div>
 			)}
 
-			{/* desktop: fixed sidebar (the pool list doubles as the legend) + main
-			    column, spanning the full container so the sidebar's edge lines up
-			    with the tabs and the footer */}
-			<div className="hidden items-stretch min-[900px]:flex">
-				<div className="w-[280px] flex-none border-r border-line bg-tint">
+			{/* desktop, and from 560px up (a phone on its side, an upright tablet):
+			    fixed sidebar (the pool list doubles as the legend) + main column,
+			    spanning the full container so the sidebar's edge lines up with
+			    the tabs and the footer. Below 900px the sidebar is narrower and
+			    pins under the header with its own scroll, so the filters stay in
+			    reach on a short screen while the grid scrolls past */}
+			<div className="hidden items-start min-[560px]:flex min-[900px]:items-stretch">
+				<div className="sticky top-[var(--site-sticky-h)] max-h-[calc(100dvh-var(--site-sticky-h))] w-[260px] flex-none self-start overflow-y-auto overscroll-contain border-r border-line bg-tint pb-4 min-[900px]:static min-[900px]:max-h-none min-[900px]:w-[280px] min-[900px]:self-auto min-[900px]:overflow-visible min-[900px]:pb-0">
 					<div className="mx-4 mt-4 flex items-baseline justify-between border-t-2 border-ink pb-1.5 pt-2.5">
 						<span className="font-mono text-label font-semibold tracking-[.08em] text-ink-2">
 							PROGRAMS
