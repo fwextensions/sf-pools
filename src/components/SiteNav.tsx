@@ -29,7 +29,7 @@ function stripBottom() {
 /**
  * The tab strip that sits flush under the water on every page, and rides up
  * onto the water's pinned strip as the page scrolls, where the labels turn
- * white and larger over a blurred band of the water. It is a client
+ * white over a blurred band of the water. It is a client
  * component only so it can read the pathname for the active tab; the links
  * themselves are ordinary next/link navigations, which keep the (site) layout
  * (and the water running in it) mounted while the page below swaps.
@@ -124,13 +124,9 @@ export default function SiteNav() {
 							tabClicked.current = href !== pathname;
 							trackSectionNav(pathname, href);
 						}}
-						className={`font-mono -mb-px whitespace-nowrap border-b-2 pb-3 pt-2 leading-5 min-[900px]:pt-6 min-[900px]:tracking-[.08em] ${
-							// a step up over the water, where white on moving water
-							// needs the extra size; the line height stays put so the
-							// labels keep their midline in the strip. Not below 360px,
-							// where the three larger labels run past the screen edge.
-							overWater ? "text-body max-[359px]:text-small" : "text-small"
-						} ${
+						// body size, except below 360px, where three labels that
+						// size run past the screen edge
+						className={`font-mono -mb-px whitespace-nowrap border-b-2 pb-3 pt-2 text-body leading-5 max-[359px]:text-small min-[900px]:pt-6 min-[900px]:tracking-[.08em] ${
 							overWater
 								? current
 									? "site-tab-water relative border-transparent font-semibold text-white"
