@@ -20,7 +20,7 @@ export const HEADER_TARGET_HEIGHT_PX = 198; // 9 rows of 22px tiles on wide scre
 export const TILE_MAX_PX = 22;
 export const TILE_MIN_COLS = 33; // 29 for the text + margin
 
-const TILE = `min(${TILE_MAX_PX}px, round(down, calc(100vw / ${TILE_MIN_COLS}), 1px))`;
+export const TILE = `min(${TILE_MAX_PX}px, round(down, calc(100vw / ${TILE_MIN_COLS}), 1px))`;
 
 // The header is the whole number of tile rows nearest the target height, so
 // the grid always fits exactly top to bottom (no partial row on phones).

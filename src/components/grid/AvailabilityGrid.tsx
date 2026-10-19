@@ -155,7 +155,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 				</div>
 			) : (
 				<div className="mx-auto max-w-[430px] min-[900px]:hidden">
-					<div className="sticky top-0 z-10 border-b border-line bg-tint py-2.5">
+					<div className="sticky top-[var(--site-sticky-h)] z-10 border-b border-line bg-tint py-2.5">
 						{mobileChips}
 					</div>
 					<MobilePanel openPanel={openPanel}>{mobilePanelRows}</MobilePanel>

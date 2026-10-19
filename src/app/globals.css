@@ -134,11 +134,24 @@
 	   their scroll anchor by exactly this so a jump never lands under it.
 	   Two rows of five chips on a phone, one row of ten from 900px up. */
 	--schedule-nav-h: 76px;
+	/* height of the section tabs under the water: each tab's top padding, its
+	   one 1.25rem line and bottom padding, and its 2px underline. The pinned
+	   header is the water's last rows plus this (--site-sticky-h, set in the
+	   site layout), so it has to match the padding in SiteNav. */
+	--site-nav-h: calc(0.75rem + 1.25rem + 0.75rem + 2px);
+	/* from the top of the tabs to the middle of their labels: the top padding
+	   and half the line. The tabs pin with this on the water strip's middle. */
+	--site-nav-text-mid: calc(0.75rem + 0.625rem);
+	/* rows of water left showing once the header pins, with the tabs over them */
+	--site-strip-rows: 4;
 }
 
 @media (min-width: 900px) {
 	:root {
 		--schedule-nav-h: 47px;
+		--site-nav-h: calc(1.5rem + 1.25rem + 0.75rem + 2px);
+		--site-nav-text-mid: calc(1.5rem + 0.625rem);
+		--site-strip-rows: 2;
 	}
 }
 
@@ -190,6 +203,42 @@
 html,
 body {
 	height: 100%;
+}
+
+/* The bar behind the section tabs once they're pinned over the water: no
+   color of its own, just a blur of the water under the labels, so the white
+   text sits on softened ripples rather than sharp caustics. On phones it
+   fills the whole pinned strip, since thin bands of crisp tile edges above
+   and below it were distracting. On desktop it's a band centered on the
+   labels' midline, leaving a few px of crisp water above and below. */
+.site-tab-bar {
+	top: calc(var(--site-nav-text-mid) - var(--site-sticky-h) / 2);
+	height: var(--site-sticky-h);
+	/* unprefixed only: the build adds the -webkit- copy Safari needs, and
+	   listing both made it keep just the prefixed one, which Chrome ignores */
+	backdrop-filter: blur(4px);
+}
+
+@media (min-width: 900px) {
+	.site-tab-bar {
+		top: calc(var(--site-nav-text-mid) - 0.95rem);
+		height: 1.9rem;
+	}
+}
+
+/* White labels over the water, with a faint dark edge for the brightest
+   caustics. */
+.site-tab-water {
+	text-shadow: 0 1px 2px rgb(14 39 51 / 0.45);
+}
+
+/* Over the water the current tab is marked by an underline under its text
+   rather than the tab's bottom border, which on desktop would hang below
+   the two-row strip. */
+.site-tab-water[aria-current="page"] {
+	text-decoration-line: underline;
+	text-decoration-thickness: 2px;
+	text-underline-offset: 3px;
 }
 
 /* containers */

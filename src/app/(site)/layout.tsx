@@ -1,5 +1,6 @@
+import type { CSSProperties } from "react";
 import HeaderAnimation from "@/components/header/HeaderAnimation";
-import { HEADER_HEIGHT } from "@/components/header/HeaderPlaceholder";
+import { HEADER_HEIGHT, TILE } from "@/components/header/HeaderPlaceholder";
 import SiteFooter from "@/components/SiteFooter";
 import SiteNav from "@/components/SiteNav";
 
@@ -10,19 +11,51 @@ import SiteNav from "@/components/SiteNav";
  * page between the tabs and the footer — the water keeps its simulation state
  * and never remounts. The header lab sits outside this route group on purpose;
  * it draws its own water.
+ *
+ * The water and the tabs pin separately, so the tabs ride up onto the water.
+ * The water is sticky with a negative top of its height less a strip of its
+ * bottom rows (--site-strip-rows), so it scrolls with the page until only
+ * that strip is left. Two rows on desktop, which is all there is below the
+ * "SF POOLS" letters; phones have smaller tiles and more rows under the
+ * letters, so they keep enough to hold the tabs. The tabs follow the water up
+ * and pin with their labels centered in the strip, where SiteNav turns them
+ * white.
+ * --site-sticky-h is the strip's height, which anything sticky inside a page
+ * offsets its own top by.
  */
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
+	const strip = `calc(var(--site-strip-rows) * ${TILE})`;
+
 	return (
-		<div className="font-sans container pb-8 text-ink">
-			{/* no top padding: the water is positioned from the top of the page,
-			    not from this box, so padding here would only push the space the
-			    header holds for it down below it, leaving a band above the tabs */}
-			<header style={{ height: HEADER_HEIGHT }}>
-				<HeaderAnimation />
-			</header>
-			<SiteNav />
-			{children}
-			<SiteFooter />
+		<div
+			className="font-sans pb-8 text-ink"
+			style={{ "--site-sticky-h": strip } as CSSProperties}
+		>
+			{/* full width rather than inside the container, so the water still
+			    spans the window. Above every sticky bar a page has, so those
+			    pass under it. */}
+			<div
+				data-site-water
+				className="sticky z-20"
+				style={{ top: `calc(var(--site-sticky-h) - ${HEADER_HEIGHT})` }}
+			>
+				<header className="relative" style={{ height: HEADER_HEIGHT }}>
+					<HeaderAnimation />
+				</header>
+			</div>
+			{/* pins with the middle of its labels on the middle of the strip; a
+			    rem-based padding puts the labels' midline --site-nav-text-mid
+			    from the top of the bar */}
+			<div
+				className="container sticky z-30"
+				style={{ top: "calc(var(--site-sticky-h) / 2 - var(--site-nav-text-mid))" }}
+			>
+				<SiteNav />
+			</div>
+			<div className="container">
+				{children}
+				<SiteFooter />
+			</div>
 		</div>
 	);
 }

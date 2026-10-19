@@ -306,6 +306,17 @@ export function mountWater(
 	let lastScrollY = 0;
 	let lastScrollDelta = 0;
 	let lastSwellTime = -Infinity;
+	// performance.now() until which scrolling is the page being moved for the
+	// reader after a navigation (Back or Forward restoring a position, a tab
+	// or anchor link jumping), not the reader scrolling; see the scroll swell
+	let navScrollUntil = 0;
+	const NAV_SCROLL_SETTLE_MS = 500;
+	const handleNavigation = (event: Event) => {
+		if (event.type === "click" && !(event.target instanceof Element && event.target.closest("a[href]"))) {
+			return;
+		}
+		navScrollUntil = performance.now() + NAV_SCROLL_SETTLE_MS;
+	};
 	// Which SWELL_PERIOD_S bucket last fired an ambient swell. The schedule is
 	// derived from the clock rather than from Math.random() so that two harness
 	// panes, which share a clock origin, fire identically — the idle drips had
@@ -481,9 +492,20 @@ export function mountWater(
 		// scrolled while the tab is in the background, and the whole distance
 		// would otherwise arrive as one frame's worth of acceleration and fire a
 		// capped swell the moment you come back.
+		//
+		// A jump of more than a screen in one frame is re-baselined the same way:
+		// nobody scrolls that fast by hand, so it's the page being moved for them
+		// (Back restoring the old position, a tab switch, an anchor jump, the
+		// page clamping after the section below the tabs swaps for a shorter
+		// one), and a swell for it is water reacting to nothing. Those moves can
+		// also be shorter than a screen, so for a moment after a link click or
+		// Back/Forward every change is treated as a jump too.
 		const scrollY = opts.input ? opts.input.scrollY : window.scrollY;
-		const scrollDelta = stalled ? 0 : scrollY - lastScrollY;
-		const scrollJerk = stalled ? 0 : scrollDelta - lastScrollDelta;
+		const jumped =
+			Math.abs(scrollY - lastScrollY) > window.innerHeight ||
+			performance.now() < navScrollUntil;
+		const scrollDelta = stalled || jumped ? 0 : scrollY - lastScrollY;
+		const scrollJerk = stalled || jumped ? 0 : scrollDelta - lastScrollDelta;
 		lastScrollY = scrollY;
 		lastScrollDelta = scrollDelta;
 		// The line source fires at most once per frame. Both the scroll swell and
@@ -672,6 +694,8 @@ export function mountWater(
 		if (rafId) cancelAnimationFrame(rafId);
 		rafId = 0;
 		window.removeEventListener("resize", resize);
+		window.removeEventListener("popstate", handleNavigation);
+		document.removeEventListener("click", handleNavigation, true);
 		if (ownInput) {
 			canvas.removeEventListener("pointermove", handlePointerMove);
 			canvas.removeEventListener("pointerleave", clearSweep);
@@ -688,6 +712,8 @@ export function mountWater(
 	setSize(canvasWidth());
 	lastScrollY = window.scrollY;
 	window.addEventListener("resize", resize);
+	window.addEventListener("popstate", handleNavigation);
+	document.addEventListener("click", handleNavigation, true);
 	// One frame regardless of looping — see setLooping.
 	rafId = requestAnimationFrame(frame);
 
