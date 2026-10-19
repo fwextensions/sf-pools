@@ -56,9 +56,9 @@ const DetailPanel = memo(function DetailPanel({
 	const emptyReason = cellView?.empty ?? null;
 	const emptyAction =
 		emptyReason?.kind === "programs"
-			? { what: "programs" as const, label: "SHOW ALL" }
+			? { what: "programs" as const, label: "SHOW ALL PROGRAMS" }
 			: emptyReason?.kind === "pools"
-				? { what: "pools" as const, label: "SHOW ALL" }
+				? { what: "pools" as const, label: "SHOW ALL POOLS" }
 				: emptyReason?.kind === "both"
 					? { what: "all" as const, label: "CLEAR FILTERS" }
 					: null;
