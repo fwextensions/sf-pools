@@ -199,6 +199,13 @@ export type WaterOptions = {
 	getJsParams?: () => Partial<JsParams>;
 	/** when present, replaces the pointer/scroll handling and idle drips */
 	input?: InputBus;
+	/**
+	 * Called when the browser takes the GL context away (iOS does this to a
+	 * tab left idle or backgrounded long enough). The canvas then shows
+	 * nothing, so the instance is dead: the caller should remove() it and
+	 * mount a fresh one. Not called for the loss remove() itself causes.
+	 */
+	onContextLost?: () => void;
 };
 
 /** Handle on one mounted instance. */
@@ -659,6 +666,19 @@ export function mountWater(
 	let looping = false;
 	let rafId = 0;
 	let drawnOnce = false;
+	let removed = false;
+
+	// A lost context draws nothing, and Safari shows the canvas as transparent,
+	// so the placeholder underneath is all that's left. Stop drawing into it and
+	// let the owner replace the whole instance; restoring this context in place
+	// would mean rebuilding every program and target anyway.
+	function handleContextLost() {
+		if (removed) return;
+		looping = false;
+		if (rafId) cancelAnimationFrame(rafId);
+		rafId = 0;
+		opts.onContextLost?.();
+	}
 
 	function frame() {
 		rafId = 0;
@@ -690,6 +710,9 @@ export function mountWater(
 	}
 
 	function remove() {
+		// dispose() below loses the context on purpose; that isn't news
+		removed = true;
+		canvas.removeEventListener("webglcontextlost", handleContextLost);
 		looping = false;
 		if (rafId) cancelAnimationFrame(rafId);
 		rafId = 0;
@@ -714,6 +737,7 @@ export function mountWater(
 	window.addEventListener("resize", resize);
 	window.addEventListener("popstate", handleNavigation);
 	document.addEventListener("click", handleNavigation, true);
+	canvas.addEventListener("webglcontextlost", handleContextLost);
 	// One frame regardless of looping — see setLooping.
 	rafId = requestAnimationFrame(frame);
 
