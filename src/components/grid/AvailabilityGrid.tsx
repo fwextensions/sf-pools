@@ -15,7 +15,7 @@ import { CATEGORY_GROUPS } from "@/lib/program-taxonomy";
 import type { AlertsData } from "@/lib/site-data";
 import GridBody from "./GridBody";
 import DetailPanel from "./DetailPanel";
-import { CategoryRows, ClearButton, PoolRows } from "./FilterPicker";
+import { CategoryRows, ClearButton, PoolRows, PoolToggles } from "./FilterPicker";
 import { MobileChips, MobilePanel, type OpenPanel } from "./MobileBar";
 
 type Props = {
@@ -216,9 +216,10 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays 
 			)}
 
 			{/* desktop, and from 560px up (a phone on its side, an upright tablet):
-			    fixed sidebar (the pool list doubles as the legend) + main column,
-			    spanning the full container so the sidebar's edge lines up with
-			    the tabs and the footer. Below 900px the sidebar is narrower */}
+			    fixed program sidebar + main column, spanning the full container so
+			    the sidebar's edge lines up with the tabs and the footer. The pool
+			    chips sit in a row over the grid, doubling as its legend. Below
+			    900px the sidebar is narrower */}
 			<div className="hidden items-stretch min-[560px]:flex">
 				<div className="w-[260px] flex-none border-r border-line bg-tint min-[900px]:w-[280px]">
 					<div className="mx-4 mt-4 flex items-baseline justify-between border-t-2 border-ink pb-1.5 pt-2.5">
@@ -234,12 +235,11 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays 
 						expanded={expandedCats}
 						onToggleExpanded={toggleExpanded}
 					/>
-					<div className="mx-4 mt-4 border-t-2 border-ink pb-1.5 pt-2.5 font-mono text-label font-semibold tracking-[.08em] text-ink-2">
-						POOLS
-					</div>
-					<PoolRows model={model} filters={filters} />
 				</div>
 				<div className="min-w-0 flex-1 pl-4">
+					<div className="mb-3 pt-3">
+						<PoolToggles model={model} filters={filters} />
+					</div>
 					<GridBody model={model} filters={filters} cellHeightClass="h-[19px]" touchDrag={false} />
 					<DetailPanel model={model} filters={filters} canDrag={false} ratchet={true} />
 				</div>
