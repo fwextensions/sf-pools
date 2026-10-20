@@ -128,7 +128,7 @@ export default function SiteNav() {
 						}}
 						// body size, except below 360px, where three labels that
 						// size run past the screen edge
-						className={`font-mono -mb-px whitespace-nowrap border-b-2 py-3 text-body leading-5 max-[359px]:text-small min-[560px]:tracking-[.08em] min-[900px]:pt-6 ${
+						className={`font-mono -mb-px whitespace-nowrap border-b-2 py-3 text-body leading-5 max-[359px]:text-small min-[560px]:tracking-[.08em] min-[900px]:py-[1.125rem] ${
 							overWater
 								? current
 									? "site-tab-water relative border-transparent font-semibold text-white"
