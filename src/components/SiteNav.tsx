@@ -89,25 +89,27 @@ export default function SiteNav() {
 	}, [pathname]);
 
 	return (
-		// under 900px the labels have to hold one line each or the strip doubles
+		// under 560px the labels have to hold one line each or the strip doubles
 		// in height: they drop their tracking and spread across the width instead
 		// of sitting a fixed gap apart, which fits them down to a 320px screen.
+		// From 560px (a phone on its side, an upright tablet) they sit together
+		// at the left as on desktop, with the phone's shorter padding below 900px.
 		// Its height is fixed because the pinned header's height, which every
 		// sticky bar on a page offsets itself by, is built from it.
 		<nav
 			ref={navRef}
 			aria-label="Sections"
 			data-over-water={overWater || undefined}
-			className={`relative flex h-[var(--site-nav-h)] justify-between border-b transition-colors duration-150 min-[900px]:justify-start min-[900px]:gap-7 ${
-				overWater ? "border-transparent min-[900px]:w-fit" : "border-line"
+			className={`relative flex h-[var(--site-nav-h)] justify-between border-b transition-colors duration-150 min-[560px]:justify-start min-[560px]:gap-7 ${
+				overWater ? "border-transparent min-[560px]:w-fit" : "border-line"
 			}`}
 		>
 			{/* over the water the tabs share one bar that blurs the water behind
 			    their labels: as wide as the screen on a phone, and just around
-			    the three tabs from 900px up, where the nav shrinks to fit them */}
+			    the three tabs from 560px up, where the nav shrinks to fit them */}
 			<div
 				aria-hidden
-				className={`site-tab-bar pointer-events-none absolute -inset-x-4 transition-opacity duration-150 min-[900px]:-inset-x-3 ${
+				className={`site-tab-bar pointer-events-none absolute -inset-x-4 transition-opacity duration-150 min-[560px]:-inset-x-3 ${
 					overWater ? "opacity-100" : "opacity-0"
 				}`}
 			/>
@@ -126,7 +128,7 @@ export default function SiteNav() {
 						}}
 						// body size, except below 360px, where three labels that
 						// size run past the screen edge
-						className={`font-mono -mb-px whitespace-nowrap border-b-2 py-3 text-body leading-5 max-[359px]:text-small min-[900px]:pt-6 min-[900px]:tracking-[.08em] ${
+						className={`font-mono -mb-px whitespace-nowrap border-b-2 py-3 text-body leading-5 max-[359px]:text-small min-[560px]:tracking-[.08em] min-[900px]:pt-6 ${
 							overWater
 								? current
 									? "site-tab-water relative border-transparent font-semibold text-white"

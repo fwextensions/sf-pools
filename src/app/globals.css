@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* A screen too short for the phone layout's spacing: a phone on its side.
+   Desktop is untouched, since its controls are already the short size. */
+@custom-variant short (@media (max-height: 500px));
+
 /* The design tokens. Colors and type sizes in components go through these
    rather than hex or px values, so a change here reaches every page. */
 @theme static {
@@ -125,6 +129,11 @@
 	@media (max-width: 899px) {
 		min-height: 44px;
 	}
+
+	/* a phone on its side has a finger's width to spare but not its height */
+	@media (max-width: 899px) and (max-height: 500px) {
+		min-height: 36px;
+	}
 }
 
 /* base theme tokens */
@@ -144,6 +153,14 @@
 	--site-nav-text-mid: calc(0.75rem + 0.625rem);
 	/* rows of water left showing once the header pins, with the tabs over them */
 	--site-strip-rows: 4;
+}
+
+/* From about 560px wide (a phone on its side, a tablet upright) the tiles
+   are 17px or more, so two rows already hold the tabs. */
+@media (min-width: 560px) {
+	:root {
+		--site-strip-rows: 2;
+	}
 }
 
 @media (min-width: 900px) {
@@ -209,8 +226,9 @@ body {
    color of its own, just a blur of the water under the labels, so the white
    text sits on softened ripples rather than sharp caustics. On phones it
    fills the whole pinned strip, since thin bands of crisp tile edges above
-   and below it were distracting. On desktop it's a band centered on the
-   labels' midline, leaving a few px of crisp water above and below. */
+   and below it were distracting. From 560px up, where the tabs sit together
+   at the left, it's a band centered on the labels' midline, leaving a few px
+   of crisp water above and below. */
 .site-tab-bar {
 	top: calc(var(--site-nav-text-mid) - var(--site-sticky-h) / 2);
 	height: var(--site-sticky-h);
@@ -219,7 +237,7 @@ body {
 	backdrop-filter: blur(4px);
 }
 
-@media (min-width: 900px) {
+@media (min-width: 560px) {
 	.site-tab-bar {
 		top: calc(var(--site-nav-text-mid) - 0.95rem);
 		height: 1.9rem;

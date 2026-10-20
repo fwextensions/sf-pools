@@ -91,6 +91,20 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 		}
 	}, [focusMode]);
 
+	// focus mode only exists in the phone layout; turning a phone on its side
+	// switches to the sidebar layout, which would leave the page locked behind
+	// an overlay that's no longer shown
+	useEffect(() => {
+		if (!focusMode) return;
+		const wide = window.matchMedia("(min-width: 560px)");
+		const leave = () => {
+			if (wide.matches) setFocusMode(false);
+		};
+		leave();
+		wide.addEventListener("change", leave);
+		return () => wide.removeEventListener("change", leave);
+	}, [focusMode]);
+
 	const hasAnyFilter = filters.tags.length > 0 || filters.pools.length > 0;
 
 	function toggleExpanded(id: string) {
@@ -138,27 +152,34 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 			    stops scrolling and the grid is free to take touch drags while the
 			    results keep their own native scroll */}
 			{focusMode ? (
-				<div className="fixed inset-0 z-50 flex flex-col bg-tint min-[900px]:hidden">
+				<div className="fixed inset-0 z-50 flex flex-col bg-tint min-[560px]:hidden">
 					{/* the page container's 1rem gutter, and 430px inside it, so the
 					    grid keeps exactly its width from the scrolling view */}
-					<div className="mx-auto flex h-full w-full max-w-[calc(430px+2rem)] flex-col px-4">
-						<div className="flex-none border-b border-line py-2.5">
+					<div className="mx-auto flex h-full w-full max-w-[calc(430px+2rem)] flex-col px-4 min-[560px]:max-w-none">
+						<div className="flex-none border-b border-line py-2.5 short:py-1.5">
 							{mobileChips}
 						</div>
 						<MobilePanel fill openPanel={openPanel}>{mobilePanelRows}</MobilePanel>
-						<div className="flex-none"><GridBody model={model} filters={filters} cellHeightClass="h-[19px]" touchDrag /></div>
-						{/* while filtering, the grid itself is the live feedback; the
-						    list gives its space to the panel and comes back after */}
-						{openPanel ? null : (
-							<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4">
-								<DetailPanel model={model} filters={filters} canDrag={true} ratchet={false} />
+						{/* on a phone on its side the list sits beside the grid rather
+						    than under it, and the cells shorten so the whole week fits
+						    the height */}
+						<div className={`flex flex-col short:flex-row short:gap-4 ${openPanel ? "flex-none" : "min-h-0 flex-1"}`}>
+							<div className="flex-none short:min-w-0 short:flex-1">
+								<GridBody model={model} filters={filters} cellHeightClass="h-[19px] short:h-[13px]" touchDrag />
 							</div>
-						)}
+							{/* while filtering, the grid itself is the live feedback; the
+							    list gives its space to the panel and comes back after */}
+							{openPanel ? null : (
+								<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4 short:w-2/5 short:flex-none">
+									<DetailPanel model={model} filters={filters} canDrag={true} ratchet={false} />
+								</div>
+							)}
+						</div>
 					</div>
 				</div>
 			) : (
-				<div className="mx-auto max-w-[430px] min-[900px]:hidden">
-					<div className="sticky top-[var(--site-sticky-h)] z-10 border-b border-line bg-tint py-2.5">
+				<div className="mx-auto max-w-[430px] min-[560px]:hidden">
+					<div className="sticky top-[var(--site-sticky-h)] z-10 border-b border-line bg-tint py-2.5 short:py-1.5">
 						{mobileChips}
 					</div>
 					<MobilePanel openPanel={openPanel}>{mobilePanelRows}</MobilePanel>
@@ -173,11 +194,12 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 				</div>
 			)}
 
-			{/* desktop: fixed sidebar (the pool list doubles as the legend) + main
-			    column, spanning the full container so the sidebar's edge lines up
-			    with the tabs and the footer */}
-			<div className="hidden items-stretch min-[900px]:flex">
-				<div className="w-[280px] flex-none border-r border-line bg-tint">
+			{/* desktop, and from 560px up (a phone on its side, an upright tablet):
+			    fixed sidebar (the pool list doubles as the legend) + main column,
+			    spanning the full container so the sidebar's edge lines up with
+			    the tabs and the footer. Below 900px the sidebar is narrower */}
+			<div className="hidden items-stretch min-[560px]:flex">
+				<div className="w-[260px] flex-none border-r border-line bg-tint min-[900px]:w-[280px]">
 					<div className="mx-4 mt-4 flex items-baseline justify-between border-t-2 border-ink pb-1.5 pt-2.5">
 						<span className="font-mono text-label font-semibold tracking-[.08em] text-ink-2">
 							PROGRAMS
