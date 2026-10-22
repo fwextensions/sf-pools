@@ -36,18 +36,82 @@ export function headerHeightPx(width: number) {
 	const tile = tileCssPx(width);
 	return Math.round(HEADER_TARGET_HEIGHT_PX / tile) * tile;
 }
-//const GROUT = "#4f89aa"; // vec3(0.28, 0.48, 0.58)
+// The shader's base colors, straight from header-shader.frag.
 const GROUT = "#477a94"; // vec3(0.28, 0.48, 0.58)
-const TILE_BLUE = "#7bd2f6"; // vec3(0.459, 0.776, 0.894)
-// Brighter than the shader's base text tile (0.89): once the animation loads
-// the caustics brighten these toward white, so a brighter placeholder matches
-// the lit canvas better and softens the crossfade.
-const TEXT_TILE = "#f0f0ff";
+const TILE_BLUE = "#75c6e4"; // vec3(0.459, 0.776, 0.894)
+const TEXT_TILE = "#f2f2ff"; // vec3(0.95, 0.95, 1.0)
 const GROUT_PCT = 12; // grout line width as % of a tile
 // Half the grout goes at each end of a pattern cell, so the grout stays
 // centered on the cell boundaries (like the shader's symmetric tile mask) and
 // the tile face is centered at 50% — same as the white text faces.
 const GROUT_HALF = GROUT_PCT / 2; // 6%
+
+// Two grout-line gradients form the grid, with half the grout at each end of
+// the cell so the lines straddle the cell boundaries.
+const GROUT_LAYERS = [90, 0].map((angle) =>
+	`repeating-linear-gradient(${angle}deg, ${GROUT} 0 ${GROUT_HALF}%, transparent ${GROUT_HALF}% ${100 -
+	GROUT_HALF}%, ${GROUT} ${100 - GROUT_HALF}% 100%)`
+);
+
+// The shader's pillowed bevel: `color += color * dot(slope, light) * 0.14`,
+// with the light from the upper right, so the top and right edges brighten
+// and the bottom and left darken (normalize(0.35, 0.55) weights up and down
+// over across about 1.6:1). On screen the refraction and caustics roughly
+// double that contrast and spread it most of the way across the face, so
+// these bands are stronger and wider than the shader's own constants. Black
+// darkens multiplicatively, like the shader; the brightening is a paler tint
+// over the face (the shader clamps white text tiles, so theirs is white).
+function bevelLayers(light: string, lightX: number, lightY: number)
+{
+	const band = (angle: number, start: string, startMid: string, end: string, endMid: string) =>
+		`linear-gradient(${angle}deg, ${start} 0 7%, ${startMid} 18%, transparent 35% 65%, ${endMid} 82%, ${end} 93% 100%)`;
+	const rgba = (alpha: number, rgb = "0, 0, 0") => `rgba(${rgb}, ${alpha})`;
+
+	return [
+		band(90, rgba(0.12), rgba(0.05), rgba(lightX, light), rgba(lightX / 2.5, light)),
+		band(180, rgba(lightY, light), rgba(lightY / 2.5, light), rgba(0.2), rgba(0.08)),
+	];
+}
+
+const TILE_BEVEL = bevelLayers("150, 245, 255", 0.4, 0.65);
+const TEXT_BEVEL = bevelLayers("255, 255, 255", 0.5, 0.8);
+
+// The shader varies each blue tile's brightness by up to 4% with a hash of its
+// grid cell. CSS has no hash, so this approximates it the cicada way: each
+// layer marks one tile in an N x M block, and the blocks' prime sizes keep
+// the overlaps from lining up into a visible repeat for a long way. The
+// marker is a conic-gradient quarter centered on the block's first tile
+// corner, which fills exactly that tile; [cols, rows, x, y, color].
+const TILE_VARIATION: [number, number, number, number, string][] = [
+	[3, 5, 1, 2, "rgba(0, 0, 0, 0.04)"],
+	[5, 3, 3, 0, "rgba(255, 255, 255, 0.07)"],
+	[7, 2, 5, 1, "rgba(0, 0, 0, 0.035)"],
+	[2, 7, 0, 4, "rgba(255, 255, 255, 0.05)"],
+	[11, 3, 8, 2, "rgba(0, 0, 0, 0.045)"],
+	[13, 5, 6, 3, "rgba(255, 255, 255, 0.06)"],
+	[17, 2, 12, 0, "rgba(0, 0, 0, 0.04)"],
+];
+const VARIATION_LAYERS = TILE_VARIATION.map(([, , , , color]) =>
+	`conic-gradient(from 270deg at ${TILE} ${TILE}, ${color} 0 90deg, transparent 90deg)`
+);
+
+// A stand-in for the caustics: soft pale patches a few tiles across, again
+// on prime-sized repeats so they don't fall into an obvious pattern. They sit
+// under the grout, which the shader's caustics do light, but a flat grout
+// reads better here than a half-lit one. [cols, rows, x, y, width, height].
+const CAUSTIC_PATCHES: [number, number, number, number, number, number][] = [
+	[7, 5, 2, 1, 3.5, 1.8],
+	[11, 7, 6, 4, 2.6, 2.2],
+	[13, 3, 9, 0, 4, 1.2],
+];
+const CAUSTIC_LAYERS = CAUSTIC_PATCHES.map(([, , x, y, width, height]) =>
+	`radial-gradient(calc(${width / 2} * ${TILE}) calc(${height / 2} * ${TILE}) at calc(${x + width / 2} * ${TILE}) calc(${y + height / 2} * ${TILE}), rgba(190, 245, 255, 0.6), rgba(190, 245, 255, 0.25) 50%, transparent)`
+);
+
+// The shader darkens the middle of the pool (not the corners, despite its
+// "vignette" comment) by up to 15%, fading out over 1.2 header heights:
+// 1 - smoothstep(1.2, 0, dist) * 0.15. These stops sample that smoothstep.
+const VIGNETTE = `radial-gradient(circle calc(1.2 * ${HEADER_HEIGHT}) at 50% 50%, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.127) 25%, rgba(0, 0, 0, 0.075) 50%, rgba(0, 0, 0, 0.023) 75%, transparent)`;
 
 // Same bitmap font as the shader: each glyph is a 15-bit 3x5 map, laid out on
 // 4-tile centers with a 6-tile gap between "SF" and "POOLS" (textWidth = 29).
@@ -88,18 +152,20 @@ export function HeaderPlaceholder()
 			style={{
 				pointerEvents: "none",
 				backgroundColor: TILE_BLUE,
-				// Two grout-line gradients over the blue base form the grid, with
-				// half the grout at each end of the cell so the lines straddle
-				// the cell boundaries and the tile face stays centered.
-				backgroundImage: `repeating-linear-gradient(90deg, ${GROUT} 0 ${GROUT_HALF}%, transparent ${GROUT_HALF}% ${100 -
-				GROUT_HALF}%, ${GROUT} ${100 -
-				GROUT_HALF}% 100%), repeating-linear-gradient(0deg, ${GROUT} 0 ${GROUT_HALF}%, transparent ${GROUT_HALF}% ${100 -
-				GROUT_HALF}%, ${GROUT} ${100 - GROUT_HALF}% 100%)`,
-				backgroundSize: `${TILE} ${TILE}`,
+				// Grout over the bevel over the caustics and variation, so the grout lines
+				// stay flat like the shader's (it masks the bevel to the face).
+				backgroundImage: [...GROUT_LAYERS, ...TILE_BEVEL, ...CAUSTIC_LAYERS, ...VARIATION_LAYERS].join(", "),
+				backgroundSize: [
+					...Array(GROUT_LAYERS.length + TILE_BEVEL.length).fill(`${TILE} ${TILE}`),
+					...[...CAUSTIC_PATCHES, ...TILE_VARIATION].map(([cols, rows]) => `calc(${cols} * ${TILE}) calc(${rows} * ${TILE})`),
+				].join(", "),
 				// The shader's grid origin is gl_FragCoord (0,0) = bottom-left,
 				// so anchor there; when the height isn't a whole number of
 				// tiles, the partial row lands at the top like the canvas.
-				backgroundPosition: "left bottom",
+				backgroundPosition: [
+					...Array(GROUT_LAYERS.length + TILE_BEVEL.length + CAUSTIC_PATCHES.length).fill("left bottom"),
+					...TILE_VARIATION.map(([, , x, y]) => `left calc(${x} * ${TILE}) bottom calc(${y} * ${TILE})`),
+				].join(", "),
 			}}
 		>
 			{/* Text placement matches the shader's snapping, not true centering:
@@ -135,20 +201,15 @@ export function HeaderPlaceholder()
 									style={{
 										gridColumn: c + 1,
 										gridRow: r + 1,
-										backgroundColor: GROUT,
-										padding: `${GROUT_PCT / 2}%`,
+										backgroundColor: TEXT_TILE,
+										backgroundImage: [...GROUT_LAYERS, ...TEXT_BEVEL].join(", "),
 									}}
-								>
-									<div style={{
-										width: "100%",
-										height: "100%",
-										backgroundColor: TEXT_TILE
-									}} />
-								</div>
+								/>
 							) : null
 						)
 					)}
 			</div>
+			<div className="absolute inset-0" style={{ backgroundImage: VIGNETTE }} />
 		</div>
 	);
 }
