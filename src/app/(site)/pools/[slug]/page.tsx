@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AppleMapsLink from "@/components/AppleMapsLink";
 import GridLink from "@/components/grid/GridLink";
 import PoolChip from "@/components/PoolChip";
 import { ExternalLinkIcon } from "@/components/icons";
@@ -132,9 +133,16 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 
 			<dl className="grid grid-cols-1 gap-x-8 min-[560px]:grid-cols-3">
 				<Fact label="ADDRESS">
-					<a href={mapsUrl(page)} target="_blank" rel="noreferrer" className="link-inline">
-						{page.address}<ExternalLinkIcon />
-					</a>
+					<span className="flex flex-wrap items-baseline gap-x-2">
+						<a href={mapsUrl(page)} target="_blank" rel="noreferrer" className="link-inline">
+							{page.address}<ExternalLinkIcon />
+						</a>
+						<AppleMapsLink
+							name={page.name}
+							address={`${page.address}, San Francisco, CA`}
+							className="link-utility"
+						/>
+					</span>
 				</Fact>
 				{pdfs.length || page.pageUrl ? (
 					<Fact label="OFFICIAL">
