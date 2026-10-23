@@ -564,11 +564,6 @@ void main() {
 	float bevelLight = dot(bevelSlope, normalize(vec2(0.35, 0.55)));
 	color += color * bevelLight * 0.14 * tileMask;
 
-	// --- Depth Vignette ---
-	// darken up to 15% toward the corners, fading in over a 1.2-radius
-	float dist = length(uv - vec2(aspect * 0.5, 0.5));
-	color *= 1.0 - smoothstep(1.2, 0.0, dist) * 0.15;
-
 	// --- Caustic Lighting ---
 	vec3 shadowColor = vec3(0.2, 0.35, 0.45);
 	color = mix(color, color * shadowColor, causticShadow * CAUSTIC_SHADOW);

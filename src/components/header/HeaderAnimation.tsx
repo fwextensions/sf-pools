@@ -16,6 +16,9 @@ export default function HeaderAnimation()
 		const host = renderRef.current;
 		if (!host) return;
 
+		// ?water=off leaves just the CSS placeholder, for comparing the two.
+		if (new URLSearchParams(location.search).get("water") === "off") return;
+
 		// Run the draw loop only while it can be seen. The site layout pins the
 		// header's last rows of tiles above the tabs, so on those pages it stays
 		// in view (and keeps animating) for the whole visit; this covers anywhere
