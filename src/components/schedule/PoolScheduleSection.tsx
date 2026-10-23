@@ -309,13 +309,13 @@ type Props = {
 	token: PoolToken | null;
 	/** the heading, when the pool's name would only repeat the page's */
 	title?: string;
-	/** off where the page already gives the address */
-	showAddress?: boolean;
+	/** on where the page above already gives the address and schedule PDF */
+	factsAbove?: boolean;
 	/** where the pool's name links, if anywhere */
 	href?: string;
 };
 
-export default function PoolScheduleSection({ pool, token, title, showAddress = true, href }: Props) {
+export default function PoolScheduleSection({ pool, token, title, factsAbove = false, href }: Props) {
 	const color = token?.color ?? "var(--color-ink-2)";
 	const all = pool.programs || [];
 	const byDay = DAYS.map((day) => ({
@@ -368,9 +368,9 @@ export default function PoolScheduleSection({ pool, token, title, showAddress = 
 			<MetaLine
 				parts={[
 					period ? <span className="uppercase">{period}</span> : null,
-					showAddress && pool.address ? <span className="uppercase">{pool.address}</span> : null,
+					!factsAbove && pool.address ? <span className="uppercase">{pool.address}</span> : null,
 					pool.lanes ? <span>{pool.lanes} LANES</span> : null,
-					pool.pdfScheduleUrl ? (
+					!factsAbove && pool.pdfScheduleUrl ? (
 						<a
 							href={pool.pdfScheduleUrl}
 							target="_blank"

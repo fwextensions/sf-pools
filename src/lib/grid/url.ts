@@ -90,6 +90,13 @@ export function initialGridState(searchParams: Pick<URLSearchParams, "get">): Gr
 	return parseGridQuery(lastWrittenQuery == null ? searchParams : new URLSearchParams(lastWrittenQuery));
 }
 
+// a link from another section that opens the grid on its own filter calls this
+// on click, since a grid that has already been mounted would read back what it
+// last wrote rather than the link's query
+export function presetGridQuery(state: GridUrlState): void {
+	lastWrittenQuery = formatGridQuery(state);
+}
+
 export function writeGridUrl(pathname: string, state: GridUrlState): void {
 	const qs = formatGridQuery(state);
 	lastWrittenQuery = qs;

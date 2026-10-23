@@ -2,10 +2,10 @@ import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import GridLink from "@/components/grid/GridLink";
 import PoolChip from "@/components/PoolChip";
 import { ExternalLinkIcon } from "@/components/icons";
 import PoolScheduleSection from "@/components/schedule/PoolScheduleSection";
-import { formatGridQuery } from "@/lib/grid/url";
 import { buildPoolPages, poolPageSlugs, type PoolPage } from "@/lib/pool-pages";
 import { describeProgram } from "@/lib/program-display";
 import { loadAlerts, loadPools, loadSchedules } from "@/lib/site-data";
@@ -93,7 +93,7 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 	// a notice the pipeline parsed into a closure already shows in the
 	// schedule below, as that pool's closed notice; only the rest show here
 	const notices = (alerts?.poolAlerts ?? []).filter((a) => poolIds.includes(a.poolId) && !a.closure);
-	const gridHref = `/?${formatGridQuery({ tags: [], pools: poolIds, cell: null })}`;
+	const pdfs = page.pools.filter(({ schedule }) => schedule.pdfScheduleUrl);
 	const single = page.pools.length === 1;
 
 	return (
@@ -136,17 +136,32 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 						{page.address}<ExternalLinkIcon />
 					</a>
 				</Fact>
-				{page.pageUrl ? (
+				{pdfs.length || page.pageUrl ? (
 					<Fact label="OFFICIAL">
-						<a href={page.pageUrl} target="_blank" rel="noreferrer" className="link-inline">
-							SF Rec &amp; Parks page<ExternalLinkIcon />
-						</a>
+						{pdfs.map(({ schedule, token }) => (
+							<a
+								key={schedule.id}
+								href={schedule.pdfScheduleUrl!}
+								target="_blank"
+								rel="noreferrer"
+								className="link-inline block w-fit"
+							>
+								{/* North Beach has a PDF per pool */}
+								{single ? "Schedule PDF" : `${token?.name ?? schedule.shortName} schedule PDF`}
+								<ExternalLinkIcon />
+							</a>
+						))}
+						{page.pageUrl ? (
+							<a href={page.pageUrl} target="_blank" rel="noreferrer" className="link-inline block w-fit">
+								SF Rec &amp; Parks page<ExternalLinkIcon />
+							</a>
+						) : null}
 					</Fact>
 				) : null}
 				<Fact label="ON THIS SITE">
-					<Link href={gridHref} className="link-inline">
+					<GridLink state={{ tags: [], pools: poolIds, cell: null }} className="link-inline">
 						See it in the week grid
-					</Link>
+					</GridLink>
 				</Fact>
 			</dl>
 
@@ -175,7 +190,7 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 					pool={schedule}
 					token={token}
 					title={single ? "Weekly schedule" : (token?.fullName ?? undefined)}
-					showAddress={false}
+					factsAbove
 				/>
 			))}
 		</main>
