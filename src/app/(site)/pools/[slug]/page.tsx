@@ -133,14 +133,14 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 
 			<dl className="grid grid-cols-1 gap-x-8 min-[560px]:grid-cols-3">
 				<Fact label="ADDRESS">
-					<span className="flex flex-wrap items-baseline gap-x-2">
+					<span className="flex flex-wrap items-baseline gap-x-4">
 						<a href={mapsUrl(page)} target="_blank" rel="noreferrer" className="link-inline">
 							{page.address}<ExternalLinkIcon />
 						</a>
 						<AppleMapsLink
 							name={page.name}
 							address={`${page.address}, San Francisco, CA`}
-							className="link-utility"
+							className="link-inline"
 						/>
 					</span>
 				</Fact>
