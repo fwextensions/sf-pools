@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { PoolSchedule } from "@/lib/pdf-processor";
-import { toSessions, withoutClosedDays, type Day, type Session } from "@/lib/sessions";
+import type { Day } from "@/lib/sessions";
+import { createPoolCalendar } from "@/lib/pool-calendar";
 import { pacificToday } from "@/lib/closures";
 import { toTitleCase } from "@/lib/program-taxonomy";
 import { getPoolToken } from "@/lib/pool-tokens";
@@ -303,18 +304,8 @@ export default function NowSoon({ all }: Props) {
 		writeNowSoonUrl(pathname, next);
 	};
 
-	// recomputed when the day turns over, so a closure starts or ends at midnight
-	const sessionsByPool = useMemo(() => {
-		const byPool = new Map<string, Session[]>();
-		for (const s of toSessions(withoutClosedDays(all, now.date))) {
-			const list = byPool.get(s.poolId);
-			if (list) list.push(s);
-			else byPool.set(s.poolId, [s]);
-		}
-		return byPool;
-	}, [all, now.date]);
-
-	const view = useMemo(() => nowSoon(all, sessionsByPool, now, options), [all, sessionsByPool, now, options]);
+	const calendar = useMemo(() => createPoolCalendar(all), [all]);
+	const view = useMemo(() => nowSoon(all, calendar, now, options), [all, calendar, now, options]);
 	const quiet = `No ${view.noun} ${view.span}`;
 
 	return (

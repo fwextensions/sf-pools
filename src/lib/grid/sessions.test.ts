@@ -1,6 +1,6 @@
 import { describe, it, expect } from "@jest/globals";
 import type { PoolSchedule } from "@/lib/pdf-processor";
-import { toSessions } from "@/lib/sessions";
+import { createPoolCalendar } from "@/lib/pool-calendar";
 import { buildHitMatrix, hitKey, hourSpan, HOURS, sessionsInCell } from "./sessions";
 
 const pool = (id: string, programs: Array<[string, string, string]>) =>
@@ -16,13 +16,14 @@ const pool = (id: string, programs: Array<[string, string, string]>) =>
 		})),
 	}) as unknown as PoolSchedule;
 
-const sessions = toSessions([
+// Mon Oct 12 through Sun Oct 18
+const sessions = createPoolCalendar([
 	pool("balboa", [
 		["Monday", "9:30a", "11:00a"],
 		["Monday", "7:00p", "8:00p"],
 	]),
 	pool("mlk", [["Tuesday", "6:00a", "7:00a"]]),
-]);
+]).sessions("2026-10-12", "2026-10-18");
 
 describe("sessionsInCell", () => {
 	it("includes sessions overlapping any part of the hour, but not ones that end as it starts", () => {

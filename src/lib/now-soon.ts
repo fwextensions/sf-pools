@@ -1,13 +1,14 @@
 // Where each pool stands for the Now & Soon page: open now, starting soon, or
 // not open, with the countdown, what comes next and why a pool is quiet.
 //
-// Pure functions over the shared session list, so the view only lays out what
-// this returns. Times are minutes past midnight on a Pacific date; a date is
+// Pure functions over the pool calendar, so the view only lays out what this
+// returns. Times are minutes past midnight on a Pacific date; a date is
 // "YYYY-MM-DD", which compares correctly as a string.
 import type { PoolSchedule } from "@/lib/pdf-processor";
-import { formatClosurePeriod, isClosureActive, scheduledClosuresOn } from "@/lib/closures";
+import { formatClosurePeriod, isClosureActive } from "@/lib/closures";
 import { formatScheduleDate } from "@/lib/utils";
 import type { Day, Session } from "@/lib/sessions";
+import { addDays, isAllDay, weekdayOf, type PoolCalendar } from "@/lib/pool-calendar";
 
 /** Drop-in counts only the sessions you can walk in on; Everything counts all */
 export type Mode = "drop-in" | "all";
@@ -81,18 +82,6 @@ export type NowSoonView = {
 	span: string;
 };
 
-const WEEKDAYS: Day[] = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
-export function addDays(date: string, days: number): string {
-	const d = new Date(`${date}T00:00:00Z`);
-	d.setUTCDate(d.getUTCDate() + days);
-	return d.toISOString().slice(0, 10);
-}
-
-export function weekdayOf(date: string): Day {
-	return WEEKDAYS[new Date(`${date}T00:00:00Z`).getUTCDay()]!;
-}
-
 /** "45m", "1h 03m", "2h" */
 export function formatDuration(minutes: number): string {
 	const m = Math.max(0, Math.round(minutes));
@@ -133,13 +122,6 @@ export function qualifies(s: Pick<Session, "tags">, { mode, program }: Pick<NowS
 
 function unique(list: string[]): string[] {
 	return [...new Set(list)];
-}
-
-/** whether the pool's printed schedule covers the date */
-function scheduleCovers(pool: PoolSchedule, date: string): boolean {
-	if (pool.scheduleStartDate && date < pool.scheduleStartDate) return false;
-	if (pool.scheduleEndDate && date > pool.scheduleEndDate) return false;
-	return true;
 }
 
 /**
@@ -206,7 +188,7 @@ function findNext(wanted: (offset: number) => Session[], start: number, from: nu
 
 export function nowSoon(
 	pools: PoolSchedule[],
-	sessionsByPool: Map<string, Session[]>,
+	calendar: PoolCalendar,
 	now: Moment,
 	options: NowSoonOptions
 ): NowSoonView {
@@ -228,15 +210,21 @@ export function nowSoon(
 	const soon: OpenStanding[] = [];
 	const closed: ClosedStanding[] = [];
 
+	// the week from today, as far as a next opening is looked for
+	const sessionsByPool = new Map<string, Session[]>();
+	for (const s of calendar.sessions(now.date, addDays(now.date, 6))) {
+		const list = sessionsByPool.get(s.poolId);
+		if (list) list.push(s);
+		else sessionsByPool.set(s.poolId, [s]);
+	}
+
 	for (const pool of pools) {
 		const all = sessionsByPool.get(pool.id) ?? [];
 		// every session on the date `offset` days out, before the program and
-		// access filters; the schedule's own dates bound it
+		// access filters
 		const onDay = (offset: number) => {
 			const date = addDays(now.date, offset);
-			if (!scheduleCovers(pool, date)) return [];
-			const day = weekdayOf(date);
-			return all.filter((s) => s.dayOfWeek === day).sort((a, b) => a.startMin - b.startMin);
+			return all.filter((s) => s.date === date).sort((a, b) => a.startMin - b.startMin);
 		};
 		const wanted = (offset: number) => onDay(offset).filter((s) => qualifies(s, options));
 		const anchorWanted = wanted(anchor);
@@ -268,12 +256,12 @@ export function nowSoon(
 					names: found.names,
 				}
 			: null;
-		const closedFor = dayClosure(pool, anchorDate, anchor ? "tomorrow" : "today");
+		const closedFor = dayClosure(calendar, pool, anchorDate, anchor ? "tomorrow" : "today");
 		closed.push({
 			pool,
 			next,
 			// the closure says why the week is empty, so it stands in for the note
-			note: next || closedFor ? null : absenceNote(pool, now.date, noun),
+			note: next || closedFor ? null : absenceNote(calendar, pool, now.date, noun),
 			closedFor,
 		});
 	}
@@ -302,14 +290,12 @@ const shortDate = (date: string) => formatScheduleDate(date, { month: "short", d
  * annual maintenance", when the pool is closed all day on `date`, whether the
  * facility page or the PDF says so. Where both do, the longer closure wins.
  */
-function dayClosure(pool: PoolSchedule, date: string, when: string): string | null {
+function dayClosure(calendar: PoolCalendar, pool: PoolSchedule, date: string, when: string): string | null {
 	// a null end is a closure until further notice
-	const covering: Array<{ end: string | null; reason: string | null }> = scheduledClosuresOn(pool.scheduledClosures, date)
-		.filter((c) => !c.startTime)
-		.map((c) => ({ end: c.endDate, reason: c.reason }));
-	const closure = pool.closure;
-	if (closure?.suppressPrograms && isClosureActive(closure, date)) {
-		covering.push({ end: closure.indefinite ? null : closure.endDate, reason: closure.reason });
+	const covering: Array<{ end: string | null; reason: string | null }> = [];
+	for (const r of calendar.closuresOn(pool.id, date)) {
+		if (r.kind === "scheduled" && isAllDay(r)) covering.push({ end: r.closure.endDate, reason: r.closure.reason });
+		if (r.kind === "alert") covering.push({ end: r.closure.indefinite ? null : r.closure.endDate, reason: r.closure.reason });
 	}
 	if (!covering.length) return null;
 	const longest = covering.reduce((a, b) => (a.end === null || (b.end !== null && a.end >= b.end) ? a : b));
@@ -323,15 +309,18 @@ function dayClosure(pool: PoolSchedule, date: string, when: string): string | nu
  * run out or not begun, or simply nothing that matches. Only shown when there
  * is no next opening to say it instead.
  */
-function absenceNote(pool: PoolSchedule, today: string, noun: string): string {
-	const closure = pool.closure;
-	if (closure?.suppressPrograms && (!closure.startDate || closure.startDate <= addDays(today, 6))) {
+function absenceNote(calendar: PoolCalendar, pool: PoolSchedule, today: string, noun: string): string {
+	// the facility page's closure, when it reaches into the week
+	const week = Array.from({ length: 7 }, (_, offset) => addDays(today, offset));
+	const alert = week.flatMap((date) => calendar.closuresOn(pool.id, date)).find((r) => r.kind === "alert");
+	if (alert?.kind === "alert") {
+		const closure = alert.closure;
 		const verb = isClosureActive(closure, today) ? "Closed" : "Closes";
 		return [verb, formatClosurePeriod(closure), closure.reason ? `for ${closure.reason}` : ""].filter(Boolean).join(" ");
 	}
-	if (pool.scheduleEndDate && today > pool.scheduleEndDate) return `Schedule ended ${shortDate(pool.scheduleEndDate)}`;
-	if (pool.scheduleStartDate && addDays(today, 6) < pool.scheduleStartDate) {
-		return `New schedule starts ${shortDate(pool.scheduleStartDate)}`;
-	}
+	const ended = calendar.closuresOn(pool.id, today).find((r) => r.kind === "ended");
+	if (ended?.kind === "ended") return `Schedule ended ${shortDate(ended.endDate)}`;
+	const starts = calendar.closuresOn(pool.id, addDays(today, 6)).find((r) => r.kind === "not-started");
+	if (starts?.kind === "not-started") return `New schedule starts ${shortDate(starts.startDate)}`;
 	return `No ${noun} this week`;
 }

@@ -14,6 +14,7 @@ function session(poolId: string, startTime: string, endTime: string, tags: strin
 		badges: [],
 		tags,
 		dayOfWeek: "Monday",
+		date: "2026-10-12",
 		startTime,
 		endTime,
 		startMin: min(startTime),

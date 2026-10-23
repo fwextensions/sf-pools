@@ -1,7 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
 import type { PoolSchedule } from "@/lib/pdf-processor";
 import type { Closure } from "./closures";
-import { toSessions, type Session } from "./sessions";
+import { createPoolCalendar } from "./pool-calendar";
 import { formatDuration, joinNames, nowSoon, stretchAt, type Moment, type NowSoonOptions } from "./now-soon";
 
 type Row = [day: string, start: string, end: string, name: string, tags?: string[]];
@@ -27,22 +27,18 @@ const pool = (id: string, rows: Row[], extra: Partial<PoolSchedule> = {}) =>
 		...extra,
 	}) as unknown as PoolSchedule;
 
-const byPool = (pools: PoolSchedule[]) => {
-	const map = new Map<string, Session[]>();
-	for (const s of toSessions(pools)) map.set(s.poolId, [...(map.get(s.poolId) ?? []), s]);
-	return map;
-};
-
 // 2026-10-09 is a Friday
-const at = (hh: number, mm = 0): Moment => ({ day: "Friday", date: "2026-10-09", minutes: hh * 60 + mm });
+const FRIDAY = "2026-10-09";
+const fridaySessions = (pools: PoolSchedule[]) => createPoolCalendar(pools).sessions(FRIDAY, FRIDAY);
+const at = (hh: number, mm = 0): Moment => ({ day: "Friday", date: FRIDAY, minutes: hh * 60 + mm });
 const DROP_IN: NowSoonOptions = { mode: "drop-in", program: null, when: "next" };
 
 function view(pools: PoolSchedule[], now: Moment, options: Partial<NowSoonOptions> = {}) {
-	return nowSoon(pools, byPool(pools), now, { ...DROP_IN, ...options });
+	return nowSoon(pools, createPoolCalendar(pools), now, { ...DROP_IN, ...options });
 }
 
 describe("stretchAt", () => {
-	const sessions = toSessions([
+	const sessions = fridaySessions([
 		pool("balboa", [
 			["Friday", "11:00a", "1:00p", "Lap Swim"],
 			["Friday", "1:00p", "2:30p", "Family Swim", FAMILY],
@@ -62,7 +58,7 @@ describe("stretchAt", () => {
 	});
 
 	it("names every program running at once, and the longest one sets the end", () => {
-		const shared = toSessions([
+		const shared = fridaySessions([
 			pool("garfield", [
 				["Friday", "7:00a", "8:45a", "Lap Swim"],
 				["Friday", "7:00a", "8:00a", "Family Swim", FAMILY],
@@ -161,8 +157,7 @@ describe("nowSoon", () => {
 			confidence: null,
 			disagreement: null,
 		};
-		// the page drops a closure's days before it gets here, so these
-		// sessions are the ones withoutClosedDays left
+		// the calendar leaves out the closed days, Friday through Sunday
 		const pools = [pool("northBeachCool", [["Monday", "7:00a", "8:00a", "Lap Swim"]], { closure })];
 		const v = view(pools, at(10));
 		expect(v.closed[0]!.next!.day).toBe("Mon");
@@ -192,7 +187,6 @@ describe("nowSoon", () => {
 			{ startDate: "2026-10-09", endDate: "2026-10-09", startTime: null, endTime: null, reason: "Staff Training" },
 			{ startDate: "2026-10-10", endDate: "2026-10-10", startTime: "12:00p", endTime: "2:00p", reason: "Swim Meet" },
 		];
-		// withoutClosedDays has already dropped Friday's sessions
 		const pools = [pool("hamilton", [["Saturday", "9:00a", "10:00a", "Lap Swim"]], { scheduledClosures })];
 		const v = view(pools, at(10));
 		expect(v.closed[0]).toMatchObject({ closedFor: "Closed today for Staff Training", next: { day: "Sat" } });

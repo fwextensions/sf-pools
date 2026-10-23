@@ -54,6 +54,7 @@ describe("cellDetail", () => {
 		badges: [],
 		tags: [tag],
 		dayOfWeek: "Thursday",
+		date: "2026-10-15",
 		startTime,
 		endTime,
 		startMin,
