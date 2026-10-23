@@ -1,4 +1,4 @@
-import type { ProgramEntry } from "@/lib/pdf-processor";
+import type { ProgramEntry } from "@/lib/schedule-schema";
 import { describeProgram } from "@/lib/program-display";
 import ProgramName from "@/components/ProgramName";
 

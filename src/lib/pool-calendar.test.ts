@@ -1,5 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import type { PoolSchedule } from "@/lib/pdf-processor";
+import type { PoolSchedule } from "@/lib/schedule-schema";
 import type { Closure } from "./closures";
 import { addDays, createPoolCalendar, isAllDay } from "./pool-calendar";
 

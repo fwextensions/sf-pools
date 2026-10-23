@@ -1,6 +1,6 @@
 import { describe, it, expect } from "@jest/globals";
 import { describeProgram } from "./program-display";
-import type { ProgramEntry } from "./pdf-processor";
+import type { ProgramEntry } from "./schedule-schema";
 
 // the fixtures are verbatim rows from public/data/all_schedules.json
 function entry(p: Partial<ProgramEntry>): ProgramEntry {

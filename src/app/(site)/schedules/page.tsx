@@ -1,8 +1,6 @@
-import fs from "node:fs/promises";
-import path from "node:path";
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
-import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
+import type { PoolSchedule, ProgramEntry } from "@/lib/schedule-schema";
 import ClosureNotice from "@/components/ClosureNotice";
 import ScheduledClosures from "@/components/ScheduledClosures";
 import { ExternalLinkIcon } from "@/components/icons";
@@ -11,6 +9,7 @@ import SessionBlock from "@/components/schedule/SessionBlock";
 import TimelineBlock from "@/components/schedule/TimelineBlock";
 import { toTitleCase } from "@/lib/program-taxonomy";
 import { POOL_TOKENS, getPoolToken, type PoolToken } from "@/lib/pool-tokens";
+import { loadSchedules } from "@/lib/site-data";
 import { DAYS, programMinutes } from "@/lib/sessions";
 import { parseTimeToMinutes } from "@/lib/time";
 import { formatScheduleDate } from "@/lib/utils";
@@ -35,16 +34,6 @@ export const metadata: Metadata = {
  * the full name. Below 900px the labels drop and the codes stand alone.
  */
 const SHRINKABLE_LABEL_CHARS = 10;
-
-async function readSchedules(): Promise<PoolSchedule[] | null> {
-	try {
-		const file = path.join(process.cwd(), "public", "data", "all_schedules.json");
-		const content = await fs.readFile(file, "utf-8");
-		return JSON.parse(content) as PoolSchedule[];
-	} catch {
-		return null;
-	}
-}
 
 function formatDate(d?: string | null): string {
 	return formatScheduleDate(d, { year: "numeric", month: "short", day: "2-digit" });
@@ -356,8 +345,7 @@ function WeekTimeline({
 }
 
 export default async function SchedulesPage() {
-	const schedules = await readSchedules();
-	const pools = schedules?.length ? orderPools(schedules) : [];
+	const pools = orderPools(await loadSchedules());
 
 	return (
 		<main>

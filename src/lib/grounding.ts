@@ -4,7 +4,7 @@
 // model reads the PDF as an image and sometimes copies a row from a
 // neighboring day or merges programs that share a cell; this catches both.
 // Pure, like pdf-table.ts, which supplies the cells.
-import type { PoolSchedule, ProgramEntry } from "./pdf-processor";
+import type { PoolSchedule, ProgramEntry } from "./schedule-schema";
 import { formatRange, type Day, type DayCell, type TimeRange } from "./pdf-table";
 import { parseTimeToMinutes } from "./time";
 

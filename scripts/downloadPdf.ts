@@ -3,23 +3,12 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fetchPdfBuffer } from "./http";
+import type { PoolRecord } from "../src/lib/site-data";
 
 const POOLS_FILE = path.join(process.cwd(), "data", "pools.json");
 const DISCOVERED_FILE = path.join(process.cwd(), "public", "data", "discovered_pool_schedules.json");
 const OUT_DIR = path.join(process.cwd(), "data", "pdfs");
 const MANIFEST_FILE = path.join(process.cwd(), "data", "pdf-manifest.json");
-
-export type PoolEntry = {
-	id: string;
-	name: string;
-	nameTitle: string;
-	shortName: string;
-	address: string;
-	pageUrl: string;
-	// optional keyword used to disambiguate when one facility page hosts multiple
-	// schedule PDFs (e.g. North Beach has separate "warm" and "cool" pool schedules)
-	scheduleMatch?: string;
-};
 
 export type DiscoveredPool = {
 	poolId: string;
@@ -73,7 +62,7 @@ async function loadDiscoveredPools(): Promise<DiscoveredPool[]> {
 	}
 }
 
-async function loadPools(): Promise<PoolEntry[]> {
+async function loadPools(): Promise<PoolRecord[]> {
 	try {
 		const raw = await readFile(POOLS_FILE, "utf-8");
 		return JSON.parse(raw);

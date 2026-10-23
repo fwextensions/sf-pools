@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import type { PoolSchedule } from "@/lib/pdf-processor";
+import type { PoolSchedule } from "@/lib/schedule-schema";
 import type { Day } from "@/lib/sessions";
 import { createPoolCalendar } from "@/lib/pool-calendar";
 import { pacificToday } from "@/lib/closures";

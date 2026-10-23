@@ -1,5 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import type { PoolSchedule } from "@/lib/pdf-processor";
+import type { PoolSchedule } from "@/lib/schedule-schema";
 import type { Closure } from "./closures";
 import { createPoolCalendar } from "./pool-calendar";
 import { formatDuration, joinNames, nowSoon, stretchAt, type Moment, type NowSoonOptions } from "./now-soon";

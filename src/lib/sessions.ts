@@ -2,7 +2,7 @@
 // times parsed once into minutes. The pool calendar decides which sessions a
 // date has; a view that wants to list the programs whose times don't parse
 // (the schedules page) asks programMinutes directly.
-import type { ProgramEntry } from "@/lib/pdf-processor";
+import type { ProgramEntry } from "@/lib/schedule-schema";
 import { parseTimeToMinutes } from "@/lib/time";
 
 export type Day = ProgramEntry["dayOfWeek"];

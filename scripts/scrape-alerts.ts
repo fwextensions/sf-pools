@@ -3,7 +3,7 @@ import "dotenv/config";
 import { writeFile, readFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 import { load } from "cheerio";
-import type { PoolEntry } from "./downloadPdf";
+import type { AlertsData, PoolAlert, PoolRecord } from "../src/lib/site-data";
 import { fetchText } from "./http";
 import { detectClosure, mergeClosure, type Closure } from "../src/lib/closures";
 import { enrichClosure } from "../src/lib/closure-enrichment";
@@ -19,7 +19,7 @@ function sleep(ms: number) {
 	return new Promise((res) => setTimeout(res, ms));
 }
 
-async function loadPools(): Promise<PoolEntry[]> {
+async function loadPools(): Promise<PoolRecord[]> {
 	try {
 		const raw = await readFile(POOLS_FILE, "utf-8");
 		return JSON.parse(raw);
@@ -27,24 +27,6 @@ async function loadPools(): Promise<PoolEntry[]> {
 		return [];
 	}
 }
-
-export type PoolAlert = {
-	poolId: string;
-	poolName: string;
-	pageUrl: string;
-	alertText: string;
-	scrapedAt: string;
-	/** the notice PDF on sfrecpark.org, when the alert came from a document link */
-	documentUrl: string | null;
-	/** set when the text describes a whole-pool closure with a known duration */
-	closure: Closure | null;
-};
-
-export type AlertsData = {
-	siteWideAlerts: string[];
-	poolAlerts: PoolAlert[];
-	lastUpdated: string;
-};
 
 // keywords that suggest an alert or notice
 const ALERT_KEYWORDS = [

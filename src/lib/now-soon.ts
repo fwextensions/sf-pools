@@ -4,7 +4,7 @@
 // Pure functions over the pool calendar, so the view only lays out what this
 // returns. Times are minutes past midnight on a Pacific date; a date is
 // "YYYY-MM-DD", which compares correctly as a string.
-import type { PoolSchedule } from "@/lib/pdf-processor";
+import type { PoolSchedule } from "@/lib/schedule-schema";
 import { formatClosurePeriod, isClosureActive } from "@/lib/closures";
 import { formatScheduleDate } from "@/lib/utils";
 import type { Day, Session } from "@/lib/sessions";

@@ -1,53 +1,9 @@
 import { readFile, writeFile, mkdir, unlink } from "node:fs/promises";
 import path from "node:path";
-import type { PoolSchedule, ProgramEntry } from "../src/lib/pdf-processor";
+import type { PoolSchedule, ProgramEntry } from "../src/lib/schedule-schema";
+import type { ChangelogEntry, ChangeSeverity, PoolChange, ProgramChange } from "../src/lib/site-data";
 
 const CHANGELOG_DIR = path.join(process.cwd(), "data", "changelog");
-
-export type ProgramChange = {
-	type: "added" | "removed" | "modified";
-	program: string;
-	day: string;
-	oldTime?: string;
-	newTime?: string;
-	details?: string;
-};
-
-export type PoolChange = {
-	poolName: string;
-	/** the schedule PDF this run read, so a reader can check the changes against it */
-	pdfUrl?: string;
-	programsAdded: number;
-	programsRemoved: number;
-	programsModified: number;
-	changes: ProgramChange[];
-};
-
-export type ChangeSeverity = "none" | "minor" | "moderate" | "major" | "wholesale";
-
-export type ChangelogEntry = {
-	date: string;
-	timestamp: string;
-	poolsChanged: number;
-	totalProgramsAdded: number;
-	totalProgramsRemoved: number;
-	totalProgramsModified: number;
-	totalChanges: number;
-	changeSeverity: ChangeSeverity;
-	scheduleStartDate: string | null;
-	scheduleEndDate: string | null;
-	scheduleSeason: string | null;
-	/**
-	 * true when the source PDFs themselves declare a new season or a later start
-	 * date than the previous run. High churn plus this is a rollover the city
-	 * announced; high churn without it is unexplained and worth a closer look.
-	 */
-	seasonChanged: boolean;
-	/** pools held back at their previous data because this run's extract failed health checks */
-	quarantinedPools: string[];
-	pools: PoolChange[];
-	warnings: string[];
-};
 
 function programKey(p: ProgramEntry): string {
 	return `${p.programName}|${p.dayOfWeek}|${p.startTime}|${p.endTime}`;

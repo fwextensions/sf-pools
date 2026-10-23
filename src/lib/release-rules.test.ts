@@ -15,7 +15,7 @@ import {
 import { POOLS } from "./pool-mapping";
 import { toTitleCase } from "./program-taxonomy";
 import type { Closure } from "./closures";
-import type { PoolSchedule, ProgramEntry } from "./pdf-processor";
+import type { PoolSchedule, ProgramEntry } from "./schedule-schema";
 
 const TODAY = "2026-10-05";
 

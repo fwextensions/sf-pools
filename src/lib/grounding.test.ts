@@ -1,7 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
 import { applyGrounding, countCellPrograms, groundSessions, nameTokens } from "./grounding";
 import { parseTimeRanges, parseUntilNotes, type Day, type DayCell } from "./pdf-table";
-import type { PoolSchedule, ProgramEntry } from "./pdf-processor";
+import type { PoolSchedule, ProgramEntry } from "./schedule-schema";
 
 function cell(day: Day, text: string): DayCell {
 	return { day, text, times: parseTimeRanges(text), untils: parseUntilNotes(text) };

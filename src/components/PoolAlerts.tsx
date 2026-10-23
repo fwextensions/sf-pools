@@ -1,5 +1,5 @@
-import { AlertsData } from "../../scripts/scrape-alerts";
-import { PoolSchedule } from "@/lib/pdf-processor";
+import type { AlertsData } from "@/lib/site-data";
+import { PoolSchedule } from "@/lib/schedule-schema";
 import ClosureNotice from "@/components/ClosureNotice";
 import type { ClosureWindow, ScheduleGap, SharedClosure } from "@/lib/pool-calendar";
 import { formatScheduleDate } from "@/lib/utils";

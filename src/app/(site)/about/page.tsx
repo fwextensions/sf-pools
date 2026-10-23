@@ -1,10 +1,9 @@
-import fs from "node:fs/promises";
-import path from "node:path";
 import type { Metadata } from "next";
 import BaseLink from "next/link";
 import PoolChip from "@/components/PoolChip";
 import { ExternalLinkIcon } from "@/components/icons";
 import { getPoolToken, type PoolToken } from "@/lib/pool-tokens";
+import { loadPools } from "@/lib/site-data";
 
 export const metadata: Metadata = {
 	title: "About",
@@ -15,13 +14,6 @@ const GITHUB_URL = "https://github.com/fwextensions/sf-pools";
 const ISSUES_URL = "https://github.com/fwextensions/sf-pools/issues/new";
 const REC_PARK_URL = "https://sfrecpark.org";
 const POOLS_URL = "https://sfrecpark.org/482/Swimming-Pools";
-
-type PoolRecord = {
-	id: string;
-	nameTitle: string;
-	address: string;
-	pageUrl: string;
-};
 
 type Facility = {
 	// the first pool's id, whose section on the full schedules page the
@@ -36,29 +28,23 @@ type Facility = {
 // North Beach's warm and cool pools are two schedules at one address with one
 // page, so the list is of facilities: one row each, with every pool's chip
 async function readFacilities(): Promise<Facility[]> {
-	try {
-		const file = path.join(process.cwd(), "data", "pools.json");
-		const pools = JSON.parse(await fs.readFile(file, "utf-8")) as PoolRecord[];
-		const byPage = new Map<string, Facility>();
-		for (const pool of pools) {
-			const token = getPoolToken(pool.id);
-			const existing = byPage.get(pool.pageUrl);
-			if (existing) {
-				if (token) existing.tokens.push(token);
-				continue;
-			}
-			byPage.set(pool.pageUrl, {
-				poolId: pool.id,
-				name: pool.nameTitle.replace(/\s*\(.*\)$/, ""),
-				address: pool.address.replace(/, San Francisco$/, ""),
-				pageUrl: pool.pageUrl,
-				tokens: token ? [token] : [],
-			});
+	const byPage = new Map<string, Facility>();
+	for (const pool of await loadPools()) {
+		const token = getPoolToken(pool.id);
+		const existing = byPage.get(pool.pageUrl);
+		if (existing) {
+			if (token) existing.tokens.push(token);
+			continue;
 		}
-		return [...byPage.values()];
-	} catch {
-		return [];
+		byPage.set(pool.pageUrl, {
+			poolId: pool.id,
+			name: pool.nameTitle.replace(/\s*\(.*\)$/, ""),
+			address: pool.address.replace(/, San Francisco$/, ""),
+			pageUrl: pool.pageUrl,
+			tokens: token ? [token] : [],
+		});
 	}
+	return [...byPage.values()];
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {

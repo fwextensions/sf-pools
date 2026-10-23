@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { findCanonicalProgram, normalizeProgramName, toTitleCase } from "../src/lib/program-taxonomy";
-import type { PoolSchedule } from "../src/lib/pdf-processor";
+import type { PoolSchedule } from "../src/lib/schedule-schema";
 
 const SCHEDULES = path.join("public", "data", "all_schedules.json");
 

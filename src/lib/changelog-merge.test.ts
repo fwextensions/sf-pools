@@ -1,7 +1,8 @@
 // tests for mergeChangelogs in scripts/changelog.ts: folding a same-day rerun
 // into that day's entry
 import { describe, it, expect } from "@jest/globals";
-import { mergeChangelogs, type ChangelogEntry, type PoolChange, type ProgramChange } from "../../scripts/changelog";
+import { mergeChangelogs } from "../../scripts/changelog";
+import type { ChangelogEntry, PoolChange, ProgramChange } from "./site-data";
 
 function pool(poolName: string, changes: ProgramChange[]): PoolChange {
 	return {

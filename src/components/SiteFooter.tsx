@@ -1,9 +1,7 @@
-import fs from "node:fs/promises";
-import path from "node:path";
 import Link from "next/link";
 import { formatShortDate, listChangelogs } from "@/lib/changelog-data";
 import { ExternalLinkIcon } from "@/components/icons";
-import type { AlertsData } from "../../scripts/scrape-alerts";
+import { loadAlerts } from "@/lib/site-data";
 
 const REC_PARK_URL = "https://sfrecpark.org";
 const GITHUB_URL = "https://github.com/fwextensions/sf-pools";
@@ -11,13 +9,7 @@ const GITHUB_URL = "https://github.com/fwextensions/sf-pools";
 // every weekly run rewrites the alerts file, so its timestamp is the last time
 // the schedules were checked, whether or not anything changed
 async function readLastChecked(): Promise<string | null> {
-	try {
-		const file = path.join(process.cwd(), "public", "data", "alerts.json");
-		const alerts = JSON.parse(await fs.readFile(file, "utf-8")) as AlertsData;
-		return alerts.lastUpdated ?? null;
-	} catch {
-		return null;
-	}
+	return (await loadAlerts())?.lastUpdated ?? null;
 }
 
 // on a phone the two groups run together as one list of full-width rows,

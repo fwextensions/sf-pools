@@ -1,11 +1,7 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import type { ChangelogEntry, ProgramChange } from "../../scripts/changelog";
+import { loadChangelogs, type ChangelogEntry, type ProgramChange } from "./site-data";
 import { findPool } from "./pool-mapping";
 import { POOL_TOKENS, getPoolToken, type PoolToken } from "./pool-tokens";
 import { parseTimeToMinutes } from "./time";
-
-const CHANGELOG_DIR = path.join(process.cwd(), "data", "changelog");
 
 const DAY_ORDER = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -80,27 +76,7 @@ function rowOrder(a: ChangeRow, b: ChangeRow): number {
  * which describe a schedule change.
  */
 async function readEntries(): Promise<ChangelogEntry[]> {
-	let files: string[];
-	try {
-		files = await fs.readdir(CHANGELOG_DIR);
-	} catch {
-		return [];
-	}
-
-	const entries: ChangelogEntry[] = [];
-	for (const file of files) {
-		if (!/^\d{4}-\d{2}-\d{2}\.json$/.test(file)) continue;
-		try {
-			const entry = JSON.parse(await fs.readFile(path.join(CHANGELOG_DIR, file), "utf-8")) as ChangelogEntry;
-			if (typeof entry.totalChanges === "number" && entry.totalChanges > 0) {
-				entries.push(entry);
-			}
-		} catch {
-			// a malformed file just doesn't get a page
-		}
-	}
-
-	return entries.sort((a, b) => b.date.localeCompare(a.date));
+	return (await loadChangelogs()).filter((e) => typeof e.totalChanges === "number" && e.totalChanges > 0);
 }
 
 // "Spring 2026 pt.1", "SPRING" and "spring" are all the same season as far as

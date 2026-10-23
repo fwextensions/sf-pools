@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
-import type { ProgramEntry } from "@/lib/pdf-processor";
+import type { ProgramEntry } from "@/lib/schedule-schema";
 import { describeProgram } from "@/lib/program-display";
 import SessionBlock from "./SessionBlock";
 
