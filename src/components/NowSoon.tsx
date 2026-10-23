@@ -7,6 +7,7 @@ import type { Day } from "@/lib/sessions";
 import { createPoolCalendar } from "@/lib/pool-calendar";
 import { pacificToday } from "@/lib/closures";
 import { toTitleCase } from "@/lib/program-taxonomy";
+import { poolPageHref } from "@/lib/pool-pages";
 import { getPoolToken } from "@/lib/pool-tokens";
 import {
 	formatDuration,
@@ -105,13 +106,13 @@ function Names({ names }: { names: string[] }) {
 	);
 }
 
-/** chip and pool name, the name linking to the pool's full schedule */
+/** chip and pool name, the name linking to the pool's page */
 function PoolName({ pool, weight }: { pool: PoolSchedule; weight: "font-semibold" | "font-normal" }) {
 	return (
 		<>
 			<PoolChip token={getPoolToken(pool.id)} className="self-center" />
 			<a
-				href={`/schedules#pool-${pool.id}`}
+				href={poolPageHref(pool.id)}
 				className={`text-body ${weight} text-ink decoration-1 underline-offset-[3px] hover:underline`}
 			>
 				{poolLabel(pool)}
