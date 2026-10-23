@@ -97,17 +97,23 @@ const VARIATION_LAYERS = TILE_VARIATION.map(([, , , , color]) =>
 );
 
 // A stand-in for the caustics: soft pale patches a few tiles across, again
-// on prime-sized repeats so they don't fall into an obvious pattern. They sit
-// under the grout, which the shader's caustics do light, but a flat grout
-// reads better here than a half-lit one. [cols, rows, x, y, width, height].
-const CAUSTIC_PATCHES: [number, number, number, number, number, number][] = [
-	[7, 5, 2, 1, 3.5, 1.8],
-	[11, 7, 6, 4, 2.6, 2.2],
-	[13, 3, 9, 0, 4, 1.2],
+// on prime-sized repeats so they don't fall into an obvious pattern. A plain
+// repeat would stack each layer's patches in columns, so each layer gets its
+// own div, turned to its own angle, which also stretches the patches into
+// slanted streaks. Each div is a square 1.5 viewport widths across, which
+// covers the header at any angle. They sit under the grout, which the
+// shader's caustics do light, but a flat grout reads better here than a
+// half-lit one. [cols, rows, x, y, width, height, angle].
+const CAUSTIC_PATCHES: [number, number, number, number, number, number, number][] = [
+	[7, 5, 2, 1, 3.5, 1.8, -24],
+	[11, 7, 6, 4, 2.6, 2.2, 17],
+	[13, 3, 9, 0, 4, 1.2, -38],
 ];
-const CAUSTIC_LAYERS = CAUSTIC_PATCHES.map(([, , x, y, width, height]) =>
-	`radial-gradient(calc(${width / 2} * ${TILE}) calc(${height / 2} * ${TILE}) at calc(${x + width / 2} * ${TILE}) calc(${y + height / 2} * ${TILE}), rgba(225, 245, 255, 0.3), rgba(225, 245, 255, 0.12) 50%, transparent)`
-);
+const CAUSTIC_LAYERS = CAUSTIC_PATCHES.map(([cols, rows, x, y, width, height, angle]) => ({
+	angle,
+	backgroundImage: `radial-gradient(calc(${width / 2} * ${TILE}) calc(${height / 2} * ${TILE}) at calc(${x + width / 2} * ${TILE}) calc(${y + height / 2} * ${TILE}), rgba(225, 245, 255, 0.55), rgba(225, 245, 255, 0.22) 50%, transparent)`,
+	backgroundSize: `calc(${cols} * ${TILE}) calc(${rows} * ${TILE})`,
+}));
 
 // Same bitmap font as the shader: each glyph is a 15-bit 3x5 map, laid out on
 // 4-tile centers with a 6-tile gap between "SF" and "POOLS" (textWidth = 29).
@@ -148,22 +154,40 @@ export function HeaderPlaceholder()
 			style={{
 				pointerEvents: "none",
 				backgroundColor: TILE_BLUE,
-				// Grout over the bevel over the caustics and variation, so the grout lines
-				// stay flat like the shader's (it masks the bevel to the face).
-				backgroundImage: [...GROUT_LAYERS, ...TILE_BEVEL, ...CAUSTIC_LAYERS, ...VARIATION_LAYERS].join(", "),
-				backgroundSize: [
-					...Array(GROUT_LAYERS.length + TILE_BEVEL.length).fill(`${TILE} ${TILE}`),
-					...[...CAUSTIC_PATCHES, ...TILE_VARIATION].map(([cols, rows]) => `calc(${cols} * ${TILE}) calc(${rows} * ${TILE})`),
-				].join(", "),
+				backgroundImage: VARIATION_LAYERS.join(", "),
+				backgroundSize: TILE_VARIATION.map(([cols, rows]) => `calc(${cols} * ${TILE}) calc(${rows} * ${TILE})`).join(", "),
 				// The shader's grid origin is gl_FragCoord (0,0) = bottom-left,
 				// so anchor there; when the height isn't a whole number of
 				// tiles, the partial row lands at the top like the canvas.
-				backgroundPosition: [
-					...Array(GROUT_LAYERS.length + TILE_BEVEL.length + CAUSTIC_PATCHES.length).fill("left bottom"),
-					...TILE_VARIATION.map(([, , x, y]) => `left calc(${x} * ${TILE}) bottom calc(${y} * ${TILE})`),
-				].join(", "),
+				backgroundPosition: TILE_VARIATION.map(([, , x, y]) => `left calc(${x} * ${TILE}) bottom calc(${y} * ${TILE})`).join(", "),
 			}}
 		>
+			<div className="absolute inset-0 overflow-hidden">
+				{CAUSTIC_LAYERS.map(({ angle, ...style }) => (
+					<div
+						key={angle}
+						style={{
+							...style,
+							position: "absolute",
+							left: "50%",
+							top: "50%",
+							width: "150vw",
+							height: "150vw",
+							transform: `translate(-50%, -50%) rotate(${angle}deg)`,
+						}}
+					/>
+				))}
+			</div>
+			{/* Grout over the bevel, above the caustics, so the grout lines
+			    stay flat like the shader's (it masks the bevel to the face). */}
+			<div
+				className="absolute inset-0"
+				style={{
+					backgroundImage: [...GROUT_LAYERS, ...TILE_BEVEL].join(", "),
+					backgroundSize: `${TILE} ${TILE}`,
+					backgroundPosition: "left bottom",
+				}}
+			/>
 			{/* Text placement matches the shader's snapping, not true centering:
 			    textStart = (floor((totalTiles - 29) / 2), ceil((rows - 5) / 2))
 			    in whole tiles from the bottom-left grid origin. round(down|up)
