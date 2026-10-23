@@ -361,7 +361,11 @@ export default function PoolScheduleSection({ pool, token, label, href }: Props)
 						<ClosureNotice closure={pool.closure} poolName={toTitleCase(pool.name)} />
 					</div>
 				) : null}
-				<PoolWeek pool={pool} byDay={byDay} color={color} />
+				{/* with the day row's own top padding, this matches the space above
+				    the section */}
+				<div className="mt-3">
+					<PoolWeek pool={pool} byDay={byDay} color={color} />
+				</div>
 			</section>
 		);
 	}
