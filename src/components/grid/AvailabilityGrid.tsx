@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import type { PoolSchedule } from "@/lib/pdf-processor";
+import type { PoolSchedule } from "@/lib/schedule-schema";
 import PoolAlerts from "@/components/PoolAlerts";
 import { createGridModel } from "@/lib/grid/grid-model";
 import { trackGridChange } from "@/lib/grid/grid-analytics";

@@ -5,7 +5,7 @@ import {
 	detectRegressionAnomalies,
 	repairMeridiemTypos,
 } from "./schedule-validation";
-import type { PoolSchedule, ProgramEntry } from "./pdf-processor";
+import type { PoolSchedule, ProgramEntry } from "./schedule-schema";
 
 function program(overrides: Partial<ProgramEntry> = {}): ProgramEntry {
 	return {

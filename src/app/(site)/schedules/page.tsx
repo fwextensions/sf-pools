@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
-import type { PoolSchedule, ProgramEntry } from "@/lib/pdf-processor";
+import type { PoolSchedule, ProgramEntry } from "@/lib/schedule-schema";
 import ClosureNotice from "@/components/ClosureNotice";
 import ScheduledClosures from "@/components/ScheduledClosures";
 import { ExternalLinkIcon } from "@/components/icons";

@@ -1,4 +1,4 @@
-import type { PoolSchedule } from "./pdf-processor";
+import type { PoolSchedule } from "./schedule-schema";
 import { formatMinutes, parseTimeToMinutes } from "./time";
 
 /**

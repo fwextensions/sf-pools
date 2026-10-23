@@ -5,7 +5,7 @@
 //
 // A date is "YYYY-MM-DD" on the Pacific calendar, which compares correctly as
 // a string.
-import type { PoolSchedule } from "@/lib/pdf-processor";
+import type { PoolSchedule } from "@/lib/schedule-schema";
 import { describeProgram } from "@/lib/program-display";
 import { parseTimeToMinutes } from "@/lib/time";
 import { isClosureActive, scheduledClosuresOn, type Closure, type ScheduledClosure } from "@/lib/closures";

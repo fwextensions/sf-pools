@@ -3,7 +3,7 @@
 // takes the extracted schedules plus what was published last time and returns
 // the schedules to ship, with the record of every rule that fired. It does no
 // I/O, so the tests exercise exactly the code the pipeline runs.
-import type { PoolSchedule } from "./pdf-processor";
+import type { PoolSchedule } from "./schedule-schema";
 import { cleanProgramTitle, deriveTags, findCanonicalProgram, normalizeProgramName, toTitleCase } from "./program-taxonomy";
 import { getPoolIdFromName, getPoolById } from "./pool-mapping";
 import { detectScheduleAnomalies, detectRegressionAnomalies, repairMeridiemTypos } from "./schedule-validation";

@@ -3,7 +3,7 @@
 // table with one column per weekday: the header row names the days, and each
 // cell lists one or more programs followed by the time they share. This module
 // is pure; scripts/read-pdf-lines.ts turns PDF bytes into the lines it takes.
-import type { ProgramEntry } from "./pdf-processor";
+import type { ProgramEntry } from "./schedule-schema";
 
 export type Day = ProgramEntry["dayOfWeek"];
 

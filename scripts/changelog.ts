@@ -1,6 +1,6 @@
 import { readFile, writeFile, mkdir, unlink } from "node:fs/promises";
 import path from "node:path";
-import type { PoolSchedule, ProgramEntry } from "../src/lib/pdf-processor";
+import type { PoolSchedule, ProgramEntry } from "../src/lib/schedule-schema";
 import type { ChangelogEntry, ChangeSeverity, PoolChange, ProgramChange } from "../src/lib/site-data";
 
 const CHANGELOG_DIR = path.join(process.cwd(), "data", "changelog");

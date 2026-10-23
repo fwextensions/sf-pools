@@ -6,7 +6,7 @@
 // times, and the pool next door says the same thing as a grey sentence instead
 // of a badge. This works out what a session should show once: the title without
 // the detail the badges carry, the badges, and only the notes that add something.
-import type { ProgramEntry } from "./pdf-processor";
+import type { ProgramEntry } from "./schedule-schema";
 import { programLocationQualifier } from "./program-taxonomy";
 
 export type ProgramDisplay = {
