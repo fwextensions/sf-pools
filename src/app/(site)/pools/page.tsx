@@ -39,7 +39,7 @@ export default async function PoolsPage() {
 									))}
 								</span>
 								<span className="text-heading font-semibold leading-tight text-ink underline-offset-[3px] group-hover:underline">
-									{page.name}
+									{page.facilityName}
 								</span>
 								<span className="text-body text-ink-2">{page.address}</span>
 								<span className="ml-auto font-mono text-label font-medium text-ink-2">

@@ -62,8 +62,8 @@ function structuredData(page: PoolPage) {
 	return {
 		"@context": "https://schema.org",
 		"@type": "PublicSwimmingPool",
-		name: page.name,
-		alternateName: page.facilityName,
+		name: page.facilityName,
+		alternateName: page.name,
 		url: `${SITE_URL}/pools/${page.slug}`,
 		sameAs: page.pageUrl || undefined,
 		address: {
@@ -98,13 +98,13 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 	const single = page.pools.length === 1;
 
 	return (
-		// no jump nav pins above the schedule here, so its pool and day rows pin
-		// straight under the site header
+		// no jump nav or pinned pool name sits above the schedule here, so its
+		// day row pins straight under the site header
 		<main
 			style={
 				{
 					"--schedule-nav-h": "0px",
-					"--schedule-day-row-top": "calc(var(--schedule-pool-header-h) - 1px)",
+					"--schedule-day-row-top": "0px",
 				} as CSSProperties
 			}
 		>
@@ -118,17 +118,15 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 						ALL POOLS
 					</Link>
 				</nav>
-				<div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1">
-					<span className="flex gap-1">
+				{/* the chips stay beside a name that wraps, lined up with its first line */}
+				<div className="mt-2 flex items-baseline gap-x-2.5 min-[900px]:items-center">
+					<span className="flex flex-none gap-1">
 						{page.pools.map(({ schedule, token }) => (
 							<PoolChip key={schedule.id} token={token} />
 						))}
 					</span>
-					<h1 className="text-title font-semibold leading-tight">{page.name}</h1>
+					<h1 className="text-title font-semibold leading-tight">{page.facilityName}</h1>
 				</div>
-				<p className="mt-1.5 max-w-[62ch] text-body text-ink-2">
-					{page.facilityName}, a public pool run by SF Rec &amp; Parks. Times are Pacific.
-				</p>
 			</header>
 
 			<dl className="grid grid-cols-1 gap-x-8 min-[560px]:grid-cols-3">
@@ -138,7 +136,7 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 							{page.address}<ExternalLinkIcon />
 						</a>
 						<AppleMapsLink
-							name={page.name}
+							name={page.facilityName}
 							address={`${page.address}, San Francisco, CA`}
 							className="link-inline"
 						/>
@@ -197,8 +195,8 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 					key={schedule.id}
 					pool={schedule}
 					token={token}
-					title={single ? "Weekly schedule" : (token?.fullName ?? undefined)}
-					factsAbove
+					// North Beach's two pools say which is which
+					label={single ? "Weekly schedule" : `${token?.name.match(/\((\w+)\)/)?.[1] ?? schedule.shortName} pool weekly schedule`}
 				/>
 			))}
 		</main>

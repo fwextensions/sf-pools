@@ -307,15 +307,17 @@ function WeekTimeline({
 type Props = {
 	pool: PoolSchedule;
 	token: PoolToken | null;
-	/** the heading, when the pool's name would only repeat the page's */
-	title?: string;
-	/** on where the page above already gives the address and schedule PDF */
-	factsAbove?: boolean;
+	/**
+	 * On a pool's own page, which already names the pool and gives its address
+	 * and PDF: a small label replaces the pinned name row, and the day row pins
+	 * straight under the site header.
+	 */
+	label?: string;
 	/** where the pool's name links, if anywhere */
 	href?: string;
 };
 
-export default function PoolScheduleSection({ pool, token, title, factsAbove = false, href }: Props) {
+export default function PoolScheduleSection({ pool, token, label, href }: Props) {
 	const color = token?.color ?? "var(--color-ink-2)";
 	const all = pool.programs || [];
 	const byDay = DAYS.map((day) => ({
@@ -329,6 +331,38 @@ export default function PoolScheduleSection({ pool, token, title, factsAbove = f
 	]
 		.filter(Boolean)
 		.join(" ");
+
+	if (label) {
+		// sentence case and unpadded days, where the pinned row above uses caps
+		const pagePeriod = [
+			pool.scheduleSeason ? toTitleCase(pool.scheduleSeason) : null,
+			[pool.scheduleStartDate, pool.scheduleEndDate]
+				.filter(Boolean)
+				.map((d) => formatScheduleDate(d, { year: "numeric", month: "short", day: "numeric" }))
+				.join(" – "),
+		]
+			.filter(Boolean)
+			.join(" ");
+		return (
+			<section id={`pool-${pool.id}`} className="mt-6">
+				<h2 className="font-mono text-label font-semibold tracking-[.08em] text-ink-2 uppercase">{label}</h2>
+				{pagePeriod ? <p className="mt-1.5 text-small text-ink-2">{pagePeriod}</p> : null}
+				{pool.scheduledClosures?.length ? (
+					<ScheduledClosures closures={pool.scheduledClosures} />
+				) : null}
+				<p className="mt-1.5 text-small text-ink-2">
+					{all.length} session{all.length === 1 ? "" : "s"}
+					{pool.lanes ? ` · ${pool.lanes} lanes` : ""}
+				</p>
+				{pool.closure ? (
+					<div className="mt-3">
+						<ClosureNotice closure={pool.closure} poolName={toTitleCase(pool.name)} />
+					</div>
+				) : null}
+				<PoolWeek pool={pool} byDay={byDay} color={color} />
+			</section>
+		);
+	}
 
 	return (
 		// the space above each pool is margin, not padding: scroll-margin
@@ -354,10 +388,10 @@ export default function PoolScheduleSection({ pool, token, title, factsAbove = f
 					<h2 className="text-heading font-semibold leading-tight">
 						{href ? (
 							<Link href={href} className="underline-offset-[3px] hover:underline">
-								{title ?? toTitleCase(pool.name)}
+								{toTitleCase(pool.name)}
 							</Link>
 						) : (
-							title ?? toTitleCase(pool.name)
+							toTitleCase(pool.name)
 						)}
 					</h2>
 					<span className="font-mono text-label font-medium text-ink-2">
@@ -368,9 +402,9 @@ export default function PoolScheduleSection({ pool, token, title, factsAbove = f
 			<MetaLine
 				parts={[
 					period ? <span className="uppercase">{period}</span> : null,
-					!factsAbove && pool.address ? <span className="uppercase">{pool.address}</span> : null,
+					pool.address ? <span className="uppercase">{pool.address}</span> : null,
 					pool.lanes ? <span>{pool.lanes} LANES</span> : null,
-					!factsAbove && pool.pdfScheduleUrl ? (
+					pool.pdfScheduleUrl ? (
 						<a
 							href={pool.pdfScheduleUrl}
 							target="_blank"
@@ -393,22 +427,39 @@ export default function PoolScheduleSection({ pool, token, title, factsAbove = f
 				</div>
 			) : null}
 
-			{all.length ? (
-				<>
-					<WeekTimeline byDay={byDay} color={color} />
-					{/* narrow screens show one day at a time, where aligning
-					    across days buys nothing and seven columns will not fit */}
-					<div className="mt-3 flex flex-col gap-4 min-[900px]:hidden">
-						{byDay.map(({ day, programs }) => (
-							<DayColumn key={day} day={day} programs={programs} color={color} />
-						))}
-					</div>
-				</>
-			) : !pool.closure ? (
-				<div className="mt-3 bg-tint px-3 py-2.5 text-body text-ink-2">
-					No programs listed for this pool.
-				</div>
-			) : null}
+			<PoolWeek pool={pool} byDay={byDay} color={color} />
 		</section>
+	);
+}
+
+/** the week itself: a time axis from 900px up, a list of days below that */
+function PoolWeek({
+	pool,
+	byDay,
+	color,
+}: {
+	pool: PoolSchedule;
+	byDay: Array<{ day: ProgramEntry["dayOfWeek"]; programs: ProgramEntry[] }>;
+	color: string;
+}) {
+	if (!byDay.some(({ programs }) => programs.length)) {
+		return pool.closure ? null : (
+			<div className="mt-3 bg-tint px-3 py-2.5 text-body text-ink-2">
+				No programs listed for this pool.
+			</div>
+		);
+	}
+
+	return (
+		<>
+			<WeekTimeline byDay={byDay} color={color} />
+			{/* narrow screens show one day at a time, where aligning
+			    across days buys nothing and seven columns will not fit */}
+			<div className="mt-3 flex flex-col gap-4 min-[900px]:hidden">
+				{byDay.map(({ day, programs }) => (
+					<DayColumn key={day} day={day} programs={programs} color={color} />
+				))}
+			</div>
+		</>
 	);
 }
