@@ -7,7 +7,7 @@
 		"address": "1000 Ocean Ave, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Balboa-Pool-212",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29796",
-		"scheduleLastUpdated": "2026-10-19",
+		"scheduleLastUpdated": "2026-10-23",
 		"scheduleSeason": "FALL 2026",
 		"scheduleStartDate": "2026-09-01",
 		"scheduleEndDate": "2026-12-12",
@@ -27,13 +27,6 @@
 				"startTime": null,
 				"endTime": null,
 				"reason": "Thanksgiving"
-			},
-			{
-				"startDate": "2026-10-22",
-				"endDate": "2026-10-22",
-				"startTime": "11:30a",
-				"endTime": "2:00p",
-				"reason": "Aquatics division training"
 			},
 			{
 				"startDate": "2026-12-12",
@@ -580,20 +573,13 @@
 		"address": "1701 Visitacion Ave, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Coffman-Pool-213",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29798",
-		"scheduleLastUpdated": "2026-10-19",
+		"scheduleLastUpdated": "2026-10-23",
 		"scheduleSeason": "Fall 2026",
 		"scheduleStartDate": "2026-08-18",
 		"scheduleEndDate": "2026-12-12",
 		"lanes": null,
 		"closure": null,
 		"scheduledClosures": [
-			{
-				"startDate": "2026-10-22",
-				"endDate": "2026-10-22",
-				"startTime": null,
-				"endTime": null,
-				"reason": "Training"
-			},
 			{
 				"startDate": "2026-11-11",
 				"endDate": "2026-11-11",
@@ -1139,7 +1125,7 @@
 		"address": "1475 Harrison St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Garfield-Pool-214",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29799",
-		"scheduleLastUpdated": "2026-10-19",
+		"scheduleLastUpdated": "2026-10-23",
 		"scheduleSeason": "Fall 2026",
 		"scheduleStartDate": "2026-09-08",
 		"scheduleEndDate": "2026-12-10",
@@ -1159,13 +1145,6 @@
 				"startTime": null,
 				"endTime": null,
 				"reason": "Thanksgiving"
-			},
-			{
-				"startDate": "2026-10-22",
-				"endDate": "2026-10-22",
-				"startTime": "11:00a",
-				"endTime": "2:00p",
-				"reason": "staff training"
 			}
 		],
 		"programs": [
@@ -1943,7 +1922,7 @@
 		"address": "1900 Geary Blvd, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Hamilton-Pool-215",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29800",
-		"scheduleLastUpdated": "2026-10-19",
+		"scheduleLastUpdated": "2026-10-23",
 		"scheduleSeason": "FALL 2026",
 		"scheduleStartDate": "2026-08-18",
 		"scheduleEndDate": "2026-12-12",
@@ -2626,7 +2605,7 @@
 		"address": "5701 3rd St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Martin-Luther-King-Jr-Pool-216",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/30210",
-		"scheduleLastUpdated": "2026-10-19",
+		"scheduleLastUpdated": "2026-10-23",
 		"scheduleSeason": "Fall 2026 pt.2",
 		"scheduleStartDate": "2026-09-29",
 		"scheduleEndDate": "2026-12-12",
@@ -3279,20 +3258,13 @@
 		"address": "19th St & Linda St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Mission-Community-Pool-217",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/30319",
-		"scheduleLastUpdated": "2026-10-19",
+		"scheduleLastUpdated": "2026-10-23",
 		"scheduleSeason": "Fall 2026",
 		"scheduleStartDate": "2026-10-20",
 		"scheduleEndDate": "2026-11-21",
 		"lanes": null,
 		"closure": null,
 		"scheduledClosures": [
-			{
-				"startDate": "2026-10-20",
-				"endDate": "2026-10-20",
-				"startTime": "9:00a",
-				"endTime": "12:30p",
-				"reason": "staff training"
-			},
 			{
 				"startDate": "2026-11-11",
 				"endDate": "2026-11-11",
@@ -3562,7 +3534,7 @@
 		"address": "661 Lombard St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29953",
-		"scheduleLastUpdated": "2026-10-19",
+		"scheduleLastUpdated": "2026-10-23",
 		"scheduleSeason": "FALL 2026",
 		"scheduleStartDate": "2026-09-01",
 		"scheduleEndDate": "2026-12-12",
@@ -3609,13 +3581,6 @@
 				"startTime": "9:00a",
 				"endTime": "12:00p",
 				"reason": "Aquatics In-service Training"
-			},
-			{
-				"startDate": "2026-10-22",
-				"endDate": "2026-10-22",
-				"startTime": "12:00p",
-				"endTime": "2:00p",
-				"reason": "Aquatics Division Training"
 			}
 		],
 		"programs": [
@@ -3999,7 +3964,7 @@
 		"address": "661 Lombard St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29954",
-		"scheduleLastUpdated": "2026-10-19",
+		"scheduleLastUpdated": "2026-10-23",
 		"scheduleSeason": "Fall 2026",
 		"scheduleStartDate": "2026-09-01",
 		"scheduleEndDate": "2026-12-12",
@@ -4025,13 +3990,6 @@
 				"startTime": null,
 				"endTime": null,
 				"reason": "ANNUAL MAINTENCE"
-			},
-			{
-				"startDate": "2026-10-22",
-				"endDate": "2026-10-22",
-				"startTime": "12:00p",
-				"endTime": "2:00p",
-				"reason": "Aquatics Division Training"
 			},
 			{
 				"startDate": "2026-11-26",
@@ -4643,7 +4601,7 @@
 		"address": "600 Arguello Blvd, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Rossi-Pool-219",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29804",
-		"scheduleLastUpdated": "2026-10-19",
+		"scheduleLastUpdated": "2026-10-23",
 		"scheduleSeason": "FALL 2026",
 		"scheduleStartDate": "2026-08-16",
 		"scheduleEndDate": "2026-12-10",
@@ -4670,13 +4628,6 @@
 				"startTime": null,
 				"endTime": null,
 				"reason": "Holiday"
-			},
-			{
-				"startDate": "2026-10-22",
-				"endDate": "2026-10-22",
-				"startTime": "12:00p",
-				"endTime": "2:00p",
-				"reason": "training"
 			},
 			{
 				"startDate": "2026-11-02",
@@ -5268,7 +5219,7 @@
 		"address": "19th Ave & Wawona St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Sava-Pool-220",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/30037",
-		"scheduleLastUpdated": "2026-10-19",
+		"scheduleLastUpdated": "2026-10-23",
 		"scheduleSeason": "Fall 2026",
 		"scheduleStartDate": "2026-08-29",
 		"scheduleEndDate": "2026-12-12",
@@ -5288,13 +5239,6 @@
 				"startTime": null,
 				"endTime": null,
 				"reason": "Thanksgiving"
-			},
-			{
-				"startDate": "2026-10-22",
-				"endDate": "2026-10-22",
-				"startTime": "12:00p",
-				"endTime": "2:00p",
-				"reason": "staff training"
 			},
 			{
 				"startDate": "2026-12-01",
