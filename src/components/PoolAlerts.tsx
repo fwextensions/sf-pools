@@ -1,7 +1,7 @@
 import { AlertsData } from "../../scripts/scrape-alerts";
 import { PoolSchedule } from "@/lib/pdf-processor";
 import ClosureNotice from "@/components/ClosureNotice";
-import type { ClosureWindow, SharedClosure } from "@/lib/pool-calendar";
+import type { ClosureWindow, ScheduleGap, SharedClosure } from "@/lib/pool-calendar";
 import { formatScheduleDate } from "@/lib/utils";
 
 type Props = {
@@ -10,9 +10,13 @@ type Props = {
 	selectedPools: string[];
 	/** closures from the PDFs' notes that fall in the week the grid shows */
 	weekClosures?: SharedClosure[];
+	/** printed schedules that end or start inside that week */
+	scheduleGaps?: ScheduleGap[];
+	/** the first date the grid shows */
+	from?: string;
 }
 
-export default function PoolAlerts({ alerts, pools, selectedPools, weekClosures = [] }: Props) {
+export default function PoolAlerts({ alerts, pools, selectedPools, weekClosures = [], scheduleGaps = [], from = "" }: Props) {
 	const poolAlerts = alerts?.poolAlerts ?? [];
 	// a closure shows when any pool it names is in the filter
 	const relevantClosures = weekClosures
@@ -26,6 +30,12 @@ export default function PoolAlerts({ alerts, pools, selectedPools, weekClosures 
 				.filter((w) => w.poolIds.length > 0),
 		}))
 		.filter((c) => c.windows.length > 0);
+	const relevantGaps = scheduleGaps
+		.map((g) => ({
+			...g,
+			poolIds: selectedPools.length === 0 ? g.poolIds : g.poolIds.filter((id) => selectedPools.includes(id)),
+		}))
+		.filter((g) => g.poolIds.length > 0);
 
 	// filter alerts to match selected pools (or show all if no pools selected)
 	const relevantAlerts = selectedPools.length === 0
@@ -60,7 +70,7 @@ export default function PoolAlerts({ alerts, pools, selectedPools, weekClosures 
 			});
 		});
 
-	if (relevantAlerts.length === 0 && relevantClosures.length === 0) {
+	if (relevantAlerts.length === 0 && relevantClosures.length === 0 && relevantGaps.length === 0) {
 		return null;
 	}
 
@@ -113,6 +123,28 @@ export default function PoolAlerts({ alerts, pools, selectedPools, weekClosures 
 					)}
 				</div>
 			))}
+			{relevantGaps.map((g) => (
+				// the grid has no sessions for these pools past the end of their
+				// printed schedule, or before the start of the next one
+				<div
+					key={`gap-${g.kind}-${g.date}`}
+					className="font-sans border-l-[3px] border-alert bg-alert-tint px-3 py-2.5"
+				>
+					<div className="font-mono text-label font-semibold tracking-[.08em] text-alert">
+						<span aria-hidden className="status-dot ring-2 ring-alert ring-inset" />
+						NO SCHEDULE
+					</div>
+					<p className="mt-1 text-body font-medium text-ink">
+						{g.kind === "starts"
+							? `New schedule starts ${formatDay(g.date)}`
+							: `Schedule ${g.date < from ? "ended" : "ends"} ${formatDay(g.date)}`}
+					</p>
+					<p className="mt-0.5 text-small text-ink-2">
+						{g.poolIds.map(poolName).join(", ")}
+						{g.kind === "starts" ? " · nothing listed before then" : " · nothing listed after that until a new one is posted"}
+					</p>
+				</div>
+			))}
 			{relevantAlerts.map((alert, i) =>
 				// a parsed closure renders as its date range and linked notice; a
 				// plain alert still shows its text
@@ -152,11 +184,15 @@ export default function PoolAlerts({ alerts, pools, selectedPools, weekClosures 
 	);
 }
 
+/** "Mon Oct 12" */
+function formatDay(date: string): string {
+	return formatScheduleDate(date, { weekday: "short", month: "short", day: "numeric" }).replace(",", "");
+}
+
 /** "Mon Oct 12" / "Mon Nov 2 – Sat Nov 21" / "Thu Oct 22, 12:00p–2:00p" */
 function formatWhen(c: SharedClosure, window?: ClosureWindow): string {
-	const fmt = (d: string) => formatScheduleDate(d, { weekday: "short", month: "short", day: "numeric" }).replace(",", "");
-	let when = fmt(c.startDate);
-	if (c.endDate !== c.startDate) when += ` – ${fmt(c.endDate)}`;
+	let when = formatDay(c.startDate);
+	if (c.endDate !== c.startDate) when += ` – ${formatDay(c.endDate)}`;
 	if (window?.startTime && window.endTime) when += `, ${window.startTime}–${window.endTime}`;
 	return when;
 }

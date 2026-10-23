@@ -144,6 +144,54 @@ describe("closed days", () => {
 	});
 });
 
+describe("printed schedule dates", () => {
+	// Mission's schedule runs Tue Oct 20 through Sat Nov 21
+	const mission = {
+		...pool("mission", [
+			["Monday", "9:00a", "10:00a"],
+			["Saturday", "9:00a", "10:00a"],
+		]),
+		scheduleStartDate: "2026-10-20",
+		scheduleEndDate: "2026-11-21",
+	} as PoolSchedule;
+
+	it("has no sessions after the schedule's last day or before its first", () => {
+		// Thu Nov 19 to Wed Nov 25: Sat Nov 21 runs, Mon Nov 23 doesn't
+		expect(week([mission], "2026-11-19")).toEqual(["Saturday 9:00a"]);
+		// Sat Oct 17 to Fri Oct 23: Mon Oct 19 is before the start
+		expect(week([mission], "2026-10-17")).toEqual([]);
+	});
+
+	it("says the date is outside the schedule", () => {
+		const calendar = createPoolCalendar([mission]);
+		expect(calendar.closuresOn("mission", "2026-11-23")).toEqual([{ kind: "ended", endDate: "2026-11-21" }]);
+		expect(calendar.closuresOn("mission", "2026-10-19")).toEqual([{ kind: "not-started", startDate: "2026-10-20" }]);
+		expect(calendar.closuresOn("mission", "2026-11-02")).toEqual([]);
+	});
+
+	it("keeps repeating a schedule that prints no end date", () => {
+		const open = { ...mission, scheduleEndDate: null } as PoolSchedule;
+		expect(createPoolCalendar([open]).sessions("2027-06-01", "2027-06-07")).toHaveLength(2);
+	});
+
+	it("lists the schedules that end or start inside a range, a gap per date", () => {
+		const balboa = { ...pool("balboa", []), scheduleStartDate: "2026-09-01", scheduleEndDate: "2026-12-12" } as PoolSchedule;
+		const coffman = { ...balboa, id: "coffman" } as PoolSchedule;
+		const calendar = createPoolCalendar([mission, balboa, coffman]);
+		expect(calendar.scheduleGaps("2026-11-19", "2026-11-25")).toEqual([
+			{ kind: "ends", date: "2026-11-21", poolIds: ["mission"] },
+		]);
+		expect(calendar.scheduleGaps("2026-12-10", "2026-12-16")).toEqual([
+			{ kind: "ends", date: "2026-11-21", poolIds: ["mission"] },
+			{ kind: "ends", date: "2026-12-12", poolIds: ["balboa", "coffman"] },
+		]);
+		expect(calendar.scheduleGaps("2026-10-17", "2026-10-23")).toEqual([
+			{ kind: "starts", date: "2026-10-20", poolIds: ["mission"] },
+		]);
+		expect(calendar.scheduleGaps("2026-11-02", "2026-11-08")).toEqual([]);
+	});
+});
+
 describe("closures", () => {
 	const day = (startDate: string, reason: string, more: object = {}) => ({
 		startDate,

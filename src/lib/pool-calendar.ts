@@ -11,10 +11,23 @@ import { parseTimeToMinutes } from "@/lib/time";
 import { isClosureActive, scheduledClosuresOn, type Closure, type ScheduledClosure } from "@/lib/closures";
 import { programMinutes, type Day, type Session } from "@/lib/sessions";
 
-/** why a pool has no sessions, or fewer, on a date */
+/**
+ * why a pool has no sessions, or fewer, on a date: a closure, or a date
+ * outside the dates its printed schedule runs
+ */
 export type ClosedReason =
 	| { kind: "alert"; closure: Closure }
-	| { kind: "scheduled"; closure: ScheduledClosure };
+	| { kind: "scheduled"; closure: ScheduledClosure }
+	| { kind: "not-started"; startDate: string }
+	| { kind: "ended"; endDate: string };
+
+/** the pools whose printed schedule starts or ends inside a range of dates */
+export type ScheduleGap = {
+	/** "ends": no sessions after `date`; "starts": none before it */
+	kind: "ends" | "starts";
+	date: string;
+	poolIds: string[];
+};
 
 /** one closure from the PDFs' notes, with every pool that announces it */
 export type SharedClosure = {
@@ -39,8 +52,9 @@ export type PoolCalendar = {
 	 */
 	sessions(from: string, to: string): Session[];
 	/**
-	 * Why the pool is closed for all or part of `date`, in the order the
-	 * PDF's notes list them, then the facility page's.
+	 * Why the pool is closed for all or part of `date`: a date outside its
+	 * schedule, then the PDF's notes in the order they list them, then the
+	 * facility page's closure.
 	 */
 	closuresOn(poolId: string, date: string): ClosedReason[];
 	/**
@@ -48,6 +62,11 @@ export type PoolCalendar = {
 	 * per date range and reason, with the hours each pool shares.
 	 */
 	closures(from: string, to: string): SharedClosure[];
+	/**
+	 * The schedules that end before `to` or start after `from`, so that some
+	 * of those dates have no sessions until a new PDF is posted.
+	 */
+	scheduleGaps(from: string, to: string): ScheduleGap[];
 };
 
 const WEEKDAYS: Day[] = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -64,7 +83,7 @@ export function weekdayOf(date: string): Day {
 
 /** whether a reason shuts the pool for the whole of the date */
 export function isAllDay(reason: ClosedReason): boolean {
-	return reason.kind === "alert" || !reason.closure.startTime || !reason.closure.endTime;
+	return reason.kind !== "scheduled" || !reason.closure.startTime || !reason.closure.endTime;
 }
 
 function datesBetween(from: string, to: string): string[] {
@@ -83,10 +102,17 @@ export function createPoolCalendar(pools: PoolSchedule[]): PoolCalendar {
 	function closuresOn(poolId: string, date: string): ClosedReason[] {
 		const pool = byId.get(poolId);
 		if (!pool) return [];
-		const reasons: ClosedReason[] = scheduledClosuresOn(pool.scheduledClosures, date).map((closure) => ({
-			kind: "scheduled",
-			closure,
-		}));
+		const reasons: ClosedReason[] = [];
+		// a missing date means the schedule runs until the next PDF replaces it
+		if (pool.scheduleStartDate && date < pool.scheduleStartDate) {
+			reasons.push({ kind: "not-started", startDate: pool.scheduleStartDate });
+		}
+		if (pool.scheduleEndDate && date > pool.scheduleEndDate) {
+			reasons.push({ kind: "ended", endDate: pool.scheduleEndDate });
+		}
+		for (const closure of scheduledClosuresOn(pool.scheduledClosures, date)) {
+			reasons.push({ kind: "scheduled", closure });
+		}
 		// suppressPrograms is the release rules' gate: an alert that isn't
 		// trusted to hide programs is only shown as a notice
 		if (pool.closure?.suppressPrograms && isClosureActive(pool.closure, date)) {
@@ -147,7 +173,21 @@ export function createPoolCalendar(pools: PoolSchedule[]): PoolCalendar {
 			.sort((a, b) => a.startDate.localeCompare(b.startDate) || windowStart(a.windows[0]!) - windowStart(b.windows[0]!));
 	}
 
-	return { sessions, closuresOn, closures };
+	function scheduleGaps(from: string, to: string): ScheduleGap[] {
+		const gaps: ScheduleGap[] = [];
+		const add = (kind: ScheduleGap["kind"], date: string, poolId: string) => {
+			const gap = gaps.find((g) => g.kind === kind && g.date === date);
+			if (gap) gap.poolIds.push(poolId);
+			else gaps.push({ kind, date, poolIds: [poolId] });
+		};
+		for (const pool of pools) {
+			if (pool.scheduleStartDate && pool.scheduleStartDate > from) add("starts", pool.scheduleStartDate, pool.id);
+			if (pool.scheduleEndDate && pool.scheduleEndDate < to) add("ends", pool.scheduleEndDate, pool.id);
+		}
+		return gaps.sort((a, b) => a.date.localeCompare(b.date));
+	}
+
+	return { sessions, closuresOn, closures, scheduleGaps };
 }
 
 function weeklySessions(pool: PoolSchedule): Weekly[] {
@@ -175,7 +215,7 @@ function weeklySessions(pool: PoolSchedule): Weekly[] {
 /** whether a closure shuts any part of the session */
 function shuts(reason: ClosedReason, s: Weekly): boolean {
 	if (isAllDay(reason)) return true;
-	const c = reason.closure as ScheduledClosure;
+	const c = (reason as Extract<ClosedReason, { kind: "scheduled" }>).closure;
 	const window = programMinutes({ startTime: c.startTime!, endTime: c.endTime! });
 	// a window we can't read closes nothing rather than the whole day
 	return !!window && s.startMin < window.endMin && window.startMin < s.endMin;

@@ -26,13 +26,19 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
 	// each weekday column is that day's next date, from today, so a closed
-	// pool's sessions drop out on the days its closure covers this week, and
-	// the PDFs' own closures are said above the grid
+	// pool's sessions drop out on the days its closure covers this week, as
+	// do the days outside its printed schedule; the notices above the grid
+	// say why
 	const [week] = useState(() => {
 		const today = pacificToday();
 		const calendar = createPoolCalendar(all);
 		const last = addDays(today, 6);
-		return { sessions: calendar.sessions(today, last), closures: calendar.closures(today, last) };
+		return {
+			today,
+			sessions: calendar.sessions(today, last),
+			closures: calendar.closures(today, last),
+			gaps: calendar.scheduleGaps(today, last),
+		};
 	});
 	// created during the first render from the url rather than in an effect,
 	// so the grid never paints a frame unfiltered before the filters land
@@ -148,7 +154,14 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 
 	return (
 		<div className="font-sans py-6 text-ink">
-			<PoolAlerts alerts={alerts} pools={all} selectedPools={alertPools} weekClosures={week.closures} />
+			<PoolAlerts
+				alerts={alerts}
+				pools={all}
+				selectedPools={alertPools}
+				weekClosures={week.closures}
+				scheduleGaps={week.gaps}
+				from={week.today}
+			/>
 
 			{/* mobile: single column, sticky chip bar with accordion panels. Focus
 			    mode pins those same pieces to the viewport instead, so the page
