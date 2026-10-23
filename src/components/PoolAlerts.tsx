@@ -1,7 +1,7 @@
 import { AlertsData } from "../../scripts/scrape-alerts";
 import { PoolSchedule } from "@/lib/pdf-processor";
 import ClosureNotice from "@/components/ClosureNotice";
-import type { ClosureWindow, SharedClosure } from "@/lib/sessions";
+import type { ClosureWindow, SharedClosure } from "@/lib/pool-calendar";
 import { formatScheduleDate } from "@/lib/utils";
 
 type Props = {

@@ -282,28 +282,10 @@ export function hasClosureEnded(closure: Closure, today: string): boolean {
 	return !closure.indefinite && !!closure.endDate && today > closure.endDate;
 }
 
-const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] as const;
-
 /** today's date in San Francisco, YYYY-MM-DD */
 export function pacificToday(now: Date = new Date()): string {
 	// en-CA formats as YYYY-MM-DD
 	return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles" }).format(now);
-}
-
-/**
- * The weekdays a closure shuts in the seven days starting `today`. The views
- * show one week of a weekly schedule, so each weekday stands for its next
- * occurrence: on a Friday, "Tuesday" means the coming Tuesday.
- */
-export function closedDays(closure: Closure, today: string): Set<string> {
-	const days = new Set<string>();
-	const start = new Date(`${today}T00:00:00Z`);
-	for (let i = 0; i < 7; i++) {
-		const d = new Date(start);
-		d.setUTCDate(start.getUTCDate() + i);
-		if (isClosureActive(closure, d.toISOString().slice(0, 10))) days.add(WEEKDAYS[d.getUTCDay()]!);
-	}
-	return days;
 }
 
 /** "Aug 14 – Sep 7" / "through Sep 7" / "until further notice" */
@@ -512,21 +494,6 @@ function ymd(date: string): [number, number, number] {
 /** the scheduled closures covering `date`, all-day and partial alike */
 export function scheduledClosuresOn(closures: ScheduledClosure[] | null | undefined, date: string): ScheduledClosure[] {
 	return (closures ?? []).filter((c) => c.startDate <= date && date <= c.endDate);
-}
-
-/**
- * The date each weekday falls on in the seven days from `today`, the same
- * reading of a weekly schedule closedDays uses.
- */
-export function weekDates(today: string): Map<string, string> {
-	const dates = new Map<string, string>();
-	const start = new Date(`${today}T00:00:00Z`);
-	for (let i = 0; i < 7; i++) {
-		const d = new Date(start);
-		d.setUTCDate(start.getUTCDate() + i);
-		dates.set(WEEKDAYS[d.getUTCDay()]!, d.toISOString().slice(0, 10));
-	}
-	return dates;
 }
 
 /** "Oct 12" / "Nov 26 – 27" / "Oct 22, 11:30a–2:00p" */

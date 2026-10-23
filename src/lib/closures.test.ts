@@ -5,7 +5,6 @@ import {
 	parseDateRange,
 	isClosureActive,
 	hasClosureEnded,
-	closedDays,
 	pacificToday,
 	formatClosurePeriod,
 	checkClosureSanity,
@@ -13,7 +12,6 @@ import {
 	checkScheduledClosure,
 	formatScheduledClosure,
 	scheduledClosuresOn,
-	weekDates,
 	type ClosureEnrichment,
 	type ScheduledClosure,
 } from "./closures";
@@ -333,29 +331,6 @@ describe("hasClosureEnded", () => {
 	});
 });
 
-describe("closedDays", () => {
-	// North Beach: Tue Oct 13 through Sun Nov 1, 2026
-	const closure = detectClosure("Pool Closure 10-13_11-1 2026", opts)!;
-
-	it("is empty a week before the closure", () => {
-		expect(closedDays(closure, "2026-10-06").size).toBe(0);
-	});
-
-	it("covers only the days from the start when the week runs into it", () => {
-		// Fri Oct 9: Fri, Sat, Sun, Mon are open; Tue Oct 13 onward is closed
-		expect([...closedDays(closure, "2026-10-09")].sort()).toEqual(["Thursday", "Tuesday", "Wednesday"]);
-	});
-
-	it("covers every day in the middle of the closure", () => {
-		expect(closedDays(closure, "2026-10-20").size).toBe(7);
-	});
-
-	it("covers only the days before reopening when the week runs past the end", () => {
-		// Thu Oct 29: Thu, Fri, Sat, Sun are closed; Mon Nov 2 onward is open
-		expect([...closedDays(closure, "2026-10-29")].sort()).toEqual(["Friday", "Saturday", "Sunday", "Thursday"]);
-	});
-});
-
 describe("pacificToday", () => {
 	it("gives the San Francisco date, not the UTC one", () => {
 		// 2026-10-09 05:00 UTC is still the evening of Oct 8 in San Francisco
@@ -401,13 +376,6 @@ describe("scheduled closures", () => {
 		expect(scheduledClosuresOn([holiday(), thanksgiving], "2026-11-27")).toEqual([thanksgiving]);
 		expect(scheduledClosuresOn([holiday()], "2026-10-13")).toEqual([]);
 		expect(scheduledClosuresOn(null, "2026-10-12")).toEqual([]);
-	});
-
-	it("dates each weekday in the seven days from today", () => {
-		const dates = weekDates("2026-10-09");
-		expect(dates.get("Friday")).toBe("2026-10-09");
-		expect(dates.get("Monday")).toBe("2026-10-12");
-		expect(dates.get("Thursday")).toBe("2026-10-15");
 	});
 
 	it("formats a day, a range and a window", () => {

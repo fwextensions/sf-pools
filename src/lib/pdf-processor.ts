@@ -68,7 +68,7 @@ export const PoolScheduleSchema = z.object({
 	/**
 	 * Set by the pipeline (not the extractor) when a scraped alert says the pool
 	 * is or will be shut. Programs stay the regular weekly schedule; the site
-	 * hides the sessions that fall on the closure's dates (see closedDays).
+	 * hides the sessions that fall on the closure's dates (see pool-calendar).
 	 */
 	closure: ClosureSchema.optional().nullable(),
 	/**

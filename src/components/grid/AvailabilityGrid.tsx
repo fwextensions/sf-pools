@@ -6,7 +6,7 @@ import type { PoolSchedule } from "@/lib/pdf-processor";
 import PoolAlerts from "@/components/PoolAlerts";
 import { createGridModel } from "@/lib/grid/grid-model";
 import { trackGridChange } from "@/lib/grid/grid-analytics";
-import { closuresThisWeek, toSessions, withoutClosedDays } from "@/lib/sessions";
+import { addDays, createPoolCalendar } from "@/lib/pool-calendar";
 import { pacificToday } from "@/lib/closures";
 import { initialGridState, writeGridUrl } from "@/lib/grid/url";
 import { trackFocusMode } from "@/lib/analytics";
@@ -25,15 +25,18 @@ type Props = {
 export default function AvailabilityGrid({ all, alerts }: Props) {
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
+	// each weekday column is that day's next date, from today, so a closed
+	// pool's sessions drop out on the days its closure covers this week, and
+	// the PDFs' own closures are said above the grid
+	const [week] = useState(() => {
+		const today = pacificToday();
+		const calendar = createPoolCalendar(all);
+		const last = addDays(today, 6);
+		return { sessions: calendar.sessions(today, last), closures: calendar.closures(today, last) };
+	});
 	// created during the first render from the url rather than in an effect,
 	// so the grid never paints a frame unfiltered before the filters land
-	// a closed pool's sessions drop out on the days its closure covers this week
-	const [model] = useState(() =>
-		createGridModel(toSessions(withoutClosedDays(all, pacificToday())), initialGridState(searchParams))
-	);
-	// the PDFs' own closures this week, said above the grid since their
-	// sessions are already gone from it
-	const [weekClosures] = useState(() => closuresThisWeek(all, pacificToday()));
+	const [model] = useState(() => createGridModel(week.sessions, initialGridState(searchParams)));
 	const subscribeFilters = useCallback(
 		(onChange: () => void) =>
 			model.subscribe((change) => {
@@ -145,7 +148,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 
 	return (
 		<div className="font-sans py-6 text-ink">
-			<PoolAlerts alerts={alerts} pools={all} selectedPools={alertPools} weekClosures={weekClosures} />
+			<PoolAlerts alerts={alerts} pools={all} selectedPools={alertPools} weekClosures={week.closures} />
 
 			{/* mobile: single column, sticky chip bar with accordion panels. Focus
 			    mode pins those same pieces to the viewport instead, so the page
