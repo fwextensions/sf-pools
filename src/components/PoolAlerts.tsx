@@ -1,4 +1,4 @@
-import { AlertsData } from "../../scripts/scrape-alerts";
+import type { AlertsData } from "@/lib/site-data";
 import { PoolSchedule } from "@/lib/pdf-processor";
 import ClosureNotice from "@/components/ClosureNotice";
 import type { ClosureWindow, ScheduleGap, SharedClosure } from "@/lib/pool-calendar";

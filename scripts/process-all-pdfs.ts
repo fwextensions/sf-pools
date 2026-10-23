@@ -14,7 +14,8 @@ import {
 	type PoolExtract,
 } from "@/lib/release-rules";
 import { formatUsageSummary, sessionUsage, USAGE_LOG } from "@/lib/llm-usage";
-import type { PoolEntry, DiscoveredPool } from "./downloadPdf";
+import type { DiscoveredPool } from "./downloadPdf";
+import type { PoolRecord } from "@/lib/site-data";
 import { readPdfLines } from "./read-pdf-lines";
 import {
 	computeChangelog,
@@ -111,7 +112,7 @@ function todayISO(): string {
 	return new Date().toISOString().slice(0, 10);
 }
 
-async function loadPools(): Promise<PoolEntry[]> {
+async function loadPools(): Promise<PoolRecord[]> {
 	try {
 		const raw = await readFile(POOLS_FILE, "utf-8");
 		return JSON.parse(raw);
@@ -171,7 +172,7 @@ export async function main(): Promise<ProcessResult> {
 
 	// load pools.json for static metadata
 	const pools = await loadPools();
-	const poolsById = new Map<string, PoolEntry>();
+	const poolsById = new Map<string, PoolRecord>();
 	for (const p of pools) {
 		poolsById.set(p.id.toLowerCase(), p);
 	}

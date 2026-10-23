@@ -1,27 +1,15 @@
 import { Suspense } from "react";
-import fs from "node:fs/promises";
-import path from "node:path";
 import type { Metadata } from "next";
-import type { PoolSchedule } from "@/lib/pdf-processor";
 import NowSoon from "@/components/NowSoon";
+import { loadSchedules } from "@/lib/site-data";
 
 export const metadata: Metadata = {
 	title: "Now & soon",
 	description: "What is running right now across San Francisco public pools, and what starts soon.",
 };
 
-async function readAllSchedules(): Promise<PoolSchedule[] | null> {
-	try {
-		const file = path.join(process.cwd(), "public", "data", "all_schedules.json");
-		const content = await fs.readFile(file, "utf-8");
-		return JSON.parse(content) as PoolSchedule[];
-	} catch {
-		return null;
-	}
-}
-
 export default async function NowPage() {
-	const all = await readAllSchedules();
+	const all = await loadSchedules();
 
 	return (
 		<main>
@@ -32,7 +20,7 @@ export default async function NowPage() {
 				</p>
 			</header>
 
-			{all && all.length > 0 ? (
+			{all.length > 0 ? (
 				// the controls live in the url, which a static page only has in the browser
 				<Suspense fallback={<div className="mt-4 bg-tint px-3 py-2.5 text-body text-ink-2">Loading…</div>}>
 					<NowSoon all={all} />

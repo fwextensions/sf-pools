@@ -11,7 +11,7 @@ import { pacificToday } from "@/lib/closures";
 import { initialGridState, writeGridUrl } from "@/lib/grid/url";
 import { trackFocusMode } from "@/lib/analytics";
 import { CATEGORY_GROUPS } from "@/lib/program-taxonomy";
-import type { AlertsData } from "../../../scripts/scrape-alerts";
+import type { AlertsData } from "@/lib/site-data";
 import GridBody from "./GridBody";
 import DetailPanel from "./DetailPanel";
 import { CategoryRows, ClearButton, PoolRows } from "./FilterPicker";

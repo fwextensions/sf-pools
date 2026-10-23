@@ -2,7 +2,7 @@ import { writeFile, readFile } from "node:fs/promises";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { load } from "cheerio";
-import type { PoolEntry } from "./downloadPdf";
+import type { PoolRecord } from "@/lib/site-data";
 import { fetchText } from "./http";
 import { pickCurrentScheduleLink } from "@/lib/schedule-links";
 
@@ -149,7 +149,7 @@ function pickBestPdfLink(
 	return scored[0]?.href ?? null;
 }
 
-async function loadPools(): Promise<PoolEntry[]> {
+async function loadPools(): Promise<PoolRecord[]> {
 	try {
 		const raw = await readFile(POOLS_FILE, "utf-8");
 		return JSON.parse(raw);
