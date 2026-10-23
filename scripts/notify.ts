@@ -8,6 +8,8 @@ const PUSHOVER_API_URL = "https://api.pushover.net/1/messages.json";
 const SITE_URL = "https://sf-pools.vercel.app";
 const GITHUB_REPO = "fwextensions/sf-pools";
 const GITHUB_CHANGELOG_PATH = "data/changelog";
+// Pushover counts the message in characters, not UTF-16 code units
+const PUSHOVER_MESSAGE_LIMIT = 1024;
 
 export type NotificationOptions = {
 	title: string;
@@ -17,7 +19,46 @@ export type NotificationOptions = {
 	urlTitle?: string;
 };
 
+/** The Actions run this is part of, whose log holds the full notification text. */
+function actionsRunUrl(): string | null {
+	const { GITHUB_SERVER_URL, GITHUB_REPOSITORY, GITHUB_RUN_ID } = process.env;
+	if (!GITHUB_SERVER_URL || !GITHUB_REPOSITORY || !GITHUB_RUN_ID) return null;
+	return `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}`;
+}
+
+/**
+ * Cuts the message to Pushover's limit, keeping the footer intact so the link
+ * to the full text survives however long the body is.
+ */
+export function fitMessage(message: string, footer = "", limit = PUSHOVER_MESSAGE_LIMIT): string {
+	const tail = footer ? `\n\n${footer}` : "";
+	const chars = Array.from(message);
+	const room = limit - Array.from(tail).length;
+	if (chars.length <= room) return message + tail;
+	return chars.slice(0, Math.max(0, room - 1)).join("").trimEnd() + "…" + tail;
+}
+
+function logNotification(options: NotificationOptions): void {
+	const lines = [
+		`Title: ${options.title}`,
+		`Priority: ${options.priority ?? 0}`,
+		...(options.url ? [`Link: ${options.urlTitle ?? options.url} (${options.url})`] : []),
+		"",
+		options.message,
+	];
+	if (process.env.GITHUB_ACTIONS) {
+		console.log(`::group::Notification: ${options.title}`);
+		console.log(lines.join("\n"));
+		console.log("::endgroup::");
+	} else {
+		console.log(lines.join("\n"));
+	}
+}
+
 export async function sendNotification(options: NotificationOptions): Promise<boolean> {
+	// the log keeps the untrimmed text, which the push links to when it's cut
+	logNotification(options);
+
 	const userKey = process.env.PUSHOVER_USER_KEY;
 	const apiToken = process.env.PUSHOVER_API_TOKEN;
 
@@ -26,11 +67,12 @@ export async function sendNotification(options: NotificationOptions): Promise<bo
 		return false;
 	}
 
+	const runUrl = actionsRunUrl();
 	const body = new URLSearchParams({
 		token: apiToken,
 		user: userKey,
 		title: options.title,
-		message: options.message,
+		message: fitMessage(options.message, runUrl ? `Full text in the run log: ${runUrl}` : ""),
 		priority: String(options.priority ?? 0),
 	});
 
@@ -160,14 +202,12 @@ export async function notifyScheduleUpdate(changelog?: ChangelogEntry | null): P
 			lines.push(`${entry.poolsChanged} pool(s): ${parts.join(" ")} programs`);
 		}
 
-		// warnings (including extraction anomalies) — list a few, not just a count
+		// warnings (including extraction anomalies) in full; sendNotification
+		// trims the message as a whole if it runs past Pushover's limit
 		if (entry.warnings.length > 0) {
 			lines.push(`⚠️ ${entry.warnings.length} warning(s):`);
-			for (const w of entry.warnings.slice(0, 3)) {
-				lines.push(`• ${w.slice(0, 80)}${w.length > 80 ? "…" : ""}`);
-			}
-			if (entry.warnings.length > 3) {
-				lines.push(`  …and ${entry.warnings.length - 3} more`);
+			for (const w of entry.warnings) {
+				lines.push(`• ${w}`);
 			}
 		}
 
@@ -209,11 +249,8 @@ export async function notifyBuildFailed(changelog?: ChangelogEntry | null): Prom
 		lines.push(`Severity: ${severityLabel(entry.changeSeverity)}`);
 		if (entry.warnings.length > 0) {
 			lines.push(`⚠️ ${entry.warnings.length} warning(s):`);
-			for (const w of entry.warnings.slice(0, 5)) {
-				lines.push(`• ${w.slice(0, 100)}${w.length > 100 ? "…" : ""}`);
-			}
-			if (entry.warnings.length > 5) {
-				lines.push(`  …and ${entry.warnings.length - 5} more`);
+			for (const w of entry.warnings) {
+				lines.push(`• ${w}`);
 			}
 		}
 	}
@@ -246,11 +283,8 @@ export async function notifyReviewRequired(changelog?: ChangelogEntry | null): P
 	const reasons = entry.warnings.filter((w) => w.startsWith("anomaly:"));
 	if (reasons.length > 0) {
 		lines.push("");
-		for (const w of reasons.slice(0, 5)) {
-			lines.push(`• ${w.replace(/^anomaly: /, "").slice(0, 100)}`);
-		}
-		if (reasons.length > 5) {
-			lines.push(`  …and ${reasons.length - 5} more`);
+		for (const w of reasons) {
+			lines.push(`• ${w.replace(/^anomaly: /, "")}`);
 		}
 	}
 
