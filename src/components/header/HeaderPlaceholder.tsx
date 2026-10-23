@@ -59,8 +59,9 @@ const GROUT_LAYERS = [90, 0].map((angle) =>
 // over across about 1.6:1). On screen the refraction and caustics roughly
 // double that contrast and spread it most of the way across the face, so
 // these bands are stronger and wider than the shader's own constants. Black
-// darkens multiplicatively, like the shader; the brightening is a paler tint
-// over the face (the shader clamps white text tiles, so theirs is white).
+// darkens multiplicatively, like the shader; the brightening is a tint with the
+// tile's own R:G:B ratios, so it lightens without shifting the hue toward green
+// (the shader clamps white text tiles, so theirs is white).
 function bevelLayers(light: string, lightX: number, lightY: number)
 {
 	const band = (angle: number, start: string, startMid: string, end: string, endMid: string) =>
@@ -73,7 +74,7 @@ function bevelLayers(light: string, lightX: number, lightY: number)
 	];
 }
 
-const TILE_BEVEL = bevelLayers("150, 245, 255", 0.4, 0.65);
+const TILE_BEVEL = bevelLayers("132, 221, 255", 0.55, 0.85);
 const TEXT_BEVEL = bevelLayers("255, 255, 255", 0.5, 0.8);
 
 // The shader varies each blue tile's brightness by up to 4% with a hash of its
@@ -105,13 +106,8 @@ const CAUSTIC_PATCHES: [number, number, number, number, number, number][] = [
 	[13, 3, 9, 0, 4, 1.2],
 ];
 const CAUSTIC_LAYERS = CAUSTIC_PATCHES.map(([, , x, y, width, height]) =>
-	`radial-gradient(calc(${width / 2} * ${TILE}) calc(${height / 2} * ${TILE}) at calc(${x + width / 2} * ${TILE}) calc(${y + height / 2} * ${TILE}), rgba(190, 245, 255, 0.6), rgba(190, 245, 255, 0.25) 50%, transparent)`
+	`radial-gradient(calc(${width / 2} * ${TILE}) calc(${height / 2} * ${TILE}) at calc(${x + width / 2} * ${TILE}) calc(${y + height / 2} * ${TILE}), rgba(225, 245, 255, 0.3), rgba(225, 245, 255, 0.12) 50%, transparent)`
 );
-
-// The shader darkens the middle of the pool (not the corners, despite its
-// "vignette" comment) by up to 15%, fading out over 1.2 header heights:
-// 1 - smoothstep(1.2, 0, dist) * 0.15. These stops sample that smoothstep.
-const VIGNETTE = `radial-gradient(circle calc(1.2 * ${HEADER_HEIGHT}) at 50% 50%, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.127) 25%, rgba(0, 0, 0, 0.075) 50%, rgba(0, 0, 0, 0.023) 75%, transparent)`;
 
 // Same bitmap font as the shader: each glyph is a 15-bit 3x5 map, laid out on
 // 4-tile centers with a 6-tile gap between "SF" and "POOLS" (textWidth = 29).
@@ -209,7 +205,6 @@ export function HeaderPlaceholder()
 						)
 					)}
 			</div>
-			<div className="absolute inset-0" style={{ backgroundImage: VIGNETTE }} />
 		</div>
 	);
 }
