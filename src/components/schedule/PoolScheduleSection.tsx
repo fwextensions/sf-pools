@@ -344,13 +344,15 @@ export default function PoolScheduleSection({ pool, token, label, href }: Props)
 			.filter(Boolean)
 			.join(" ");
 		return (
-			<section id={`pool-${pool.id}`} className="mt-6">
+			// ruled and labelled like the facts above it; a second pool's
+			// schedule gets more room, so it doesn't read as the first one's tail
+			<section id={`pool-${pool.id}`} className="mt-6 border-t border-line pt-2.5 [&+&]:mt-12">
 				<h2 className="font-mono text-label font-semibold tracking-[.08em] text-ink-2 uppercase">{label}</h2>
-				{pagePeriod ? <p className="mt-1.5 text-small text-ink-2">{pagePeriod}</p> : null}
+				{pagePeriod ? <p className="mt-0.5 text-body text-ink">{pagePeriod}</p> : null}
 				{pool.scheduledClosures?.length ? (
-					<ScheduledClosures closures={pool.scheduledClosures} />
+					<ScheduledClosures closures={pool.scheduledClosures} className="mt-0.5 text-body text-ink-2" />
 				) : null}
-				<p className="mt-1.5 text-small text-ink-2">
+				<p className="mt-0.5 text-body text-ink">
 					{all.length} session{all.length === 1 ? "" : "s"}
 					{pool.lanes ? ` · ${pool.lanes} lanes` : ""}
 				</p>
