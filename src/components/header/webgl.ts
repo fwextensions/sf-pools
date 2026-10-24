@@ -95,6 +95,13 @@ export class Program {
 	set2f(name: string, a: number, b: number) {
 		this.gl.uniform2f(this.loc(name), a, b);
 	}
+	set3f(name: string, a: number, b: number, c: number) {
+		this.gl.uniform3f(this.loc(name), a, b, c);
+	}
+	/** a vec4 array uniform, set whole from consecutive groups of four */
+	set4fv(name: string, values: Float32Array) {
+		this.gl.uniform4fv(this.loc(name), values);
+	}
 	setTexture(name: string, tex: WebGLTexture, unit: number) {
 		const gl = this.gl;
 		gl.activeTexture(gl.TEXTURE0 + unit);

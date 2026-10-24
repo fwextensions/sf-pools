@@ -36,10 +36,13 @@ export function headerHeightPx(width: number) {
 	const tile = tileCssPx(width);
 	return Math.round(HEADER_TARGET_HEIGHT_PX / tile) * tile;
 }
-// The shader's base colors, straight from header-shader.frag.
-const GROUT = "#477a94"; // vec3(0.28, 0.48, 0.58)
-const TILE_BLUE = "#75c6e4"; // vec3(0.459, 0.776, 0.894)
-const TEXT_TILE = "#f2f2ff"; // vec3(0.95, 0.95, 1.0)
+// The shader's base colors from header-shader.frag, seen through its water:
+// WATER_TINT multiplies everything under the surface by (0.86, 0.97, 1.0),
+// and on screen the result measures about (0.86, 0.96, 0.98) of the untinted
+// render, so each base color here is scaled by that.
+const GROUT = "#3d7591"; // vec3(0.28, 0.48, 0.58) tinted
+const TILE_BLUE = "#65bedf"; // vec3(0.459, 0.776, 0.894) tinted
+const TEXT_TILE = "#d0e8fa"; // vec3(0.95, 0.95, 1.0) tinted
 const GROUT_PCT = 12; // grout line width as % of a tile
 // Half the grout goes at each end of a pattern cell, so the grout stays
 // centered on the cell boundaries (like the shader's symmetric tile mask) and
@@ -74,7 +77,7 @@ function bevelLayers(light: string, lightX: number, lightY: number)
 	];
 }
 
-const TILE_BEVEL = bevelLayers("132, 221, 255", 0.55, 0.85);
+const TILE_BEVEL = bevelLayers("114, 212, 250", 0.55, 0.85);
 const TEXT_BEVEL = bevelLayers("255, 255, 255", 0.5, 0.8);
 
 // The shader varies each blue tile's brightness by up to 4% with a hash of its

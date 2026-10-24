@@ -153,6 +153,7 @@ function Pane({
 				return out as Partial<JsParams>;
 			},
 			getWidth: () => widthRef.current,
+			timeOfDay: "day",
 			t0: CLOCK_ORIGIN,
 			input: busRef.current,
 		});
