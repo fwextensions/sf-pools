@@ -2,7 +2,23 @@
 
 import { useEffect, useRef } from "react";
 import { HeaderPlaceholder, HEADER_HEIGHT } from "./HeaderPlaceholder";
+import displayFragShader from "./header-shader.frag";
 import { mountWater, type Water } from "./water";
+
+// Shader constants that ?water=no-<name> switches off, for comparing each
+// effect against the water without it. ?water=plain switches off all of them.
+const EFFECTS: Record<string, string> = {
+	clouds: "CLOUD_AMOUNT",
+	sky: "SKY_REFLECT",
+	tint: "WATER_TINT",
+};
+
+function withConstsZeroed(src: string, names: string[]) {
+	return names.reduce((out, name) => out.replace(
+		new RegExp(`const\\s+float\\s+${name}\\s*=\\s*-?[0-9]*\\.?[0-9]+\\s*;`),
+		`const float ${name} = 0.0;`
+	), src);
+}
 
 // A context lost this soon after mounting means the GPU won't keep one, so
 // stop remounting and leave the placeholder rather than loop.
@@ -17,7 +33,23 @@ export default function HeaderAnimation()
 		if (!host) return;
 
 		// ?water=off leaves just the CSS placeholder, for comparing the two.
-		if (new URLSearchParams(location.search).get("water") === "off") return;
+		// Other comma-separated values preview the effects: day, dusk or night
+		// pins the time of day; demo drops in leaves and a duck; no-clouds,
+		// no-sky, no-tint and no-leaves switch one effect off; plain switches
+		// them all off, which is the water as it was before them.
+		const flags = (new URLSearchParams(location.search).get("water") ?? "").split(",");
+		if (flags.includes("off")) return;
+		const plain = flags.includes("plain");
+		const zeroed = Object.entries(EFFECTS)
+			.filter(([flag]) => plain || flags.includes(`no-${flag}`))
+			.map(([, name]) => name);
+		const timeOfDay = plain ? "day" : flags.find(f => f === "day" || f === "dusk" || f === "night");
+		const waterOpts = {
+			displaySrc: zeroed.length ? withConstsZeroed(displayFragShader, zeroed) : undefined,
+			timeOfDay,
+			floaters: !plain && !flags.includes("no-leaves"),
+			demo: flags.includes("demo"),
+		};
 
 		// Run the draw loop only while it can be seen. The site layout pins the
 		// header's last rows of tiles above the tabs, so on those pages it stays
@@ -44,7 +76,7 @@ export default function HeaderAnimation()
 		const mount = () => {
 			remountId = 0;
 			mountedAt = performance.now();
-			water = mountWater(host, { onContextLost: handleContextLost });
+			water = mountWater(host, { ...waterOpts, onContextLost: handleContextLost });
 			applyLoopState();
 		};
 

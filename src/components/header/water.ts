@@ -1,6 +1,8 @@
 import displayFragShader from "./header-shader.frag";
 import simFragShader from "./water-sim.frag";
+import { Floaters } from "./floaters";
 import { headerHeightPx, TILE_MAX_PX, tileCssPx } from "./HeaderPlaceholder";
+import { PRESET_ALTITUDES, sunAltitudeDeg, sunlight, type Sunlight } from "./sun";
 import {
 	advanceSimClock,
 	takeSimSteps,
@@ -107,6 +109,17 @@ const DRIP_MIN_GAP_MS = 6000; // random spacing between drips
 const DRIP_MAX_GAP_MS = 12000;
 const DRIP_AMP = 0.35;
 
+// The cannonball easter egg (the Konami code): one deep, wide dent.
+const CANNONBALL_AMP = 1.4;
+const CANNONBALL_RADIUS = 9.0; // sim texels
+const KONAMI = [
+	"ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown",
+	"ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a",
+];
+// How often the real sun's position is re-read. Twilight takes ~30 minutes, so
+// once a minute is smooth enough.
+const SUN_REFRESH_MS = 60_000;
+
 /**
  * Shared input for the tuning harness. Two sims must receive IDENTICAL input or
  * an A/B comparison is meaningless: each canvas only hears about a pointer that
@@ -209,6 +222,15 @@ export type WaterOptions = {
 	 * mount a fresh one. Not called for the loss remove() itself causes.
 	 */
 	onContextLost?: () => void;
+	/**
+	 * A fixed time of day ("day", "dusk", "night") instead of San Francisco's
+	 * real sun. The harness and the social preview pin "day".
+	 */
+	timeOfDay?: string;
+	/** leaves blowing in, and the duck and cannonball easter eggs; default on */
+	floaters?: boolean;
+	/** drop in a couple of leaves and a duck straight away, for previews */
+	demo?: boolean;
 };
 
 /** Handle on one mounted instance. */
@@ -346,6 +368,20 @@ export function mountWater(
 	// event once here rather than every frame until the next one.
 	let lastImpulseSeq = -1;
 
+	// Leaves and ducks. The harness gets none: their spawns are random, so two
+	// panes would diverge for reasons unrelated to the parameters.
+	const floatersOn = (opts.floaters ?? true) && !opts.input;
+	const floaters = new Floaters(floatersOn);
+	let lastFrameTime = 0;
+
+	let sun: Sunlight = sunlight(PRESET_ALTITUDES.day);
+	let sunReadAt = -Infinity;
+	function readSun() {
+		const preset = opts.timeOfDay ? PRESET_ALTITUDES[opts.timeOfDay] : undefined;
+		sun = sunlight(preset ?? sunAltitudeDeg(new Date()));
+		sunReadAt = performance.now();
+	}
+
 	const startMs = performance.now();
 
 	function createSimBuffers() {
@@ -457,6 +493,7 @@ export function mountWater(
 		// arrived — then it is a point dent where it landed
 		impulsePrevX = from ? from.x / width : impulseX;
 		impulsePrevY = from ? 1.0 - from.y / height : impulseY;
+		if (from) floaters.stir(x, y, x - from.x, y - from.y, now - from.t);
 		sweepFrom = { x, y, t: now };
 		lastInteractionTime = simClock.simTime * 1000;
 	}
@@ -470,6 +507,49 @@ export function mountWater(
 		sweepFrom = { x, y, t: performance.now() };
 		impulseAmp = (opts.getJsParams?.().CLICK_AMP) ?? CLICK_AMP;
 		lastInteractionTime = simClock.simTime * 1000;
+		if (!floatersOn) return;
+		floaters.splash(x, y, 1);
+		// Easter egg: a click on either O of "POOLS" drops a rubber duck into it.
+		const o = letterOAt(x, y);
+		if (o) floaters.addDuck(o.x, o.y, tilePx());
+	}
+
+	function tilePx() {
+		return opts.getTilePx ? opts.getTilePx() : tileCssPx(width);
+	}
+
+	// The center of the O under (x, y), in CSS px, or null. Mirrors the shader's
+	// text placement: textStart in whole tiles from the bottom-left, the two Os
+	// at columns 14 and 18 of the 29-column, 5-row text.
+	function letterOAt(x: number, y: number) {
+		const tile = tilePx();
+		const rows = height / tile;
+		const startX = Math.floor((width / tile - 29) / 2 + 0.01);
+		const startY = Math.ceil((rows - 5) / 2 - 0.01);
+		const col = Math.floor(x / tile) - startX;
+		const row = Math.floor((height - y) / tile) - startY;
+		if (row < 0 || row > 4) return null;
+		for (const oCol of [14, 18]) {
+			if (col >= oCol && col <= oCol + 2) {
+				return { x: (startX + oCol + 1.5) * tile, y: height - (startY + 2.5) * tile };
+			}
+		}
+		return null;
+	}
+
+	// Easter egg: the Konami code fires a cannonball into the middle of the pool.
+	let konamiAt = 0;
+	let cannonball = false;
+	function handleKey(e: KeyboardEvent) {
+		const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+		// a third ArrowUp still leaves the last two as a valid start
+		konamiAt = key === KONAMI[konamiAt] ? konamiAt + 1
+			: key === KONAMI[0] ? Math.min(konamiAt, 2) || 1
+			: 0;
+		if (konamiAt === KONAMI.length) {
+			konamiAt = 0;
+			cannonball = true;
+		}
 	}
 
 	// The harness feeds its own input through the bus, so the canvas listens
@@ -479,6 +559,7 @@ export function mountWater(
 		canvas.addEventListener("pointermove", handlePointerMove, { passive: true });
 		canvas.addEventListener("pointerleave", clearSweep, { passive: true });
 		canvas.addEventListener("click", handleClick, { passive: true });
+		if (floatersOn) window.addEventListener("keydown", handleKey, { passive: true });
 	}
 
 	// --- the frame -----------------------------------------------------------
@@ -629,6 +710,30 @@ export function mountWater(
 			nextDripTime = now + DRIP_MIN_GAP_MS + Math.random() * (DRIP_MAX_GAP_MS - DRIP_MIN_GAP_MS);
 		}
 
+		// --- floaters: leaves blowing in, ducks, and what they splash ---
+		const dt = lastFrameTime ? time - lastFrameTime : 0;
+		lastFrameTime = time;
+		for (const landing of floaters.step(dt, width, height, tilePx())) {
+			floaters.splash(landing.x, landing.y, landing.amp, 60);
+			if (impulseAmp === 0.0) {
+				impulseX = impulsePrevX = landing.x / width;
+				impulseY = impulsePrevY = 1.0 - landing.y / height;
+				impulseAmp = landing.amp;
+				impulseRadius = js.DRIP_RADIUS;
+			}
+		}
+		if (cannonball) {
+			cannonball = false;
+			impulseX = impulsePrevX = 0.5;
+			impulseY = impulsePrevY = 0.5;
+			impulseAmp = CANNONBALL_AMP;
+			impulseRadius = CANNONBALL_RADIUS;
+			floaters.splash(width / 2, height / 2, 4, width);
+			lastInteractionTime = nowMs;
+		}
+		floaters.pack(height);
+		if (performance.now() - sunReadAt > SUN_REFRESH_MS) readSun();
+
 		// Live tunables, present only under the harness (where the shader's
 		// `const float`s have been rewritten into uniforms). A name that does
 		// not exist in a program resolves to a null location and is ignored, so
@@ -672,6 +777,10 @@ export function mountWater(
 		displayShader.set2f("u_waterTexel", simTexel[0], simTexel[1]);
 		displayShader.set2f("u_bandFade", bandFade[0], bandFade[1]);
 		displayShader.set1f("u_simLens", simLens);
+		displayShader.set1f("u_daylight", sun.daylight);
+		displayShader.set3f("u_sunColor", ...sun.color);
+		displayShader.set4fv("u_floatA", floaters.a);
+		displayShader.set4fv("u_floatB", floaters.b);
 		// integer-CSS-px tile edge, in device px; the CSS placeholder computes
 		// the identical value as min(22px, round(down, 100vw / 33, 1px))
 		displayShader.set1f(
@@ -748,6 +857,7 @@ export function mountWater(
 			canvas.removeEventListener("pointermove", handlePointerMove);
 			canvas.removeEventListener("pointerleave", clearSweep);
 			canvas.removeEventListener("click", handleClick);
+			window.removeEventListener("keydown", handleKey);
 		}
 		renderer.deleteTarget(simRead);
 		renderer.deleteTarget(simWrite);
@@ -759,6 +869,12 @@ export function mountWater(
 	}
 
 	setSize(canvasWidth());
+	if (floatersOn && opts.demo) {
+		const tile = tilePx();
+		floaters.addLeaf(width * 0.2, height * 0.3, tile);
+		floaters.addLeaf(width * 0.72, height * 0.75, tile);
+		floaters.addDuck(width * 0.85, height * 0.35, tile);
+	}
 	lastScrollY = window.scrollY;
 	window.addEventListener("resize", resize);
 	window.addEventListener("popstate", handleNavigation);

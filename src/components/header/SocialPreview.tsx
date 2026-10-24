@@ -69,6 +69,7 @@ export default function SocialPreview()
 			getWidth: () => CARD_WIDTH,
 			getHeight: () => CARD_HEIGHT,
 			getTilePx: () => tileRef.current,
+			timeOfDay: "day",
 			input: busRef.current,
 			getJsParams: () => ({ DRIP_AMBIENT_AMP: 0 }),
 		});
