@@ -1,5 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import { formatGridQuery, parseGridQuery } from "./url";
+import { formatGridQuery, initialGridState, parseGridQuery, presetGridQuery } from "./url";
 
 const q = (s: string) => new URLSearchParams(s);
 
@@ -56,5 +56,16 @@ describe("parseGridQuery", () => {
 			cell: { day: "Monday" as const, hour: 6 },
 		};
 		expect(parseGridQuery(q(formatGridQuery(state)))).toEqual(state);
+	});
+});
+
+describe("presetGridQuery", () => {
+	it("opens a mounted-before grid on the link's filter, not the address bar's", () => {
+		presetGridQuery({ tags: [], pools: ["northBeachCool", "northBeachWarm"], cell: null });
+		expect(initialGridState(q("pools=balboa"))).toEqual({
+			tags: [],
+			pools: ["northBeachCool", "northBeachWarm"],
+			cell: null,
+		});
 	});
 });

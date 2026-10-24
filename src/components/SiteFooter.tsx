@@ -38,6 +38,9 @@ export default async function SiteFooter() {
 				<div className="flex flex-col border-t border-line min-[900px]:contents">
 					<nav aria-label="This site" className="flex flex-col min-[900px]:gap-3">
 						<div className={groupLabelClass}>THIS SITE</div>
+						<Link href="/pools" className={linkClass}>
+							Pools
+						</Link>
 						<Link href="/about" className={linkClass}>
 							About
 						</Link>

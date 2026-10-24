@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Chivo, Chivo_Mono } from "next/font/google";
+import { SITE_URL } from "@/lib/site-url";
 
 const chivo = Chivo({
 	subsets: ["latin"],
@@ -15,6 +16,8 @@ const chivoMono = Chivo_Mono({
 });
 
 export const metadata: Metadata = {
+	// relative canonical links and the like resolve against this
+	metadataBase: new URL(SITE_URL),
 	// pages set just their own name; the template adds the site's, and the
 	// default covers pages that don't set one (the home page)
 	title: {

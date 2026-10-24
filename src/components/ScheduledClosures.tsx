@@ -2,6 +2,8 @@ import { formatScheduledClosure, pacificToday, type ScheduledClosure } from "@/l
 
 type Props = {
 	closures: ScheduledClosure[];
+	/** the line's spacing and type; the dates are always ink */
+	className?: string;
 };
 
 /**
@@ -9,7 +11,7 @@ type Props = {
  * listed under its schedule. The schedule itself stays the regular week; the
  * week grid and Now & Soon are where these dates hide sessions.
  */
-export default function ScheduledClosures({ closures }: Props) {
+export default function ScheduledClosures({ closures, className = "mt-1.5 text-small text-ink-2" }: Props) {
 	const today = pacificToday();
 	const upcoming = closures
 		.filter((c) => c.endDate >= today)
@@ -17,7 +19,7 @@ export default function ScheduledClosures({ closures }: Props) {
 	if (!upcoming.length) return null;
 
 	return (
-		<p className="mt-1.5 text-small text-ink-2">
+		<p className={className}>
 			<span className="mr-2 font-mono text-label font-semibold tracking-[.08em] text-alert">CLOSED</span>
 			{upcoming.map((c, i) => (
 				<span key={i}>

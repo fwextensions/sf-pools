@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import BaseLink from "next/link";
 import PoolChip from "@/components/PoolChip";
 import { ExternalLinkIcon } from "@/components/icons";
+import { poolPageHref } from "@/lib/pool-pages";
 import { getPoolToken, type PoolToken } from "@/lib/pool-tokens";
 import { loadPools } from "@/lib/site-data";
 
@@ -16,8 +17,7 @@ const REC_PARK_URL = "https://sfrecpark.org";
 const POOLS_URL = "https://sfrecpark.org/482/Swimming-Pools";
 
 type Facility = {
-	// the first pool's id, whose section on the full schedules page the
-	// facility's name links to
+	// the first pool's id, whose page the facility's name links to
 	poolId: string;
 	name: string;
 	address: string;
@@ -140,7 +140,7 @@ export default async function AboutPage() {
 										{facility.tokens.map((token) => (
 											<BaseLink
 												key={token.id}
-												href={`/schedules#pool-${token.id}`}
+												href={poolPageHref(token.id)}
 												className="flex"
 											>
 												<PoolChip token={token} />
@@ -148,7 +148,7 @@ export default async function AboutPage() {
 										))}
 									</span>
 									<BaseLink
-										href={`/schedules#pool-${facility.poolId}`}
+										href={poolPageHref(facility.poolId)}
 										className={`font-medium ${inlineLink}`}
 									>
 										{facility.name}
