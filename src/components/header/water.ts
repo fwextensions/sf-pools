@@ -1,6 +1,6 @@
 import displayFragShader from "./header-shader.frag";
 import simFragShader from "./water-sim.frag";
-import { Floaters } from "./floaters";
+import { Floaters, seededRandom } from "./floaters";
 import { headerHeightPx, TILE_MAX_PX, tileCssPx } from "./HeaderPlaceholder";
 import { PRESET_ALTITUDES, sunAltitudeDeg, sunlight, type Sunlight } from "./sun";
 import {
@@ -142,6 +142,11 @@ export type InputBus = {
 	};
 	/** synthetic scroll position, in px, shared by both instances */
 	scrollY: number;
+	/**
+	 * Something dropped into the pool, in sim UV like the impulse; fires once
+	 * per instance by `seq` the same way.
+	 */
+	drop?: { kind: "leaf" | "duck" | "cannonball"; x: number; y: number; seq: number };
 };
 
 /** JS-side tunables, mirrored by the harness so they get sliders too. */
@@ -231,6 +236,11 @@ export type WaterOptions = {
 	floaters?: boolean;
 	/** drop in a couple of leaves and a duck straight away, for previews */
 	demo?: boolean;
+	/**
+	 * Live overrides of timeOfDay and of whether leaves blow in on their own,
+	 * read every frame. Only the harness passes this.
+	 */
+	getEffects?: () => { timeOfDay?: string; leaves?: boolean };
 };
 
 /** Handle on one mounted instance. */
@@ -368,16 +378,20 @@ export function mountWater(
 	// event once here rather than every frame until the next one.
 	let lastImpulseSeq = -1;
 
-	// Leaves and ducks. The harness gets none: their spawns are random, so two
-	// panes would diverge for reasons unrelated to the parameters.
-	const floatersOn = (opts.floaters ?? true) && !opts.input;
-	const floaters = new Floaters(floatersOn);
+	// Leaves and ducks. Under the harness they are seeded identically in each
+	// pane, so both panes spawn the same leaves in the same places, and the
+	// easter-egg listeners are left to production.
+	const floatersOn = opts.floaters ?? true;
+	const floaters = new Floaters(opts.input ? seededRandom(20261024) : Math.random);
+	floaters.autoLeaves = floatersOn;
 	let lastFrameTime = 0;
+	let lastDropSeq = 0;
 
 	let sun: Sunlight = sunlight(PRESET_ALTITUDES.day);
 	let sunReadAt = -Infinity;
+	let sunPreset: string | undefined;
 	function readSun() {
-		const preset = opts.timeOfDay ? PRESET_ALTITUDES[opts.timeOfDay] : undefined;
+		const preset = sunPreset ? PRESET_ALTITUDES[sunPreset] : undefined;
 		sun = sunlight(preset ?? sunAltitudeDeg(new Date()));
 		sunReadAt = performance.now();
 	}
@@ -514,10 +528,6 @@ export function mountWater(
 		if (o) floaters.addDuck(o.x, o.y, tilePx());
 	}
 
-	function tilePx() {
-		return opts.getTilePx ? opts.getTilePx() : tileCssPx(width);
-	}
-
 	// The center of the O under (x, y), in CSS px, or null. Mirrors the shader's
 	// text placement: textStart in whole tiles from the bottom-left, the two Os
 	// at columns 14 and 18 of the 29-column, 5-row text.
@@ -589,6 +599,19 @@ export function mountWater(
 				impulsePrevX = i.prevX;
 				impulsePrevY = i.prevY;
 				impulseAmp = i.amp;
+				// a sweep stirs the floaters the way a real pointer does
+				const dx = (i.x - i.prevX) * width;
+				const dy = (i.prevY - i.y) * height;
+				if (dx || dy) floaters.stir(i.x * width, (1 - i.y) * height, dx, dy, 16);
+			}
+			const drop = opts.input.drop;
+			if (drop && drop.seq !== lastDropSeq) {
+				lastDropSeq = drop.seq;
+				const x = drop.x * width;
+				const y = (1 - drop.y) * height;
+				if (drop.kind === "cannonball") cannonball = true;
+				else if (drop.kind === "duck") floaters.addDuck(x, y, tilePx());
+				else floaters.addLeaf(x, y, tilePx());
 			}
 		}
 
@@ -732,7 +755,13 @@ export function mountWater(
 			lastInteractionTime = nowMs;
 		}
 		floaters.pack(height);
-		if (performance.now() - sunReadAt > SUN_REFRESH_MS) readSun();
+		const effects = opts.getEffects?.();
+		if (effects?.leaves !== undefined) floaters.autoLeaves = effects.leaves;
+		const preset = effects ? effects.timeOfDay : opts.timeOfDay;
+		if (preset !== sunPreset || performance.now() - sunReadAt > SUN_REFRESH_MS) {
+			sunPreset = preset;
+			readSun();
+		}
 
 		// Live tunables, present only under the harness (where the shader's
 		// `const float`s have been rewritten into uniforms). A name that does

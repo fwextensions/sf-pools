@@ -217,6 +217,13 @@ const float FLOATER_SHADOW = 0.6;
 // --- Night ---
 // Brightness of the underwater pool lights after dark.
 const float POOL_LIGHTS = 1.0;
+// Caustics from the pool lights. Lamp light bounces off the underside of the
+// surface back onto the floor, and the ripples focus it the same way they focus
+// sunlight, so the web stays alive around each lamp after dark. Without it the
+// night water only bends the tiles and loses its depth.
+const float NIGHT_CAUSTICS = 1.4;
+// Glint off the ripples at night, from the streetlights around the pool.
+const float NIGHT_GLINT = 1.0;
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -794,8 +801,9 @@ void main() {
 	// --- Pool lights ---
 	// After dark the sunlit palette gives way to the underwater lights: the
 	// floor falls to a dim blue and brightens in pools around each lamp.
+	float lamps = 0.0;
 	if (u_daylight < 1.0) {
-		float lamps = poolLights(tileUV, aspect) * POOL_LIGHTS;
+		lamps = poolLights(tileUV, aspect) * POOL_LIGHTS;
 		vec3 night = vec3(0.17, 0.25, 0.38) + vec3(0.72, 0.95, 1.0) * lamps * 1.1;
 		color *= mix(night, vec3(1.0), u_daylight);
 		// light scattering off the water itself, so the lamps glow
@@ -817,6 +825,11 @@ void main() {
 	// causticRGB already carries physical dispersion, so the old per-channel
 	// pow() fringing is gone; only the tint survives.
 	color += vec3(0.85, 0.95, 0.98) * u_sunColor * causticRGB * CAUSTIC_STRENGTH * sun * sun;
+	// the lamps' own caustics, aqua, strongest near the lamps; the 0.35 floor
+	// is light bounced around the whole pool, so the web never dies out
+	float lampLight = (0.35 + min(lamps, 1.2)) * (1.0 - u_daylight) * NIGHT_CAUSTICS;
+	color += vec3(0.55, 0.95, 1.0) * causticRGB * CAUSTIC_STRENGTH * lampLight;
+	color = mix(color, color * shadowColor, causticShadow * CAUSTIC_SHADOW * 0.5 * min(lampLight, 1.0));
 
 	// --- Water ---
 	// Absorption: red goes first, so white tiles read pale aqua through the
@@ -832,7 +845,7 @@ void main() {
 	vec3 rippleShadow = vec3(0.15, 0.3, 0.4);
 	float crest = max(simH, 0.0);
 	float trough = max(-simH, 0.0);
-	float rippleLight = mix(0.35, 1.0, u_daylight);
+	float rippleLight = mix(0.35 + 0.5 * min(lamps, 1.0), 1.0, u_daylight);
 	// 0.4 / 0.3 = max crest brightening / max trough darkening
 	color += rippleHighlight * 0.4 * rippleLight * crest / (1.0 + crest);
 	color = mix(color, color * rippleShadow, 0.3 * trough / (1.0 + trough));
@@ -888,8 +901,9 @@ void main() {
 	vec3 halfVec = normalize(lightDir + vec3(0.0, 0.0, 1.0));
 	float spec = pow(max(dot(surfN, halfVec), 0.0), 64.0);
 	float rippleEnergy = min(length(simGrad * SIM_SLOPE_GAIN) * 0.05, 1.0);
-	vec3 glintCol = mix(vec3(1.0, 0.78, 0.45) * 0.5, vec3(1.0, 0.98, 0.92) * u_sunColor, u_daylight);
-	color += glintCol * spec * rippleEnergy * 0.4 * mix(0.3, 1.0, sun / max(u_daylight, 0.001));
+	vec3 glintCol = mix(vec3(1.0, 0.82, 0.55) * NIGHT_GLINT, vec3(1.0, 0.98, 0.92) * u_sunColor, u_daylight);
+	float glintSun = u_daylight > 0.0 ? mix(0.3, 1.0, sun / u_daylight) : 1.0;
+	color += glintCol * spec * rippleEnergy * 0.4 * glintSun;
 
 	// --- Floaters ---
 	// Drawn last: they sit on top of the water, so nothing refracts or tints

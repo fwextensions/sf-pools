@@ -48,8 +48,21 @@ const LEAF_LIFE_S = 150; // a soaked leaf sinks after this long
 const BEACHED_S = 9; // a leaf pressed against the wall sinks after this long
 const FADE_S = 2.5;
 
-function rand(min: number, max: number) {
-	return min + Math.random() * (max - min);
+/**
+ * A seeded generator, so two instances given the same seed spawn the same
+ * leaves in the same places: the tuning harness runs two panes side by side,
+ * and Math.random() would make them differ for reasons unrelated to the
+ * parameters being compared.
+ */
+export function seededRandom(seed: number) {
+	let a = seed >>> 0;
+	return () => {
+		a = (a + 0x6d2b79f5) >>> 0;
+		let t = a;
+		t = Math.imul(t ^ (t >>> 15), t | 1);
+		t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+	};
 }
 
 export class Floaters {
@@ -59,8 +72,15 @@ export class Floaters {
 	readonly a = new Float32Array(MAX_FLOATERS * 4);
 	readonly b = new Float32Array(MAX_FLOATERS * 4);
 
-	constructor(private autoLeaves: boolean) {
-		this.nextLeafAt = rand(...FIRST_LEAF_S);
+	/** whether leaves blow in on their own; ducks and dropped leaves always work */
+	autoLeaves = true;
+
+	constructor(private random: () => number = Math.random) {
+		this.nextLeafAt = this.rand(...FIRST_LEAF_S);
+	}
+
+	private rand(min: number, max: number) {
+		return min + this.random() * (max - min);
 	}
 
 	/** Advance by dt seconds. Returns anything that landed this step. */
@@ -70,15 +90,15 @@ export class Floaters {
 		const landings: Landing[] = [];
 
 		if (this.autoLeaves && this.time >= this.nextLeafAt) {
-			this.nextLeafAt = this.time + rand(...LEAF_GAP_S);
+			this.nextLeafAt = this.time + this.rand(...LEAF_GAP_S);
 			if (this.list.filter(f => f.kind === "leaf").length < MAX_LEAVES) {
 				// blow in from the upwind half, so it has somewhere to drift to
 				this.add({
 					kind: "leaf",
-					x: rand(0.08, 0.6) * width,
-					y: rand(0.15, 0.85) * height,
-					size: tile * LEAF_TILES * rand(0.85, 1.15),
-					variant: Math.random(),
+					x: this.rand(0.08, 0.6) * width,
+					y: this.rand(0.15, 0.85) * height,
+					size: tile * LEAF_TILES * this.rand(0.85, 1.15),
+					variant: this.random(),
 				});
 			}
 		}
@@ -177,7 +197,7 @@ export class Floaters {
 			const k = strength * 90 * (1 - d / reach);
 			f.vx += (rx / d) * k;
 			f.vy += (ry / d) * k;
-			f.spin += (Math.random() - 0.5) * strength * 3;
+			f.spin += (this.random() - 0.5) * strength * 3;
 		}
 	}
 
@@ -189,7 +209,7 @@ export class Floaters {
 
 	/** Drop a leaf in now, for previews. */
 	addLeaf(x: number, y: number, tile: number) {
-		this.add({ kind: "leaf", x, y, size: tile * LEAF_TILES, variant: Math.random() });
+		this.add({ kind: "leaf", x, y, size: tile * LEAF_TILES, variant: this.random() });
 	}
 
 	private add(init: { kind: Kind; x: number; y: number; size: number; variant: number }) {
@@ -199,13 +219,13 @@ export class Floaters {
 		}
 		this.list.push({
 			...init,
-			vx: rand(-6, 6),
-			vy: rand(-6, 6),
-			angle: rand(0, Math.PI * 2),
-			spin: rand(-0.3, 0.3),
+			vx: this.rand(-6, 6),
+			vy: this.rand(-6, 6),
+			angle: this.rand(0, Math.PI * 2),
+			spin: this.rand(-0.3, 0.3),
 			fall: 1,
 			opacity: 1,
-			seed: Math.random(),
+			seed: this.random(),
 			beached: 0,
 			age: 0,
 			fading: false,
