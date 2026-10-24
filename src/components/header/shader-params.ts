@@ -175,8 +175,8 @@ export const PARAM_SPECS: ParamSpec[] = [
 	},
 	{
 		name: "SIM_SUBSTEPS", domain: "js", group: "Pointer input",
-		label: "Sim steps per frame", min: 1, max: 4, step: 1,
-		hint: "Wave-equation steps per rendered frame. More makes ripples travel and decay faster, at proportional GPU cost.",
+		label: "Sim steps per 1/60s", min: 1, max: 4, step: 1,
+		hint: "Wave-equation steps per 1/60s of simulated time, at any frame rate. More makes ripples travel and decay faster, at proportional GPU cost.",
 	},
 	{
 		name: "SCROLL_AMP_MAX", domain: "js", group: "Pointer input",
