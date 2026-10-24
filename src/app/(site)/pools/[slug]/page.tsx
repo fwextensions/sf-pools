@@ -118,9 +118,10 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 						ALL POOLS
 					</Link>
 				</nav>
-				{/* the chips stay beside a name that wraps, lined up with its first line */}
-				<div className="mt-2 flex items-baseline gap-x-2.5 min-[900px]:items-center">
-					<span className="flex flex-none gap-1">
+				{/* the chips stay beside a name that wraps, centered on its first
+				    line: their box is one line of the heading tall */}
+				<div className="mt-2 flex items-start gap-x-2.5">
+					<span className="flex h-[1lh] flex-none items-center gap-1 text-title leading-tight">
 						{page.pools.map(({ schedule, token }) => (
 							<PoolChip key={schedule.id} token={token} />
 						))}
@@ -131,7 +132,7 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 
 			<dl className="grid grid-cols-1 gap-x-8 min-[560px]:grid-cols-3">
 				<Fact label="ADDRESS">
-					<span className="flex flex-wrap items-baseline gap-x-4">
+					<span className="flex flex-wrap items-baseline gap-x-8 min-[900px]:gap-x-4">
 						<a href={mapsUrl(page)} target="_blank" rel="noreferrer" className="link-inline">
 							{page.address}<ExternalLinkIcon />
 						</a>
