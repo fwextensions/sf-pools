@@ -1,11 +1,15 @@
 /**
- * Timing for the header's ambient wave events.
+ * Timing for the header's wave simulation and its ambient wave events.
  *
- * The wave simulation advances a fixed amount of physics per DRAWN FRAME —
- * SIM_SUBSTEPS steps, with no delta-time normalisation anywhere. So the rate at
- * which the pool dissipates energy is measured in frames, not seconds. If the
- * events that inject energy are scheduled in wall-clock seconds instead, the
- * two come apart the moment the browser stops drawing at 60fps:
+ * The wave simulation runs a fixed number of steps per SIMULATED SECOND
+ * (SIM_SUBSTEPS per 1/60s; see takeSimSteps), so waves travel and fade at the
+ * same speed on a 60Hz laptop and a 165Hz gaming monitor. It used to run
+ * SIM_SUBSTEPS per drawn frame, which made the water 2.75x faster at 165Hz.
+ *
+ * Simulated time itself still advances with the frames rather than the wall
+ * clock. If the events that inject energy were scheduled in wall-clock
+ * seconds, they and the physics would come apart the moment the browser stops
+ * drawing:
  *
  *   - Backgrounded tab, throttled to ~1fps: drips keep arriving every 5
  *     wall-clock seconds while the water advances 3 steps per frame instead of
@@ -41,10 +45,14 @@ export type SimClock = {
 	simTime: number;
 	/** real time at the previous frame, or -1 before the first */
 	lastRealTime: number;
+	/** simulated seconds the previous frame advanced */
+	frameDt: number;
+	/** fractional sim steps owed, carried between frames (can dip below 0) */
+	stepDebt: number;
 };
 
 export function createSimClock(): SimClock {
-	return { simTime: 0, lastRealTime: -1 };
+	return { simTime: 0, lastRealTime: -1, frameDt: 0, stepDebt: 0 };
 }
 
 /**
@@ -67,9 +75,34 @@ export function advanceSimClock(clock: SimClock, realTime: number): {
 	const stalled = !first && realDelta > STALL_THRESHOLD;
 
 	clock.lastRealTime = realTime;
-	clock.simTime += Math.min(realDelta, MAX_FRAME_DT);
+	clock.frameDt = Math.min(realDelta, MAX_FRAME_DT);
+	clock.simTime += clock.frameDt;
 
 	return { simTime: clock.simTime, stalled };
+}
+
+/**
+ * How many simulation steps the current frame should run, at a fixed
+ * `stepsPerSecond` of simulated time whatever the frame rate: 3 a frame at
+ * 60fps, 1 or 2 alternating at 144fps, 6 at 30fps. The fraction left over
+ * carries to the next frame, so the long-run rate is exact.
+ *
+ * `mustStep` forces at least one step, for a frame with an impulse to inject:
+ * above stepsPerSecond fps a frame can owe no steps at all, and the impulse
+ * would otherwise be dropped. The forced step is borrowed from the next frame's
+ * share, so it does not speed the water up.
+ */
+export function takeSimSteps(
+	clock: SimClock,
+	stepsPerSecond: number,
+	mustStep = false
+): number {
+	clock.stepDebt += clock.frameDt * stepsPerSecond;
+	// a hair of slack so 60fps lands on exactly 3 despite float error
+	let steps = Math.floor(clock.stepDebt + 1e-6);
+	if (steps < 1 && mustStep) steps = 1;
+	clock.stepDebt -= steps;
+	return steps;
 }
 
 /**

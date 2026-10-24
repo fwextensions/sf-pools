@@ -28,7 +28,7 @@ uniform float u_time;          // seconds, for drifting the swell wobble
 varying vec2 vTexCoord;
 
 // c^2 in texel units: how far waves travel per sim step (ring speed ~=
-// sqrt(WAVE_SPEED) texels/step, times SIM_SUBSTEPS per frame on the JS
+// sqrt(WAVE_SPEED) texels/step, times SIM_SUBSTEPS per 1/60s on the JS
 // side). Must stay below 0.5 for numerical stability (CFL condition) —
 // above that the simulation explodes into checkerboard noise.
 //

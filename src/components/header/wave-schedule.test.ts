@@ -5,6 +5,7 @@ import {
 	createSimClock,
 	dueBucket,
 	hash01,
+	takeSimSteps,
 } from "./wave-schedule";
 
 /**
@@ -117,5 +118,55 @@ describe("hash01", () => {
 			expect(v).toBeLessThan(1);
 			expect(hash01(n)).toBe(v);
 		}
+	});
+});
+
+describe("takeSimSteps", () => {
+	// Sim steps run over `seconds` of real time drawn at `fps`.
+	function stepsOver(fps: number, seconds: number, stepsPerSecond = 180) {
+		const clock = createSimClock();
+		let total = 0;
+		const perFrame = new Set<number>();
+		for (let frame = 0; frame <= fps * seconds; frame++) {
+			advanceSimClock(clock, frame / fps);
+			const steps = takeSimSteps(clock, stepsPerSecond);
+			if (frame > 0) perFrame.add(steps);
+			total += steps;
+		}
+		return { total, perFrame };
+	}
+
+	it("runs the same number of steps per second at any frame rate", () => {
+		// the bug: a fixed 3 steps per frame made a 165Hz monitor 2.75x faster
+		for (const fps of [30, 60, 120, 144, 165, 240]) {
+			const { total } = stepsOver(fps, 10);
+			expect(Math.abs(total - 1800)).toBeLessThanOrEqual(1);
+		}
+	});
+
+	it("takes exactly 3 steps every frame at 60fps, as before", () => {
+		expect([...stepsOver(60, 5).perFrame]).toEqual([3]);
+	});
+
+	it("forces a step for an impulse and repays it from the next frame", () => {
+		const clock = createSimClock();
+		advanceSimClock(clock, 0);
+		// 360fps against 180 steps/s: half a step owed per frame
+		advanceSimClock(clock, 1 / 360);
+		expect(takeSimSteps(clock, 180)).toBe(0);
+		advanceSimClock(clock, 2 / 360);
+		expect(takeSimSteps(clock, 180, true)).toBe(1);
+		advanceSimClock(clock, 3 / 360);
+		expect(takeSimSteps(clock, 180, true)).toBe(1);
+		// the forced step was borrowed, so the next frame owes nothing
+		advanceSimClock(clock, 4 / 360);
+		expect(takeSimSteps(clock, 180)).toBe(0);
+	});
+
+	it("caps a stalled frame at MAX_FRAME_DT worth of steps", () => {
+		const clock = createSimClock();
+		advanceSimClock(clock, 0);
+		advanceSimClock(clock, 60);
+		expect(takeSimSteps(clock, 180)).toBe(Math.floor(MAX_FRAME_DT * 180 + 1e-6));
 	});
 });

@@ -3,6 +3,7 @@ import simFragShader from "./water-sim.frag";
 import { headerHeightPx, tileCssPx } from "./HeaderPlaceholder";
 import {
 	advanceSimClock,
+	takeSimSteps,
 	createSimClock,
 	dueBucket,
 	hash01,
@@ -17,7 +18,9 @@ import { QuadRenderer, type Program, type Target } from "./webgl";
 const SIM_TEXEL_CSS_PX = 3;
 const SIM_MAX_WIDTH = 512;
 const SIM_MIN_WIDTH = 96;
-const SIM_SUBSTEPS = 3; // wave-equation steps per frame; more = faster waves
+// Wave-equation steps per 1/60s of simulated time, whatever the frame rate
+// (see takeSimSteps); more = faster waves.
+const SIM_SUBSTEPS = 3;
 const SIM_IMPULSE_RADIUS = 3.0; // pointer dent radius, in sim texels
 
 // Pointer dent depth: IMPULSE_BASE for a slow drag, rising with pointer speed
@@ -640,7 +643,8 @@ export function mountWater(
 		simShader.set1f("u_lineOffset", lineOffset);
 		simShader.set1f("u_lineRadius", js.SWELL_RADIUS);
 		simShader.set1f("u_time", time);
-		for (let step = 0; step < js.SIM_SUBSTEPS; step++) {
+		const steps = takeSimSteps(simClock, js.SIM_SUBSTEPS * 60, impulseAmp !== 0.0 || lineAmp !== 0.0);
+		for (let step = 0; step < steps; step++) {
 			simShader.set1f("u_impulseAmp", step === 0 ? impulseAmp : 0.0);
 			simShader.set1f("u_lineAmp", step === 0 ? lineAmp : 0.0);
 			simShader.setTexture("u_state", simRead.tex, 0);
