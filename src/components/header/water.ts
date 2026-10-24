@@ -1,6 +1,6 @@
 import displayFragShader from "./header-shader.frag";
 import simFragShader from "./water-sim.frag";
-import { headerHeightPx, tileCssPx } from "./HeaderPlaceholder";
+import { headerHeightPx, TILE_MAX_PX, tileCssPx } from "./HeaderPlaceholder";
 import {
 	advanceSimClock,
 	takeSimSteps,
@@ -82,7 +82,7 @@ const SWELL_INSET = 0.35;
 // dead, fire only after 6s of stillness, and are suppressed under the harness.
 // These run continuously and are part of the wave field's design.
 const DRIP_AMBIENT_AMP = 0.35; // 0 disables them entirely
-// Mean seconds between drips. Set against the ~3.7s decay time from DAMPING:
+// Mean seconds between drips. Set against the ~5s decay time from DAMPING:
 // close enough that a new ring arrives while the previous one is still crossing
 // the pool, so there are usually two or three generations interfering, but far
 // enough apart that each one is still legible as a single expanding ring.
@@ -395,6 +395,11 @@ export function mountWater(
 			: Math.round(widthProbe.getBoundingClientRect().width) || window.innerWidth;
 	}
 
+	// Tile edge in CSS px.
+	function tilePx() {
+		return opts.getTilePx ? opts.getTilePx() : tileCssPx(width);
+	}
+
 	function setSize(w: number) {
 		width = w;
 		height = opts.getHeight ? opts.getHeight() : headerHeightPx(w);
@@ -643,6 +648,9 @@ export function mountWater(
 		simShader.set1f("u_lineOffset", lineOffset);
 		simShader.set1f("u_lineRadius", js.SWELL_RADIUS);
 		simShader.set1f("u_time", time);
+		// wave speed in tiles per second, not CSS px: see u_speedScale
+		const tileScale = tilePx() / TILE_MAX_PX;
+		simShader.set1f("u_speedScale", tileScale * tileScale);
 		const steps = takeSimSteps(simClock, js.SIM_SUBSTEPS * 60, impulseAmp !== 0.0 || lineAmp !== 0.0);
 		for (let step = 0; step < steps; step++) {
 			simShader.set1f("u_impulseAmp", step === 0 ? impulseAmp : 0.0);
@@ -668,7 +676,7 @@ export function mountWater(
 		// the identical value as min(22px, round(down, 100vw / 33, 1px))
 		displayShader.set1f(
 			"u_tilePx",
-			(opts.getTilePx ? opts.getTilePx() : tileCssPx(width)) * d
+			tilePx() * d
 		);
 		renderer.draw(displayShader, null, canvas.width, canvas.height);
 

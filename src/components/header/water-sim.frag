@@ -24,6 +24,11 @@ uniform float u_lineOffset;    // signed distance from the pool centre to the fr
 uniform float u_lineAmp;       // 0.0 when nothing is firing this step
 uniform float u_lineRadius;    // band half-width, in texels
 uniform float u_time;          // seconds, for drifting the swell wobble
+// Multiplies WAVE_SPEED so waves cross the same number of TILES per second on
+// every screen: (tile px / 22)^2, since the sim's texels are a fixed 3 CSS px
+// but tiles shrink to ~11px on phones. 1.0 on desktop, where WAVE_SPEED was
+// tuned; see the JS side.
+uniform float u_speedScale;
 
 varying vec2 vTexCoord;
 
@@ -33,18 +38,20 @@ varying vec2 vTexCoord;
 // above that the simulation explodes into checkerboard noise.
 //
 // This is c SQUARED, so the ring speed is its square root and this reads as
-// more extreme than it is: 0.0025 gives 0.05 texels/step, which at 3 substeps
-// and 60fps is ~9 texels/s — about 27 CSS px/s. Deliberately slow. The pool
-// reads as heavy, barely-moving water where a drip ring takes several seconds
-// to reach a wall, rather than as a pond being pelted.
-const float WAVE_SPEED = 0.0025;
-// Amplitude retained per sim step. At 0.9985 and 3 substeps/frame at 60fps
-// waves keep ~76% per second, e-folding in ~3.7s — so a ring travels ~100 CSS
-// px before it fades, which is about half the header's height and enough to
-// reach the long walls and reflect. Together with WAVE_SPEED this is what
-// decides whether rings from successive drips ever overlap; drop it back toward
-// 0.985 and each one dies where it lands.
-const float DAMPING = 0.9995;
+// more extreme than it is: 0.01 gives 0.1 texels/step, which at 180 steps/s
+// is 18 texels/s — 54 CSS px/s, or ~2.5 tiles/s at the desktop's 22px tiles.
+// Picked by eye in /header-lab. If the tiles are taken to be 8" square that
+// is ~50 cm/s, the speed of real ripples ~20 cm long. It was 0.0025 (half
+// this ring speed), which read as heavy, barely-moving water. Scaled by
+// u_speedScale so phones, with smaller tiles, match in tiles per second.
+const float WAVE_SPEED = 0.01;
+// Amplitude retained per sim step. At 0.999 and 180 steps/s waves keep ~84%
+// per second, e-folding in ~5.6s (less with VISCOSITY below) — so a ring
+// travels a good part of the header before it fades, and reaches the long
+// walls and reflects. Together with WAVE_SPEED this is what decides whether
+// rings from successive drips ever overlap; drop it back toward 0.985 and
+// each one dies where it lands.
+const float DAMPING = 0.999;
 // Viscous damping coefficient, applied to the Laplacian of the velocity. Per
 // step a mode of wavenumber k loses roughly VISCOSITY * k^2 of its velocity,
 // with k^2 in texel units: 8 for the checkerboard, ~0.4 for a 10-texel ring,
@@ -94,7 +101,10 @@ void main() {
 	// (k^2 ~ 0.4), so injection noise and the stripes it seeds die in a few
 	// frames while the rings barely notice. See VISCOSITY for the numbers.
 	float viscous = VISCOSITY * (lap2.x - lap2.y);
-	float next = (2.0 * state.r - state.g + WAVE_SPEED * laplacian + viscous) * DAMPING;
+	// capped well inside the 0.5 CFL limit, whatever a lab slider times a big
+	// social-preview tile asks for
+	float c2 = min(WAVE_SPEED * u_speedScale, 0.45);
+	float next = (2.0 * state.r - state.g + c2 * laplacian + viscous) * DAMPING;
 	// Height carried into the .g channel as next step's "previous". Injections
 	// below displace it alongside `next` so they add no velocity — see the
 	// note on the pointer dent.
@@ -162,7 +172,7 @@ void main() {
 		prev = mix(prev, amp, w);
 	}
 
-	// Backstop: the wave equation is stable at the shipped WAVE_SPEED (0.0025,
+	// Backstop: the wave equation is stable at the shipped WAVE_SPEED (0.01,
 	// far below the 0.5 CFL limit), but nothing else bounds the state, so any
 	// future injection bug can drive it to infinity rather than merely looking
 	// wrong. Waves live well inside +/-1.5.

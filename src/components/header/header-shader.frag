@@ -50,7 +50,7 @@ const float SIM_SLOPE_GAIN = 12.0;
 //
 // This was 0.08 when the analytic spectrum was the primary lens and the sim
 // only added flares where you touched. Now the sim carries the field: waves are
-// slow (WAVE_SPEED 0.0025) and long-lived, so drip rings are broad, gentle
+// slow (WAVE_SPEED 0.0025 then) and long-lived, so drip rings are broad, gentle
 // curvature rather than sharp dents, and they need ~7x the gain to fold light at
 // all. The old "past ~0.3 dent centres go dark" caveat was measured against a
 // fresh full-depth pointer dent, which is far sharper than anything the ambient
