@@ -180,8 +180,8 @@ export function HeaderPlaceholder()
 			    in whole tiles from the bottom-left grid origin. round(down|up)
 			    reproduces the floor/ceil so the letters sit on the 0,0 grid
 			    even when the width is a fractional number of tiles.
-			    100vw, not 100%: the canvas is sized from window.innerWidth,
-			    which includes the scrollbar like vw does; 100% excludes it,
+			    100vw, not 100%: the canvas is sized from a 100vw probe,
+			    which includes the scrollbar; 100% excludes it,
 			    which can flip the floor by a column. The -0.1px keeps the
 			    round(up) from overshooting a row when (100% - 5*TILE)/2 lands
 			    exactly on a tile boundary (TILE is a hair under 200/9px, so
