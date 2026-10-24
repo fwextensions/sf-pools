@@ -375,8 +375,21 @@ export function mountWater(
 		bandFade = [fade(17.0), fade(42.9)]; // peak |k| of wave groups B and C
 	}
 
+	// The width the CSS placeholder lays itself out at: 100vw, measured off a
+	// zero-height probe. Not window.innerWidth, which matches 100vw only until
+	// the page is pinch-zoomed: iOS Safari then reports the zoomed-in visual
+	// viewport there and fires a resize, and the canvas shrank to a fraction of
+	// the header with the placeholder showing beside and below it. A probe's
+	// layout size ignores pinch zoom, and it includes the scrollbar like
+	// innerWidth did, so the shader's grid still lands on the placeholder's.
+	const widthProbe = document.createElement("div");
+	widthProbe.style.cssText = "position:absolute;top:0;left:0;width:100vw;height:0;visibility:hidden;pointer-events:none";
+	host.appendChild(widthProbe);
+
 	function canvasWidth() {
-		return opts.getWidth ? opts.getWidth() : window.innerWidth;
+		return opts.getWidth
+			? opts.getWidth()
+			: Math.round(widthProbe.getBoundingClientRect().width) || window.innerWidth;
 	}
 
 	function setSize(w: number) {
@@ -730,6 +743,7 @@ export function mountWater(
 		simShader.dispose();
 		renderer.dispose();
 		canvas.remove();
+		widthProbe.remove();
 	}
 
 	setSize(canvasWidth());
