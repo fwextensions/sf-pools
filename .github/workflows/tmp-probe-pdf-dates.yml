@@ -14,8 +14,8 @@ jobs:
       - name: Probe
         run: |
           set +e
-          sudo apt-get install -y poppler-utils >/dev/null 2>&1 || true
-          mkdir -p probe pdfs
+          sudo apt-get update -qq >/dev/null 2>&1; sudo apt-get install -y -qq poppler-utils >/dev/null 2>&1; which pdfinfo; curl -sS -m 20 "http://archive.org/wayback/available?url=sfrecpark.org/DocumentCenter/View/29796" ; curl -sS -m 20 -o /dev/null -w "%{http_code}\n" https://timetravel.mementoweb.org/api/json/2026/http://sfrecpark.org/Facilities/Facility/Details/Balboa-Pool-212
+          rm -rf probe; mkdir -p probe pdfs
           UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36"
           IDS="15972 19018 26439 26440 26441 26442 26443 26444 26445 26455 26525 27955 28024 28025 28026 28027 28028 28029 28030 28113 28115 28140 28172 28495 28496 28498 28501 28503 28547 28553 28771 28927 28959 29110 29562 29563 29564 29566 29568 29569 29570 29571 29578 29599 29796 29798 29799 29800 29802 29804 29805 29808 29953 29954 30001 30037 30210 30319"
           for id in $IDS; do
@@ -40,5 +40,5 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add probe
+          rm -f probe/*.txt.bak; cp pdfs/*.pdf probe/ 2>/dev/null; git add probe
           git commit -m "TEMP probe results" && git push
