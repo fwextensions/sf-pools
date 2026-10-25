@@ -237,8 +237,11 @@ float tiles(vec2 st, float gridScale) {
 	vec2 g = fract(st);
 	float t = 0.05;
 	float b = 0.02;
-	float x = smoothstep(t, t + b, g.x) * smoothstep(1.0 - t, 1.0 - t - b, g.x);
-	float y = smoothstep(t, t + b, g.y) * smoothstep(1.0 - t, 1.0 - t - b, g.y);
+	// The far edge fades out as 1 - smoothstep rather than a smoothstep with
+	// its edges swapped: GLSL leaves edge0 >= edge1 undefined, even though
+	// most GPUs happen to return the mirror image.
+	float x = smoothstep(t, t + b, g.x) * (1.0 - smoothstep(1.0 - t - b, 1.0 - t, g.x));
+	float y = smoothstep(t, t + b, g.y) * (1.0 - smoothstep(1.0 - t - b, 1.0 - t, g.y));
 	return x * y;
 }
 
@@ -469,16 +472,30 @@ float focusGain(float lap, float detH, float c) {
 
 float poolLights(vec2 p, float aspect) {
 	float sum = 0.0;
+	// lamps per wall, about one every 2.4 header heights
 	float n = max(1.0, floor(aspect / 2.4 + 0.5));
-	for (int i = 0; i < 8; i++) {
-		if (float(i) >= n) break;
-		float x = (float(i) + 0.5) / n * aspect;
-		vec2 dNear = p - vec2(x, -0.06);
-		// the far wall's lights sit between the near wall's
-		vec2 dFar = p - vec2(x + 0.5 * aspect / n, 1.06);
-		float a = 1.0 / (1.0 + dot(dNear, dNear) * 2.2);
+	float spacing = aspect / n;
+	// Rounding n means a slightly narrower header can drop a lamp and open
+	// the gaps by half again, which read as the whole pool going darker. So
+	// each glow is widened along the wall by however far the spacing is from
+	// 2.4: the light between lamps is then the same at any width, and only
+	// the lamps' positions change.
+	float stretch = spacing / 2.4;
+	for (int i = 0; i < 9; i++) {
+		if (float(i) > n) break;
+		// The far wall's lamps sit between the near wall's, starting in the
+		// upper-left corner. That puts n + 1 of them on the far wall, the
+		// first and last half off screen, so both upper corners are lit.
+		vec2 dFar = p - vec2(float(i) * spacing, 1.06);
+		dFar.x /= stretch;
 		float b = 1.0 / (1.0 + dot(dFar, dFar) * 2.2);
-		sum += a * a + b * b;
+		sum += b * b;
+		if (float(i) < n) {
+			vec2 dNear = p - vec2((float(i) + 0.5) * spacing, -0.06);
+			dNear.x /= stretch;
+			float a = 1.0 / (1.0 + dot(dNear, dNear) * 2.2);
+			sum += a * a;
+		}
 	}
 	return sum;
 }
@@ -566,9 +583,12 @@ void main() {
 	// genuinely fractional, keeping the text snapping off float knife edges.
 	float tileCountV = u_resolution.y / u_tilePx;
 
+	// Each tile's shade travels with the tile, refracted like its grout lines
+	// and lettering. Hashing the unrefracted grid instead left the bent grout
+	// sliding over a flat patchwork of shades, so the shade changes didn't
+	// line up with the tile edges.
 	vec2 gridID = floor(tileUV * tileCountV);
-	vec2 stableGrid = floor(uv * tileCountV);
-	float colorVar = mix(0.96, 1.04, hash(stableGrid));
+	float colorVar = mix(0.96, 1.04, hash(gridID));
 
 	// --- Text Positioning ---
 	float totalTilesH = tileCountV * aspect;

@@ -5,7 +5,9 @@ import { daylight, PRESET_ALTITUDES, sunAltitudeDeg } from "./sun";
 import {
 	advanceSimClock,
 	takeSimSteps,
+	createFramePacer,
 	createSimClock,
+	frameDue,
 	dueBucket,
 	hash01,
 } from "./wave-schedule";
@@ -468,19 +470,28 @@ export function mountWater(
 		const now = performance.now();
 		const from =
 			sweepFrom && now - sweepFrom.t <= SWEEP_MAX_GAP_MS ? sweepFrom : null;
-		const speedPx = from ? Math.hypot(x - from.x, y - from.y) : 0;
+		// Distance per 1/60s rather than per event: pointermove arrives once
+		// per display frame, so on a 144Hz screen each event covers less than
+		// half the distance it would at 60Hz, and the same flick left a weaker
+		// dent. IMPULSE_PER_PX was tuned against 60Hz events.
+		const speedPx = from
+			? Math.hypot(x - from.x, y - from.y) * (1000 / 60) / Math.max(now - from.t, 1)
+			: 0;
 
+		// Sweep the dent from where the pending one started, so several moves
+		// between sim steps carve the whole path rather than just the last
+		// segment. A pointer that just arrived makes a point dent where it
+		// landed.
+		if (impulseAmp === 0.0 || !from) {
+			impulsePrevX = from ? from.x / width : x / width;
+			impulsePrevY = from ? 1.0 - from.y / height : 1.0 - y / height;
+		}
 		impulseX = x / width;
 		impulseY = 1.0 - y / height;
 		const jp = opts.getJsParams
 			? { ...JS_PARAM_DEFAULTS, ...opts.getJsParams() }
 			: JS_PARAM_DEFAULTS;
 		impulseAmp = Math.min(jp.IMPULSE_MAX, jp.IMPULSE_BASE + speedPx * jp.IMPULSE_PER_PX);
-
-		// sweep the dent from the last position, unless the pointer just
-		// arrived — then it is a point dent where it landed
-		impulsePrevX = from ? from.x / width : impulseX;
-		impulsePrevY = from ? 1.0 - from.y / height : impulseY;
 		sweepFrom = { x, y, t: now };
 		lastInteractionTime = simClock.simTime * 1000;
 	}
@@ -722,7 +733,10 @@ export function mountWater(
 
 	let looping = false;
 	let rafId = 0;
-	let drawnOnce = false;
+	// Set until a frame lands: the first one, and the first after a resize,
+	// which clears the canvas. Both must draw even when the loop is stopped.
+	let needsDraw = true;
+	const pacer = createFramePacer();
 	let removed = false;
 
 	// A lost context draws nothing, and Safari shows the canvas as transparent,
@@ -737,10 +751,20 @@ export function mountWater(
 		opts.onContextLost?.();
 	}
 
-	function frame() {
+	function frame(rafTime: number) {
 		rafId = 0;
-		draw();
-		drawnOnce = true;
+		if (!looping) {
+			// A one-off still (the first frame under reduced motion, or a redraw
+			// after a resize): no time has passed for the water, so neither the
+			// sim nor the scroll swell should see the gap since the last frame.
+			simClock.lastRealTime = -1;
+			lastScrollY = opts.input ? opts.input.scrollY : window.scrollY;
+			lastScrollDelta = 0;
+		}
+		if (needsDraw || frameDue(pacer, rafTime / 1000)) {
+			draw();
+			needsDraw = false;
+		}
 		if (looping) rafId = requestAnimationFrame(frame);
 	}
 
@@ -748,9 +772,9 @@ export function mountWater(
 		looping = on;
 		if (on) {
 			if (!rafId) rafId = requestAnimationFrame(frame);
-		} else if (rafId && drawnOnce) {
-			// The first frame is always allowed to land, so an instance stopped
-			// before it draws (reduced motion) still shows the pool.
+		} else if (rafId && !needsDraw) {
+			// A pending first frame or post-resize redraw is always allowed to
+			// land, so a stopped instance (reduced motion) still shows the pool.
 			cancelAnimationFrame(rafId);
 			rafId = 0;
 		}
@@ -764,6 +788,10 @@ export function mountWater(
 		const w = canvasWidth();
 		if (w === width) return;
 		setSize(w);
+		// Resizing clears the canvas. A running loop repaints it next frame
+		// anyway; a stopped one would leave the placeholder showing.
+		needsDraw = true;
+		if (!rafId) rafId = requestAnimationFrame(frame);
 	}
 
 	function remove() {
