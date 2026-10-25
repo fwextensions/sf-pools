@@ -106,6 +106,47 @@ export function takeSimSteps(
 }
 
 /**
+ * The most times a second the water is drawn. The display shader is by far the
+ * most expensive part of a frame, and above 60fps it buys nothing: the sim
+ * already runs at a fixed rate (see takeSimSteps), and slow water drawn at
+ * 120Hz looks the same as at 60Hz. On a ProMotion phone or a 144Hz monitor
+ * this halves the GPU work.
+ */
+export const MAX_DRAW_RATE = 60;
+
+export type FramePacer = {
+	/** frames owed, in units of 1/MAX_DRAW_RATE */
+	budget: number;
+	/** real time at the previous call, or -1 before the first */
+	lastRealTime: number;
+};
+
+export function createFramePacer(): FramePacer {
+	return { budget: 1, lastRealTime: -1 };
+}
+
+/**
+ * Whether the animation frame at `realTime` should be drawn, or skipped to
+ * hold the draw rate to MAX_DRAW_RATE. A 60Hz display draws every frame, 120Hz
+ * every other one, and 90Hz or 144Hz a 2-3 mix that averages 60.
+ *
+ * The 0.9 threshold absorbs timestamp jitter, which would otherwise make a
+ * 60Hz display drop a frame whenever one arrived a hair early. The cap of 2
+ * keeps a long gap from banking frames it can never spend: at most one frame
+ * draws per callback anyway.
+ */
+export function frameDue(pacer: FramePacer, realTime: number): boolean {
+	const realDelta = pacer.lastRealTime < 0
+		? 0
+		: Math.max(realTime - pacer.lastRealTime, 0);
+	pacer.lastRealTime = realTime;
+	pacer.budget = Math.min(pacer.budget + realDelta * MAX_DRAW_RATE, 2);
+	if (pacer.budget < 0.9) return false;
+	pacer.budget -= 1;
+	return true;
+}
+
+/**
  * Deterministic 0..1 hash of an integer. Used to scatter event schedules,
  * headings and strengths: the two /header-lab panes must draw the SAME numbers
  * for a comparison between them to mean anything, and Math.random() cannot give

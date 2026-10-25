@@ -2,7 +2,9 @@ import { describe, it, expect } from "@jest/globals";
 import {
 	MAX_FRAME_DT,
 	advanceSimClock,
+	createFramePacer,
 	createSimClock,
+	frameDue,
 	dueBucket,
 	hash01,
 	takeSimSteps,
@@ -168,5 +170,43 @@ describe("takeSimSteps", () => {
 		advanceSimClock(clock, 0);
 		advanceSimClock(clock, 60);
 		expect(takeSimSteps(clock, 180)).toBe(Math.floor(MAX_FRAME_DT * 180 + 1e-6));
+	});
+});
+
+describe("frame pacer", () => {
+	function drawsInASecond(hz: number, jitter = 0) {
+		const pacer = createFramePacer();
+		let drawn = 0;
+		for (let i = 0; i < hz; i++) {
+			const wobble = i % 2 ? jitter : -jitter;
+			if (frameDue(pacer, 1 + i / hz + wobble)) drawn++;
+		}
+		return drawn;
+	}
+
+	it("draws every frame at 60Hz, even with jittery timestamps", () => {
+		expect(drawsInASecond(60)).toBe(60);
+		expect(drawsInASecond(60, 0.0005)).toBe(60);
+	});
+
+	it("holds faster displays to about 60 draws a second", () => {
+		expect(drawsInASecond(120)).toBe(60);
+		for (const hz of [90, 144, 165, 240]) {
+			expect(Math.abs(drawsInASecond(hz) - 60)).toBeLessThanOrEqual(1);
+		}
+	});
+
+	it("draws every frame of a slower display", () => {
+		expect(drawsInASecond(30)).toBe(30);
+	});
+
+	it("does not bank frames across a long gap", () => {
+		const pacer = createFramePacer();
+		frameDue(pacer, 1);
+		let drawn = 0;
+		for (let i = 0; i < 120; i++) {
+			if (frameDue(pacer, 11 + i / 120)) drawn++;
+		}
+		expect(drawn).toBeLessThanOrEqual(61);
 	});
 });

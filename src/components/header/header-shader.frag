@@ -237,8 +237,11 @@ float tiles(vec2 st, float gridScale) {
 	vec2 g = fract(st);
 	float t = 0.05;
 	float b = 0.02;
-	float x = smoothstep(t, t + b, g.x) * smoothstep(1.0 - t, 1.0 - t - b, g.x);
-	float y = smoothstep(t, t + b, g.y) * smoothstep(1.0 - t, 1.0 - t - b, g.y);
+	// The far edge fades out as 1 - smoothstep rather than a smoothstep with
+	// its edges swapped: GLSL leaves edge0 >= edge1 undefined, even though
+	// most GPUs happen to return the mirror image.
+	float x = smoothstep(t, t + b, g.x) * (1.0 - smoothstep(1.0 - t - b, 1.0 - t, g.x));
+	float y = smoothstep(t, t + b, g.y) * (1.0 - smoothstep(1.0 - t - b, 1.0 - t, g.y));
 	return x * y;
 }
 
@@ -566,9 +569,12 @@ void main() {
 	// genuinely fractional, keeping the text snapping off float knife edges.
 	float tileCountV = u_resolution.y / u_tilePx;
 
+	// Each tile's shade travels with the tile, refracted like its grout lines
+	// and lettering. Hashing the unrefracted grid instead left the bent grout
+	// sliding over a flat patchwork of shades, so the shade changes didn't
+	// line up with the tile edges.
 	vec2 gridID = floor(tileUV * tileCountV);
-	vec2 stableGrid = floor(uv * tileCountV);
-	float colorVar = mix(0.96, 1.04, hash(stableGrid));
+	float colorVar = mix(0.96, 1.04, hash(gridID));
 
 	// --- Text Positioning ---
 	float totalTilesH = tileCountV * aspect;
