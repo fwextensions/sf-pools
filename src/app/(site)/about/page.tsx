@@ -5,6 +5,7 @@ import { ExternalLinkIcon } from "@/components/icons";
 import { poolPageHref } from "@/lib/pool-pages";
 import { getPoolToken, type PoolToken } from "@/lib/pool-tokens";
 import { loadPools } from "@/lib/site-data";
+import { SITE_URL } from "@/lib/site-url";
 
 export const metadata: Metadata = {
 	title: "About",
@@ -167,6 +168,16 @@ export default async function AboutPage() {
 						</ul>
 					</Section>
 				)}
+
+				<Section title="FOR AI ASSISTANTS">
+					<p>
+						AI assistants can ask this site what&rsquo;s open now, what&rsquo;s coming up, or which sessions
+						match a pool, program, day or time. Add <code className="font-mono text-small">{`${SITE_URL}/mcp`}</code> as
+						a custom connector (it&rsquo;s an MCP server, no sign-in needed), or fetch the same answers as JSON
+						from <a href="/api/sessions?when=now" className={inlineLink}>/api/sessions</a>.{" "}
+						<a href="/llms.txt" className={inlineLink}>llms.txt</a> describes both.
+					</p>
+				</Section>
 
 				<Section title="THE CODE">
 					<p>
