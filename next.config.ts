@@ -14,12 +14,6 @@ const nextConfig: NextConfig = {
 	},
 	// posthog's api is sensitive to a trailing slash being added by a redirect
 	skipTrailingSlashRedirect: true,
-	// the agent routes read the published schedules at request time, so their
-	// functions have to ship with them; the pages read them at build
-	outputFileTracingIncludes: {
-		"/mcp": ["./public/data/*.json"],
-		"/api/sessions": ["./public/data/*.json"],
-	},
 	turbopack: {
 		rules: {
 			"*.frag": { loaders: ["raw-loader"], as: "*.js" },
