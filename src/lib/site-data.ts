@@ -89,6 +89,10 @@ export type ChangelogEntry = {
 	warnings: string[];
 };
 
+// Paths joined from a root at run time are more than the bundler can follow,
+// so it would ship the whole project with every function that reads one.
+// Each join says to leave it alone instead; next.config.ts lists the files
+// the request-time routes read.
 const SCHEDULES_FILE = ["public", "data", "all_schedules.json"];
 const UPCOMING_FILE = ["public", "data", "upcoming_schedules.json"];
 const ALERTS_FILE = ["public", "data", "alerts.json"];
@@ -96,7 +100,7 @@ const POOLS_FILE = ["data", "pools.json"];
 const CHANGELOG_DIR = ["data", "changelog"];
 
 async function readJson(root: string, parts: string[]): Promise<unknown> {
-	const file = path.join(root, ...parts);
+	const file = path.join(/* turbopackIgnore: true */ root, ...parts);
 	try {
 		return JSON.parse(await fs.readFile(file, "utf-8"));
 	} catch (error) {
@@ -129,7 +133,7 @@ export async function loadSchedules(root = process.cwd()): Promise<PoolSchedule[
  */
 export async function loadUpcomingSchedules(root = process.cwd()): Promise<PoolSchedule[]> {
 	try {
-		await fs.access(path.join(root, ...UPCOMING_FILE));
+		await fs.access(path.join(/* turbopackIgnore: true */ root, ...UPCOMING_FILE));
 	} catch (error) {
 		if (isMissing(error)) return [];
 		throw error;
@@ -140,7 +144,7 @@ export async function loadUpcomingSchedules(root = process.cwd()): Promise<PoolS
 /** the facility pages' notices, or null when the alerts file is missing */
 export async function loadAlerts(root = process.cwd()): Promise<AlertsData | null> {
 	try {
-		await fs.access(path.join(root, ...ALERTS_FILE));
+		await fs.access(path.join(/* turbopackIgnore: true */ root, ...ALERTS_FILE));
 	} catch (error) {
 		if (isMissing(error)) return null;
 		throw error;
@@ -158,7 +162,7 @@ export async function loadPools(root = process.cwd()): Promise<PoolRecord[]> {
  * rather than failing the build, so one bad run only loses its own page.
  */
 export async function loadChangelogs(root = process.cwd()): Promise<ChangelogEntry[]> {
-	const dir = path.join(root, ...CHANGELOG_DIR);
+	const dir = path.join(/* turbopackIgnore: true */ root, ...CHANGELOG_DIR);
 	let files: string[];
 	try {
 		files = await fs.readdir(dir);
@@ -171,7 +175,7 @@ export async function loadChangelogs(root = process.cwd()): Promise<ChangelogEnt
 	for (const file of files) {
 		if (!/^\d{4}-\d{2}-\d{2}\.json$/.test(file)) continue;
 		try {
-			entries.push(JSON.parse(await fs.readFile(path.join(dir, file), "utf-8")) as ChangelogEntry);
+			entries.push(JSON.parse(await fs.readFile(path.join(/* turbopackIgnore: true */ dir, file), "utf-8")) as ChangelogEntry);
 		} catch {
 			// a malformed file just doesn't get a page
 		}
