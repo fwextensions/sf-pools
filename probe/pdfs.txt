@@ -1,0 +1,559 @@
+=== 15972
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:08:50 GMT
+-- text:
+
+-- wayback first:
+=== 19018
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:08:51 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Facility_deck%20rules%20English%20pdf.pdf
+date: Sun, 25 Oct 2026 09:08:51 GMT
+-- text:
+
+-- wayback first:
+=== 26439
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:08:52 GMT
+content-type: application/pdf
+content-disposition: inline;filename=2025%20Balboa%20Pool%20Fall%20Pool%20Schedule.pdf
+date: Sun, 25 Oct 2026 09:08:52 GMT
+-- text:
+
+-- wayback first:
+=== 26440
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:08:52 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Coffman%20Pool_Fall25_Aug19_Dec27.pdf
+date: Sun, 25 Oct 2026 09:08:52 GMT
+-- text:
+
+-- wayback first:
+=== 26441
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:08:53 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Garfield_FALL%202025_AUG17-DEC24.pdf
+date: Sun, 25 Oct 2026 09:08:53 GMT
+-- text:
+
+-- wayback first:
+=== 26442
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:08:54 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Hamilton%20Pool%20_%20Fall%2025_%20Aug%2019%20_%20Dec%2013.pdf
+date: Sun, 25 Oct 2026 09:08:54 GMT
+-- text:
+
+-- wayback first:
+=== 26443
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:08:55 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Mission_Fall25_Aug19_Sep27%20%282%29.pdf
+date: Sun, 25 Oct 2026 09:08:55 GMT
+-- text:
+
+-- wayback first:
+=== 26444
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:08:56 GMT
+content-type: application/pdf
+content-disposition: inline;filename=MLK_Fall25_aug19_nov22%20%28revised%29.pdf
+date: Sun, 25 Oct 2026 09:08:56 GMT
+-- text:
+
+-- wayback first:
+=== 26445
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:00 GMT
+content-type: application/pdf
+content-disposition: inline;filename=North%20Beach%20Pool_Fall2025_31AU2025_3Jan2026%20Final.pdf
+date: Sun, 25 Oct 2026 09:09:00 GMT
+-- text:
+
+-- wayback first:
+=== 26455
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:01 GMT
+content-type: application/pdf
+content-disposition: inline;filename=ROSSI_Fall25Aug17_Dec24.pdf
+date: Sun, 25 Oct 2026 09:09:01 GMT
+-- text:
+
+-- wayback first:
+=== 26525
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:02 GMT
+content-type: application/pdf
+content-disposition: inline;filename=SAVA_Fall25_9.19.25_12.2.25.pdf
+date: Sun, 25 Oct 2026 09:09:02 GMT
+-- text:
+
+-- wayback first:
+=== 27955
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:03 GMT
+content-type: application/pdf
+content-disposition: inline;filename=MLK_Winter26_Jan06_Mar14_FINAL.pdf
+date: Sun, 25 Oct 2026 09:09:03 GMT
+-- text:
+
+-- wayback first:
+=== 28024
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:04 GMT
+content-type: application/pdf
+content-disposition: inline;filename=2026%20Balboa%20Pool%20Winter%20Schedule.pdf
+date: Sun, 25 Oct 2026 09:09:04 GMT
+-- text:
+
+-- wayback first:
+=== 28025
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:05 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Coffman%20Pool_Winter26_Jan6_Mar14.pdf
+date: Sun, 25 Oct 2026 09:09:05 GMT
+-- text:
+
+-- wayback first:
+=== 28026
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:05 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Garfield_WINTER%202026_Jan%204-Mar%2012.pdf
+date: Sun, 25 Oct 2026 09:09:06 GMT
+-- text:
+
+-- wayback first:
+=== 28027
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:06 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Hamilton%20Pool%20_%20Winter%20Schedule%20_%20Jan%206%20_%20March%2014.pdf
+date: Sun, 25 Oct 2026 09:09:07 GMT
+-- text:
+
+-- wayback first:
+=== 28028
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:07 GMT
+content-type: application/pdf
+content-disposition: inline;filename=MLK_Winter26_Jan06_Mar14_FINAL.pdf
+date: Sun, 25 Oct 2026 09:09:07 GMT
+-- text:
+
+-- wayback first:
+=== 28029
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:08 GMT
+content-type: application/pdf
+content-disposition: inline;filename=North%20Beach%20Pool_%20Winter%202026_06JAN%20to%2014MAR%20r9.pdf
+date: Sun, 25 Oct 2026 09:09:08 GMT
+-- text:
+
+-- wayback first:
+=== 28030
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:09 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Rossi_Winter26Jan4_March12.pdf
+date: Sun, 25 Oct 2026 09:09:09 GMT
+-- text:
+
+-- wayback first:
+=== 28113
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:10 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Coffman%20Pool_Winter26_Jan6_Feb3.pdf
+date: Sun, 25 Oct 2026 09:09:10 GMT
+-- text:
+
+-- wayback first:
+=== 28115
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:11 GMT
+content-type: application/pdf
+content-disposition: inline;filename=North%20Beach%20Pool_%20Winter%202026_06JAN%20to%2014MAR%20r16%20Swim%20Teams.pdf
+date: Sun, 25 Oct 2026 09:09:11 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 10 ms: Could not connect to server
+=== 28140
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:12 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Coffman%20Pool_Winter26_Jan6_Mar14_1.pdf
+date: Sun, 25 Oct 2026 09:09:12 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 28172
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:13 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Coffman%20Pool_Winter26_Jan6_Feb7.pdf
+date: Sun, 25 Oct 2026 09:09:13 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 10 ms: Could not connect to server
+=== 28495
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:13 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Garfield_Spring%202026%20Schedule%20March%2015%20to%20June%204.pdf
+date: Sun, 25 Oct 2026 09:09:13 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 31 ms: Could not connect to server
+=== 28496
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:14 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Hamilton%20Pool%20_%20Spring%202026%20Schedule%20_%20March%2017%20to%20June%206.pdf
+date: Sun, 25 Oct 2026 09:09:14 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 28498
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:14 GMT
+content-type: application/pdf
+content-disposition: inline;filename=MLK_Spring26_Mar10_Apr04_FINAL.pdf
+date: Sun, 25 Oct 2026 09:09:15 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 71 ms: Could not connect to server
+=== 28501
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:15 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Rossi_Spring%202026%20Schedule%20March%2015%20to%20June%204.pdf
+date: Sun, 25 Oct 2026 09:09:15 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 28503
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:16 GMT
+content-type: application/pdf
+content-disposition: inline;filename=North%20Beach%20Pool_%20Spring%202026_%2015MAR%20to%2012JUN_1.pdf
+date: Sun, 25 Oct 2026 09:09:16 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 28547
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:16 GMT
+content-type: application/pdf
+content-disposition: inline;filename=2026%20Balboa%20Pool%20Spring%20Schedule_1.pdf
+date: Sun, 25 Oct 2026 09:09:17 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 28553
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:17 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Coffman%20Pool_Spring%20One%2026_Mar17_April18.pdf
+date: Sun, 25 Oct 2026 09:09:17 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 28771
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:18 GMT
+content-type: application/pdf
+content-disposition: inline;filename=MLK_Spring26_Apr07_Jun06_FINAL%20v2.0.pdf
+date: Sun, 25 Oct 2026 09:09:18 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 28927
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:18 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Coffman%20Pool_Spring26_Apr21_June6.pdf
+date: Sun, 25 Oct 2026 09:09:18 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 28959
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:19 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Mission_Spring%202026%20Schedule%20May12_June6%20%281%29.pdf
+date: Sun, 25 Oct 2026 09:09:19 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 29110
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:20 GMT
+content-type: application/pdf
+content-disposition: inline;filename=2026%20Spring%202%20Pool%20Schedule%20Balboa%20Pool.pdf
+date: Sun, 25 Oct 2026 09:09:20 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 7 ms: Could not connect to server
+=== 29562
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:20 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Balboa%20Summer%2026%20June%203_Aug%2016.pdf
+date: Sun, 25 Oct 2026 09:09:20 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 8 ms: Could not connect to server
+=== 29563
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:21 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Coffman%20Pool%20SUMMER%202026_June_9_Aug_15.pdf
+date: Sun, 25 Oct 2026 09:09:21 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 29564
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:21 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Garfield%20Pool_Summer%2026_June%207%20to%20Aug%2013.pdf
+date: Sun, 25 Oct 2026 09:09:21 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 29566
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:21 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Mission%20Summer%202026_June%209_Aug%2015.pdf
+date: Sun, 25 Oct 2026 09:09:22 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 9 ms: Could not connect to server
+=== 29568
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:22 GMT
+content-type: application/pdf
+content-disposition: inline;filename=North%20Beach%20SUMMER%202026%20June%209_Aug%2010%20Cool%20Pool.pdf
+date: Sun, 25 Oct 2026 09:09:22 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 29569
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:22 GMT
+content-type: application/pdf
+content-disposition: inline;filename=North%20Beach%20SUMMER%202026%20June9_Aug10%20Warm%20Pool.pdf
+date: Sun, 25 Oct 2026 09:09:22 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 8 ms: Could not connect to server
+=== 29570
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:23 GMT
+content-type: application/pdf
+content-disposition: inline;filename=RossiPool__Summer2026_June7_Aug13.pdf
+date: Sun, 25 Oct 2026 09:09:23 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 29571
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:23 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Sava%20Summer2%202026%20June30-aug15new%20%283%29.pdf
+date: Sun, 25 Oct 2026 09:09:23 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 29578
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:24 GMT
+content-type: application/pdf
+content-disposition: inline;filename=MLK%20Pool_%20Summer%202026%20_Jun9_%20Aug15th.pdf
+date: Sun, 25 Oct 2026 09:09:24 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 10 ms: Could not connect to server
+=== 29599
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:24 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Hamilton%20Pool%20_%20Summer%202026%20_%20June%209%20to%20Aug%2015%20New%20%281%29.pdf
+date: Sun, 25 Oct 2026 09:09:24 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 29796
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:25 GMT
+content-type: application/pdf
+content-disposition: inline;filename=2026%20Balboa%20Fall%20Schedule%20%28Sept%201-Dec%2012%29.pdf
+date: Sun, 25 Oct 2026 09:09:25 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 29798
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:25 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Coffman%20Pool%20Fall%202026%20Aug18_Dec12.pdf
+date: Sun, 25 Oct 2026 09:09:25 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 29799
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:26 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Garfield%20Pool_FALL%202026_Sept%208%20to%20Dec%2010.pdf
+date: Sun, 25 Oct 2026 09:09:26 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 29800
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:26 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Hamilton%20Pool%20_%20Fall%202026%20_%20August%2018%20to%20December%2012.pdf
+date: Sun, 25 Oct 2026 09:09:26 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 7 ms: Could not connect to server
+=== 29802
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:26 GMT
+content-type: application/pdf
+content-disposition: inline;filename=MLK%20Pool_Fall2026_pt1_Aug%2018_Sep26.pdf
+date: Sun, 25 Oct 2026 09:09:27 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 10 ms: Could not connect to server
+=== 29804
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:27 GMT
+content-type: application/pdf
+content-disposition: inline;filename=RossiPool_Fall2026_Aug16toDec10.pdf
+date: Sun, 25 Oct 2026 09:09:27 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 29805
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:27 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Sava_Pool_Fall2_2026_Aug29%20toDec12.pdf
+date: Sun, 25 Oct 2026 09:09:27 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 29808
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:28 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Garfield%20Pool%20Maintenance%20Closure%208-14_9-7%202026.pdf
+date: Sun, 25 Oct 2026 09:09:28 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 29953
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:28 GMT
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:28 GMT
+content-type: application/pdf
+content-disposition: inline;filename=NB%20Pool_Fall2026_Sep1_Dec12_%20COOL%20POOL%20.pdf
+date: Sun, 25 Oct 2026 09:09:29 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 12 ms: Could not connect to server
+=== 29954
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:29 GMT
+content-type: application/pdf
+content-disposition: inline;filename=NB%20Pool_Fall2026_Sept1_Dec12_%20WARM%20POOL%20%20%20%281%29.pdf
+date: Sun, 25 Oct 2026 09:09:29 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 30001
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:29 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Mission_Pool_Fall2026_Aug18_toOct17%20%281%29%20%282%29.pdf
+date: Sun, 25 Oct 2026 09:09:29 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 6 ms: Could not connect to server
+=== 30037
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:30 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Sava_Pool_Fall2_2026___Aug29toDec12.pdf
+date: Sun, 25 Oct 2026 09:09:30 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 9 ms: Could not connect to server
+=== 30210
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:30 GMT
+content-type: application/pdf
+content-disposition: inline;filename=MLK%20Pool_Fall2026_pt2_Sep29_Dec%2012_1.pdf
+date: Sun, 25 Oct 2026 09:09:30 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 7 ms: Could not connect to server
+=== 30319
+content-type: text/html; charset=utf-8
+date: Sun, 25 Oct 2026 09:09:31 GMT
+content-type: application/pdf
+content-disposition: inline;filename=Mission_Pool_Fall2026_Oct20_toNov21.pdf
+date: Sun, 25 Oct 2026 09:09:31 GMT
+-- text:
+
+-- wayback first:
+curl: (7) Failed to connect to web.archive.org port 443 after 7 ms: Could not connect to server
