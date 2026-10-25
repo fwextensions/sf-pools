@@ -1,0 +1,39 @@
+=== Balboa-Pool-212
+29796 | 2026 Balboa Fall Schedule (Sept 1-Dec 12)
+-- wayback captures (collapsed by day):
+curl: (7) Failed to connect to web.archive.org port 443 after 53 ms: Could not connect to server
+=== Coffman-Pool-213
+29798 | Coffman Pool Fall 2026 Aug18_Dec12
+-- wayback captures (collapsed by day):
+curl: (7) Failed to connect to web.archive.org port 443 after 54 ms: Could not connect to server
+=== Garfield-Pool-214
+29799 | Garfield Pool_FALL 2026_Sept 8 to Dec 10
+-- wayback captures (collapsed by day):
+curl: (7) Failed to connect to web.archive.org port 443 after 55 ms: Could not connect to server
+=== Hamilton-Pool-215
+29800 | Hamilton Pool _ Fall 2026 _ August 18 to December 12
+-- wayback captures (collapsed by day):
+curl: (7) Failed to connect to web.archive.org port 443 after 50 ms: Could not connect to server
+=== Martin-Luther-King-Jr-Pool-216
+29802 | MLK Pool_Fall2026_pt1_Aug 18_Sep26
+30210 | MLK Pool_Fall2026_pt2_Sep29_Dec 12
+-- wayback captures (collapsed by day):
+curl: (7) Failed to connect to web.archive.org port 443 after 52 ms: Could not connect to server
+=== Mission-Community-Pool-217
+30001 | Mission_Pool_Fall2026_Aug18_toOct17 (1) (2)
+30319 | Mission_Pool_Fall2026_Oct20_toNov21
+-- wayback captures (collapsed by day):
+curl: (7) Failed to connect to web.archive.org port 443 after 50 ms: Could not connect to server
+=== North-Beach-Pool-218
+29953 | NB Pool_Fall2026_Sep1_Dec12_ COOL POOL 
+29954 | NB Pool_Fall2026_Sept1_Dec12_ WARM POOL   (1)
+-- wayback captures (collapsed by day):
+curl: (7) Failed to connect to web.archive.org port 443 after 56 ms: Could not connect to server
+=== Rossi-Pool-219
+29804 | RossiPool_Fall2026_Aug16toDec10
+-- wayback captures (collapsed by day):
+curl: (7) Failed to connect to web.archive.org port 443 after 52 ms: Could not connect to server
+=== Sava-Pool-220
+30037 | Sava_Pool_Fall2_2026___Aug29toDec12
+-- wayback captures (collapsed by day):
+curl: (7) Failed to connect to web.archive.org port 443 after 63 ms: Could not connect to server
