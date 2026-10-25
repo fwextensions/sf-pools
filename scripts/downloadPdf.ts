@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { createHash } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fetchPdfBuffer } from "./http";
 import type { PoolRecord } from "../src/lib/site-data";
@@ -13,7 +13,16 @@ const MANIFEST_FILE = path.join(process.cwd(), "data", "pdf-manifest.json");
 export type DiscoveredPool = {
 	poolId: string;
 	pdfUrl: string | null;
+	/** a later schedule already posted on the facility page, which takes over on its start date */
+	upcomingPdfUrl?: string | null;
+	/** YYYY-MM-DD, from the upcoming link's text */
+	upcomingStartDate?: string | null;
 };
+
+/** the file base an upcoming schedule's PDF and extract are kept under, next to the current one's */
+export function upcomingBase(base: string): string {
+	return `${base}.upcoming`;
+}
 
 export type PdfManifestEntry = {
 	pdfUrl: string;
@@ -88,24 +97,35 @@ export async function main() {
 	let downloadCount = 0;
 	let skippedCount = 0;
 
-	for (const disc of discovered) {
-		if (!disc.pdfUrl) {
-			const pool = poolsById.get(disc.poolId);
-			console.warn("skip (no pdf):", pool?.shortName ?? disc.poolId);
+	// each pool's current schedule, then the one posted to follow it, if any
+	const wanted = discovered.flatMap((disc) => {
+		const pool = poolsById.get(disc.poolId);
+		const displayName = pool?.shortName ?? disc.poolId;
+		// use pool id as the base filename for consistency
+		const base = sanitizeFilename(disc.poolId);
+		return [
+			{ pdfUrl: disc.pdfUrl, displayName, poolKey: base, upcoming: false },
+			{ pdfUrl: disc.upcomingPdfUrl ?? null, displayName: `${displayName} (upcoming)`, poolKey: upcomingBase(base), upcoming: true },
+		];
+	});
+
+	for (const { pdfUrl, displayName, poolKey, upcoming } of wanted) {
+		const fname = poolKey + ".pdf";
+		if (!pdfUrl) {
+			if (upcoming) {
+				// nothing posted ahead any more: clear last run's, so processing
+				// doesn't publish a schedule the page no longer lists
+				await rm(path.join(OUT_DIR, fname), { force: true });
+				delete manifest[poolKey];
+			} else {
+				console.warn("skip (no pdf):", displayName);
+			}
 			continue;
 		}
 
-		const pool = poolsById.get(disc.poolId);
-		const displayName = pool?.shortName ?? disc.poolId;
-
-		// use pool id as the base filename for consistency
-		const base = sanitizeFilename(disc.poolId);
-		const fname = base + ".pdf";
-		const poolKey = base;
-
 		try {
 			await sleep(400);
-			const buf = await fetchPdfBuffer(disc.pdfUrl);
+			const buf = await fetchPdfBuffer(pdfUrl);
 			const hash = computeHash(buf);
 
 			// always write what was fetched: processing reads every pool's PDF
@@ -118,8 +138,8 @@ export async function main() {
 			const existing = manifest[poolKey];
 			if (existing && existing.pdfHash === hash) {
 				// same content, just update URL if it changed
-				if (existing.pdfUrl !== disc.pdfUrl) {
-					manifest[poolKey] = { ...existing, pdfUrl: disc.pdfUrl };
+				if (existing.pdfUrl !== pdfUrl) {
+					manifest[poolKey] = { ...existing, pdfUrl };
 					console.log("unchanged (url updated):", displayName);
 				} else {
 					console.log("unchanged:", displayName);
@@ -130,7 +150,7 @@ export async function main() {
 
 			// update manifest
 			manifest[poolKey] = {
-				pdfUrl: disc.pdfUrl,
+				pdfUrl,
 				pdfHash: hash,
 				filename: fname,
 				lastDownloaded: new Date().toISOString(),
@@ -139,7 +159,7 @@ export async function main() {
 			console.log("saved:", outPath, existing ? "(updated)" : "(new)");
 			downloadCount++;
 		} catch (err) {
-			console.warn("failed to download:", displayName, disc.pdfUrl, err);
+			console.warn("failed to download:", displayName, pdfUrl, err);
 		}
 	}
 

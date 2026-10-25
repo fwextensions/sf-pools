@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import NowSoon from "@/components/NowSoon";
-import { loadSchedules } from "@/lib/site-data";
+import { loadSchedules, loadUpcomingSchedules } from "@/lib/site-data";
 
 export const metadata: Metadata = {
 	title: "Now & soon",
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function NowPage() {
-	const all = await loadSchedules();
+	const [all, upcoming] = await Promise.all([loadSchedules(), loadUpcomingSchedules()]);
 
 	return (
 		<main>
@@ -23,7 +23,7 @@ export default async function NowPage() {
 			{all.length > 0 ? (
 				// the controls live in the url, which a static page only has in the browser
 				<Suspense fallback={<div className="mt-4 bg-tint px-3 py-2.5 text-body text-ink-2">Loading…</div>}>
-					<NowSoon all={all} />
+					<NowSoon all={all} upcoming={upcoming} />
 				</Suspense>
 			) : (
 				<div className="mt-6 bg-tint px-3 py-2.5">

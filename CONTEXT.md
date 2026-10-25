@@ -9,8 +9,12 @@ One body of water with its own schedule. North Beach's cool and warm pools are t
 _Avoid_: facility, location
 
 **Schedule**:
-The weekly timetable one PDF prints for a pool, with the dates it says it runs from and to. A pool has one current schedule.
+The weekly timetable one PDF prints for a pool, with the dates it says it runs from and to. A pool has one current schedule, and at most one upcoming schedule.
 _Avoid_: timetable, season
+
+**Upcoming schedule**:
+A schedule its facility page already lists that starts after the current one: next season's PDF, or the next part of a split season. It takes over on its start date.
+_Avoid_: future schedule, next schedule
 
 **Program**:
 One line of a schedule: a named activity at a pool on a weekday, from a start time to an end time ("Lap Swim, Mondays 6:00a–9:00a"). It repeats every week the schedule runs, and closures never change it.
@@ -35,5 +39,5 @@ A closure a schedule's PDF lists in its notes, for a whole day or some hours of 
 _Avoid_: PDF closure, holiday
 
 **Pool calendar**:
-The one place that decides which sessions a pool has on a date, and why it has none: an alert closure, a scheduled closure, or a date outside its schedule.
+The one place that decides which sessions a pool has on a date, and why it has none: an alert closure, a scheduled closure, or a date outside its schedule. On each date it uses the schedule in force then, current or upcoming.
 _Avoid_: availability, open hours

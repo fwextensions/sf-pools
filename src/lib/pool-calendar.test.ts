@@ -192,6 +192,74 @@ describe("printed schedule dates", () => {
 	});
 });
 
+describe("upcoming schedules", () => {
+	// Mission's fall part ends Sat Oct 17 and the next part starts Tue Oct 20
+	const fall = {
+		...pool("mission", [["Monday", "9:00a", "10:00a"]]),
+		scheduleStartDate: "2026-08-18",
+		scheduleEndDate: "2026-10-17",
+	} as PoolSchedule;
+	const next = {
+		...pool("mission", [["Tuesday", "7:00a", "8:00a"]]),
+		scheduleStartDate: "2026-10-20",
+		scheduleEndDate: "2026-11-21",
+	} as PoolSchedule;
+
+	it("switches to the upcoming schedule on its start date", () => {
+		// Mon Oct 12 to Sun Oct 25: the fall Monday, then the new Tuesday
+		const sessions = createPoolCalendar([fall], [next]).sessions("2026-10-12", "2026-10-25");
+		expect(sessions.map((s) => `${s.date} ${s.startTime}`)).toEqual(["2026-10-12 9:00a", "2026-10-20 7:00a"]);
+	});
+
+	it("answers for the schedule in force on the date", () => {
+		const calendar = createPoolCalendar([fall], [next]);
+		expect(calendar.closuresOn("mission", "2026-10-18")).toEqual([{ kind: "ended", endDate: "2026-10-17" }]);
+		expect(calendar.closuresOn("mission", "2026-10-20")).toEqual([]);
+		expect(calendar.closuresOn("mission", "2026-11-23")).toEqual([{ kind: "ended", endDate: "2026-11-21" }]);
+	});
+
+	it("takes over from a schedule that prints no end date", () => {
+		const open = { ...fall, scheduleEndDate: null } as PoolSchedule;
+		const sessions = createPoolCalendar([open], [next]).sessions("2026-10-19", "2026-10-27");
+		expect(sessions.map((s) => s.date)).toEqual(["2026-10-19", "2026-10-20", "2026-10-27"]);
+	});
+
+	it("ignores an upcoming schedule with no start date", () => {
+		const undated = { ...next, scheduleStartDate: null } as PoolSchedule;
+		expect(createPoolCalendar([fall], [undated]).sessions("2026-10-19", "2026-10-25")).toEqual([]);
+	});
+
+	it("keeps each schedule's PDF closures to its own dates", () => {
+		const holiday = (date: string) => ({ startDate: date, endDate: date, startTime: null, endTime: null, reason: "Holiday" });
+		// the fall PDF lists a day after its own end; the next one lists Oct 21
+		const withNotes = { ...fall, scheduledClosures: [holiday("2026-10-22")] } as PoolSchedule;
+		const nextNotes = { ...next, scheduledClosures: [holiday("2026-10-21")] } as PoolSchedule;
+		const calendar = createPoolCalendar([withNotes], [nextNotes]);
+		expect(calendar.closures("2026-10-19", "2026-10-25").map((c) => c.startDate)).toEqual(["2026-10-21"]);
+	});
+
+	it("says when a posted schedule follows a gap, or takes over straight away", () => {
+		const calendar = createPoolCalendar([fall], [next]);
+		expect(calendar.scheduleGaps("2026-10-15", "2026-10-21")).toEqual([
+			{ kind: "ends", date: "2026-10-17", nextStart: "2026-10-20", poolIds: ["mission"] },
+		]);
+		// after the new one starts, only its own end is a gap
+		expect(calendar.scheduleGaps("2026-10-21", "2026-10-27")).toEqual([]);
+		const seamless = { ...next, scheduleStartDate: "2026-10-18" } as PoolSchedule;
+		expect(createPoolCalendar([fall], [seamless]).scheduleGaps("2026-10-15", "2026-10-21")).toEqual([
+			{ kind: "changes", date: "2026-10-18", poolIds: ["mission"] },
+		]);
+	});
+
+	it("starts a pool that only has an upcoming schedule on its start date", () => {
+		const calendar = createPoolCalendar([], [next]);
+		expect(calendar.sessions("2026-10-12", "2026-10-25").map((s) => s.date)).toEqual(["2026-10-20"]);
+		expect(calendar.scheduleGaps("2026-10-15", "2026-10-21")).toEqual([
+			{ kind: "starts", date: "2026-10-20", poolIds: ["mission"] },
+		]);
+	});
+});
+
 describe("closures", () => {
 	const day = (startDate: string, reason: string, more: object = {}) => ({
 		startDate,

@@ -19,10 +19,12 @@ import { MobileChips, MobilePanel, type OpenPanel } from "./MobileBar";
 
 type Props = {
 	all: PoolSchedule[];
+	/** schedules posted to take over on their start dates */
+	upcoming?: PoolSchedule[];
 	alerts?: AlertsData | null;
 };
 
-export default function AvailabilityGrid({ all, alerts }: Props) {
+export default function AvailabilityGrid({ all, upcoming = [], alerts }: Props) {
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
 	// each weekday column is that day's next date, from today, so a closed
@@ -31,7 +33,7 @@ export default function AvailabilityGrid({ all, alerts }: Props) {
 	// say why
 	const [week] = useState(() => {
 		const today = pacificToday();
-		const calendar = createPoolCalendar(all);
+		const calendar = createPoolCalendar(all, upcoming);
 		const last = addDays(today, 6);
 		return {
 			today,

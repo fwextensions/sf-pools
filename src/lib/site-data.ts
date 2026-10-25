@@ -1,8 +1,9 @@
 // The files the weekly pipeline publishes and the site reads at build time:
 // their paths, their shapes, and what a missing one means. Every page is
 // prerendered, so a schedule or pool list that can't be read fails the build
-// rather than shipping an empty grid. Alerts are optional, since the site
-// still works without the facility notices.
+// rather than shipping an empty grid. Alerts and upcoming schedules are
+// optional, since the site still works without the facility notices or a
+// schedule posted ahead of its season.
 //
 // The scripts that write these files import their types from here.
 import fs from "node:fs/promises";
@@ -89,6 +90,7 @@ export type ChangelogEntry = {
 };
 
 const SCHEDULES_FILE = ["public", "data", "all_schedules.json"];
+const UPCOMING_FILE = ["public", "data", "upcoming_schedules.json"];
 const ALERTS_FILE = ["public", "data", "alerts.json"];
 const POOLS_FILE = ["data", "pools.json"];
 const CHANGELOG_DIR = ["data", "changelog"];
@@ -106,14 +108,33 @@ function isMissing(error: unknown): boolean {
 	return (error as NodeJS.ErrnoException)?.code === "ENOENT";
 }
 
-/** every pool's schedule, checked against the extraction schema; throws when it can't be read */
-export async function loadSchedules(root = process.cwd()): Promise<PoolSchedule[]> {
-	const parsed = AllSchedulesSchema.safeParse(await readJson(root, SCHEDULES_FILE));
+async function readSchedules(root: string, parts: string[]): Promise<PoolSchedule[]> {
+	const parsed = AllSchedulesSchema.safeParse(await readJson(root, parts));
 	if (!parsed.success) {
 		const issue = parsed.error.issues[0]!;
-		throw new Error(`${path.join(...SCHEDULES_FILE)} doesn't match the schedule schema at ${issue.path.join(".")}: ${issue.message}`);
+		throw new Error(`${path.join(...parts)} doesn't match the schedule schema at ${issue.path.join(".")}: ${issue.message}`);
 	}
 	return parsed.data;
+}
+
+/** every pool's schedule, checked against the extraction schema; throws when it can't be read */
+export async function loadSchedules(root = process.cwd()): Promise<PoolSchedule[]> {
+	return readSchedules(root, SCHEDULES_FILE);
+}
+
+/**
+ * The schedules already posted to take over from the current ones, each from
+ * its scheduleStartDate; none when the file is missing. Throws when it can't
+ * be read, like the current schedules.
+ */
+export async function loadUpcomingSchedules(root = process.cwd()): Promise<PoolSchedule[]> {
+	try {
+		await fs.access(path.join(root, ...UPCOMING_FILE));
+	} catch (error) {
+		if (isMissing(error)) return [];
+		throw error;
+	}
+	return readSchedules(root, UPCOMING_FILE);
 }
 
 /** the facility pages' notices, or null when the alerts file is missing */

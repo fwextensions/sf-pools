@@ -1,5 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import { parseLinkDateRange, pickCurrentScheduleLink } from "./schedule-links";
+import { parseLinkDateRange, pickCurrentScheduleLink, pickUpcomingScheduleLink } from "./schedule-links";
 
 // link texts as they appeared on the facility pages, 2026-10-06
 const MLK_PT1 = { href: "https://sfrecpark.org/DocumentCenter/View/29802", text: "MLK Pool_Fall2026_pt1_Aug 18_Sep26" };
@@ -25,6 +25,13 @@ describe("parseLinkDateRange", () => {
 
 	it("takes the year from today when the text has none, and wraps past December", () => {
 		expect(parseLinkDateRange("Winter Dec 15 - Mar 1", "2026-11-20")).toEqual({ start: "2026-12-15", end: "2027-03-01" });
+	});
+
+	it("reads a yearless range that ended long ago as next year's", () => {
+		// posted in December for January
+		expect(parseLinkDateRange("MLK_Winter26_Jan06_Mar14_FINAL", "2025-12-17")).toEqual({ start: "2026-01-06", end: "2026-03-14" });
+		// a part that ended last week is still this year's
+		expect(parseLinkDateRange("Mission_Pool_Aug18_toOct17", "2026-10-25")).toEqual({ start: "2026-08-18", end: "2026-10-17" });
 	});
 
 	it("returns null without two dates", () => {
@@ -76,5 +83,31 @@ describe("pickCurrentScheduleLink", () => {
 	it("handles one link or none", () => {
 		expect(pickCurrentScheduleLink([MLK_PT1], "2026-12-20")).toBe(MLK_PT1);
 		expect(pickCurrentScheduleLink([], "2026-10-06")).toBeNull();
+	});
+});
+
+describe("pickUpcomingScheduleLink", () => {
+	const links = [MLK_PT1, MLK_PT2];
+
+	it("picks the part that follows the current one", () => {
+		expect(pickUpcomingScheduleLink(links, MLK_PT1, "2026-09-01")).toEqual({
+			link: MLK_PT2,
+			range: { start: "2026-09-29", end: "2026-12-12" },
+		});
+	});
+
+	it("has none once the last part is current", () => {
+		expect(pickUpcomingScheduleLink(links, MLK_PT2, "2026-10-06")).toBeNull();
+	});
+
+	it("skips a part that starts no later than the current one", () => {
+		// before either starts, pt1 is current and pt2 still comes after it
+		expect(pickUpcomingScheduleLink(links, MLK_PT1, "2026-08-01")?.link).toBe(MLK_PT2);
+		expect(pickUpcomingScheduleLink([MLK_PT2, MLK_PT1], MLK_PT2, "2026-08-01")).toBeNull();
+	});
+
+	it("has none when any link has no readable dates", () => {
+		const undated = { href: "https://sfrecpark.org/DocumentCenter/View/30300", text: "MLK Pool Winter" };
+		expect(pickUpcomingScheduleLink([MLK_PT1, MLK_PT2, undated], MLK_PT1, "2026-09-01")).toBeNull();
 	});
 });

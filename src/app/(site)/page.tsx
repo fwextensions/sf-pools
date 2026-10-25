@@ -1,9 +1,9 @@
 import { Suspense } from "react";
 import AvailabilityGrid from "@/components/grid/AvailabilityGrid";
-import { loadAlerts, loadSchedules } from "@/lib/site-data";
+import { loadAlerts, loadSchedules, loadUpcomingSchedules } from "@/lib/site-data";
 
 export default async function HomePage() {
-	const [all, alerts] = await Promise.all([loadSchedules(), loadAlerts()]);
+	const [all, upcoming, alerts] = await Promise.all([loadSchedules(), loadUpcomingSchedules(), loadAlerts()]);
 
 	return (
 		<main>
@@ -14,7 +14,7 @@ export default async function HomePage() {
 					</div>
 				}
 			>
-				<AvailabilityGrid all={all} alerts={alerts} />
+				<AvailabilityGrid all={all} upcoming={upcoming} alerts={alerts} />
 			</Suspense>
 		</main>
 	);

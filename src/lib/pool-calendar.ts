@@ -1,6 +1,8 @@
 // The one place that decides which sessions a pool has on a date, and why it
 // has none. The published data keeps each pool's regular week of programs;
-// closures take effect here, as sessions left off the dates they cover. Views
+// closures take effect here, as sessions left off the dates they cover. A
+// schedule posted ahead of its season takes over on its start date, so the
+// change lands on the right day whenever the data was last scraped. Views
 // ask for the dates they show, so nothing here assumes "this week".
 //
 // A date is "YYYY-MM-DD" on the Pacific calendar, which compares correctly as
@@ -21,11 +23,17 @@ export type ClosedReason =
 	| { kind: "not-started"; startDate: string }
 	| { kind: "ended"; endDate: string };
 
-/** the pools whose printed schedule starts or ends inside a range of dates */
+/** the pools whose printed schedule starts, ends or changes inside a range of dates */
 export type ScheduleGap = {
-	/** "ends": no sessions after `date`; "starts": none before it */
-	kind: "ends" | "starts";
+	/**
+	 * "ends": no sessions after `date`, until `nextStart` when a new schedule
+	 * is already posted; "starts": none before `date`; "changes": a new
+	 * schedule takes over on `date`, straight after the old one
+	 */
+	kind: "ends" | "starts" | "changes";
 	date: string;
+	/** for "ends", the day the posted schedule that follows begins */
+	nextStart?: string;
 	poolIds: string[];
 };
 
@@ -64,7 +72,8 @@ export type PoolCalendar = {
 	closures(from: string, to: string): SharedClosure[];
 	/**
 	 * The schedules that end before `to` or start after `from`, so that some
-	 * of those dates have no sessions until a new PDF is posted.
+	 * of those dates have no sessions until a new PDF is posted or starts, and
+	 * the posted schedules that take over between the two.
 	 */
 	scheduleGaps(from: string, to: string): ScheduleGap[];
 };
@@ -95,12 +104,36 @@ function datesBetween(from: string, to: string): string[] {
 // a session before it's placed on a date: a program parsed and described once
 type Weekly = Omit<Session, "date">;
 
-export function createPoolCalendar(pools: PoolSchedule[]): PoolCalendar {
-	const weekly = new Map<string, Weekly[]>(pools.map((pool) => [pool.id, weeklySessions(pool)]));
-	const byId = new Map(pools.map((pool) => [pool.id, pool]));
+// one printed schedule of a pool and the dates it applies from
+type Period = { schedule: PoolSchedule; weekly: Weekly[] };
+
+/**
+ * `pools` are the current schedules. `upcoming` are the ones posted to take
+ * over later, at most one per pool, each from its scheduleStartDate.
+ */
+export function createPoolCalendar(pools: PoolSchedule[], upcoming: PoolSchedule[] = []): PoolCalendar {
+	const periods = new Map<string, Period[]>();
+	for (const schedule of [...pools, ...upcoming.filter((s) => s.scheduleStartDate)]) {
+		const list = periods.get(schedule.id) ?? [];
+		list.push({ schedule, weekly: weeklySessions(schedule) });
+		periods.set(schedule.id, list);
+	}
+	// a missing start sorts first: the current schedule, running already
+	for (const list of periods.values()) {
+		list.sort((a, b) => (a.schedule.scheduleStartDate ?? "").localeCompare(b.schedule.scheduleStartDate ?? ""));
+	}
+
+	/** the schedule in force on a date: the latest to have started, else the first */
+	function periodOn(poolId: string, date: string): Period | undefined {
+		const list = periods.get(poolId);
+		if (!list) return undefined;
+		let period = list[0];
+		for (const p of list.slice(1)) if (p.schedule.scheduleStartDate! <= date) period = p;
+		return period;
+	}
 
 	function closuresOn(poolId: string, date: string): ClosedReason[] {
-		const pool = byId.get(poolId);
+		const pool = periodOn(poolId, date)?.schedule;
 		if (!pool) return [];
 		const reasons: ClosedReason[] = [];
 		// a missing date means the schedule runs until the next PDF replaces it
@@ -124,13 +157,16 @@ export function createPoolCalendar(pools: PoolSchedule[]): PoolCalendar {
 	function sessions(from: string, to: string): Session[] {
 		const dates = datesBetween(from, to);
 		const out: Session[] = [];
-		for (const pool of pools) {
-			const shut = new Map(dates.map((date) => [date, closuresOn(pool.id, date)]));
-			for (const s of weekly.get(pool.id)!) {
-				for (const date of dates) {
-					if (weekdayOf(date) !== s.dayOfWeek) continue;
-					if (shut.get(date)!.some((reason) => shuts(reason, s))) continue;
-					out.push({ ...s, date });
+		for (const [poolId, list] of periods) {
+			const shut = new Map(dates.map((date) => [date, closuresOn(poolId, date)]));
+			for (const period of list) {
+				const own = dates.filter((date) => periodOn(poolId, date) === period);
+				for (const s of period.weekly) {
+					for (const date of own) {
+						if (weekdayOf(date) !== s.dayOfWeek) continue;
+						if (shut.get(date)!.some((reason) => shuts(reason, s))) continue;
+						out.push({ ...s, date });
+					}
 				}
 			}
 		}
@@ -140,22 +176,25 @@ export function createPoolCalendar(pools: PoolSchedule[]): PoolCalendar {
 	function closures(from: string, to: string): SharedClosure[] {
 		const range = datesBetween(from, to);
 		const groups: { startDate: string; endDate: string; reasons: string[]; closures: [string, ScheduledClosure][] }[] = [];
-		for (const pool of pools) {
-			for (const c of pool.scheduledClosures ?? []) {
-				const days = range.filter((d) => c.startDate <= d && d <= c.endDate);
-				if (!days.length) continue;
-				// a pool its alert already closes on every one of those days has
-				// its own notice saying so
-				if (days.every((d) => closuresOn(pool.id, d).some((r) => r.kind === "alert"))) continue;
-				let group = groups.find((g) =>
-					g.startDate === c.startDate && g.endDate === c.endDate && sameReason(g.reasons, c.reason)
-				);
-				if (!group) {
-					group = { startDate: c.startDate, endDate: c.endDate, reasons: [], closures: [] };
-					groups.push(group);
+		for (const [poolId, list] of periods) {
+			for (const period of list) {
+				for (const c of period.schedule.scheduledClosures ?? []) {
+					// a schedule's notes only speak for the dates it's in force
+					const days = range.filter((d) => c.startDate <= d && d <= c.endDate && periodOn(poolId, d) === period);
+					if (!days.length) continue;
+					// a pool its alert already closes on every one of those days has
+					// its own notice saying so
+					if (days.every((d) => closuresOn(poolId, d).some((r) => r.kind === "alert"))) continue;
+					let group = groups.find((g) =>
+						g.startDate === c.startDate && g.endDate === c.endDate && sameReason(g.reasons, c.reason)
+					);
+					if (!group) {
+						group = { startDate: c.startDate, endDate: c.endDate, reasons: [], closures: [] };
+						groups.push(group);
+					}
+					if (c.reason) group.reasons.push(c.reason);
+					group.closures.push([poolId, c]);
 				}
-				if (c.reason) group.reasons.push(c.reason);
-				group.closures.push([pool.id, c]);
 			}
 		}
 		return groups
@@ -175,14 +214,26 @@ export function createPoolCalendar(pools: PoolSchedule[]): PoolCalendar {
 
 	function scheduleGaps(from: string, to: string): ScheduleGap[] {
 		const gaps: ScheduleGap[] = [];
-		const add = (kind: ScheduleGap["kind"], date: string, poolId: string) => {
-			const gap = gaps.find((g) => g.kind === kind && g.date === date);
+		const add = (kind: ScheduleGap["kind"], date: string, poolId: string, nextStart?: string) => {
+			const gap = gaps.find((g) => g.kind === kind && g.date === date && g.nextStart === nextStart);
 			if (gap) gap.poolIds.push(poolId);
-			else gaps.push({ kind, date, poolIds: [poolId] });
+			else gaps.push(nextStart ? { kind, date, nextStart, poolIds: [poolId] } : { kind, date, poolIds: [poolId] });
 		};
-		for (const pool of pools) {
-			if (pool.scheduleStartDate && pool.scheduleStartDate > from) add("starts", pool.scheduleStartDate, pool.id);
-			if (pool.scheduleEndDate && pool.scheduleEndDate < to) add("ends", pool.scheduleEndDate, pool.id);
+		for (const [poolId, list] of periods) {
+			const first = list[0]!.schedule;
+			if (first.scheduleStartDate && first.scheduleStartDate > from) add("starts", first.scheduleStartDate, poolId);
+			list.forEach(({ schedule }, i) => {
+				const end = schedule.scheduleEndDate;
+				const next = list[i + 1]?.schedule.scheduleStartDate;
+				if (!next) {
+					if (end && end < to) add("ends", end, poolId);
+				} else if (end && addDays(end, 1) < next) {
+					// days with no schedule between this one and the next
+					if (end < to && next > from) add("ends", end, poolId, next);
+				} else if (from < next && next <= to) {
+					add("changes", next, poolId);
+				}
+			});
 		}
 		return gaps.sort((a, b) => a.date.localeCompare(b.date));
 	}
