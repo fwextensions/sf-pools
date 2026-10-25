@@ -229,52 +229,27 @@ export const PARAM_SPECS: ParamSpec[] = [
 		label: "Drip radius (texels)", min: 1.0, max: 12.0, step: 0.5,
 		hint: "Width of the Gaussian dent, independent of the pointer's. This is the strongest lever on the initial flash, because peak curvature goes as depth/radius² while the water displaced — which is what sets the ripple that follows — goes as depth×radius². So you can trade one against the other: multiply this by k and divide Drip depth by k², and the ripple carries the same energy while the opening curvature drops by k⁴. Radius 3→5 with depth 0.35→0.13 is a 7.7x gentler start for the same wave.",
 	},
-	// --- Sky and clouds -----------------------------------------------------
+	// --- Water -------------------------------------------------------------
 	{
-		name: "CLOUD_AMOUNT", domain: "display", group: "Sky and clouds",
-		label: "Clouds", min: 0.0, max: 1.0, step: 0.05,
-		hint: "Master for the cloud field: both the shadows drifting over the floor and the clouds the surface reflects. 0 switches both off.",
-	},
-	{
-		name: "CLOUD_COVER", domain: "display", group: "Sky and clouds",
-		label: "Cloud cover", min: 0.0, max: 1.0, step: 0.02,
-		hint: "Roughly the fraction of the sky the clouds cover.",
-	},
-	{
-		name: "CLOUD_SHADOW", domain: "display", group: "Sky and clouds",
-		label: "Cloud shadow", min: 0.0, max: 1.0, step: 0.05,
-		hint: "How much a cloud takes out of the direct sun, and so out of the caustics under it.",
-	},
-	{
-		name: "CLOUD_SPEED", domain: "display", group: "Sky and clouds",
-		label: "Cloud drift speed", min: 0.0, max: 0.3, step: 0.005,
-		hint: "Header heights per second, left to right (west to east, like the fog).",
-	},
-	{
-		name: "SKY_REFLECT", domain: "display", group: "Sky and clouds",
-		label: "Sky reflection", min: 0.0, max: 4.0, step: 0.05,
-		hint: "Multiple of the physical Fresnel reflection. Stronger toward the top edge, as if seen from the bottom edge. 0 switches it off.",
-	},
-	{
-		name: "REFLECT_SLOPE", domain: "display", group: "Sky and clouds",
-		label: "Reflection wobble", min: 0.0, max: 0.5, step: 0.01,
-		hint: "How much the ripples tilt the reflection. Too high and fresh drips flash into white mirror discs.",
-	},
-	// --- Water and floaters -------------------------------------------------
-	{
-		name: "WATER_TINT", domain: "display", group: "Water and floaters",
+		name: "WATER_TINT", domain: "display", group: "Water",
 		label: "Water tint", min: 0.0, max: 2.0, step: 0.05,
 		hint: "Absorption: red goes first, so white tiles read pale aqua. The CSS placeholder colors are scaled for 1.0.",
 	},
+	// --- Golden hour --------------------------------------------------------
 	{
-		name: "FLOATER_DEPTH", domain: "display", group: "Water and floaters",
-		label: "Floater shadow offset", min: 0.0, max: 1.0, step: 0.01,
-		hint: "Floor depth in header heights, which sets how far a leaf's or duck's shadow lands from it, and how soft it is.",
+		name: "DUSK_HUE", domain: "display", group: "Golden hour",
+		label: "Sunset color", min: 0.0, max: 1.0, step: 0.05,
+		hint: "0 is gold, 1 is pink. Set the time of day to dusk to see it.",
 	},
 	{
-		name: "FLOATER_SHADOW", domain: "display", group: "Water and floaters",
-		label: "Floater shadow darkness", min: 0.0, max: 1.0, step: 0.05,
-		hint: "How dark a floater's shadow is on the floor.",
+		name: "DUSK_TINT", domain: "display", group: "Golden hour",
+		label: "Highlight tint", min: 0.0, max: 1.0, step: 0.05,
+		hint: "How far the caustics and ripple crests shift toward the sunset color at the horizon.",
+	},
+	{
+		name: "DUSK_GLINT", domain: "display", group: "Golden hour",
+		label: "Sunset glint", min: 0.0, max: 10.0, step: 0.1,
+		hint: "How solidly the glints take the sunset color at the horizon. They are mixed toward it rather than added, which would only carry them to white.",
 	},
 	// --- Night ----------------------------------------------------------------
 	{

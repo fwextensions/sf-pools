@@ -17,9 +17,9 @@ import {
 type Values = Record<string, number>;
 
 // Per-pane settings that are not shader numbers: the time of day (undefined
-// follows San Francisco's real sun) and whether leaves blow in on their own.
-type Effects = { timeOfDay?: string; leaves: boolean };
-const DEFAULT_EFFECTS: Effects = { timeOfDay: "day", leaves: true };
+// follows San Francisco's real sun).
+type Effects = { timeOfDay?: string };
+const DEFAULT_EFFECTS: Effects = { timeOfDay: "day" };
 
 const TIMES_OF_DAY: { label: string; value?: string }[] = [
 	{ label: "Day", value: "day" },
@@ -31,10 +31,7 @@ const TIMES_OF_DAY: { label: string; value?: string }[] = [
 // Effects with an on/off box. Off sets the constant to 0, which is also what
 // switches the effect off in production; on restores the committed default.
 const EFFECT_TOGGLES: { label: string; name: string }[] = [
-	{ label: "Clouds (shadows and reflection)", name: "CLOUD_AMOUNT" },
-	{ label: "Sky reflection", name: "SKY_REFLECT" },
 	{ label: "Water tint", name: "WATER_TINT" },
-	{ label: "Floater shadows", name: "FLOATER_SHADOW" },
 	{ label: "Pool lights (night)", name: "POOL_LIGHTS" },
 	{ label: "Night caustics", name: "NIGHT_CAUSTICS" },
 	{ label: "Night glint", name: "NIGHT_GLINT" },
@@ -335,16 +332,6 @@ export default function HeaderLab() {
 		if (editing === "b" || editing === "both") setEffectsB(p => ({ ...p, ...patch }));
 	};
 
-	// Drops land in both panes at the same spot; the spot walks along the pool
-	// with each drop so a few in a row don't stack.
-	const drop = (kind: "leaf" | "duck" | "cannonball") => {
-		const bus = busRef.current;
-		const seq = (bus.drop?.seq ?? 0) + 1;
-		const x = 0.15 + ((seq * 0.618) % 1) * 0.7;
-		const y = 0.3 + ((seq * 0.382) % 1) * 0.4;
-		bus.drop = { kind, x, y, seq };
-	};
-
 	const groups = useMemo(() => {
 		const m = new Map<string, ParamSpec[]>();
 		for (const s of PARAM_SPECS) {
@@ -539,30 +526,8 @@ export default function HeaderLab() {
 							{t.label}
 						</label>
 					))}
-					<label className="mt-1.5 flex items-center gap-2 text-xs text-slate-700">
-						<input
-							type="checkbox"
-							checked={shownEffects.leaves}
-							onChange={e => setEffect({ leaves: e.target.checked })}
-							className="accent-sky-600"
-						/>
-						Leaves blow in on their own
-					</label>
-					<div className="mt-2 flex gap-1">
-						{(["leaf", "duck", "cannonball"] as const).map(kind => (
-							<button
-								key={kind}
-								type="button"
-								onClick={() => drop(kind)}
-								className="flex-1 rounded bg-slate-100 px-2 py-1 text-xs capitalize hover:bg-slate-200"
-							>
-								{kind === "cannonball" ? "Cannonball" : `Drop ${kind}`}
-							</button>
-						))}
-					</div>
 					<p className="mt-1.5 text-[11px] text-slate-500">
-						Like the sliders, these change the pane(s) being edited. Drops
-						land in both panes.
+						Like the sliders, these change the pane(s) being edited.
 					</p>
 				</div>
 

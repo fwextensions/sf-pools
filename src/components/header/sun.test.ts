@@ -22,7 +22,7 @@ describe("sunAltitudeDeg", () => {
 
 describe("sunlight", () => {
 	it("is full day well above the horizon and dark after civil twilight", () => {
-		expect(sunlight(40)).toEqual({ daylight: 1, color: [1, 1, 1] });
+		expect(sunlight(40)).toEqual({ daylight: 1, color: [1, 1, 1], golden: 0 });
 		expect(sunlight(-7).daylight).toBe(0);
 	});
 

@@ -20,11 +20,8 @@ uniform float u_simLens;
 uniform float u_daylight;
 // Sunlight tint, white at midday and warming toward gold near the horizon.
 uniform vec3 u_sunColor;
-// Floating objects (leaves, ducks), packed by floaters.ts. A: x, y in uv units,
-// heading in radians, kind (0 none, 1 leaf, 2 duck). B: size in uv units, height
-// above the water (0 once afloat, rising while it falls in), opacity, variant.
-uniform vec4 u_floatA[4];
-uniform vec4 u_floatB[4];
+// 0 with the sun well up, rising to 1 as it reaches the horizon: golden hour.
+uniform float u_golden;
 
 // ============================================================================
 // CONSTANTS
@@ -178,43 +175,23 @@ const float REFRACT_SCALE = 0.3;
 // steeper flanks catch the light.
 const float GLINT_SLOPE = 0.25;
 
-// --- Sky and clouds ---
-// One drifting cloud field does two jobs, which is what keeps them consistent:
-// it shades the pool floor (cloud shadows switch the caustics off where they
-// pass, the way an overcast moment does at a real outdoor pool), and it is what
-// the surface reflects. 0.0 disables both and folds the noise away entirely.
-const float CLOUD_AMOUNT = 1.0;
-// Fraction of the sky the clouds cover, roughly. SF afternoons run high.
-const float CLOUD_COVER = 0.42;
-// How much a cloud's shadow takes out of the direct sunlight, and so out of
-// the caustics under it; the floor also dims a little. Kept well short of 1.0:
-// a passing cloud thins the sun rather than blotting it out, and with no
-// caustics a ripple under a cloud reads as a bare distortion of the tiles.
-const float CLOUD_SHADOW = 0.6;
-// Drift speed in header heights per second. The fog comes in off the ocean, so
-// it drifts west to east, which is left to right with north up.
-const float CLOUD_SPEED = 0.045;
-// Strength of the surface reflection, as a multiple of the physical Fresnel
-// term. Physically a pool seen from straight above reflects only 2%, which is
-// invisible; the viewer here is taken to stand at the bottom edge looking
-// across, so the far (top) side of the pool reflects more of the sky.
-const float SKY_REFLECT = 1.0;
-// Converts the refraction slope into the reflecting normal's tilt; see the note
-// on the sky reflection in main().
-const float REFLECT_SLOPE = 0.12;
-
 // --- The water itself ---
 // Absorption: water takes out red first, so a white tile a metre down reads as
 // pale aqua and the blue tiles get a touch deeper. 0.0 disables it.
 const float WATER_TINT = 1.0;
 
-// --- Floating objects ---
-// How far below the surface the floor sits, in header heights, for placing a
-// floater's shadow. Real pools are about a header deep at this tile size, but
-// the shadow is pulled in so it stays next to the thing casting it.
-const float FLOATER_DEPTH = 0.28;
-// Shadow darkness on the floor.
-const float FLOATER_SHADOW = 0.6;
+// --- Golden hour ---
+// As the sun gets low the ripples' highlights and glints take on its color.
+// DUSK_HUE picks that color: 0 is gold, 1 is pink, between is the salmon of an
+// SF sunset through the fog.
+const float DUSK_HUE = 0.5;
+// How far the caustics' and ripple crests' highlights shift toward that color
+// at the horizon.
+const float DUSK_TINT = 0.8;
+// Glint strength at the horizon. The glints are mixed toward the sunset color
+// rather than added, so this sets how solid that color gets. A low sun lies
+// along the water, so its glitter is longer and brighter.
+const float DUSK_GLINT = 4.0;
 
 // --- Night ---
 // Brightness of the underwater pool lights after dark.
@@ -233,42 +210,6 @@ const float NIGHT_GLINT = 1.0;
 
 float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
-}
-
-
-// Cheap hash without sin(), so precision does not depend on the GPU's sin().
-float hash2(vec2 p) {
-	vec3 p3 = fract(vec3(p.xyx) * 0.1031);
-	p3 += dot(p3, p3.yzx + 33.33);
-	return fract((p3.x + p3.y) * p3.z);
-}
-
-float valueNoise(vec2 p) {
-	vec2 i = floor(p);
-	vec2 f = fract(p);
-	f = f * f * (3.0 - 2.0 * f);
-	float a = hash2(i);
-	float b = hash2(i + vec2(1.0, 0.0));
-	float c = hash2(i + vec2(0.0, 1.0));
-	float d = hash2(i + vec2(1.0, 1.0));
-	return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-}
-
-// ============================================================================
-// CLOUDS
-//
-// Cloud density at a point on the cloud layer, 0 for clear sky. Two octaves are
-// plenty: the shadow is soft by nature (the sun is not a point), and the
-// reflection is seen at a few percent strength through a moving surface.
-// ============================================================================
-
-float clouds(vec2 p, float t) {
-	vec2 q = p * 0.55 + vec2(t * CLOUD_SPEED * 0.55, t * 0.004);
-	float n = valueNoise(q) * 0.65 + valueNoise(q * 2.3 + 7.1) * 0.35;
-	// summed value noise bunches up around 0.5; stretch it back out to 0..1 so
-	// CLOUD_COVER means roughly what it says
-	n = clamp((n - 0.5) * 1.9 + 0.5, 0.0, 1.0);
-	return smoothstep(1.0 - CLOUD_COVER, 1.0 - CLOUD_COVER + 0.22, n);
 }
 
 // ============================================================================
@@ -539,98 +480,6 @@ float focusGain(float lap, float detH, float c) {
 	return (1.0 + CAUSTIC_SOFT) / (d + CAUSTIC_SOFT); // exactly 1.0 on flat water
 }
 
-
-// ============================================================================
-// FLOATING OBJECTS
-//
-// Each shape is a signed distance in the floater's own frame, where the object
-// is about one unit across and points along +x: negative inside, positive
-// outside. One function per shape serves both the object on the surface and
-// its shadow on the floor, which is the same outline seen from below, softened
-// by the floor's distance.
-// ============================================================================
-
-// A five-lobed autumn leaf (a London plane, the street tree that sheds into SF's
-// outdoor pools), tip along +x, stem toward -x.
-float leafDist(vec2 q) {
-	float r = length(q);
-	float a = atan(q.y, q.x);
-	float lobes = pow(abs(cos(2.5 * a)), 1.6);
-	// lower lobes, beside the stem, are smaller than the tip
-	float radius = 0.5 * (0.42 + 0.58 * lobes) * (0.78 + 0.22 * cos(a));
-	float blade = (r - radius) * 0.8;
-	// the stem, out the back
-	vec2 s = q - vec2(clamp(q.x, -0.62, -0.1), 0.0);
-	float stem = length(s) - 0.022;
-	return min(blade, stem);
-}
-
-float ellipseDist(vec2 q, vec2 c, vec2 r) {
-	// not exact, but exact enough near the edge for antialiasing and shadows
-	return (length((q - c) / r) - 1.0) * min(r.x, r.y);
-}
-
-// A rubber duck seen from above, beak along +x.
-float duckDist(vec2 q) {
-	float body = ellipseDist(q, vec2(-0.06, 0.0), vec2(0.42, 0.30));
-	float tail = ellipseDist(q, vec2(-0.40, 0.0), vec2(0.13, 0.07));
-	float head = length(q - vec2(0.24, 0.0)) - 0.19;
-	float beak = ellipseDist(q, vec2(0.46, 0.0), vec2(0.10, 0.065));
-	return min(min(body, tail), min(head, beak));
-}
-
-float floaterDist(vec2 q, float kind) {
-	return kind < 1.5 ? leafDist(q) : duckDist(q);
-}
-
-// Rotate p into floater i's frame, scaled so the object spans one unit.
-vec2 floaterFrame(vec2 p, vec4 a, vec4 b) {
-	vec2 d = (p - a.xy) / b.x;
-	float c = cos(a.z);
-	float s = sin(a.z);
-	return vec2(c * d.x + s * d.y, -s * d.x + c * d.y);
-}
-
-vec3 leafColor(vec2 q, float variant) {
-	vec3 yellow = vec3(0.86, 0.66, 0.18);
-	vec3 orange = vec3(0.80, 0.40, 0.12);
-	vec3 brown = vec3(0.50, 0.32, 0.15);
-	vec3 col = variant < 0.5
-		? mix(yellow, orange, variant * 2.0)
-		: mix(orange, brown, variant * 2.0 - 1.0);
-	// veins: thin darker lines down the middle of each lobe
-	float a = atan(q.y, q.x);
-	float vein = abs(sin(2.5 * a)) * length(q);
-	col *= 1.0 - 0.18 * (1.0 - smoothstep(0.008, 0.022, vein));
-	// wet and lying flat, lit a little from the sun's side
-	col *= 0.92 + 0.16 * clamp(dot(q, vec2(0.54, 0.84)) * 2.0, -1.0, 1.0);
-	return col;
-}
-
-vec3 duckColor(vec2 q) {
-	vec3 col = vec3(1.0, 0.82, 0.10);
-	// wings
-	float wing = min(
-		ellipseDist(q, vec2(-0.12, 0.16), vec2(0.22, 0.08)),
-		ellipseDist(q, vec2(-0.12, -0.16), vec2(0.22, 0.08)));
-	col = mix(col, vec3(0.93, 0.68, 0.05), 1.0 - smoothstep(-0.01, 0.01, wing));
-	// beak
-	float beak = ellipseDist(q, vec2(0.46, 0.0), vec2(0.10, 0.065));
-	col = mix(col, vec3(1.0, 0.45, 0.08), 1.0 - smoothstep(-0.01, 0.01, beak));
-	// round body and head, lit from the upper right
-	float head = length(q - vec2(0.24, 0.0));
-	vec2 local = head < 0.19 ? (q - vec2(0.24, 0.0)) / 0.19 : (q - vec2(-0.06, 0.0)) / vec2(0.42, 0.30);
-	float dome = sqrt(max(1.0 - dot(local, local), 0.0));
-	vec3 n = normalize(vec3(local, dome + 0.2));
-	float lit = dot(n, normalize(vec3(0.35, 0.55, 0.75)));
-	col *= 0.55 + 0.6 * lit;
-	col += vec3(0.5) * pow(max(dot(n, normalize(vec3(0.35, 0.55, 1.75))), 0.0), 40.0);
-	// eyes
-	float eyes = min(length(q - vec2(0.30, 0.10)), length(q - vec2(0.30, -0.10))) - 0.03;
-	col = mix(col, vec3(0.06), 1.0 - smoothstep(-0.01, 0.01, eyes));
-	return col;
-}
-
 // ============================================================================
 // NIGHT: underwater pool lights in the two long walls
 // ============================================================================
@@ -771,35 +620,6 @@ void main() {
 	float bevelLight = dot(bevelSlope, normalize(vec2(0.35, 0.55)));
 	color += color * bevelLight * 0.14 * tileMask;
 
-	// --- Sunlight on the floor ---
-	// Everything that blocks the sun on its way down: clouds, then anything
-	// floating on the surface. Both are looked up along the light direction from
-	// the floor point actually seen (tileUV), so a shadow sits where the light
-	// would really be cut off, offset from the thing casting it.
-	vec3 lightDir = normalize(vec3(0.35, 0.55, 0.75));
-	vec2 sunSlant = lightDir.xy / lightDir.z;
-	float sun = u_daylight;
-	if (CLOUD_AMOUNT > 0.0) {
-		// the cloud layer is high, so its shadow is offset a long way
-		sun *= 1.0 - CLOUD_SHADOW * CLOUD_AMOUNT * clouds(tileUV + sunSlant * 0.8, u_time);
-	}
-	float floaterShade = 1.0;
-	for (int i = 0; i < 4; i++) {
-		vec4 fa = u_floatA[i];
-		vec4 fb = u_floatB[i];
-		if (fa.w < 0.5) continue;
-		// a floater still falling in is higher up, so its shadow lands further
-		// away and softer
-		float lift = FLOATER_DEPTH + fb.y;
-		vec2 shadowAt = tileUV + sunSlant * lift;
-		vec2 q = floaterFrame(shadowAt, fa, fb);
-		if (dot(q, q) > 1.2) continue;
-		float blur = 0.04 + 0.25 * lift;
-		float cover = 1.0 - smoothstep(-blur, blur, floaterDist(q, fa.w));
-		floaterShade *= 1.0 - FLOATER_SHADOW * cover * fb.z;
-	}
-	sun *= floaterShade;
-
 	// --- Pool lights ---
 	// After dark the sunlit palette gives way to the underwater lights: the
 	// floor falls to a dim blue and brightens in pools around each lamp.
@@ -813,22 +633,26 @@ void main() {
 	}
 
 	// --- Caustic Lighting ---
-	// Caustics are focused direct sunlight, so they go wherever the sun does:
-	// they fade under a cloud, are absent in a floater's shadow, and are gone
-	// at night. The floor also dims where the direct light is cut off.
-	color *= mix(0.86, 1.0, sun / max(u_daylight, 0.001));
-	// A floater's shadow is crisper and closer than a cloud's, and takes out
-	// more: the sun is most of the light on a bright day.
-	color *= mix(1.0, mix(0.55, 1.0, floaterShade), u_daylight);
+	// Golden hour: the highlights take on the sunset's color. Adding a warm
+	// color to the bright aqua floor only carries it toward white, so at dusk
+	// the caustics, crests and glints are mixed toward the color rather than
+	// lit by it. Fades out with the light after sunset.
+	vec3 duskColor = mix(vec3(1.0, 0.72, 0.30), vec3(1.0, 0.45, 0.62), DUSK_HUE);
+	float dusk = u_golden * u_daylight;
 	// low sun: the whole floor warms a little and dims, not just the caustics
 	color *= mix(vec3(1.0), u_sunColor * 0.92, 0.5 * u_daylight * (1.0 - u_sunColor.b));
+	// Caustics are focused direct sunlight, so they fade with it at dusk and
+	// are gone at night.
 	vec3 shadowColor = vec3(0.2, 0.35, 0.45);
-	color = mix(color, color * shadowColor, causticShadow * CAUSTIC_SHADOW * sun);
+	color = mix(color, color * shadowColor, causticShadow * CAUSTIC_SHADOW * u_daylight);
 	// causticRGB already carries physical dispersion, so the old per-channel
 	// pow() fringing is gone; only the tint survives.
-	// A floater's shadow counts twice, so the caustics really are gone in it; a
-	// cloud's counts once, so they only thin under it (see CLOUD_SHADOW).
-	color += vec3(0.85, 0.95, 0.98) * u_sunColor * causticRGB * CAUSTIC_STRENGTH * sun * floaterShade;
+	vec3 caustic = vec3(0.85, 0.95, 0.98) * u_sunColor * causticRGB * CAUSTIC_STRENGTH * u_daylight;
+	color = mix(
+		color + caustic,
+		mix(color, duskColor, min(caustic.g * 3.0, 1.0)),
+		DUSK_TINT * dusk
+	);
 	// the lamps' own caustics, aqua, strongest near the lamps; the 0.35 floor
 	// is light bounced around the whole pool, so the web never dies out
 	float lampLight = (0.35 + min(lamps, 1.2)) * (1.0 - u_daylight) * NIGHT_CAUSTICS;
@@ -851,42 +675,14 @@ void main() {
 	float trough = max(-simH, 0.0);
 	float rippleLight = mix(0.35 + 0.5 * min(lamps, 1.0), 1.0, u_daylight);
 	// 0.4 / 0.3 = max crest brightening / max trough darkening
-	color += rippleHighlight * 0.4 * rippleLight * crest / (1.0 + crest);
+	float crestLight = 0.4 * rippleLight * crest / (1.0 + crest);
+	// golden hour: the crests catch the sunset's color, as the caustics do
+	color = mix(
+		color + rippleHighlight * crestLight,
+		mix(color, duskColor, min(crestLight * 2.0, 1.0)),
+		DUSK_TINT * dusk
+	);
 	color = mix(color, color * rippleShadow, 0.3 * trough / (1.0 + trough));
-
-	// --- Sky Reflection ---
-	// The viewer stands off the bottom edge looking across the pool, so the view
-	// ray tilts further from vertical toward the top of the header and the
-	// Fresnel reflection grows there, as it does in any photo of a pool. The
-	// reflected ray picks up the same clouds that are shading the floor, offset
-	// and bent by the surface, so they wobble with the ripples.
-	//
-	// It reads the refraction slope `grad`, scaled down by REFLECT_SLOPE for the
-	// same reason GLINT_SLOPE exists: these slopes are ~10x a real pool's, and at
-	// full strength every fresh drip tilts far enough to turn into a white disc
-	// of mirror.
-	vec3 surfN = normalize(vec3(-glintGrad * GLINT_SLOPE, 1.0));
-	if (SKY_REFLECT > 0.0) {
-		vec3 reflN = normalize(vec3(-grad * REFLECT_SLOPE, 1.0));
-		float tilt = mix(0.3, 0.95, screenUV.y);
-		vec3 viewDir = vec3(0.0, -sin(tilt), cos(tilt)); // surface toward the eye
-		vec3 refl = reflect(-viewDir, reflN);
-		float cosI = max(dot(reflN, viewDir), 0.0);
-		float fresnel = 0.02 + 0.98 * pow(1.0 - cosI, 5.0);
-		vec3 sky = mix(vec3(0.62, 0.80, 0.95), vec3(0.95, 0.97, 1.0), clamp(1.0 - refl.z, 0.0, 1.0));
-		vec3 nightSky = vec3(0.03, 0.05, 0.11);
-		vec3 cloudCol = vec3(1.0);
-		// SF fog glows orange at night from the streetlights under it
-		vec3 nightCloud = vec3(0.30, 0.20, 0.16);
-		if (CLOUD_AMOUNT > 0.0) {
-			vec2 skyAt = uv + refl.xy / max(refl.z, 0.25) * 0.8;
-			float c = clouds(skyAt, u_time) * CLOUD_AMOUNT;
-			sky = mix(sky, cloudCol, c);
-			nightSky = mix(nightSky, nightCloud, c);
-		}
-		sky = mix(nightSky, sky, u_daylight);
-		color = mix(color, sky, clamp(fresnel * SKY_REFLECT, 0.0, 1.0));
-	}
 
 	// --- Specular Glint ---
 	// Blinn-Phong: a facet reflects the light into the eye when its normal lies
@@ -898,38 +694,24 @@ void main() {
 	// reflects nothing: dot(up, H)^64 is ~0.01. Reads glintGrad (wave groups
 	// A+B only) so the finest ripples cannot turn pow 64 into crawling speckle,
 	// and fades with the local ripple strength so the ambient swell alone does
-	// not sparkle. 64 is the glint tightness (higher = smaller, sharper
-	// sparkles); 0.05 sets how much sim slope counts as "full-strength" ripple;
-	// 0.4 is the brightness. A cloud over the sun dims it; at night it is a
-	// streetlight's warm glint instead.
+	// not sparkle. lightDir points toward the off-screen upper-right light; 64
+	// is the glint tightness (higher = smaller, sharper sparkles); 0.05 sets how
+	// much sim slope counts as "full-strength" ripple; 0.4 is the brightness.
+	// At golden hour it takes the sunset's color and
+	// brightens (see DUSK_GLINT); at night it is a streetlight's warm glint.
+	vec3 surfN = normalize(vec3(-glintGrad * GLINT_SLOPE, 1.0));
+	vec3 lightDir = normalize(vec3(0.35, 0.55, 0.75));
 	vec3 halfVec = normalize(lightDir + vec3(0.0, 0.0, 1.0));
 	float spec = pow(max(dot(surfN, halfVec), 0.0), 64.0);
 	float rippleEnergy = min(length(simGrad * SIM_SLOPE_GAIN) * 0.05, 1.0);
-	vec3 glintCol = mix(vec3(1.0, 0.82, 0.55) * NIGHT_GLINT, vec3(1.0, 0.98, 0.92) * u_sunColor, u_daylight);
-	float glintSun = u_daylight > 0.0 ? mix(0.3, 1.0, sun / u_daylight) : 1.0;
-	color += glintCol * spec * rippleEnergy * 0.4 * glintSun;
-
-	// --- Floaters ---
-	// Drawn last: they sit on top of the water, so nothing refracts or tints
-	// them. A thin dark meniscus where the water meets the edge seats them.
-	float px = 1.0 / u_resolution.y; // one device pixel in uv units
-	for (int i = 0; i < 4; i++) {
-		vec4 fa = u_floatA[i];
-		vec4 fb = u_floatB[i];
-		if (fa.w < 0.5) continue;
-		// still falling: drawn a little larger, as it is closer to the eye
-		vec4 fbScaled = vec4(fb.x * (1.0 + fb.y * 1.5), fb.yzw);
-		vec2 q = floaterFrame(uv, fa, fbScaled);
-		if (dot(q, q) > 0.6) continue;
-		float d = floaterDist(q, fa.w);
-		float aa = 1.2 * px / fbScaled.x;
-		float cover = 1.0 - smoothstep(-aa, aa, d);
-		float rim = (1.0 - smoothstep(0.0, 0.05, abs(d))) * step(0.0, d);
-		color = mix(color, color * 0.75, rim * fb.z * (1.0 - fb.y));
-		vec3 fc = fa.w < 1.5 ? leafColor(q, fb.w) : duckColor(q);
-		fc *= mix(vec3(0.25, 0.3, 0.45), vec3(1.0), u_daylight);
-		color = mix(color, fc, cover * fb.z);
-	}
+	float glint = spec * rippleEnergy * 0.4;
+	vec3 glintCol = mix(vec3(1.0, 0.82, 0.55) * NIGHT_GLINT, vec3(1.0, 0.98, 0.92), u_daylight);
+	// at golden hour, mixed toward the sunset color like the caustics
+	color = mix(
+		color + glintCol * glint,
+		mix(color, duskColor, min(glint * DUSK_GLINT, 1.0)),
+		dusk
+	);
 
 	// --- Output ---
 	gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);

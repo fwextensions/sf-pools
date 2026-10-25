@@ -33,7 +33,12 @@ function smoothstep(a: number, b: number, x: number) {
 	return t * t * (3 - 2 * t);
 }
 
-export type Sunlight = { daylight: number; color: [number, number, number] };
+export type Sunlight = {
+	daylight: number;
+	color: [number, number, number];
+	/** 0 with the sun well up, 1 at the horizon: how golden the hour is */
+	golden: number;
+};
 
 /**
  * How much sun reaches the pool, and its color. Daylight eases from 0 at the
@@ -47,6 +52,7 @@ export function sunlight(altitudeDeg: number): Sunlight {
 	return {
 		daylight,
 		color: [1, 1 - 0.18 * warm, 1 - 0.42 * warm],
+		golden: warm,
 	};
 }
 

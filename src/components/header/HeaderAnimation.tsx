@@ -8,8 +8,6 @@ import { mountWater, type Water } from "./water";
 // Shader constants that ?water=no-<name> switches off, for comparing each
 // effect against the water without it. ?water=plain switches off all of them.
 const EFFECTS: Record<string, string> = {
-	clouds: "CLOUD_AMOUNT",
-	sky: "SKY_REFLECT",
 	tint: "WATER_TINT",
 };
 
@@ -34,9 +32,8 @@ export default function HeaderAnimation()
 
 		// ?water=off leaves just the CSS placeholder, for comparing the two.
 		// Other comma-separated values preview the effects: day, dusk or night
-		// pins the time of day; demo drops in leaves and a duck; no-clouds,
-		// no-sky, no-tint and no-leaves switch one effect off; plain switches
-		// them all off, which is the water as it was before them.
+		// pins the time of day; no-tint switches the water tint off; plain
+		// switches every effect off, which is the water as it was before them.
 		const flags = (new URLSearchParams(location.search).get("water") ?? "").split(",");
 		if (flags.includes("off")) return;
 		const plain = flags.includes("plain");
@@ -47,8 +44,6 @@ export default function HeaderAnimation()
 		const waterOpts = {
 			displaySrc: zeroed.length ? withConstsZeroed(displayFragShader, zeroed) : undefined,
 			timeOfDay,
-			floaters: !plain && !flags.includes("no-leaves"),
-			demo: flags.includes("demo"),
 		};
 
 		// Run the draw loop only while it can be seen. The site layout pins the
