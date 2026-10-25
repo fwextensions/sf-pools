@@ -15,7 +15,7 @@ import {
 	type PoolExtract,
 } from "@/lib/release-rules";
 import { formatUsageSummary, sessionUsage, USAGE_LOG } from "@/lib/llm-usage";
-import type { DiscoveredPool } from "./downloadPdf";
+import { upcomingBase, type DiscoveredPool } from "./downloadPdf";
 import type { PoolRecord } from "@/lib/site-data";
 import { readPdfLines } from "./read-pdf-lines";
 import {
@@ -30,6 +30,7 @@ const POOLS_FILE = path.join(process.cwd(), "data", "pools.json");
 const DISCOVERED_FILE = path.join(process.cwd(), "public", "data", "discovered_pool_schedules.json");
 const OUT_DIR = path.join(process.cwd(), "public", "data");
 const OUT_FILE = path.join(OUT_DIR, "all_schedules.json");
+const UPCOMING_FILE = path.join(OUT_DIR, "upcoming_schedules.json");
 const EXTRACTED_DIR = path.join(process.cwd(), "data", "extracted");
 const ALERTS_FILE = path.join(process.cwd(), "public", "data", "alerts.json");
 
@@ -131,6 +132,40 @@ async function loadDiscoveredPools(): Promise<DiscoveredPool[]> {
 	}
 }
 
+/** what the last run published as upcoming, or nothing before the first run that wrote it */
+async function loadPreviousUpcoming(): Promise<PoolSchedule[]> {
+	try {
+		return JSON.parse(await readFile(UPCOMING_FILE, "utf-8")) as PoolSchedule[];
+	} catch {
+		return [];
+	}
+}
+
+/**
+ * The cached read of a PDF with these bytes, under its own key or another's:
+ * an upcoming schedule's PDF becomes the current one when its season starts,
+ * and was already read under its upcoming key.
+ */
+async function findCachedExtract(
+	manifest: ExtractedManifest,
+	base: string,
+	hash: string
+): Promise<PoolSchedule[] | null> {
+	const keys = [base, ...Object.keys(manifest).filter((k) => k !== base)];
+	for (const key of keys) {
+		const meta = manifest[key];
+		if (meta?.pdfHash !== hash || meta.grounding !== GROUNDING_VERSION) continue;
+		try {
+			const schedules = JSON.parse(await readFile(path.join(EXTRACTED_DIR, `${key}.json`), "utf-8")) as PoolSchedule[];
+			if (key !== base) console.log(`  reusing the extract made for ${key}`);
+			return schedules;
+		} catch {
+			// cache file missing, try the next
+		}
+	}
+	return null;
+}
+
 /** current and upcoming closures by pool id, read from the alerts scrape */
 async function loadClosures(today: string): Promise<Map<string, Closure>> {
 	try {
@@ -208,11 +243,12 @@ export async function main(): Promise<ProcessResult> {
 	const closures = await loadClosures(today);
 
 	const extracts: PoolExtract[] = [];
+	const upcomingExtracts: PoolExtract[] = [];
 	const groundingWarnings: string[] = [];
-	for (const file of pdfFiles) {
-		const base = file.replace(/\.pdf$/i, "");
-		const pool = poolsById.get(base.toLowerCase());
-		const disc = discoveredById.get(base.toLowerCase());
+
+	/** read one PDF, from the extract cache when its bytes were read before */
+	async function processPdf(base: string, pool: PoolRecord | undefined, pdfUrl: string | null | undefined): Promise<PoolExtract | null> {
+		const file = `${base}.pdf`;
 		const pdfPath = path.join(PDF_DIR, file);
 
 		try {
@@ -223,28 +259,31 @@ export async function main(): Promise<ProcessResult> {
 			// hash the actual PDF bytes so the skip decision is self-contained and
 			// can't drift out of sync with a separately-maintained download manifest
 			const currentHash = computeHash(buf);
-			const extractedMeta = extractedManifest[base];
-			const cacheCurrent = extractedMeta?.pdfHash === currentHash && extractedMeta?.grounding === GROUNDING_VERSION;
 			const cells = readCells(buf, file);
 
 			let schedules: PoolSchedule[] | null = null;
 
 			// try to use cached extraction if hash unchanged and not forcing refresh
-			if (!forceRefresh && cacheCurrent) {
-				try {
-					const cached = await readFile(extractPath, "utf-8");
-					schedules = JSON.parse(cached) as PoolSchedule[];
+			if (!forceRefresh) {
+				schedules = await findCachedExtract(extractedManifest, base, currentHash);
+				if (schedules) {
 					console.log("skipped (unchanged):", file);
 					skippedCount++;
-				} catch {
-					// cache file missing, need to extract
+					if (extractedManifest[base]?.pdfHash !== currentHash) {
+						await writeFile(extractPath, JSON.stringify(schedules, null, "\t"), "utf-8");
+						extractedManifest[base] = {
+							pdfHash: currentHash,
+							extractedAt: new Date().toISOString(),
+							grounding: GROUNDING_VERSION,
+						};
+					}
 				}
 			}
 
 			if (!schedules) {
 				console.log("extracting:", file);
 				schedules = await extractGrounded(buf, cells, {
-					pdfScheduleUrl: disc?.pdfUrl ?? undefined,
+					pdfScheduleUrl: pdfUrl ?? undefined,
 					sfRecParkUrl: pool?.pageUrl ?? undefined,
 					expectedPoolName: pool?.name ?? undefined,
 					poolId: pool?.id ?? base,
@@ -273,10 +312,25 @@ export async function main(): Promise<ProcessResult> {
 			const grounded = applyGrounding(schedules, cells, pool?.shortName ?? base);
 			groundingWarnings.push(...grounded.warnings);
 			for (const w of grounded.warnings) console.warn(" ", w);
-			extracts.push({ base, pool, pdfUrl: disc?.pdfUrl, schedules: grounded.schedules });
+			return { base, pool, pdfUrl, schedules: grounded.schedules };
 		} catch (err) {
 			console.warn("failed to process", file, err);
+			return null;
 		}
+	}
+
+	for (const file of pdfFiles) {
+		const base = file.replace(/\.pdf$/i, "");
+		const pool = poolsById.get(base.toLowerCase());
+		const disc = discoveredById.get(base.toLowerCase());
+		const extract = await processPdf(base, pool, disc?.pdfUrl);
+		if (extract) extracts.push(extract);
+
+		// the schedule posted to take over later, which the download step saved
+		// only while the facility page still lists it
+		if (!disc?.upcomingPdfUrl) continue;
+		const upcoming = await processPdf(upcomingBase(base), pool, disc.upcomingPdfUrl);
+		if (upcoming) upcomingExtracts.push(upcoming);
 	}
 
 	const release = releaseSchedules({
@@ -300,9 +354,32 @@ export async function main(): Promise<ProcessResult> {
 		healthCheckedCount,
 	} = release;
 
+	// upcoming schedules go through the same rules, against what was published
+	// as upcoming last time. One the facility page no longer lists, or whose
+	// season has started, isn't carried over
+	const upcomingPdfIds = new Set(discovered.filter((d) => d.upcomingPdfUrl).map((d) => d.poolId));
+	const upcomingRelease = releaseSchedules({
+		extracts: upcomingExtracts,
+		previousSchedules: (await loadPreviousUpcoming()).filter(
+			(s) => upcomingPdfIds.has(s.id) && !!s.scheduleStartDate && s.scheduleStartDate > today
+		),
+		knownPoolIds: [...upcomingPdfIds],
+		closures,
+		today,
+		allowUnhealthy: process.env.ALLOW_UNHEALTHY === "1",
+		log: console,
+	});
+	// the calendar switches to an upcoming schedule on its start date, so one
+	// whose PDF doesn't print it takes the date from the link's text
+	const upcomingStarts = new Map(discovered.map((d) => [d.poolId, d.upcomingStartDate ?? null]));
+	const upcoming = upcomingRelease.schedules.map((s) =>
+		s.scheduleStartDate ? s : { ...s, scheduleStartDate: upcomingStarts.get(s.id) ?? null }
+	);
+	for (const s of upcoming) console.log(`upcoming: ${s.shortName ?? s.name} from ${s.scheduleStartDate ?? "?"}`);
+
 	// the PDF hash isn't recorded for a quarantined pool, so the next run
 	// re-extracts it
-	for (const base of release.invalidatedExtracts) {
+	for (const base of [...release.invalidatedExtracts, ...upcomingRelease.invalidatedExtracts]) {
 		delete extractedManifest[base];
 	}
 
@@ -312,7 +389,11 @@ export async function main(): Promise<ProcessResult> {
 	// anomalies into its warnings so they're persisted and surfaced by notify
 	const changelog = computeChangelog(previousSchedules, aggregated);
 	changelog.quarantinedPools = quarantinedPools;
-	changelog.warnings.push(...releaseWarnings(release), ...groundingWarnings);
+	changelog.warnings.push(
+		...releaseWarnings(release),
+		...releaseWarnings(upcomingRelease).map((w) => `upcoming ${w}`),
+		...groundingWarnings
+	);
 	const changelogPath = await saveChangelog(changelog);
 	if (changelogPath) {
 		console.log("wrote changelog:", changelogPath);
@@ -355,6 +436,8 @@ export async function main(): Promise<ProcessResult> {
 
 	await writeFile(OUT_FILE, JSON.stringify(aggregated, null, "\t"), "utf-8");
 	console.log("wrote:", OUT_FILE, `(${aggregated.length} pools)`);
+	await writeFile(UPCOMING_FILE, JSON.stringify(upcoming, null, "\t"), "utf-8");
+	console.log("wrote:", UPCOMING_FILE, `(${upcoming.length} pools)`);
 	console.log(`extracted: ${extractedCount}, skipped: ${skippedCount}, preserved: ${preservedCount}`);
 	const usageSummary = formatUsageSummary(sessionUsage("pdf-extract"));
 	if (usageSummary) console.log(`${usageSummary} (logged to ${USAGE_LOG})`);

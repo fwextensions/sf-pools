@@ -35,7 +35,9 @@ function iso(year: number, month: number, day: number): string {
  * "MLK Pool_Fall2026_pt2_Sep29_Dec 12" -> 2026-09-29..2026-12-12. Uses the
  * first and last month-day pair it finds. The year comes from the text when it
  * has one, otherwise from today; a range that wraps past December ends the
- * following year. Returns null when the text doesn't name two dates.
+ * following year. Without a year, a range that would have ended more than half
+ * a year ago is read as next year's: winter's "Jan06_Mar14" goes up in
+ * December. Returns null when the text doesn't name two dates.
  */
 export function parseLinkDateRange(text: string, today: string): LinkDateRange | null {
 	const dates: Array<{ month: number; day: number }> = [];
@@ -49,13 +51,21 @@ export function parseLinkDateRange(text: string, today: string): LinkDateRange |
 	const first = dates[0];
 	const last = dates[dates.length - 1];
 	const yearMatch = text.match(/20\d\d/);
-	const startYear = yearMatch ? Number(yearMatch[0]) : Number(today.slice(0, 4));
-	const endYear = last.month < first.month ? startYear + 1 : startYear;
+	let startYear = yearMatch ? Number(yearMatch[0]) : Number(today.slice(0, 4));
+	const wraps = last.month < first.month;
+	if (!yearMatch && iso(startYear + (wraps ? 1 : 0), last.month, last.day) < monthsBefore(today, 6)) startYear++;
+	const endYear = wraps ? startYear + 1 : startYear;
 
 	return {
 		start: iso(startYear, first.month, first.day),
 		end: iso(endYear, last.month, last.day),
 	};
+}
+
+function monthsBefore(date: string, months: number): string {
+	const d = new Date(`${date}T00:00:00Z`);
+	d.setUTCMonth(d.getUTCMonth() - months);
+	return d.toISOString().slice(0, 10);
 }
 
 /** the DocumentCenter id in a link's href; the site numbers uploads in order */
@@ -92,4 +102,26 @@ export function pickCurrentScheduleLink<T extends ScheduleLink>(links: T[], toda
 
 	const past = [...dated].sort((a, b) => b.range.end.localeCompare(a.range.end));
 	return past[0].link;
+}
+
+/**
+ * The schedule that takes over from `current` later: of the links whose
+ * range starts after today and after the current one's start, the first to
+ * start. Null when there's none, or when any link's text has no readable
+ * dates, since then the order the parts run in isn't known.
+ */
+export function pickUpcomingScheduleLink<T extends ScheduleLink>(
+	links: T[],
+	current: T | null,
+	today: string
+): { link: T; range: LinkDateRange } | null {
+	const parsed = links.map((link) => ({ link, range: parseLinkDateRange(link.text, today) }));
+	if (parsed.some(({ range }) => range === null)) return null;
+	const dated = parsed as Array<{ link: T; range: LinkDateRange }>;
+	const currentStart = dated.find(({ link }) => link === current)?.range.start ?? today;
+	const after = currentStart > today ? currentStart : today;
+	const next = dated
+		.filter(({ link, range }) => link !== current && range.start > after)
+		.sort((a, b) => a.range.start.localeCompare(b.range.start));
+	return next[0] ?? null;
 }

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "@jest/globals";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { loadAlerts, loadChangelogs, loadPools, loadSchedules } from "./site-data";
+import { loadAlerts, loadChangelogs, loadPools, loadSchedules, loadUpcomingSchedules } from "./site-data";
 
 let root: string;
 
@@ -43,6 +43,19 @@ describe("loadSchedules", () => {
 	it("names where a schedule breaks the schema", async () => {
 		await write("public/data/all_schedules.json", [{ ...schedule, programs: [{ ...schedule.programs[0], dayOfWeek: "Funday" }] }]);
 		await expect(loadSchedules(root)).rejects.toThrow(/schema at 0\.programs\.0\.dayOfWeek/);
+	});
+});
+
+describe("loadUpcomingSchedules", () => {
+	it("is empty when there's no upcoming file", async () => {
+		expect(await loadUpcomingSchedules(root)).toEqual([]);
+	});
+
+	it("reads them against the schema", async () => {
+		await write("public/data/upcoming_schedules.json", [{ ...schedule, scheduleStartDate: "2026-12-14" }]);
+		expect((await loadUpcomingSchedules(root)).map((p) => p.scheduleStartDate)).toEqual(["2026-12-14"]);
+		await write("public/data/upcoming_schedules.json", [{ ...schedule, programs: "none" }]);
+		await expect(loadUpcomingSchedules(root)).rejects.toThrow(/upcoming_schedules.json doesn't match the schedule schema/);
 	});
 });
 

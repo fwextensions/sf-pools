@@ -4,7 +4,8 @@ import path from "node:path";
 import { load } from "cheerio";
 import type { PoolRecord } from "@/lib/site-data";
 import { fetchText } from "./http";
-import { pickCurrentScheduleLink } from "@/lib/schedule-links";
+import { pickCurrentScheduleLink, pickUpcomingScheduleLink } from "@/lib/schedule-links";
+import type { DiscoveredPool } from "./downloadPdf";
 
 const LIST_URL = "https://sfrecpark.org/482/Swimming-Pools";
 const OUT_DIR = path.join(process.cwd(), "public", "data");
@@ -13,7 +14,7 @@ const POOLS_FILE = path.join(process.cwd(), "data", "pools.json");
 
 export type ScrapeResult = {
 	success: boolean;
-	pools: Array<{ poolId: string; pdfUrl: string | null }>;
+	pools: DiscoveredPool[];
 	errors: string[];
 };
 
@@ -58,13 +59,19 @@ function stripTrailingId(slug: string): string {
 	return slug.replace(/-\d+$/i, "");
 }
 
+type PickedLinks = {
+	pdfUrl: string | null;
+	/** the schedule posted to take over after the current one, with the date it starts */
+	upcoming: { pdfUrl: string; startDate: string } | null;
+};
+
 function pickBestPdfLink(
 	$: ReturnType<typeof load>,
 	pageUrl: string,
 	prefSlug: string,
 	today: string,
 	scheduleMatch?: string
-): string | null {
+): PickedLinks {
 	const slugTokens = stripTrailingId(prefSlug).toLowerCase().split("-").filter(Boolean);
 	const wanted = scheduleMatch?.trim().toLowerCase() || null;
 	// keywords used to disambiguate sibling schedules on the same page; when we
@@ -91,7 +98,8 @@ function pickBestPdfLink(
 
 	// the Documents row holds only this facility's schedules. Narrow it to the
 	// requested variant, if any, then pick the part whose dates cover today: a
-	// split season lists every part at once (MLK's pt1 and pt2)
+	// split season lists every part at once (MLK's pt1 and pt2). The part
+	// after it, or next season's PDF posted ahead of time, is the upcoming one
 	if (rowAnchors && rowAnchors.length) {
 		const links = rowAnchors.toArray().map((el) => ({
 			href: absoluteUrl(pageUrl, $(el).attr("href") ?? ""),
@@ -104,13 +112,19 @@ function pickBestPdfLink(
 			})
 			: links;
 		const picked = pickCurrentScheduleLink(matching, today);
-		if (picked) return picked.href;
+		if (picked) {
+			const next = pickUpcomingScheduleLink(matching, picked, today);
+			return {
+				pdfUrl: picked.href,
+				upcoming: next ? { pdfUrl: next.link.href, startDate: next.range.start } : null,
+			};
+		}
 	}
 
 	// 2) score all candidate PDF links; prefer the Documents row when we found
 	// one, otherwise fall back to every PDF link in the details container
 	const candidateEls = (rowAnchors && rowAnchors.length ? rowAnchors : $('a[href*="/DocumentCenter/View/"]', ctx)).toArray();
-	if (candidateEls.length === 0) return null;
+	if (candidateEls.length === 0) return { pdfUrl: null, upcoming: null };
 	const scored = candidateEls.map((el) => {
 		const hrefRaw = $(el).attr("href") ?? "";
 		const hrefAbs = absoluteUrl(pageUrl, hrefRaw);
@@ -146,7 +160,7 @@ function pickBestPdfLink(
 	});
 	scored.sort((a, b) => b.score - a.score);
 
-	return scored[0]?.href ?? null;
+	return { pdfUrl: scored[0]?.href ?? null, upcoming: null };
 }
 
 async function loadPools(): Promise<PoolRecord[]> {
@@ -193,7 +207,7 @@ export async function main(): Promise<ScrapeResult> {
 
 	// scrape each pool for its PDF URL; cache pages so pools that share a facility
 	// page (warm/cool) only fetch the HTML once
-	const results: Array<{ poolId: string; pdfUrl: string | null }> = [];
+	const results: DiscoveredPool[] = [];
 	const today = new Date().toISOString().slice(0, 10);
 	const pageCache = new Map<string, ReturnType<typeof load>>();
 
@@ -208,7 +222,7 @@ export async function main(): Promise<ScrapeResult> {
 				pageCache.set(pageUrl, $);
 			}
 			const slug = getPoolSlugFromUrl(pageUrl);
-			const pdfUrl = pickBestPdfLink($, pageUrl, slug, today, pool.scheduleMatch);
+			const { pdfUrl, upcoming } = pickBestPdfLink($, pageUrl, slug, today, pool.scheduleMatch);
 
 			// validate PDF URL doesn't look like rules/facility doc
 			if (pdfUrl) {
@@ -220,8 +234,14 @@ export async function main(): Promise<ScrapeResult> {
 				errors.push(`No PDF found for ${pool.shortName}`);
 			}
 
-			results.push({ poolId: pool.id, pdfUrl });
+			results.push({
+				poolId: pool.id,
+				pdfUrl,
+				upcomingPdfUrl: upcoming?.pdfUrl ?? null,
+				upcomingStartDate: upcoming?.startDate ?? null,
+			});
 			console.log("discovered:", pool.shortName, "->", pdfUrl ?? "(no pdf found)");
+			if (upcoming) console.log("  upcoming from", upcoming.startDate, "->", upcoming.pdfUrl);
 		} catch (err) {
 			errors.push(`Failed to scrape ${pool.shortName}: ${err}`);
 			console.warn("failed to process", pageUrl, err);

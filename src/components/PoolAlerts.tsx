@@ -10,7 +10,7 @@ type Props = {
 	selectedPools: string[];
 	/** closures from the PDFs' notes that fall in the week the grid shows */
 	weekClosures?: SharedClosure[];
-	/** printed schedules that end or start inside that week */
+	/** printed schedules that end, start or change inside that week */
 	scheduleGaps?: ScheduleGap[];
 	/** the first date the grid shows */
 	from?: string;
@@ -123,11 +123,28 @@ export default function PoolAlerts({ alerts, pools, selectedPools, weekClosures 
 					)}
 				</div>
 			))}
-			{relevantGaps.map((g) => (
+			{relevantGaps.map((g) => g.kind === "changes" ? (
+				// a posted schedule takes over mid-week: not a problem, so not
+				// in the alert colors, but the grid's times change that day
+				<div
+					key={`gap-${g.kind}-${g.date}`}
+					className="font-sans border-l-[3px] border-line-strong bg-tint px-3 py-2.5"
+				>
+					<div className="font-mono text-label font-semibold tracking-[.08em] text-ink-2">
+						NEW SCHEDULE
+					</div>
+					<p className="mt-1 text-body font-medium text-ink">
+						New schedule from {formatDay(g.date)}
+					</p>
+					<p className="mt-0.5 text-small text-ink-2">
+						{g.poolIds.map(poolName).join(", ")} · the times shown change that day
+					</p>
+				</div>
+			) : (
 				// the grid has no sessions for these pools past the end of their
 				// printed schedule, or before the start of the next one
 				<div
-					key={`gap-${g.kind}-${g.date}`}
+					key={`gap-${g.kind}-${g.date}-${g.nextStart ?? ""}`}
 					className="font-sans border-l-[3px] border-alert bg-alert-tint px-3 py-2.5"
 				>
 					<div className="font-mono text-label font-semibold tracking-[.08em] text-alert">
@@ -141,7 +158,11 @@ export default function PoolAlerts({ alerts, pools, selectedPools, weekClosures 
 					</p>
 					<p className="mt-0.5 text-small text-ink-2">
 						{g.poolIds.map(poolName).join(", ")}
-						{g.kind === "starts" ? " · nothing listed before then" : " · nothing listed after that until a new one is posted"}
+						{g.kind === "starts"
+							? " · nothing listed before then"
+							: g.nextStart
+								? ` · nothing listed until the new one starts ${formatDay(g.nextStart)}`
+								: " · nothing listed after that until a new one is posted"}
 					</p>
 				</div>
 			))}

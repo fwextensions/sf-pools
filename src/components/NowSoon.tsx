@@ -27,6 +27,8 @@ import { Chevron, ExternalLinkIcon } from "@/components/icons";
 
 type Props = {
 	all: PoolSchedule[];
+	/** schedules posted to take over on their start dates */
+	upcoming?: PoolSchedule[];
 };
 
 /**
@@ -288,7 +290,7 @@ function Select<T extends string>({
 	);
 }
 
-export default function NowSoon({ all }: Props) {
+export default function NowSoon({ all, upcoming = [] }: Props) {
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 	const [options, setOptions] = useState<NowSoonOptions>(() => initialNowSoonOptions(searchParams));
@@ -305,7 +307,7 @@ export default function NowSoon({ all }: Props) {
 		writeNowSoonUrl(pathname, next);
 	};
 
-	const calendar = useMemo(() => createPoolCalendar(all), [all]);
+	const calendar = useMemo(() => createPoolCalendar(all, upcoming), [all, upcoming]);
 	const view = useMemo(() => nowSoon(all, calendar, now, options), [all, calendar, now, options]);
 	const quiet = `No ${view.noun} ${view.span}`;
 
