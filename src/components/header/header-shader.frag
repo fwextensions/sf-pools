@@ -15,6 +15,9 @@ uniform vec2 u_bandFade;    // antialias fade for ambient wave groups B and C
 // only the analytic ambient field drives the caustic lens. Ripples still
 // refract tiles, glint, and light their own crests — they just stop lensing.
 uniform float u_simLens;
+// How much sunlight reaches the pool: 1.0 by day, 0.0 at night, easing through
+// twilight. Computed in JS from San Francisco's real sun altitude.
+uniform float u_daylight;
 
 // ============================================================================
 // CONSTANTS
@@ -167,6 +170,22 @@ const float REFRACT_SCALE = 0.3;
 // would fire everywhere; this scales them back into a range where only the
 // steeper flanks catch the light.
 const float GLINT_SLOPE = 0.25;
+
+// --- The water itself ---
+// Absorption: water takes out red first, so a white tile a metre down reads as
+// pale aqua and the blue tiles get a touch deeper. 0.0 disables it.
+const float WATER_TINT = 1.0;
+
+// --- Night ---
+// Brightness of the underwater pool lights after dark.
+const float POOL_LIGHTS = 1.0;
+// Caustics from the pool lights. Lamp light bounces off the underside of the
+// surface back onto the floor, and the ripples focus it the same way they focus
+// sunlight, so the web stays alive around each lamp after dark. Without it the
+// night water only bends the tiles and loses its depth.
+const float NIGHT_CAUSTICS = 1.4;
+// Glint off the ripples at night, from the streetlights around the pool.
+const float NIGHT_GLINT = 1.0;
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -445,6 +464,26 @@ float focusGain(float lap, float detH, float c) {
 }
 
 // ============================================================================
+// NIGHT: underwater pool lights in the two long walls
+// ============================================================================
+
+float poolLights(vec2 p, float aspect) {
+	float sum = 0.0;
+	float n = max(1.0, floor(aspect / 2.4 + 0.5));
+	for (int i = 0; i < 8; i++) {
+		if (float(i) >= n) break;
+		float x = (float(i) + 0.5) / n * aspect;
+		vec2 dNear = p - vec2(x, -0.06);
+		// the far wall's lights sit between the near wall's
+		vec2 dFar = p - vec2(x + 0.5 * aspect / n, 1.06);
+		float a = 1.0 / (1.0 + dot(dNear, dNear) * 2.2);
+		float b = 1.0 / (1.0 + dot(dFar, dFar) * 2.2);
+		sum += a * a + b * b;
+	}
+	return sum;
+}
+
+// ============================================================================
 // MAIN
 // ============================================================================
 
@@ -564,12 +603,36 @@ void main() {
 	float bevelLight = dot(bevelSlope, normalize(vec2(0.35, 0.55)));
 	color += color * bevelLight * 0.14 * tileMask;
 
+	// --- Pool lights ---
+	// After dark the sunlit palette gives way to the underwater lights: the
+	// floor falls to a dim blue and brightens in pools around each lamp.
+	float lamps = 0.0;
+	if (u_daylight < 1.0) {
+		lamps = poolLights(tileUV, aspect) * POOL_LIGHTS;
+		vec3 night = vec3(0.17, 0.25, 0.38) + vec3(0.72, 0.95, 1.0) * lamps * 1.1;
+		color *= mix(night, vec3(1.0), u_daylight);
+		// light scattering off the water itself, so the lamps glow
+		color += vec3(0.04, 0.22, 0.30) * lamps * (1.0 - u_daylight) * 0.35;
+	}
+
 	// --- Caustic Lighting ---
+	// Caustics are focused direct sunlight, so they fade with it at twilight
+	// and are gone at night.
 	vec3 shadowColor = vec3(0.2, 0.35, 0.45);
-	color = mix(color, color * shadowColor, causticShadow * CAUSTIC_SHADOW);
+	color = mix(color, color * shadowColor, causticShadow * CAUSTIC_SHADOW * u_daylight);
 	// causticRGB already carries physical dispersion, so the old per-channel
 	// pow() fringing is gone; only the tint survives.
-	color += vec3(0.85, 0.95, 0.98) * causticRGB * CAUSTIC_STRENGTH;
+	color += vec3(0.85, 0.95, 0.98) * causticRGB * CAUSTIC_STRENGTH * u_daylight;
+	// the lamps' own caustics, aqua, strongest near the lamps; the 0.35 floor
+	// is light bounced around the whole pool, so the web never dies out
+	float lampLight = (0.35 + min(lamps, 1.2)) * (1.0 - u_daylight) * NIGHT_CAUSTICS;
+	color += vec3(0.55, 0.95, 1.0) * causticRGB * CAUSTIC_STRENGTH * lampLight;
+	color = mix(color, color * shadowColor, causticShadow * CAUSTIC_SHADOW * 0.5 * min(lampLight, 1.0));
+
+	// --- Water ---
+	// Absorption: red goes first, so white tiles read pale aqua through the
+	// water. Applied to everything below the surface, caustics included.
+	color *= mix(vec3(1.0), vec3(0.86, 0.97, 1.0), WATER_TINT);
 
 	// --- Ripple Lighting (height, independent of the caustic lens) ---
 	// The x/(1+x) curves respond linearly to small waves but level off for deep
@@ -580,8 +643,9 @@ void main() {
 	vec3 rippleShadow = vec3(0.15, 0.3, 0.4);
 	float crest = max(simH, 0.0);
 	float trough = max(-simH, 0.0);
+	float rippleLight = mix(0.35 + 0.5 * min(lamps, 1.0), 1.0, u_daylight);
 	// 0.4 / 0.3 = max crest brightening / max trough darkening
-	color += rippleHighlight * 0.4 * crest / (1.0 + crest);
+	color += rippleHighlight * 0.4 * rippleLight * crest / (1.0 + crest);
 	color = mix(color, color * rippleShadow, 0.3 * trough / (1.0 + trough));
 
 	// --- Specular Glint ---
@@ -597,12 +661,14 @@ void main() {
 	// not sparkle. lightDir points toward the off-screen upper-right light; 64
 	// is the glint tightness (higher = smaller, sharper sparkles); 0.05 sets how
 	// much sim slope counts as "full-strength" ripple; 0.4 is the brightness.
+	// At night it is a streetlight's warm glint.
 	vec3 surfN = normalize(vec3(-glintGrad * GLINT_SLOPE, 1.0));
 	vec3 lightDir = normalize(vec3(0.35, 0.55, 0.75));
 	vec3 halfVec = normalize(lightDir + vec3(0.0, 0.0, 1.0));
 	float spec = pow(max(dot(surfN, halfVec), 0.0), 64.0);
 	float rippleEnergy = min(length(simGrad * SIM_SLOPE_GAIN) * 0.05, 1.0);
-	color += vec3(1.0, 0.98, 0.92) * spec * rippleEnergy * 0.4;
+	vec3 glintCol = mix(vec3(1.0, 0.82, 0.55) * NIGHT_GLINT, vec3(1.0, 0.98, 0.92), u_daylight);
+	color += glintCol * spec * rippleEnergy * 0.4;
 
 	// --- Output ---
 	gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);

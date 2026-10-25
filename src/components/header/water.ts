@@ -1,6 +1,7 @@
 import displayFragShader from "./header-shader.frag";
 import simFragShader from "./water-sim.frag";
 import { headerHeightPx, TILE_MAX_PX, tileCssPx } from "./HeaderPlaceholder";
+import { daylight, PRESET_ALTITUDES, sunAltitudeDeg } from "./sun";
 import {
 	advanceSimClock,
 	takeSimSteps,
@@ -107,6 +108,10 @@ const DRIP_MIN_GAP_MS = 6000; // random spacing between drips
 const DRIP_MAX_GAP_MS = 12000;
 const DRIP_AMP = 0.35;
 
+// How often the real sun's position is re-read. Twilight takes ~30 minutes, so
+// once a minute is smooth enough.
+const SUN_REFRESH_MS = 60_000;
+
 /**
  * Shared input for the tuning harness. Two sims must receive IDENTICAL input or
  * an A/B comparison is meaningless: each canvas only hears about a pointer that
@@ -209,6 +214,16 @@ export type WaterOptions = {
 	 * mount a fresh one. Not called for the loss remove() itself causes.
 	 */
 	onContextLost?: () => void;
+	/**
+	 * A fixed time of day ("day" or "night") instead of San Francisco's
+	 * real sun. The harness and the social preview pin "day".
+	 */
+	timeOfDay?: string;
+	/**
+	 * A live override of timeOfDay, read every frame. Only the harness passes
+	 * this.
+	 */
+	getEffects?: () => { timeOfDay?: string };
 };
 
 /** Handle on one mounted instance. */
@@ -345,6 +360,15 @@ export function mountWater(
 	// Last harness impulse this instance applied, so a shared bus fires each
 	// event once here rather than every frame until the next one.
 	let lastImpulseSeq = -1;
+
+	let sun = daylight(PRESET_ALTITUDES.day);
+	let sunReadAt = -Infinity;
+	let sunPreset: string | undefined;
+	function readSun() {
+		const preset = sunPreset ? PRESET_ALTITUDES[sunPreset] : undefined;
+		sun = daylight(preset ?? sunAltitudeDeg(new Date()));
+		sunReadAt = performance.now();
+	}
 
 	const startMs = performance.now();
 
@@ -629,6 +653,13 @@ export function mountWater(
 			nextDripTime = now + DRIP_MIN_GAP_MS + Math.random() * (DRIP_MAX_GAP_MS - DRIP_MIN_GAP_MS);
 		}
 
+		const effects = opts.getEffects?.();
+		const preset = effects ? effects.timeOfDay : opts.timeOfDay;
+		if (preset !== sunPreset || performance.now() - sunReadAt > SUN_REFRESH_MS) {
+			sunPreset = preset;
+			readSun();
+		}
+
 		// Live tunables, present only under the harness (where the shader's
 		// `const float`s have been rewritten into uniforms). A name that does
 		// not exist in a program resolves to a null location and is ignored, so
@@ -672,6 +703,7 @@ export function mountWater(
 		displayShader.set2f("u_waterTexel", simTexel[0], simTexel[1]);
 		displayShader.set2f("u_bandFade", bandFade[0], bandFade[1]);
 		displayShader.set1f("u_simLens", simLens);
+		displayShader.set1f("u_daylight", sun);
 		// integer-CSS-px tile edge, in device px; the CSS placeholder computes
 		// the identical value as min(22px, round(down, 100vw / 33, 1px))
 		displayShader.set1f(

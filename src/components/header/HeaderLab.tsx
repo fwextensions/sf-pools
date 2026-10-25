@@ -16,6 +16,26 @@ import {
 
 type Values = Record<string, number>;
 
+// Per-pane settings that are not shader numbers: the time of day (undefined
+// follows San Francisco's real sun).
+type Effects = { timeOfDay?: string };
+const DEFAULT_EFFECTS: Effects = { timeOfDay: "day" };
+
+const TIMES_OF_DAY: { label: string; value?: string }[] = [
+	{ label: "Day", value: "day" },
+	{ label: "Night", value: "night" },
+	{ label: "Real SF", value: undefined },
+];
+
+// Effects with an on/off box. Off sets the constant to 0, which is also what
+// switches the effect off in production; on restores the committed default.
+const EFFECT_TOGGLES: { label: string; name: string }[] = [
+	{ label: "Water tint", name: "WATER_TINT" },
+	{ label: "Pool lights (night)", name: "POOL_LIGHTS" },
+	{ label: "Night caustics", name: "NIGHT_CAUSTICS" },
+	{ label: "Night glint", name: "NIGHT_GLINT" },
+];
+
 // Both panes share ONE clock origin and ONE input bus. Without the shared clock
 // the analytic swell in each pane runs at a different phase (each instance stamps
 // its own origin at creation) and the comparison is worthless; without the
@@ -116,11 +136,13 @@ function makeBus(): InputBus {
 function Pane({
 	label,
 	values,
+	effects,
 	busRef,
 	width,
 }: {
 	label: string;
 	values: Values;
+	effects: Effects;
 	busRef: React.RefObject<InputBus>;
 	width: number;
 }) {
@@ -130,9 +152,13 @@ function Pane({
 	// cannot see what the change did.
 	const valuesRef = useRef(values);
 	const widthRef = useRef(width);
+	const effectsRef = useRef(effects);
 	useEffect(() => {
 		valuesRef.current = values;
 	}, [values]);
+	useEffect(() => {
+		effectsRef.current = effects;
+	}, [effects]);
 	useEffect(() => {
 		widthRef.current = width;
 	}, [width]);
@@ -153,6 +179,7 @@ function Pane({
 				return out as Partial<JsParams>;
 			},
 			getWidth: () => widthRef.current,
+			getEffects: () => effectsRef.current,
 			t0: CLOCK_ORIGIN,
 			input: busRef.current,
 		});
@@ -251,6 +278,8 @@ function Slider({
 export default function HeaderLab() {
 	const [a, setA] = useState<Values>({ ...PARAM_DEFAULTS });
 	const [b, setB] = useState<Values>({ ...PARAM_DEFAULTS });
+	const [effectsA, setEffectsA] = useState<Effects>(DEFAULT_EFFECTS);
+	const [effectsB, setEffectsB] = useState<Effects>(DEFAULT_EFFECTS);
 	const [editing, setEditing] = useState<"a" | "b" | "both">("b");
 	const [stacked, setStacked] = useState(true);
 	const [width, setWidth] = useState(1200);
@@ -295,6 +324,12 @@ export default function HeaderLab() {
 	);
 
 	const shown = editing === "a" ? a : b;
+	const shownEffects = editing === "a" ? effectsA : effectsB;
+
+	const setEffect = (patch: Partial<Effects>) => {
+		if (editing === "a" || editing === "both") setEffectsA(p => ({ ...p, ...patch }));
+		if (editing === "b" || editing === "both") setEffectsB(p => ({ ...p, ...patch }));
+	};
 
 	const groups = useMemo(() => {
 		const m = new Map<string, ParamSpec[]>();
@@ -389,14 +424,14 @@ export default function HeaderLab() {
 					<div className="mt-2 flex gap-1">
 						<button
 							type="button"
-							onClick={() => setB({ ...a })}
+							onClick={() => { setB({ ...a }); setEffectsB(effectsA); }}
 							className="flex-1 rounded bg-slate-100 px-2 py-1 text-xs hover:bg-slate-200"
 						>
 							A → B
 						</button>
 						<button
 							type="button"
-							onClick={() => setA({ ...b })}
+							onClick={() => { setA({ ...b }); setEffectsA(effectsB); }}
 							className="flex-1 rounded bg-slate-100 px-2 py-1 text-xs hover:bg-slate-200"
 						>
 							B → A
@@ -406,6 +441,8 @@ export default function HeaderLab() {
 							onClick={() => {
 								setA({ ...PARAM_DEFAULTS });
 								setB({ ...PARAM_DEFAULTS });
+								setEffectsA(DEFAULT_EFFECTS);
+								setEffectsB(DEFAULT_EFFECTS);
 							}}
 							className="flex-1 rounded bg-slate-100 px-2 py-1 text-xs hover:bg-slate-200"
 						>
@@ -458,6 +495,41 @@ export default function HeaderLab() {
 					</p>
 				</div>
 
+				{/* effects: on/off boxes and time of day, for the edited pane(s) */}
+				<div className="mt-3 rounded border border-slate-300 bg-white p-2">
+					<div className="text-xs font-medium text-slate-700">Effects</div>
+					<div className="mt-1 flex gap-1">
+						{TIMES_OF_DAY.map(t => (
+							<button
+								key={t.label}
+								type="button"
+								onClick={() => setEffect({ timeOfDay: t.value })}
+								className={`flex-1 rounded px-2 py-1 text-xs font-medium ${
+									shownEffects.timeOfDay === t.value
+										? "bg-sky-600 text-white"
+										: "bg-slate-100 text-slate-700 hover:bg-slate-200"
+								}`}
+							>
+								{t.label}
+							</button>
+						))}
+					</div>
+					{EFFECT_TOGGLES.map(t => (
+						<label key={t.name} className="mt-1.5 flex items-center gap-2 text-xs text-slate-700">
+							<input
+								type="checkbox"
+								checked={shown[t.name] > 0}
+								onChange={e => set(t.name, e.target.checked ? PARAM_DEFAULTS[t.name] : 0)}
+								className="accent-sky-600"
+							/>
+							{t.label}
+						</label>
+					))}
+					<p className="mt-1.5 text-[11px] text-slate-500">
+						Like the sliders, these change the pane(s) being edited.
+					</p>
+				</div>
+
 				{/* scroll swell driver */}
 				<div className="mt-3 rounded border border-slate-300 bg-white p-2">
 					<div className="text-xs font-medium text-slate-700">Scroll swell</div>
@@ -507,10 +579,10 @@ export default function HeaderLab() {
 			>
 				<div className={stacked ? "flex flex-col gap-4" : "flex gap-4"}>
 					<div data-pane="a">
-						<Pane label="A" values={a} busRef={busRef} width={width} />
+						<Pane label="A" values={a} effects={effectsA} busRef={busRef} width={width} />
 					</div>
 					<div data-pane="b">
-						<Pane label="B" values={b} busRef={busRef} width={width} />
+						<Pane label="B" values={b} effects={effectsB} busRef={busRef} width={width} />
 					</div>
 				</div>
 			</main>

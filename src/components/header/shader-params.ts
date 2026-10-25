@@ -229,6 +229,28 @@ export const PARAM_SPECS: ParamSpec[] = [
 		label: "Drip radius (texels)", min: 1.0, max: 12.0, step: 0.5,
 		hint: "Width of the Gaussian dent, independent of the pointer's. This is the strongest lever on the initial flash, because peak curvature goes as depth/radius² while the water displaced — which is what sets the ripple that follows — goes as depth×radius². So you can trade one against the other: multiply this by k and divide Drip depth by k², and the ripple carries the same energy while the opening curvature drops by k⁴. Radius 3→5 with depth 0.35→0.13 is a 7.7x gentler start for the same wave.",
 	},
+	// --- Water -------------------------------------------------------------
+	{
+		name: "WATER_TINT", domain: "display", group: "Water",
+		label: "Water tint", min: 0.0, max: 2.0, step: 0.05,
+		hint: "Absorption: red goes first, so white tiles read pale aqua. The CSS placeholder colors are scaled for 1.0.",
+	},
+	// --- Night ----------------------------------------------------------------
+	{
+		name: "POOL_LIGHTS", domain: "display", group: "Night",
+		label: "Pool lights", min: 0.0, max: 3.0, step: 0.05,
+		hint: "Brightness of the underwater lights in the long walls. Set the time of day to night to see them.",
+	},
+	{
+		name: "NIGHT_CAUSTICS", domain: "display", group: "Night",
+		label: "Night caustics", min: 0.0, max: 4.0, step: 0.05,
+		hint: "Lamp light bounced off the underside of the surface, focused into a caustic web around each lamp. 0 leaves the night water only bending the tiles.",
+	},
+	{
+		name: "NIGHT_GLINT", domain: "display", group: "Night",
+		label: "Night glint", min: 0.0, max: 3.0, step: 0.05,
+		hint: "Warm streetlight glints off the ripples after dark.",
+	},
 ];
 
 /** Parse `const float NAME = <number>;` out of a shader source. */
