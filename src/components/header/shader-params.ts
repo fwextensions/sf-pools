@@ -243,7 +243,7 @@ export const PARAM_SPECS: ParamSpec[] = [
 	{
 		name: "CLOUD_SHADOW", domain: "display", group: "Sky and clouds",
 		label: "Cloud shadow", min: 0.0, max: 1.0, step: 0.05,
-		hint: "How much a cloud takes out of the direct sun. At 1 the caustics vanish under a cloud.",
+		hint: "How much a cloud takes out of the direct sun, and so out of the caustics under it.",
 	},
 	{
 		name: "CLOUD_SPEED", domain: "display", group: "Sky and clouds",

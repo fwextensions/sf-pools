@@ -186,9 +186,11 @@ const float GLINT_SLOPE = 0.25;
 const float CLOUD_AMOUNT = 1.0;
 // Fraction of the sky the clouds cover, roughly. SF afternoons run high.
 const float CLOUD_COVER = 0.42;
-// How much a cloud's shadow takes out of the direct sunlight. 1.0 kills the
-// caustics completely under a cloud; the floor also dims a little.
-const float CLOUD_SHADOW = 0.85;
+// How much a cloud's shadow takes out of the direct sunlight, and so out of
+// the caustics under it; the floor also dims a little. Kept well short of 1.0:
+// a passing cloud thins the sun rather than blotting it out, and with no
+// caustics a ripple under a cloud reads as a bare distortion of the tiles.
+const float CLOUD_SHADOW = 0.6;
 // Drift speed in header heights per second. The fog comes in off the ocean, so
 // it drifts west to east, which is left to right with north up.
 const float CLOUD_SPEED = 0.045;
@@ -824,7 +826,9 @@ void main() {
 	color = mix(color, color * shadowColor, causticShadow * CAUSTIC_SHADOW * sun);
 	// causticRGB already carries physical dispersion, so the old per-channel
 	// pow() fringing is gone; only the tint survives.
-	color += vec3(0.85, 0.95, 0.98) * u_sunColor * causticRGB * CAUSTIC_STRENGTH * sun * sun;
+	// A floater's shadow counts twice, so the caustics really are gone in it; a
+	// cloud's counts once, so they only thin under it (see CLOUD_SHADOW).
+	color += vec3(0.85, 0.95, 0.98) * u_sunColor * causticRGB * CAUSTIC_STRENGTH * sun * floaterShade;
 	// the lamps' own caustics, aqua, strongest near the lamps; the 0.35 floor
 	// is light bounced around the whole pool, so the web never dies out
 	float lampLight = (0.35 + min(lamps, 1.2)) * (1.0 - u_daylight) * NIGHT_CAUSTICS;
