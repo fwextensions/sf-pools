@@ -95,9 +95,6 @@ export class Program {
 	set2f(name: string, a: number, b: number) {
 		this.gl.uniform2f(this.loc(name), a, b);
 	}
-	set3f(name: string, a: number, b: number, c: number) {
-		this.gl.uniform3f(this.loc(name), a, b, c);
-	}
 	setTexture(name: string, tex: WebGLTexture, unit: number) {
 		const gl = this.gl;
 		gl.activeTexture(gl.TEXTURE0 + unit);

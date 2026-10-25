@@ -1,8 +1,8 @@
 // ============================================================================
 // SAN FRANCISCO SUNLIGHT
 //
-// The water is lit by the real sun over the city: caustics by day, warming
-// toward gold as it sets, and the underwater pool lights after dark. A low
+// The water is lit by the real sun over the city: caustics by day, and the
+// underwater pool lights after dark. A low
 // precision solar position (good to a fraction of a degree, far better than
 // twilight needs) keeps this free of any network request.
 // ============================================================================
@@ -33,32 +33,17 @@ function smoothstep(a: number, b: number, x: number) {
 	return t * t * (3 - 2 * t);
 }
 
-export type Sunlight = {
-	daylight: number;
-	color: [number, number, number];
-	/** 0 with the sun well up, 1 at the horizon: how golden the hour is */
-	golden: number;
-};
-
 /**
- * How much sun reaches the pool, and its color. Daylight eases from 0 at the
- * end of civil twilight (-6 degrees) to 1 a little after sunrise, so the pool
- * lights come on as it gets properly dark rather than at the moment of sunset.
+ * How much sun reaches the pool, 0..1. Eases from 0 at the end of civil
+ * twilight (-6 degrees) to 1 a little after sunrise, so the pool lights come
+ * on as it gets properly dark rather than at the moment of sunset.
  */
-export function sunlight(altitudeDeg: number): Sunlight {
-	const daylight = smoothstep(-6, 3, altitudeDeg);
-	// golden hour: warm when the sun is low, white by ~15 degrees up
-	const warm = 1 - smoothstep(0, 15, altitudeDeg);
-	return {
-		daylight,
-		color: [1, 1 - 0.18 * warm, 1 - 0.42 * warm],
-		golden: warm,
-	};
+export function daylight(altitudeDeg: number) {
+	return smoothstep(-6, 3, altitudeDeg);
 }
 
-/** Fixed times of day for previews (?water=night and friends). */
+/** Fixed times of day for previews (?water=day or night). */
 export const PRESET_ALTITUDES: Record<string, number> = {
 	day: 55,
-	dusk: 2,
 	night: -20,
 };

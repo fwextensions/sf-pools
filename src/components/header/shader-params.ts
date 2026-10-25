@@ -235,22 +235,6 @@ export const PARAM_SPECS: ParamSpec[] = [
 		label: "Water tint", min: 0.0, max: 2.0, step: 0.05,
 		hint: "Absorption: red goes first, so white tiles read pale aqua. The CSS placeholder colors are scaled for 1.0.",
 	},
-	// --- Golden hour --------------------------------------------------------
-	{
-		name: "DUSK_HUE", domain: "display", group: "Golden hour",
-		label: "Sunset color", min: 0.0, max: 1.0, step: 0.05,
-		hint: "0 is gold, 1 is pink. Set the time of day to dusk to see it.",
-	},
-	{
-		name: "DUSK_TINT", domain: "display", group: "Golden hour",
-		label: "Highlight tint", min: 0.0, max: 1.0, step: 0.05,
-		hint: "How far the caustics and ripple crests shift toward the sunset color at the horizon.",
-	},
-	{
-		name: "DUSK_GLINT", domain: "display", group: "Golden hour",
-		label: "Sunset glint", min: 0.0, max: 10.0, step: 0.1,
-		hint: "How solidly the glints take the sunset color at the horizon. They are mixed toward it rather than added, which would only carry them to white.",
-	},
 	// --- Night ----------------------------------------------------------------
 	{
 		name: "POOL_LIGHTS", domain: "display", group: "Night",

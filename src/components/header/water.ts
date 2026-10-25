@@ -1,7 +1,7 @@
 import displayFragShader from "./header-shader.frag";
 import simFragShader from "./water-sim.frag";
 import { headerHeightPx, TILE_MAX_PX, tileCssPx } from "./HeaderPlaceholder";
-import { PRESET_ALTITUDES, sunAltitudeDeg, sunlight, type Sunlight } from "./sun";
+import { daylight, PRESET_ALTITUDES, sunAltitudeDeg } from "./sun";
 import {
 	advanceSimClock,
 	takeSimSteps,
@@ -215,7 +215,7 @@ export type WaterOptions = {
 	 */
 	onContextLost?: () => void;
 	/**
-	 * A fixed time of day ("day", "dusk", "night") instead of San Francisco's
+	 * A fixed time of day ("day" or "night") instead of San Francisco's
 	 * real sun. The harness and the social preview pin "day".
 	 */
 	timeOfDay?: string;
@@ -361,12 +361,12 @@ export function mountWater(
 	// event once here rather than every frame until the next one.
 	let lastImpulseSeq = -1;
 
-	let sun: Sunlight = sunlight(PRESET_ALTITUDES.day);
+	let sun = daylight(PRESET_ALTITUDES.day);
 	let sunReadAt = -Infinity;
 	let sunPreset: string | undefined;
 	function readSun() {
 		const preset = sunPreset ? PRESET_ALTITUDES[sunPreset] : undefined;
-		sun = sunlight(preset ?? sunAltitudeDeg(new Date()));
+		sun = daylight(preset ?? sunAltitudeDeg(new Date()));
 		sunReadAt = performance.now();
 	}
 
@@ -703,9 +703,7 @@ export function mountWater(
 		displayShader.set2f("u_waterTexel", simTexel[0], simTexel[1]);
 		displayShader.set2f("u_bandFade", bandFade[0], bandFade[1]);
 		displayShader.set1f("u_simLens", simLens);
-		displayShader.set1f("u_daylight", sun.daylight);
-		displayShader.set3f("u_sunColor", ...sun.color);
-		displayShader.set1f("u_golden", sun.golden);
+		displayShader.set1f("u_daylight", sun);
 		// integer-CSS-px tile edge, in device px; the CSS placeholder computes
 		// the identical value as min(22px, round(down, 100vw / 33, 1px))
 		displayShader.set1f(

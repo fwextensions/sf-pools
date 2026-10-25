@@ -18,10 +18,6 @@ uniform float u_simLens;
 // How much sunlight reaches the pool: 1.0 by day, 0.0 at night, easing through
 // twilight. Computed in JS from San Francisco's real sun altitude.
 uniform float u_daylight;
-// Sunlight tint, white at midday and warming toward gold near the horizon.
-uniform vec3 u_sunColor;
-// 0 with the sun well up, rising to 1 as it reaches the horizon: golden hour.
-uniform float u_golden;
 
 // ============================================================================
 // CONSTANTS
@@ -179,19 +175,6 @@ const float GLINT_SLOPE = 0.25;
 // Absorption: water takes out red first, so a white tile a metre down reads as
 // pale aqua and the blue tiles get a touch deeper. 0.0 disables it.
 const float WATER_TINT = 1.0;
-
-// --- Golden hour ---
-// As the sun gets low the ripples' highlights and glints take on its color.
-// DUSK_HUE picks that color: 0 is gold, 1 is pink, between is the salmon of an
-// SF sunset through the fog.
-const float DUSK_HUE = 0.5;
-// How far the caustics' and ripple crests' highlights shift toward that color
-// at the horizon.
-const float DUSK_TINT = 0.8;
-// Glint strength at the horizon. The glints are mixed toward the sunset color
-// rather than added, so this sets how solid that color gets. A low sun lies
-// along the water, so its glitter is longer and brighter.
-const float DUSK_GLINT = 4.0;
 
 // --- Night ---
 // Brightness of the underwater pool lights after dark.
@@ -633,26 +616,13 @@ void main() {
 	}
 
 	// --- Caustic Lighting ---
-	// Golden hour: the highlights take on the sunset's color. Adding a warm
-	// color to the bright aqua floor only carries it toward white, so at dusk
-	// the caustics, crests and glints are mixed toward the color rather than
-	// lit by it. Fades out with the light after sunset.
-	vec3 duskColor = mix(vec3(1.0, 0.72, 0.30), vec3(1.0, 0.45, 0.62), DUSK_HUE);
-	float dusk = u_golden * u_daylight;
-	// low sun: the whole floor warms a little and dims, not just the caustics
-	color *= mix(vec3(1.0), u_sunColor * 0.92, 0.5 * u_daylight * (1.0 - u_sunColor.b));
-	// Caustics are focused direct sunlight, so they fade with it at dusk and
-	// are gone at night.
+	// Caustics are focused direct sunlight, so they fade with it at twilight
+	// and are gone at night.
 	vec3 shadowColor = vec3(0.2, 0.35, 0.45);
 	color = mix(color, color * shadowColor, causticShadow * CAUSTIC_SHADOW * u_daylight);
 	// causticRGB already carries physical dispersion, so the old per-channel
 	// pow() fringing is gone; only the tint survives.
-	vec3 caustic = vec3(0.85, 0.95, 0.98) * u_sunColor * causticRGB * CAUSTIC_STRENGTH * u_daylight;
-	color = mix(
-		color + caustic,
-		mix(color, duskColor, min(caustic.g * 3.0, 1.0)),
-		DUSK_TINT * dusk
-	);
+	color += vec3(0.85, 0.95, 0.98) * causticRGB * CAUSTIC_STRENGTH * u_daylight;
 	// the lamps' own caustics, aqua, strongest near the lamps; the 0.35 floor
 	// is light bounced around the whole pool, so the web never dies out
 	float lampLight = (0.35 + min(lamps, 1.2)) * (1.0 - u_daylight) * NIGHT_CAUSTICS;
@@ -675,13 +645,7 @@ void main() {
 	float trough = max(-simH, 0.0);
 	float rippleLight = mix(0.35 + 0.5 * min(lamps, 1.0), 1.0, u_daylight);
 	// 0.4 / 0.3 = max crest brightening / max trough darkening
-	float crestLight = 0.4 * rippleLight * crest / (1.0 + crest);
-	// golden hour: the crests catch the sunset's color, as the caustics do
-	color = mix(
-		color + rippleHighlight * crestLight,
-		mix(color, duskColor, min(crestLight * 2.0, 1.0)),
-		DUSK_TINT * dusk
-	);
+	color += rippleHighlight * 0.4 * rippleLight * crest / (1.0 + crest);
 	color = mix(color, color * rippleShadow, 0.3 * trough / (1.0 + trough));
 
 	// --- Specular Glint ---
@@ -697,21 +661,14 @@ void main() {
 	// not sparkle. lightDir points toward the off-screen upper-right light; 64
 	// is the glint tightness (higher = smaller, sharper sparkles); 0.05 sets how
 	// much sim slope counts as "full-strength" ripple; 0.4 is the brightness.
-	// At golden hour it takes the sunset's color and
-	// brightens (see DUSK_GLINT); at night it is a streetlight's warm glint.
+	// At night it is a streetlight's warm glint.
 	vec3 surfN = normalize(vec3(-glintGrad * GLINT_SLOPE, 1.0));
 	vec3 lightDir = normalize(vec3(0.35, 0.55, 0.75));
 	vec3 halfVec = normalize(lightDir + vec3(0.0, 0.0, 1.0));
 	float spec = pow(max(dot(surfN, halfVec), 0.0), 64.0);
 	float rippleEnergy = min(length(simGrad * SIM_SLOPE_GAIN) * 0.05, 1.0);
-	float glint = spec * rippleEnergy * 0.4;
 	vec3 glintCol = mix(vec3(1.0, 0.82, 0.55) * NIGHT_GLINT, vec3(1.0, 0.98, 0.92), u_daylight);
-	// at golden hour, mixed toward the sunset color like the caustics
-	color = mix(
-		color + glintCol * glint,
-		mix(color, duskColor, min(glint * DUSK_GLINT, 1.0)),
-		dusk
-	);
+	color += glintCol * spec * rippleEnergy * 0.4;
 
 	// --- Output ---
 	gl_FragColor = vec4(clamp(color, 0.0, 1.0), 1.0);

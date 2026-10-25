@@ -31,7 +31,7 @@ export default function HeaderAnimation()
 		if (!host) return;
 
 		// ?water=off leaves just the CSS placeholder, for comparing the two.
-		// Other comma-separated values preview the effects: day, dusk or night
+		// Other comma-separated values preview the effects: day or night
 		// pins the time of day; no-tint switches the water tint off; plain
 		// switches every effect off, which is the water as it was before them.
 		const flags = (new URLSearchParams(location.search).get("water") ?? "").split(",");
@@ -40,7 +40,7 @@ export default function HeaderAnimation()
 		const zeroed = Object.entries(EFFECTS)
 			.filter(([flag]) => plain || flags.includes(`no-${flag}`))
 			.map(([, name]) => name);
-		const timeOfDay = plain ? "day" : flags.find(f => f === "day" || f === "dusk" || f === "night");
+		const timeOfDay = plain ? "day" : flags.find(f => f === "day" || f === "night");
 		const waterOpts = {
 			displaySrc: zeroed.length ? withConstsZeroed(displayFragShader, zeroed) : undefined,
 			timeOfDay,

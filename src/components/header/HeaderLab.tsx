@@ -23,7 +23,6 @@ const DEFAULT_EFFECTS: Effects = { timeOfDay: "day" };
 
 const TIMES_OF_DAY: { label: string; value?: string }[] = [
 	{ label: "Day", value: "day" },
-	{ label: "Dusk", value: "dusk" },
 	{ label: "Night", value: "night" },
 	{ label: "Real SF", value: undefined },
 ];

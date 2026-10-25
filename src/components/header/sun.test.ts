@@ -1,5 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import { sunAltitudeDeg, sunlight } from "./sun";
+import { daylight, sunAltitudeDeg } from "./sun";
 
 describe("sunAltitudeDeg", () => {
 	it("puts the June solstice noon sun 90 - latitude + tilt over SF", () => {
@@ -20,15 +20,14 @@ describe("sunAltitudeDeg", () => {
 	});
 });
 
-describe("sunlight", () => {
+describe("daylight", () => {
 	it("is full day well above the horizon and dark after civil twilight", () => {
-		expect(sunlight(40)).toEqual({ daylight: 1, color: [1, 1, 1], golden: 0 });
-		expect(sunlight(-7).daylight).toBe(0);
+		expect(daylight(40)).toBe(1);
+		expect(daylight(-7)).toBe(0);
 	});
 
-	it("warms the light near the horizon", () => {
-		const { color } = sunlight(1);
-		expect(color[2]).toBeLessThan(color[1]);
-		expect(color[1]).toBeLessThan(1);
+	it("is partway through twilight at sunset", () => {
+		expect(daylight(0)).toBeGreaterThan(0);
+		expect(daylight(0)).toBeLessThan(1);
 	});
 });
