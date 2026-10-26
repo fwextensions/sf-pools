@@ -1,7 +1,7 @@
 // The answers module wired to the published data, for the server routes that
 // agents call: the MCP server at /mcp and the JSON endpoint at /api/sessions.
 // Data only changes with a deploy, so it's read once per warm function.
-import { loadSchedules, loadUpcomingSchedules } from "@/lib/site-data";
+import { loadCityHolidays, loadSchedules, loadUpcomingSchedules } from "@/lib/site-data";
 import { SITE_URL } from "@/lib/site-url";
 import { SwimAnswerError, WHEN_WINDOWS, createSwimAnswers, pacificMoment, parseMoment, type SessionQuery, type SwimAnswers, type WhenWindow } from "@/lib/swim-answers";
 import type { Moment } from "@/lib/now-soon";
@@ -9,8 +9,8 @@ import type { Moment } from "@/lib/now-soon";
 let answers: Promise<SwimAnswers> | null = null;
 
 export function loadSwimAnswers(): Promise<SwimAnswers> {
-	answers ??= Promise.all([loadSchedules(), loadUpcomingSchedules()])
-		.then(([schedules, upcoming]) => createSwimAnswers({ schedules, upcoming }, { siteUrl: SITE_URL }))
+	answers ??= Promise.all([loadSchedules(), loadUpcomingSchedules(), loadCityHolidays()])
+		.then(([schedules, upcoming, holidays]) => createSwimAnswers({ schedules, upcoming, holidays }, { siteUrl: SITE_URL }))
 		.catch((error) => {
 			// a failed read is tried again on the next request rather than kept
 			answers = null;

@@ -1,9 +1,14 @@
 import { Suspense } from "react";
 import AvailabilityGrid from "@/components/grid/AvailabilityGrid";
-import { loadAlerts, loadSchedules, loadUpcomingSchedules } from "@/lib/site-data";
+import { loadAlerts, loadCityHolidays, loadSchedules, loadUpcomingSchedules } from "@/lib/site-data";
 
 export default async function HomePage() {
-	const [all, upcoming, alerts] = await Promise.all([loadSchedules(), loadUpcomingSchedules(), loadAlerts()]);
+	const [all, upcoming, alerts, holidays] = await Promise.all([
+		loadSchedules(),
+		loadUpcomingSchedules(),
+		loadAlerts(),
+		loadCityHolidays(),
+	]);
 
 	return (
 		<main>
@@ -14,7 +19,7 @@ export default async function HomePage() {
 					</div>
 				}
 			>
-				<AvailabilityGrid all={all} upcoming={upcoming} alerts={alerts} />
+				<AvailabilityGrid all={all} upcoming={upcoming} alerts={alerts} holidays={holidays} />
 			</Suspense>
 		</main>
 	);

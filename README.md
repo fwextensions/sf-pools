@@ -89,6 +89,7 @@ Set `FAIL_ON_LARGE_CHANGES=false` locally to bypass this check during developmen
 - `npm run process-all-pdfs` — extract schedules from PDFs, preserve unchanged, write changelog
 - `npm run build-schedules` — full pipeline: scrape → download → process
 - `npm run scrape-alerts` — scrape pool alerts from SF Rec & Park
+- `npm run scrape-holidays` — fetch the city holiday list from sf.gov into `public/data/city_holidays.json` (`-- --force` to fetch when the year is already saved); the "Update City Holidays" workflow runs it daily from December through February
 - `npm run analyze-programs` — analyze raw vs canonical program names
 
 ## How Extraction Works

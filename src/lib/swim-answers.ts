@@ -7,6 +7,7 @@
 // Everything is on the Pacific clock. A date is "YYYY-MM-DD"; a time is the
 // schedules' own "h:mm[a|p]". Answers name things the way CONTEXT.md does.
 import type { PoolSchedule } from "@/lib/schedule-schema";
+import type { CityHoliday } from "@/lib/city-holidays";
 import { formatClosurePeriod, type Closure } from "@/lib/closures";
 import { formatGridQuery } from "@/lib/grid/url";
 import { addDays, createPoolCalendar, isAllDay, weekdayOf, type ClosedReason } from "@/lib/pool-calendar";
@@ -373,16 +374,17 @@ type Window = {
 };
 
 /**
- * `schedules` are the current ones, `upcoming` the ones posted to take over.
+ * `schedules` are the current ones, `upcoming` the ones posted to take over,
+ * `holidays` the city's.
  * `siteUrl` makes links absolute ("https://sfpools.info"); left empty they
  * start at the site's root.
  */
 export function createSwimAnswers(
-	data: { schedules: PoolSchedule[]; upcoming?: PoolSchedule[] },
+	data: { schedules: PoolSchedule[]; upcoming?: PoolSchedule[]; holidays?: CityHoliday[] },
 	{ siteUrl = "" }: { siteUrl?: string } = {}
 ) {
-	const { schedules, upcoming = [] } = data;
-	const calendar = createPoolCalendar(schedules, upcoming);
+	const { schedules, upcoming = [], holidays = [] } = data;
+	const calendar = createPoolCalendar(schedules, upcoming, holidays);
 	const byId = new Map(schedules.map((s) => [s.id, s]));
 	const asOf = schedules.reduce<string | null>(
 		(latest, s) => (s.scheduleLastUpdated && (!latest || s.scheduleLastUpdated > latest) ? s.scheduleLastUpdated : latest),
