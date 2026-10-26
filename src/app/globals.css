@@ -160,7 +160,7 @@
 		--color-on-ink: #0c1a21;
 		--color-ink: #e4edf1;
 		--color-ink-2: #9db2bc;
-		--color-line-strong: #3a515c;
+		--color-line-strong: #557280;
 		--color-line: #22343d;
 		--color-tint: #13232b;
 		--color-alert-tint: #2e1a17;
@@ -170,7 +170,6 @@
 		--color-added: #8fd0ea;
 		--color-removed-tint: #331a1a;
 		--color-removed: #f0a0a0;
-		--header-night: 1;
 		/* lanes faded toward a dark cell go muddy sooner than toward a light one */
 		--grid-fade: 0.55;
 		--grid-band-fade: 0.75;
@@ -183,7 +182,7 @@
 	--color-on-ink: #0c1a21;
 	--color-ink: #e4edf1;
 	--color-ink-2: #9db2bc;
-	--color-line-strong: #3a515c;
+	--color-line-strong: #557280;
 	--color-line: #22343d;
 	--color-tint: #13232b;
 	--color-alert-tint: #2e1a17;
@@ -193,7 +192,6 @@
 	--color-added: #8fd0ea;
 	--color-removed-tint: #331a1a;
 	--color-removed: #f0a0a0;
-	--header-night: 1;
 	/* lanes faded toward a dark cell go muddy sooner than toward a light one */
 	--grid-fade: 0.55;
 	--grid-band-fade: 0.75;
