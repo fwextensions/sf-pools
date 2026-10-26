@@ -19,8 +19,8 @@ function withConstsZeroed(src: string, names: string[]) {
 	), src);
 }
 
-// A context lost this soon after mounting means the GPU won't keep one, so
-// stop remounting and leave the placeholder rather than loop.
+// Water that breaks this soon after mounting means the GPU won't keep it
+// going, so stop remounting and leave the placeholder rather than loop.
 const REMOUNT_GIVE_UP_MS = 10_000;
 
 export default function HeaderAnimation()
@@ -72,17 +72,18 @@ export default function HeaderAnimation()
 		const mount = () => {
 			remountId = 0;
 			mountedAt = performance.now();
-			water = mountWater(host, { ...waterOpts, onContextLost: handleContextLost });
+			water = mountWater(host, { ...waterOpts, onBroken: handleBroken });
 			applyLoopState();
 		};
 
 		// iOS takes the GL context from a tab left idle or in the background long
-		// enough (overnight is plenty), and a lost context leaves the canvas
-		// transparent over the placeholder for good. Swap in a fresh instance.
-		// Waiting for an animation frame waits for the tab to be shown again,
-		// since hidden tabs get none, so no new context is asked for while the
-		// browser is still reclaiming them.
-		function handleContextLost() {
+		// enough (overnight is plenty), and a GPU reset (a driver update, waking
+		// from sleep) can leave it drawing black or not drawing at all. The
+		// instance hides itself and reports it; swap in a fresh one. Waiting for
+		// an animation frame waits for the tab to be shown again, since hidden
+		// tabs get none, so no new context is asked for while the browser is
+		// still reclaiming them.
+		function handleBroken() {
 			water?.remove();
 			water = null;
 			if (performance.now() - mountedAt < REMOUNT_GIVE_UP_MS) return;
