@@ -38,6 +38,10 @@ _Avoid_: facility closure, alert
 A closure a schedule's PDF lists in its notes, for a whole day or some hours of it (holidays, staff training).
 _Avoid_: PDF closure, holiday
 
+**City holiday**:
+A day on San Francisco's official holiday list (sf.gov), which closes every pool. The pool calendar treats one as a scheduled closure for the whole day, unless the pool's PDF already lists a closure on that date or names the same holiday a few days away.
+_Avoid_: federal holiday
+
 **Pool calendar**:
-The one place that decides which sessions a pool has on a date, and why it has none: an alert closure, a scheduled closure, or a date outside its schedule. On each date it uses the schedule in force then, current or upcoming.
+The one place that decides which sessions a pool has on a date, and why it has none: an alert closure, a scheduled closure (including city holidays), or a date outside its schedule. On each date it uses the schedule in force then, current or upcoming.
 _Avoid_: availability, open hours

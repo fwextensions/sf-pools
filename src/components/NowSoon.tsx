@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { PoolSchedule } from "@/lib/schedule-schema";
+import type { CityHoliday } from "@/lib/city-holidays";
 import type { Day } from "@/lib/sessions";
 import { createPoolCalendar } from "@/lib/pool-calendar";
 import { pacificToday } from "@/lib/closures";
@@ -29,6 +30,8 @@ type Props = {
 	all: PoolSchedule[];
 	/** schedules posted to take over on their start dates */
 	upcoming?: PoolSchedule[];
+	/** the city's, which close every pool */
+	holidays?: CityHoliday[];
 };
 
 /**
@@ -290,7 +293,7 @@ function Select<T extends string>({
 	);
 }
 
-export default function NowSoon({ all, upcoming = [] }: Props) {
+export default function NowSoon({ all, upcoming = [], holidays = [] }: Props) {
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 	const [options, setOptions] = useState<NowSoonOptions>(() => initialNowSoonOptions(searchParams));
@@ -307,7 +310,7 @@ export default function NowSoon({ all, upcoming = [] }: Props) {
 		writeNowSoonUrl(pathname, next);
 	};
 
-	const calendar = useMemo(() => createPoolCalendar(all, upcoming), [all, upcoming]);
+	const calendar = useMemo(() => createPoolCalendar(all, upcoming, holidays), [all, upcoming, holidays]);
 	const view = useMemo(() => nowSoon(all, calendar, now, options), [all, calendar, now, options]);
 	const quiet = `No ${view.noun} ${view.span}`;
 

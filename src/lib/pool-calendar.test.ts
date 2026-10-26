@@ -349,3 +349,67 @@ describe("closures", () => {
 		expect(closures(all, "2026-10-30").map((c) => c.windows.map((w) => w.poolIds))).toEqual([[["rossi"]]]);
 	});
 });
+
+describe("city holidays", () => {
+	const holidays = [
+		{ date: "2026-11-11", name: "Veterans Day", observed: false },
+		{ date: "2026-11-26", name: "Thanksgiving Day", observed: false },
+		{ date: "2026-11-27", name: "Day after Thanksgiving", observed: false },
+	];
+	const garfield = pool("garfield", [
+		["Wednesday", "9:00a", "10:00a"],
+		["Thursday", "9:00a", "10:00a"],
+	]);
+	const sava = pool("sava", [
+		["Wednesday", "9:00a", "10:00a"],
+		["Thursday", "9:00a", "10:00a"],
+		["Friday", "9:00a", "10:00a"],
+	]);
+	const thanksgiving = {
+		startDate: "2026-11-26",
+		endDate: "2026-11-27",
+		startTime: null,
+		endTime: null,
+		reason: "Thanksgiving",
+	};
+
+	it("drops a pool's sessions on a holiday its PDF leaves out", () => {
+		const sessions = createPoolCalendar([garfield], [], holidays).sessions("2026-11-09", "2026-11-15");
+		expect(sessions.map((s) => s.date)).toEqual(["2026-11-12"]);
+		expect(createPoolCalendar([garfield], [], holidays).closuresOn("garfield", "2026-11-11")).toEqual([
+			{
+				kind: "scheduled",
+				closure: { startDate: "2026-11-11", endDate: "2026-11-11", startTime: null, endTime: null, reason: "Veterans Day" },
+			},
+		]);
+	});
+
+	it("keeps the PDF's own closure for a holiday it lists, not the city's as well", () => {
+		const calendar = createPoolCalendar([{ ...sava, scheduledClosures: [thanksgiving] }], [], holidays);
+		expect(calendar.closuresOn("sava", "2026-11-26")).toEqual([{ kind: "scheduled", closure: thanksgiving }]);
+	});
+
+	it("joins a pool its PDF leaves out to the notice of the pools that list the holiday", () => {
+		const calendar = createPoolCalendar([{ ...sava, scheduledClosures: [thanksgiving] }, garfield], [], holidays);
+		expect(calendar.closures("2026-11-23", "2026-11-29")).toEqual([
+			{
+				startDate: "2026-11-26",
+				endDate: "2026-11-27",
+				reason: "Thanksgiving",
+				windows: [{ startTime: null, endTime: null, poolIds: ["sava", "garfield"] }],
+			},
+		]);
+	});
+
+	it("adds no closure on a holiday that falls on a day the pool doesn't run", () => {
+		const calendar = createPoolCalendar([pool("mlk", [["Tuesday", "9:00a", "10:00a"]])], [], holidays);
+		expect(calendar.closures("2026-11-09", "2026-11-29")).toEqual([]);
+	});
+
+	it("adds no closure on a holiday outside the pool's printed schedule", () => {
+		const ended = { ...garfield, scheduleEndDate: "2026-11-21" } as PoolSchedule;
+		const calendar = createPoolCalendar([ended], [], holidays);
+		expect(calendar.closures("2026-11-23", "2026-11-29")).toEqual([]);
+		expect(calendar.closuresOn("garfield", "2026-11-26")).toEqual([{ kind: "ended", endDate: "2026-11-21" }]);
+	});
+});

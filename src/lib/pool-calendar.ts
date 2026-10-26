@@ -12,6 +12,7 @@ import { describeProgram } from "@/lib/program-display";
 import { parseTimeToMinutes } from "@/lib/time";
 import { isClosureActive, scheduledClosuresOn, type Closure, type ScheduledClosure } from "@/lib/closures";
 import { programMinutes, type Day, type Session } from "@/lib/sessions";
+import { holidayClosures, type CityHoliday } from "@/lib/city-holidays";
 
 /**
  * why a pool has no sessions, or fewer, on a date: a closure, or a date
@@ -61,13 +62,14 @@ export type PoolCalendar = {
 	sessions(from: string, to: string): Session[];
 	/**
 	 * Why the pool is closed for all or part of `date`: a date outside its
-	 * schedule, then the PDF's notes in the order they list them, then the
-	 * facility page's closure.
+	 * schedule, then the PDF's notes in the order they list them and the city
+	 * holidays they leave out, then the facility page's closure.
 	 */
 	closuresOn(poolId: string, date: string): ClosedReason[];
 	/**
-	 * The closures from the PDFs' notes that touch `from` through `to`, one
-	 * per date range and reason, with the hours each pool shares.
+	 * The closures from the PDFs' notes and the city's holidays that touch
+	 * `from` through `to`, one per date range and reason, with the hours each
+	 * pool shares.
 	 */
 	closures(from: string, to: string): SharedClosure[];
 	/**
@@ -104,18 +106,39 @@ function datesBetween(from: string, to: string): string[] {
 // a session before it's placed on a date: a program parsed and described once
 type Weekly = Omit<Session, "date">;
 
-// one printed schedule of a pool and the dates it applies from
-type Period = { schedule: PoolSchedule; weekly: Weekly[] };
+// one printed schedule of a pool and the dates it applies from, with the
+// closures from its notes and the city holidays they leave out
+type Period = { schedule: PoolSchedule; weekly: Weekly[]; closures: ScheduledClosure[] };
 
 /**
  * `pools` are the current schedules. `upcoming` are the ones posted to take
  * over later, at most one per pool, each from its scheduleStartDate.
+ * `holidays` are the city's, which close every pool on the days it runs
+ * unless its PDF says otherwise.
  */
-export function createPoolCalendar(pools: PoolSchedule[], upcoming: PoolSchedule[] = []): PoolCalendar {
+export function createPoolCalendar(
+	pools: PoolSchedule[],
+	upcoming: PoolSchedule[] = [],
+	holidays: CityHoliday[] = []
+): PoolCalendar {
 	const periods = new Map<string, Period[]>();
 	for (const schedule of [...pools, ...upcoming.filter((s) => s.scheduleStartDate)]) {
 		const list = periods.get(schedule.id) ?? [];
-		list.push({ schedule, weekly: weeklySessions(schedule) });
+		const weekly = weeklySessions(schedule);
+		// a holiday only on days the pool doesn't run, or outside its printed
+		// schedule, closes nothing, and would only add the pool to that day's
+		// notice
+		const days = new Set(weekly.map((s) => s.dayOfWeek));
+		const runs = (date: string) =>
+			days.has(weekdayOf(date)) &&
+			(!schedule.scheduleStartDate || schedule.scheduleStartDate <= date) &&
+			(!schedule.scheduleEndDate || date <= schedule.scheduleEndDate);
+		const own = schedule.scheduledClosures ?? [];
+		const closures = [
+			...own,
+			...holidayClosures(holidays, own).filter((c) => datesBetween(c.startDate, c.endDate).some(runs)),
+		];
+		list.push({ schedule, weekly, closures });
 		periods.set(schedule.id, list);
 	}
 	// a missing start sorts first: the current schedule, running already
@@ -133,8 +156,9 @@ export function createPoolCalendar(pools: PoolSchedule[], upcoming: PoolSchedule
 	}
 
 	function closuresOn(poolId: string, date: string): ClosedReason[] {
-		const pool = periodOn(poolId, date)?.schedule;
-		if (!pool) return [];
+		const period = periodOn(poolId, date);
+		if (!period) return [];
+		const pool = period.schedule;
 		const reasons: ClosedReason[] = [];
 		// a missing date means the schedule runs until the next PDF replaces it
 		if (pool.scheduleStartDate && date < pool.scheduleStartDate) {
@@ -143,7 +167,7 @@ export function createPoolCalendar(pools: PoolSchedule[], upcoming: PoolSchedule
 		if (pool.scheduleEndDate && date > pool.scheduleEndDate) {
 			reasons.push({ kind: "ended", endDate: pool.scheduleEndDate });
 		}
-		for (const closure of scheduledClosuresOn(pool.scheduledClosures, date)) {
+		for (const closure of scheduledClosuresOn(period.closures, date)) {
 			reasons.push({ kind: "scheduled", closure });
 		}
 		// suppressPrograms is the release rules' gate: an alert that isn't
@@ -178,7 +202,7 @@ export function createPoolCalendar(pools: PoolSchedule[], upcoming: PoolSchedule
 		const groups: { startDate: string; endDate: string; reasons: string[]; closures: [string, ScheduledClosure][] }[] = [];
 		for (const [poolId, list] of periods) {
 			for (const period of list) {
-				for (const c of period.schedule.scheduledClosures ?? []) {
+				for (const c of period.closures) {
 					// a schedule's notes only speak for the dates it's in force
 					const days = range.filter((d) => c.startDate <= d && d <= c.endDate && periodOn(poolId, d) === period);
 					if (!days.length) continue;

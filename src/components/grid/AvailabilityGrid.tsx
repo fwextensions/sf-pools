@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { PoolSchedule } from "@/lib/schedule-schema";
+import type { CityHoliday } from "@/lib/city-holidays";
 import PoolAlerts from "@/components/PoolAlerts";
 import { createGridModel } from "@/lib/grid/grid-model";
 import { trackGridChange } from "@/lib/grid/grid-analytics";
@@ -22,9 +23,11 @@ type Props = {
 	/** schedules posted to take over on their start dates */
 	upcoming?: PoolSchedule[];
 	alerts?: AlertsData | null;
+	/** the city's, which close every pool */
+	holidays?: CityHoliday[];
 };
 
-export default function AvailabilityGrid({ all, upcoming = [], alerts }: Props) {
+export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays = [] }: Props) {
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
 	// each weekday column is that day's next date, from today, so a closed
@@ -33,7 +36,7 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts }: Props) 
 	// say why
 	const [week] = useState(() => {
 		const today = pacificToday();
-		const calendar = createPoolCalendar(all, upcoming);
+		const calendar = createPoolCalendar(all, upcoming, holidays);
 		const last = addDays(today, 6);
 		return {
 			today,

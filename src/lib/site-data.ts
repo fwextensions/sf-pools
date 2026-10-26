@@ -2,14 +2,15 @@
 // their paths, their shapes, and what a missing one means. Every page is
 // prerendered, so a schedule or pool list that can't be read fails the build
 // rather than shipping an empty grid. Alerts and upcoming schedules are
-// optional, since the site still works without the facility notices or a
-// schedule posted ahead of its season.
+// optional, since the site still works without the facility notices, a
+// schedule posted ahead of its season or the city's holidays.
 //
 // The scripts that write these files import their types from here.
 import fs from "node:fs/promises";
 import path from "node:path";
 import { AllSchedulesSchema, type PoolSchedule } from "@/lib/schedule-schema";
 import type { Closure } from "@/lib/closures";
+import type { CityHoliday, CityHolidaysData } from "@/lib/city-holidays";
 
 /** one pool in data/pools.json, the list the scrapers start from */
 export type PoolRecord = {
@@ -96,6 +97,7 @@ export type ChangelogEntry = {
 const SCHEDULES_FILE = () => path.join(process.cwd(), "public", "data", "all_schedules.json");
 const UPCOMING_FILE = () => path.join(process.cwd(), "public", "data", "upcoming_schedules.json");
 const ALERTS_FILE = () => path.join(process.cwd(), "public", "data", "alerts.json");
+const HOLIDAYS_FILE = () => path.join(process.cwd(), "public", "data", "city_holidays.json");
 const POOLS_FILE = () => path.join(process.cwd(), "data", "pools.json");
 const CHANGELOG_DIR = () => path.join(process.cwd(), "data", "changelog");
 
@@ -154,6 +156,18 @@ export async function loadAlerts(): Promise<AlertsData | null> {
 		throw error;
 	}
 	return (await readJson(file)) as AlertsData;
+}
+
+/** the city's holidays, none when the file is missing */
+export async function loadCityHolidays(): Promise<CityHoliday[]> {
+	const file = HOLIDAYS_FILE();
+	try {
+		await fs.access(file);
+	} catch (error) {
+		if (isMissing(error)) return [];
+		throw error;
+	}
+	return ((await readJson(file)) as CityHolidaysData).holidays;
 }
 
 /** the pools the scrapers visit; throws when the list can't be read */

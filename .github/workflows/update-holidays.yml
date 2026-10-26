@@ -1,0 +1,51 @@
+name: Update City Holidays
+
+on:
+  schedule:
+    # every day from December through February at 9am PST. The script stops
+    # at once when it already has the year it wants (next year's in
+    # December, this year's after), so the runs only fetch sf.gov until the
+    # city posts the new list
+    - cron: "0 17 * 12,1,2 *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Fetch even when the wanted year is already saved"
+        type: boolean
+        default: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Scrape the holiday list
+        run: npm run scrape-holidays -- --notify ${{ inputs.force && '--force' || '' }}
+        env:
+          PUSHOVER_USER_KEY: ${{ secrets.PUSHOVER_USER_KEY }}
+          PUSHOVER_API_TOKEN: ${{ secrets.PUSHOVER_API_TOKEN }}
+
+      - name: Commit and push changes
+        run: |
+          [ -z "$(git status --porcelain public/data/city_holidays.json)" ] && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/data/city_holidays.json
+          git commit -m "Update city holidays $(date -I)"
+          # the schedule workflow may have pushed since the checkout
+          git pull --rebase
+          git push
