@@ -1,68 +1,78 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { Moon, Sun } from "lucide-react";
 import { THEME_STORAGE_KEY } from "@/lib/theme";
 
-export type ThemeChoice = "system" | "light" | "dark";
-
-// "system" removes the stored pick and data-theme both, so the
-// prefers-color-scheme rules in globals.css decide.
-const STORAGE_KEY = THEME_STORAGE_KEY;
+type Theme = "light" | "dark";
 
 const listeners = new Set<() => void>();
+let systemDark: MediaQueryList | null = null;
+
+function getSystemDark() {
+	systemDark ??= window.matchMedia("(prefers-color-scheme: dark)");
+	return systemDark;
+}
 
 function subscribe(listener: () => void) {
 	listeners.add(listener);
-	return () => listeners.delete(listener);
+	// the system setting can change under an open page, which flips the
+	// theme when the reader hasn't picked one
+	getSystemDark().addEventListener("change", listener);
+	return () => {
+		listeners.delete(listener);
+		getSystemDark().removeEventListener("change", listener);
+	};
 }
 
-function readChoice(): ThemeChoice {
+function systemTheme(): Theme {
+	return getSystemDark().matches ? "dark" : "light";
+}
+
+// the theme on screen: the reader's pick on <html data-theme>, else the system's
+function currentTheme(): Theme {
 	const theme = document.documentElement.dataset.theme;
-	return theme === "light" || theme === "dark" ? theme : "system";
+	return theme === "light" || theme === "dark" ? theme : systemTheme();
 }
 
-function setChoice(choice: ThemeChoice) {
+// Switching to the theme the system already asks for clears the pick rather
+// than storing it, so a reader who flips back is following the system again.
+function setTheme(theme: Theme) {
 	const root = document.documentElement;
+	const follow = theme === systemTheme();
 	try {
-		if (choice === "system") localStorage.removeItem(STORAGE_KEY);
-		else localStorage.setItem(STORAGE_KEY, choice);
+		if (follow) localStorage.removeItem(THEME_STORAGE_KEY);
+		else localStorage.setItem(THEME_STORAGE_KEY, theme);
 	} catch {
 		// private mode: the pick still holds for this page view
 	}
-	if (choice === "system") delete root.dataset.theme;
-	else root.dataset.theme = choice;
+	if (follow) delete root.dataset.theme;
+	else root.dataset.theme = theme;
 	listeners.forEach((listener) => listener());
 }
 
-const OPTIONS: [ThemeChoice, string][] = [
-	["system", "Auto"],
-	["light", "Light"],
-	["dark", "Dark"],
-];
-
+/**
+ * One button that flips between the light and dark themes, showing the
+ * theme it switches to. The server doesn't know the theme, so the icon only
+ * appears once the page hydrates; the button keeps its size meanwhile.
+ */
 export default function ThemePicker() {
-	const choice = useSyncExternalStore(subscribe, readChoice, () => "system" as ThemeChoice);
+	const theme = useSyncExternalStore(subscribe, currentTheme, () => null);
+	const next: Theme = theme === "dark" ? "light" : "dark";
 
 	return (
-		<div role="group" aria-label="Theme" className="flex items-center gap-3">
-			<span className="font-mono text-label font-medium tracking-[.08em] text-ink-2">THEME</span>
-			<div className="flex">
-				{OPTIONS.map(([value, label], i) => (
-					<button
-						key={value}
-						type="button"
-						aria-pressed={choice === value}
-						onClick={() => setChoice(value)}
-						className={`control text-small ${i > 0 ? "-ml-px" : ""} ${
-							choice === value ? "relative z-10 border-ink text-on-ink" : "text-ink"
-						}`}
-						// inline, since the control utility sets its own page background
-						style={choice === value ? { background: "var(--color-ink)" } : undefined}
-					>
-						{label}
-					</button>
-				))}
-			</div>
-		</div>
+		<button
+			type="button"
+			aria-label={`Switch to the ${next} theme`}
+			title={`Switch to the ${next} theme`}
+			onClick={() => setTheme(next)}
+			className="control w-11 flex-none self-start px-0 text-ink"
+		>
+			{theme && (next === "dark" ? (
+				<Moon aria-hidden className="h-4 w-4" />
+			) : (
+				<Sun aria-hidden className="h-4 w-4" />
+			))}
+		</button>
 	);
 }
