@@ -125,9 +125,12 @@ const SHADER_TIME_MAX_S = 3 * 3600;
 
 // How often a running instance reads back a row of what it drew, to catch a
 // GPU that is drawing black without having lost the context (it also checks
-// on the first frame, after a resize, and when the tab comes back). A row
-// whose brightest channel stays under BLANK_MAX_CHANNEL (of 255) counts as
-// black; the darkest water, at night, still has a blue near 80.
+// on the first frame, after a resize, and when the tab comes back). An opaque
+// row whose brightest channel stays under BLANK_MAX_CHANNEL (of 255) counts as
+// black; the darkest water, at night, still has a blue near 80. A row that
+// reads back transparent doesn't count: every pass writes alpha 1, so that
+// means the read itself came back empty, which some GPU and driver setups do,
+// and a transparent canvas shows the placeholder rather than black anyway.
 const HEALTH_CHECK_MS = 10_000;
 const BLANK_MAX_CHANNEL = 8;
 
@@ -226,6 +229,8 @@ export type WaterOptions = {
 	getJsParams?: () => Partial<JsParams>;
 	/** when present, replaces the pointer/scroll handling and idle drips */
 	input?: InputBus;
+	/** false skips the black-frame check (see HEALTH_CHECK_MS) */
+	healthCheck?: boolean;
 	/**
 	 * Called when the instance stops being able to draw the water: the browser
 	 * took the GL context away (iOS does this to a tab left idle or
@@ -556,7 +561,7 @@ export function mountWater(
 			// if it still won't, there is no water to draw.
 			createSimBuffers();
 			if (!simRead || !simWrite) {
-				fail();
+				fail("the GPU would not allocate the simulation buffers");
 				return;
 			}
 		}
@@ -770,11 +775,12 @@ export function mountWater(
 		renderer.draw(displayShader, null, canvas.width, canvas.height);
 
 		const nowReal = performance.now();
-		if (checkPending || nowReal - lastCheckMs > HEALTH_CHECK_MS) {
+		if (opts.healthCheck !== false && (checkPending || nowReal - lastCheckMs > HEALTH_CHECK_MS)) {
 			checkPending = false;
 			lastCheckMs = nowReal;
-			if (renderer.brightestInMiddleRow(canvas.width, canvas.height) < BLANK_MAX_CHANNEL) {
-				fail();
+			const { brightest, alpha } = renderer.middleRowLevels(canvas.width, canvas.height);
+			if (alpha > 0 && brightest < BLANK_MAX_CHANNEL) {
+				fail(`a frame read back black (brightest ${brightest}, alpha ${alpha})`);
 				return;
 			}
 		}
@@ -800,14 +806,20 @@ export function mountWater(
 	// let the owner replace the whole instance. A lost context can't be drawn
 	// into, and restoring it in place would mean rebuilding every program and
 	// target anyway; a GPU drawing black is best given a fresh start too.
-	function fail() {
+	function fail(reason: string) {
 		if (removed || broken) return;
+		// One line in the console, so a header stuck on the placeholder says why.
+		console.warn(`Header water stopped: ${reason}.`);
 		broken = true;
 		looping = false;
 		if (rafId) cancelAnimationFrame(rafId);
 		rafId = 0;
 		canvas.style.opacity = "0";
 		opts.onBroken?.();
+	}
+
+	function handleContextLost() {
+		fail("the browser took the GL context away");
 	}
 
 	function frame(rafTime: number) {
@@ -858,7 +870,7 @@ export function mountWater(
 	function remove() {
 		// dispose() below loses the context on purpose; that isn't news
 		removed = true;
-		canvas.removeEventListener("webglcontextlost", fail);
+		canvas.removeEventListener("webglcontextlost", handleContextLost);
 		looping = false;
 		if (rafId) cancelAnimationFrame(rafId);
 		rafId = 0;
@@ -884,7 +896,7 @@ export function mountWater(
 	window.addEventListener("resize", resize);
 	window.addEventListener("popstate", handleNavigation);
 	document.addEventListener("click", handleNavigation, true);
-	canvas.addEventListener("webglcontextlost", fail);
+	canvas.addEventListener("webglcontextlost", handleContextLost);
 	// One frame regardless of looping — see setLooping.
 	rafId = requestAnimationFrame(frame);
 

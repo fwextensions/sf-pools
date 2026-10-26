@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, jest } from "@jest/globals";
+import { afterEach, beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { headerHeightPx } from "./HeaderPlaceholder";
 import { mountWater, type WaterOptions } from "./water";
 import { QuadRenderer } from "./webgl";
@@ -44,7 +44,7 @@ function setup(opts: WaterOptions = {}) {
 		deleteTarget: jest.fn(),
 		draw: jest.fn<(...args: unknown[]) => void>(),
 		// the darkest water is well above black; a test can make it read black
-		brightestInMiddleRow: jest.fn(() => 80),
+		middleRowLevels: jest.fn(() => ({ brightest: 80, alpha: 255 })),
 		dispose: jest.fn(),
 	};
 	jest.mocked(QuadRenderer.create).mockReturnValue(renderer as unknown as QuadRenderer);
@@ -90,6 +90,10 @@ function setup(opts: WaterOptions = {}) {
 
 	return { water, frame, frames, move, passes, sim, display, canvas, renderer, setViewportWidth };
 }
+
+beforeEach(() => {
+	jest.spyOn(console, "warn").mockImplementation(() => {});
+});
 
 afterEach(() => {
 	jest.restoreAllMocks();
@@ -177,10 +181,10 @@ describe("failure", () => {
 		s.frame(0);
 		expect(s.canvas.style).toMatchObject({ opacity: "1" });
 
-		s.renderer.brightestInMiddleRow.mockReturnValue(0);
+		s.renderer.middleRowLevels.mockReturnValue({ brightest: 0, alpha: 255 });
 		// checked every 10 seconds, not every frame
 		for (let i = 1; i <= 600; i++) s.frame(i * 1000 / 60);
-		expect(s.renderer.brightestInMiddleRow).toHaveBeenCalledTimes(1);
+		expect(s.renderer.middleRowLevels).toHaveBeenCalledTimes(1);
 		expect(onBroken).not.toHaveBeenCalled();
 		s.frame(10_100);
 
@@ -192,14 +196,34 @@ describe("failure", () => {
 		s.water.remove();
 	});
 
+	it("keeps going when the read comes back empty rather than black", () => {
+		const onBroken = jest.fn();
+		const s = setup({ onBroken });
+		s.renderer.middleRowLevels.mockReturnValue({ brightest: 0, alpha: 0 });
+		s.water.setLooping(true);
+		for (let i = 0; i <= 1200; i++) s.frame(i * 1000 / 60);
+		expect(s.renderer.middleRowLevels).toHaveBeenCalledTimes(2);
+		expect(onBroken).not.toHaveBeenCalled();
+		expect(s.canvas.style).toMatchObject({ opacity: "1" });
+		s.water.remove();
+	});
+
+	it("skips the check when asked to", () => {
+		const s = setup({ healthCheck: false });
+		s.water.setLooping(true);
+		for (let i = 0; i <= 1200; i++) s.frame(i * 1000 / 60);
+		expect(s.renderer.middleRowLevels).not.toHaveBeenCalled();
+		s.water.remove();
+	});
+
 	it("checks the first frame after the tab comes back", () => {
 		const s = setup();
 		s.water.setLooping(true);
 		s.frame(0);
 		s.frame(1000 / 60);
-		expect(s.renderer.brightestInMiddleRow).toHaveBeenCalledTimes(1);
+		expect(s.renderer.middleRowLevels).toHaveBeenCalledTimes(1);
 		s.frame(5000);
-		expect(s.renderer.brightestInMiddleRow).toHaveBeenCalledTimes(2);
+		expect(s.renderer.middleRowLevels).toHaveBeenCalledTimes(2);
 		s.water.remove();
 	});
 

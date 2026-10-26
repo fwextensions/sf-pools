@@ -34,7 +34,8 @@ export default function HeaderAnimation()
 		// ?water=off leaves just the CSS placeholder, for comparing the two.
 		// Other comma-separated values preview the effects: day or night
 		// pins the time of day; no-tint switches the water tint off; plain
-		// switches every effect off, which is the water as it was before them.
+		// switches every effect off, which is the water as it was before them;
+		// no-check skips the black-frame check.
 		const flags = (new URLSearchParams(location.search).get("water") ?? "").split(",");
 		if (flags.includes("off")) return;
 		const plain = flags.includes("plain");
@@ -43,6 +44,9 @@ export default function HeaderAnimation()
 			.map(([, name]) => name);
 		const timeOfDay = plain ? "day" : flags.find(f => f === "day" || f === "night");
 		const waterOpts = {
+			// ?water=no-check turns off the black-frame check, for telling a GPU
+			// that draws black from a check that misreads it
+			healthCheck: !flags.includes("no-check"),
 			displaySrc: zeroed.length ? withConstsZeroed(displayFragShader, zeroed) : undefined,
 			timeOfDay,
 		};
@@ -86,7 +90,10 @@ export default function HeaderAnimation()
 		function handleBroken() {
 			water?.remove();
 			water = null;
-			if (performance.now() - mountedAt < REMOUNT_GIVE_UP_MS) return;
+			if (performance.now() - mountedAt < REMOUNT_GIVE_UP_MS) {
+				console.warn("Header water broke again right after mounting; leaving the placeholder.");
+				return;
+			}
 			remountId = requestAnimationFrame(mount);
 		}
 
