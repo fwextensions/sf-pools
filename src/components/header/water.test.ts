@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, jest } from "@jest/globals";
 import { headerHeightPx } from "./HeaderPlaceholder";
-import { mountWater } from "./water";
+import { mountWater, type WaterOptions } from "./water";
 import { QuadRenderer } from "./webgl";
 
 jest.mock("./header-shader.frag", () => "display");
@@ -12,7 +12,7 @@ jest.mock("./webgl", () => ({ QuadRenderer: { create: jest.fn() } }));
  * animation frames, so a test can play out any frame rate and count the passes
  * that actually reach the GPU.
  */
-function setup() {
+function setup(opts: WaterOptions = {}) {
 	let now = 0;
 	let nextId = 1;
 	let viewportWidth = 1440;
@@ -43,6 +43,8 @@ function setup() {
 		createTarget: jest.fn(() => ({ tex: {}, fbo: {} })),
 		deleteTarget: jest.fn(),
 		draw: jest.fn<(...args: unknown[]) => void>(),
+		// the darkest water is well above black; a test can make it read black
+		brightestInMiddleRow: jest.fn(() => 80),
 		dispose: jest.fn(),
 	};
 	jest.mocked(QuadRenderer.create).mockReturnValue(renderer as unknown as QuadRenderer);
@@ -66,6 +68,7 @@ function setup() {
 	// no drips, so the only impulses are the ones a test makes
 	const water = mountWater(host as unknown as HTMLElement, {
 		getJsParams: () => ({ DRIP_AMBIENT_AMP: 0 }),
+		...opts,
 	})!;
 
 	function frame(ms: number) {
@@ -85,7 +88,7 @@ function setup() {
 		viewportWidth = w;
 	}
 
-	return { water, frame, frames, move, passes, sim, display, canvas, setViewportWidth };
+	return { water, frame, frames, move, passes, sim, display, canvas, renderer, setViewportWidth };
 }
 
 afterEach(() => {
@@ -163,5 +166,90 @@ describe("pointer", () => {
 		}
 		expect(amplitudes[1]).toBeCloseTo(amplitudes[0], 6);
 		expect(amplitudes[2]).toBeCloseTo(amplitudes[0], 6);
+	});
+});
+
+describe("failure", () => {
+	it("hides itself and reports it when a frame reads back black", () => {
+		const onBroken = jest.fn();
+		const s = setup({ onBroken });
+		s.water.setLooping(true);
+		s.frame(0);
+		expect(s.canvas.style).toMatchObject({ opacity: "1" });
+
+		s.renderer.brightestInMiddleRow.mockReturnValue(0);
+		// checked every 10 seconds, not every frame
+		for (let i = 1; i <= 600; i++) s.frame(i * 1000 / 60);
+		expect(s.renderer.brightestInMiddleRow).toHaveBeenCalledTimes(1);
+		expect(onBroken).not.toHaveBeenCalled();
+		s.frame(10_100);
+
+		expect(onBroken).toHaveBeenCalledTimes(1);
+		expect(s.canvas.style).toMatchObject({ opacity: "0" });
+		expect(s.frames.size).toBe(0);
+		s.water.setLooping(true);
+		expect(s.frames.size).toBe(0);
+		s.water.remove();
+	});
+
+	it("checks the first frame after the tab comes back", () => {
+		const s = setup();
+		s.water.setLooping(true);
+		s.frame(0);
+		s.frame(1000 / 60);
+		expect(s.renderer.brightestInMiddleRow).toHaveBeenCalledTimes(1);
+		s.frame(5000);
+		expect(s.renderer.brightestInMiddleRow).toHaveBeenCalledTimes(2);
+		s.water.remove();
+	});
+
+	it("reports it when the GPU won't allocate the sim after a resize", () => {
+		const onBroken = jest.fn();
+		const s = setup({ onBroken });
+		s.frame(0);
+		s.renderer.createTarget.mockReturnValue(null as unknown as { tex: object; fbo: object });
+		s.setViewportWidth(800);
+		s.water.resize();
+		s.frame(1000);
+		expect(onBroken).toHaveBeenCalledTimes(1);
+		expect(s.canvas.style).toMatchObject({ opacity: "0" });
+		s.water.remove();
+	});
+});
+
+describe("shader time", () => {
+	function shaderTimes(s: ReturnType<typeof setup>) {
+		return s.display.set1f.mock.calls
+			.filter(([name]) => name === "u_time")
+			.map(([, value]) => value);
+	}
+
+	it("restarts from 0 when the tab comes back after ten minutes of water", () => {
+		const s = setup();
+		s.water.setLooping(true);
+		let ms = 0;
+		// 11 minutes of drawing at 30fps
+		for (; ms <= 11 * 60_000; ms += 1000 / 30) s.frame(ms);
+		expect(shaderTimes(s).at(-1)).toBeCloseTo(11 * 60, 0);
+		// a minute in the background, then back
+		s.frame(ms + 60_000);
+		expect(shaderTimes(s).at(-1)).toBe(0);
+		s.water.remove();
+	});
+
+	it("restarts every few hours however long the tab stays in view", () => {
+		const s = setup();
+		s.water.setLooping(true);
+		let max = 0;
+		for (let ms = 0; ms <= 4 * 3600_000; ms += 1000 / 30) {
+			s.frame(ms);
+			max = Math.max(max, ...shaderTimes(s));
+			// four hours of frames is too many mock calls to keep
+			jest.clearAllMocks();
+		}
+		s.frame(4 * 3600_000 + 1000 / 30);
+		expect(max).toBeLessThanOrEqual(3 * 3600 + 0.1);
+		expect(shaderTimes(s).at(-1)).toBeCloseTo(3600, -1);
+		s.water.remove();
 	});
 });

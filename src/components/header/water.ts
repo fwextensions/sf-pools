@@ -114,6 +114,23 @@ const DRIP_AMP = 0.35;
 // once a minute is smooth enough.
 const SUN_REFRESH_MS = 60_000;
 
+// The shaders get time as a 32-bit float, which a tab left open for days
+// outgrows: past ~1e5 seconds it advances in visible steps, and the trig it
+// feeds is at the mercy of each GPU's handling of huge angles. So the time the
+// shaders see restarts from 0, which jumps the ambient swell to a new phase.
+// It does that when the tab comes back after not drawing for a while, where
+// nobody sees the jump, and otherwise every few hours.
+const SHADER_TIME_REBASE_S = 600;
+const SHADER_TIME_MAX_S = 3 * 3600;
+
+// How often a running instance reads back a row of what it drew, to catch a
+// GPU that is drawing black without having lost the context (it also checks
+// on the first frame, after a resize, and when the tab comes back). A row
+// whose brightest channel stays under BLANK_MAX_CHANNEL (of 255) counts as
+// black; the darkest water, at night, still has a blue near 80.
+const HEALTH_CHECK_MS = 10_000;
+const BLANK_MAX_CHANNEL = 8;
+
 /**
  * Shared input for the tuning harness. Two sims must receive IDENTICAL input or
  * an A/B comparison is meaningless: each canvas only hears about a pointer that
@@ -210,12 +227,15 @@ export type WaterOptions = {
 	/** when present, replaces the pointer/scroll handling and idle drips */
 	input?: InputBus;
 	/**
-	 * Called when the browser takes the GL context away (iOS does this to a
-	 * tab left idle or backgrounded long enough). The canvas then shows
-	 * nothing, so the instance is dead: the caller should remove() it and
-	 * mount a fresh one. Not called for the loss remove() itself causes.
+	 * Called when the instance stops being able to draw the water: the browser
+	 * took the GL context away (iOS does this to a tab left idle or
+	 * backgrounded long enough), the GPU would not allocate the simulation's
+	 * buffers, or a frame read back as black. The instance has already stopped
+	 * and hidden its canvas, so the placeholder shows; the caller should
+	 * remove() it and mount a fresh one. Not called for the loss remove()
+	 * itself causes.
 	 */
-	onContextLost?: () => void;
+	onBroken?: () => void;
 	/**
 	 * A fixed time of day ("day" or "night") instead of San Francisco's
 	 * real sun. The harness and the social preview pin "day".
@@ -373,10 +393,21 @@ export function mountWater(
 	}
 
 	const startMs = performance.now();
+	// Sim time at which the shaders' u_time was last restarted from 0; see
+	// SHADER_TIME_MAX_S.
+	let shaderEpoch = 0;
+	// Set when the next drawn frame should be read back; see HEALTH_CHECK_MS.
+	let checkPending = true;
+	let lastCheckMs = -Infinity;
 
 	function createSimBuffers() {
 		renderer.deleteTarget(simRead);
 		renderer.deleteTarget(simWrite);
+		simRead = null;
+		simWrite = null;
+		// A minimized window can report a zero width; there is nothing to
+		// simulate until it comes back.
+		if (!width || !height) return;
 
 		const simWidth = Math.min(
 			SIM_MAX_WIDTH,
@@ -519,13 +550,28 @@ export function mountWater(
 	// --- the frame -----------------------------------------------------------
 
 	function draw() {
-		if (!simRead || !simWrite) return;
+		if (!width || !height) return;
+		if (!simRead || !simWrite) {
+			// The GPU refused the buffers at the last resize. Try once more, and
+			// if it still won't, there is no water to draw.
+			createSimBuffers();
+			if (!simRead || !simWrite) {
+				fail();
+				return;
+			}
+		}
 		const d = density;
 		// One frame of simulated time. `stalled` means the gap since the last
 		// frame was too long to be one — the tab was backgrounded, or the device
 		// could not keep up — so anything measured as a per-frame difference
 		// against the outside world is stale rather than a real change.
 		const { simTime: time, stalled } = advanceSimClock(simClock, nowSeconds());
+		if (stalled) checkPending = true;
+		if (time - shaderEpoch > SHADER_TIME_MAX_S ||
+			(stalled && time - shaderEpoch > SHADER_TIME_REBASE_S)) {
+			shaderEpoch = time;
+		}
+		const shaderTime = time - shaderEpoch;
 		// JS-side tunables. Production passes nothing and gets the constants.
 		const js: JsParams = opts.getJsParams
 			? { ...JS_PARAM_DEFAULTS, ...opts.getJsParams() }
@@ -689,7 +735,7 @@ export function mountWater(
 		simShader.set2f("u_lineDir", lineDir[0], lineDir[1]);
 		simShader.set1f("u_lineOffset", lineOffset);
 		simShader.set1f("u_lineRadius", js.SWELL_RADIUS);
-		simShader.set1f("u_time", time);
+		simShader.set1f("u_time", shaderTime);
 		// wave speed in tiles per second, not CSS px: see u_speedScale
 		const tileScale = tilePx() / TILE_MAX_PX;
 		simShader.set1f("u_speedScale", tileScale * tileScale);
@@ -709,7 +755,7 @@ export function mountWater(
 			for (const k in tunables) displayShader.set1f(k, tunables[k]);
 		}
 		displayShader.set2f("u_resolution", width * d, height * d);
-		displayShader.set1f("u_time", time);
+		displayShader.set1f("u_time", shaderTime);
 		displayShader.setTexture("u_water", simRead.tex, 0);
 		displayShader.set2f("u_waterTexel", simTexel[0], simTexel[1]);
 		displayShader.set2f("u_bandFade", bandFade[0], bandFade[1]);
@@ -722,6 +768,16 @@ export function mountWater(
 			tilePx() * d
 		);
 		renderer.draw(displayShader, null, canvas.width, canvas.height);
+
+		const nowReal = performance.now();
+		if (checkPending || nowReal - lastCheckMs > HEALTH_CHECK_MS) {
+			checkPending = false;
+			lastCheckMs = nowReal;
+			if (renderer.brightestInMiddleRow(canvas.width, canvas.height) < BLANK_MAX_CHANNEL) {
+				fail();
+				return;
+			}
+		}
 
 		if (firstFrame) {
 			firstFrame = false;
@@ -738,17 +794,20 @@ export function mountWater(
 	let needsDraw = true;
 	const pacer = createFramePacer();
 	let removed = false;
+	let broken = false;
 
-	// A lost context draws nothing, and Safari shows the canvas as transparent,
-	// so the placeholder underneath is all that's left. Stop drawing into it and
-	// let the owner replace the whole instance; restoring this context in place
-	// would mean rebuilding every program and target anyway.
-	function handleContextLost() {
-		if (removed) return;
+	// Stop drawing, hide the canvas so the placeholder underneath shows, and
+	// let the owner replace the whole instance. A lost context can't be drawn
+	// into, and restoring it in place would mean rebuilding every program and
+	// target anyway; a GPU drawing black is best given a fresh start too.
+	function fail() {
+		if (removed || broken) return;
+		broken = true;
 		looping = false;
 		if (rafId) cancelAnimationFrame(rafId);
 		rafId = 0;
-		opts.onContextLost?.();
+		canvas.style.opacity = "0";
+		opts.onBroken?.();
 	}
 
 	function frame(rafTime: number) {
@@ -769,6 +828,7 @@ export function mountWater(
 	}
 
 	function setLooping(on: boolean) {
+		if (broken) return;
 		looping = on;
 		if (on) {
 			if (!rafId) rafId = requestAnimationFrame(frame);
@@ -786,18 +846,19 @@ export function mountWater(
 		// the water mid-slosh. Only a width change matters to a
 		// fixed-height canvas.
 		const w = canvasWidth();
-		if (w === width) return;
+		if (broken || w === width) return;
 		setSize(w);
 		// Resizing clears the canvas. A running loop repaints it next frame
 		// anyway; a stopped one would leave the placeholder showing.
 		needsDraw = true;
+		checkPending = true;
 		if (!rafId) rafId = requestAnimationFrame(frame);
 	}
 
 	function remove() {
 		// dispose() below loses the context on purpose; that isn't news
 		removed = true;
-		canvas.removeEventListener("webglcontextlost", handleContextLost);
+		canvas.removeEventListener("webglcontextlost", fail);
 		looping = false;
 		if (rafId) cancelAnimationFrame(rafId);
 		rafId = 0;
@@ -823,7 +884,7 @@ export function mountWater(
 	window.addEventListener("resize", resize);
 	window.addEventListener("popstate", handleNavigation);
 	document.addEventListener("click", handleNavigation, true);
-	canvas.addEventListener("webglcontextlost", handleContextLost);
+	canvas.addEventListener("webglcontextlost", fail);
 	// One frame regardless of looping — see setLooping.
 	rafId = requestAnimationFrame(frame);
 

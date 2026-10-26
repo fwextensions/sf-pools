@@ -29,7 +29,11 @@ const QUAD_VERT = `
 `;
 
 const GL_OPTIONS: WebGLContextAttributes = {
-	alpha: false, // opaque: it covers whatever it is stacked over
+	// Every pass writes alpha 1, so the canvas looks opaque anyway. An opaque
+	// (alpha: false) canvas shows solid black whenever its buffer holds no
+	// frame (after a resize that no draw followed, say); with alpha, it shows
+	// whatever it is stacked over, which for the header is the CSS placeholder.
+	alpha: true,
 	antialias: false, // a full-screen quad has no edges to smooth
 	depth: false,
 	stencil: false,
@@ -265,6 +269,26 @@ export class QuadRenderer {
 		gl.enableVertexAttribArray(prog.aPosition);
 		gl.vertexAttribPointer(prog.aPosition, 2, gl.FLOAT, false, 0, 0);
 		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+	}
+
+	/**
+	 * The brightest color channel (0-255) along the middle row of the frame
+	 * just drawn to the canvas, which is 0 for a black or empty frame, and for
+	 * a lost context. Call it right after drawing, before yielding: without
+	 * preserveDrawingBuffer the canvas buffer is only readable until the
+	 * browser composites it. Reading pixels makes the CPU wait for the GPU, so
+	 * call it now and then, not every frame.
+	 */
+	brightestInMiddleRow(w: number, h: number) {
+		const gl = this.gl;
+		const row = new Uint8Array(w * 4);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		gl.readPixels(0, Math.floor(h / 2), w, 1, gl.RGBA, gl.UNSIGNED_BYTE, row);
+		let brightest = 0;
+		for (let i = 0; i < row.length; i += 4) {
+			brightest = Math.max(brightest, row[i], row[i + 1], row[i + 2]);
+		}
+		return brightest;
 	}
 
 	dispose() {
