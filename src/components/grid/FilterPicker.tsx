@@ -1,6 +1,7 @@
 "use client";
 
 import { POOL_TOKENS } from "@/lib/pool-tokens";
+import PoolChip from "@/components/PoolChip";
 import { tagLabel } from "@/lib/program-taxonomy";
 import { Undo2 } from "lucide-react";
 import { Chevron } from "@/components/icons";
@@ -114,6 +115,38 @@ export function PoolRows({ model, filters }: { model: GridModel; filters: Filter
 			</label>
 		);
 	})}</>;
+}
+
+// the pool picker from 560px up: one row of chips over the grid, which also
+// serves as its legend. Each is a toggle with a checkbox square drawn like
+// the program ones; once any pool is picked the others fade, as their
+// blocks do in the grid
+export function PoolToggles({ model, filters }: { model: GridModel; filters: FilterView }) {
+	const { poolSet } = filters.filter;
+	const selectedPools = filters.pools;
+	return (
+		<div className="flex flex-wrap items-center gap-x-3.5 gap-y-2">
+			<span className="font-mono text-label font-semibold tracking-[.08em] text-ink-2">POOLS</span>
+			{POOL_TOKENS.map((token) => {
+				const selected = selectedPools.includes(token.id);
+				const active = !poolSet || poolSet.has(token.id);
+				return (
+					<button
+						key={token.id}
+						type="button"
+						aria-pressed={selected}
+						aria-label={token.fullName}
+						onClick={() => model.togglePool(token.id)}
+						className="flex cursor-pointer items-center gap-1.5 py-1"
+						style={{ opacity: active ? 1 : 0.45 }}
+					>
+						<span aria-hidden className={`picker-checkbox ${selected ? "picker-checkbox-on" : ""}`} />
+						<PoolChip token={token} />
+					</button>
+				);
+			})}
+		</div>
+	);
 }
 
 // compact is for the sidebar, where it sits beside the PROGRAMS label and
