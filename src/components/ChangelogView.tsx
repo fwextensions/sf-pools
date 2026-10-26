@@ -19,8 +19,8 @@ const SHOWN_WHEN_FOLDED = 8;
 
 const TAGS: Record<ChangeKind, { label: string; className: string }> = {
 	moved: { label: "MOVED", className: "bg-tint text-ink-2" },
-	added: { label: "NEW", className: "bg-[#e3f1f7] text-[#135e7a]" },
-	removed: { label: "DROPPED", className: "bg-[#f8e8e8] text-[#8a2a2a]" },
+	added: { label: "NEW", className: "bg-added-tint text-added" },
+	removed: { label: "DROPPED", className: "bg-removed-tint text-removed" },
 };
 
 function plural(count: number, one: string, many = `${one}s`): string {
@@ -163,7 +163,7 @@ function UpdateList({ updates, current }: { updates: ChangelogSummary[]; current
 							{plural(update.totalChanges, "change")} at {plural(update.poolsChanged, "pool")}
 						</span>
 						{update.newSeason && update.season && (
-							<span className="tag self-start bg-[#e3f1f7] text-[#135e7a]">
+							<span className="tag self-start bg-added-tint text-added">
 								NEW SEASON: {update.season.toUpperCase()}
 							</span>
 						)}

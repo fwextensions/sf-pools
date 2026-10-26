@@ -213,7 +213,7 @@ function WeekTimeline({
 			<div
 				aria-hidden
 				style={{ gridRow: 1, gridColumn: "1 / -1", top: "calc(var(--site-sticky-h) + var(--schedule-day-row-top))" }}
-				className="sticky z-[3] bg-white"
+				className="sticky z-[3] bg-page"
 			/>
 			{DAYS.map((day, i) => (
 				<div
@@ -223,7 +223,7 @@ function WeekTimeline({
 					// itself, not a margin above the grid: a margin is outside the
 					// sticky box, so it collapses the moment the row pins and the
 					// sessions scroll up through the space it was holding
-					className="sticky z-[4] bg-white pt-3 pb-1 text-center font-mono text-label font-semibold tracking-[.08em] text-ink-2"
+					className="sticky z-[4] bg-page pt-3 pb-1 text-center font-mono text-label font-semibold tracking-[.08em] text-ink-2"
 				>
 					{day.slice(0, 3).toUpperCase()}
 				</div>
@@ -386,7 +386,7 @@ export default function PoolScheduleSection({ pool, token, label, href }: Props)
 				// the hairline is drawn outside the box so it reads as the
 				// pinned bar's edge over the sessions passing under it,
 				// without adding a rule between the name and the meta line
-				className="sticky top-[calc(var(--site-sticky-h)+var(--schedule-nav-h))] z-[5] border-t-[3px] bg-white pt-2.5 pb-2 shadow-[0_1px_0_var(--color-line)]"
+				className="sticky top-[calc(var(--site-sticky-h)+var(--schedule-nav-h))] z-[5] border-t-[3px] bg-page pt-2.5 pb-2 shadow-[0_1px_0_var(--color-line)]"
 				style={{ borderColor: color }}
 			>
 				<div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">

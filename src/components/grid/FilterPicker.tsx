@@ -126,7 +126,7 @@ export function ClearButton({ model, compact = false }: { model: GridModel; comp
 			onClick={() => model.clearFilters("all")}
 			className={
 				compact
-					? "cursor-pointer border border-line-strong bg-white px-2 py-px font-mono text-label font-medium leading-none text-ink-2"
+					? "cursor-pointer border border-line-strong bg-page px-2 py-px font-mono text-label font-medium leading-none text-ink-2"
 					: "control font-mono text-small font-medium text-ink-2"
 			}
 		>
