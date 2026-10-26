@@ -41,6 +41,8 @@ export default function RootLayout({
 			<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 			<meta name="apple-mobile-web-app-title" content="SF Pools" />
 			<link rel="manifest" href="/site.webmanifest" />
+			{/* where agents find the site described for them, as llmstxt.org proposes */}
+			<link rel="describedby" href="/llms.txt" />
 		</head>
 		<body className={`${chivo.variable} ${chivoMono.variable} min-h-screen bg-white text-ink antialiased`}>
 			{children}
