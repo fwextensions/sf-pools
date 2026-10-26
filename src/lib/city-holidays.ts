@@ -90,35 +90,18 @@ export function hasYear(holidays: CityHoliday[], year: string): boolean {
 	return holidays.some((h) => h.date.startsWith(year));
 }
 
-function addDay(date: string, days = 1): string {
+function nextDay(date: string): string {
 	const d = new Date(`${date}T00:00:00Z`);
-	d.setUTCDate(d.getUTCDate() + days);
+	d.setUTCDate(d.getUTCDate() + 1);
 	return d.toISOString().slice(0, 10);
-}
-
-/**
- * The dates pools close, which are the holidays themselves: the city gives
- * its staff the Friday before a Saturday holiday or the Monday after a
- * Sunday one, but every pool's summer 2026 PDF closes on July 4, not the
- * city's observed July 3. A page that lists only the observed day still
- * closes the pools on the weekend day next to it.
- */
-export function poolHolidays(holidays: CityHoliday[]): CityHoliday[] {
-	const out: CityHoliday[] = [];
-	for (const h of holidays) {
-		const weekday = new Date(`${h.date}T00:00:00Z`).getUTCDay();
-		const date = !h.observed ? h.date : weekday === 5 ? addDay(h.date) : weekday === 1 ? addDay(h.date, -1) : h.date;
-		if (!out.some((o) => o.date === date && o.name === h.name)) out.push({ ...h, date, observed: false });
-	}
-	return out.sort((a, b) => a.date.localeCompare(b.date));
 }
 
 function daysApart(a: string, b: string): number {
 	return Math.abs(Date.parse(`${a}T00:00:00Z`) - Date.parse(`${b}T00:00:00Z`)) / 86_400_000;
 }
 
-// how far from a holiday a PDF's closure for it can be and still count, for
-// a PDF that dates a holiday its own way
+// how far from a holiday a PDF's closure for it can be and still count, so
+// a PDF that closes on July 4 isn't also closed on the city's observed July 3
 const SAME_HOLIDAY_DAYS = 3;
 
 const FILLER = new Set(["a", "the", "of", "and", "day", "after", "observed", "holiday", "closed", "closure", "pool"]);
@@ -128,12 +111,15 @@ function words(text: string): string[] {
 }
 
 /**
- * The city's holidays as all-day closures for one pool, on the holidays'
- * own dates, for the dates its PDF says nothing about. A PDF that closes the
- * pool on the date, for any reason or hours, has the last word on it, as
- * does one that names the same holiday a few days off. Back-to-back
- * holidays that share a word, like Thanksgiving and the day after, are one
- * closure; two on the same date take the first one's name.
+ * The city's holidays as all-day closures for one pool, for the dates its
+ * PDF says nothing about. A PDF that closes the pool on the date, for any
+ * reason or hours, has the last word on it, as does one that names the same
+ * holiday a few days off: every summer 2026 PDF closes on July 4 and not the
+ * city's observed July 3. Without a PDF to say, every date the city lists
+ * closes the pools, the observed day and the holiday alike, since there's no
+ * telling which of them the pools will keep. Back-to-back holidays that
+ * share a word, like Thanksgiving and the day after, are one closure; two on
+ * the same date take the first one's name.
  */
 export function holidayClosures(holidays: CityHoliday[], pdfClosures: ScheduledClosure[] | null | undefined): ScheduledClosure[] {
 	const own = pdfClosures ?? [];
@@ -146,11 +132,11 @@ export function holidayClosures(holidays: CityHoliday[], pdfClosures: ScheduledC
 		});
 
 	const out: ScheduledClosure[] = [];
-	for (const h of poolHolidays(holidays)) {
+	for (const h of [...holidays].sort((a, b) => a.date.localeCompare(b.date))) {
 		if (covered(h)) continue;
 		const last = out[out.length - 1];
 		if (last && last.endDate === h.date) continue;
-		if (last && addDay(last.endDate) === h.date && words(h.name).some((w) => words(last.reason ?? "").includes(w))) {
+		if (last && nextDay(last.endDate) === h.date && words(h.name).some((w) => words(last.reason ?? "").includes(w))) {
 			last.endDate = h.date;
 			continue;
 		}
