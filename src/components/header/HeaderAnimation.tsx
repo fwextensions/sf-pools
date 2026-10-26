@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { HeaderPlaceholder, HEADER_HEIGHT } from "./HeaderPlaceholder";
+import "./header-placeholder.css";
 import displayFragShader from "./header-shader.frag";
 import { mountWater, type Water } from "./water";
 
