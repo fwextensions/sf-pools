@@ -42,9 +42,9 @@ export function MobileChips({
 					onClick={() => onOpenPanel(openPanel === "programs" ? null : "programs")}
 					className="control min-w-0 px-2.5 text-body font-medium max-[391px]:gap-1 max-[391px]:px-2 max-[391px]:text-small"
 					style={{
-						background: selectedTags.length ? "var(--color-ink)" : "#fff",
+						background: selectedTags.length ? "var(--color-ink)" : "var(--color-page)",
 						borderColor: selectedTags.length ? "var(--color-ink)" : undefined,
-						color: selectedTags.length ? "#fff" : "var(--color-ink)",
+						color: selectedTags.length ? "var(--color-on-ink)" : "var(--color-ink)",
 					}}
 				>
 					<span className="truncate">Programs:</span>
@@ -56,9 +56,9 @@ export function MobileChips({
 					onClick={() => onOpenPanel(openPanel === "pools" ? null : "pools")}
 					className="control min-w-0 px-2.5 text-body font-medium max-[391px]:gap-1 max-[391px]:px-2 max-[391px]:text-small"
 					style={{
-						background: selectedPools.length ? "var(--color-ink)" : "#fff",
+						background: selectedPools.length ? "var(--color-ink)" : "var(--color-page)",
 						borderColor: selectedPools.length ? "var(--color-ink)" : undefined,
-						color: selectedPools.length ? "#fff" : "var(--color-ink)",
+						color: selectedPools.length ? "var(--color-on-ink)" : "var(--color-ink)",
 					}}
 				>
 					<span className="truncate">Pools:</span>
@@ -77,9 +77,9 @@ export function MobileChips({
 					onClick={onToggleFocus}
 					className="control w-11 flex-none px-0"
 					style={{
-						background: focusMode ? "var(--color-ink)" : "#fff",
+						background: focusMode ? "var(--color-ink)" : "var(--color-page)",
 						borderColor: focusMode ? "var(--color-ink)" : undefined,
-						color: focusMode ? "#fff" : "var(--color-ink)",
+						color: focusMode ? "var(--color-on-ink)" : "var(--color-ink)",
 					}}
 				>
 					{focusMode ? (

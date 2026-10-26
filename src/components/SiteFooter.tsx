@@ -2,6 +2,7 @@ import Link from "next/link";
 import { formatShortDate, listChangelogs } from "@/lib/changelog-data";
 import { ExternalLinkIcon } from "@/components/icons";
 import { loadAlerts } from "@/lib/site-data";
+import ThemePicker from "@/components/ThemePicker";
 
 const REC_PARK_URL = "https://sfrecpark.org";
 const GITHUB_URL = "https://github.com/fwextensions/sf-pools";
@@ -34,6 +35,7 @@ export default async function SiteFooter() {
 						&amp; Parks publishes. This is an independent project, not a city site. Check the official
 						page before you go.
 					</p>
+					<ThemePicker />
 				</div>
 				<div className="flex flex-col border-t border-line min-[900px]:contents">
 					<nav aria-label="This site" className="flex flex-col min-[900px]:gap-3">

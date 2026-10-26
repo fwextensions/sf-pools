@@ -78,7 +78,7 @@ export default async function SchedulesPage() {
 					    legend calls these pools. */}
 					<nav
 						aria-label="Jump to a pool"
-						className="sticky top-[var(--site-sticky-h)] z-10 grid h-[var(--schedule-nav-h)] grid-cols-5 content-center gap-0.5 overflow-hidden border-b border-line bg-white min-[900px]:flex min-[900px]:items-center min-[900px]:gap-1"
+						className="sticky top-[var(--site-sticky-h)] z-10 grid h-[var(--schedule-nav-h)] grid-cols-5 content-center gap-0.5 overflow-hidden border-b border-line bg-page min-[900px]:flex min-[900px]:items-center min-[900px]:gap-1"
 					>
 						{pools.map(({ pool, token }) => {
 							const label = token?.name ?? pool.shortName ?? toTitleCase(pool.name);
@@ -94,7 +94,7 @@ export default async function SchedulesPage() {
 									title={label}
 									// a grid cell on a phone, so five chips share the width
 									// evenly; from 900px up each chip sizes to its own label
-									className={`pool-jump-chip flex min-w-0 items-center gap-1 border border-line bg-white py-1 pl-1 pr-0.5 min-[900px]:grow-0 min-[900px]:basis-auto min-[900px]:gap-1.5 min-[900px]:pl-1 min-[900px]:pr-2 ${shrink}`}
+									className={`pool-jump-chip flex min-w-0 items-center gap-1 border border-line bg-page py-1 pl-1 pr-0.5 min-[900px]:grow-0 min-[900px]:basis-auto min-[900px]:gap-1.5 min-[900px]:pl-1 min-[900px]:pr-2 ${shrink}`}
 									style={{ "--pool-color": token?.color ?? "var(--color-ink-2)" } as CSSProperties}
 								>
 									{/* the code chip is the legend the grid and the section

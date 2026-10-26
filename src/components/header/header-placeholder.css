@@ -154,3 +154,27 @@
 	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 5'%3E%3Cpath d='M0 0h3v1h-3zM4 0h3v1h-3zM10 0h3v1h-3zM14 0h3v1h-3zM18 0h3v1h-3zM22 0h1v1h-1zM26 0h3v1h-3zM0 1h1v1h-1zM4 1h1v1h-1zM10 1h1v1h-1zM12 1h1v1h-1zM14 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM20 1h1v1h-1zM22 1h1v1h-1zM26 1h1v1h-1zM0 2h3v1h-3zM4 2h3v1h-3zM10 2h3v1h-3zM14 2h1v1h-1zM16 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM22 2h1v1h-1zM26 2h3v1h-3zM2 3h1v1h-1zM4 3h1v1h-1zM10 3h1v1h-1zM14 3h1v1h-1zM16 3h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM22 3h1v1h-1zM28 3h1v1h-1zM0 4h3v1h-3zM4 4h1v1h-1zM10 4h1v1h-1zM14 4h3v1h-3zM18 4h3v1h-3zM22 4h3v1h-3zM26 4h3v1h-3z'/%3E%3C/svg%3E");
 	mask-size: 100% 100%;
 }
+
+/* The night water, for the dark theme (globals.css sets --header-night to 1
+   there). The shader dims the scene to a deeper blue, brightened around
+   lamps on the two long walls about every 2.4 header heights, the far
+   wall's starting at the left edge and the near wall's between them. On
+   screen the night averages about (0.71, 0.87, 0.94) of the day, darkest
+   between the lamps, so a multiply layer over the tiles and the text dims
+   to a little under that and lifts back to none at each lamp. The lamp
+   period is 2.4 x 9 rows; on phones, where the header is fewer rows, the
+   lamps sit a little further apart than the shader's. */
+.header-placeholder::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	opacity: var(--header-night, 0);
+	mix-blend-mode: multiply;
+	background-color: rgb(140 190 225);
+	background-image:
+		radial-gradient(calc(5 * var(--tile)) calc(4 * var(--tile)) at 0 0, #fff, rgb(255 255 255 / 0.4) 50%, transparent),
+		radial-gradient(calc(5 * var(--tile)) calc(4 * var(--tile)) at 100% 0, #fff, rgb(255 255 255 / 0.4) 50%, transparent),
+		radial-gradient(calc(5 * var(--tile)) calc(4 * var(--tile)) at 50% 100%, #fff, rgb(255 255 255 / 0.4) 50%, transparent);
+	background-size: calc(21.6 * var(--tile)) 100%;
+	background-position: left top;
+}

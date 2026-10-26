@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Chivo, Chivo_Mono } from "next/font/google";
 import { SITE_URL } from "@/lib/site-url";
+import { THEME_SCRIPT } from "@/lib/theme";
 
 const chivo = Chivo({
 	subsets: ["latin"],
@@ -33,8 +34,11 @@ export default function RootLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<html lang="en" className="h-full">
+		// the head script may set data-theme before React hydrates
+		<html lang="en" className="h-full" suppressHydrationWarning>
 		<head>
+			{/* before anything paints, so a reader who picked a theme never sees the other flash */}
+			<script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
 			<link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
 			<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 			<link rel="shortcut icon" href="/favicon.ico" />
@@ -44,7 +48,7 @@ export default function RootLayout({
 			{/* where agents find the site described for them, as llmstxt.org proposes */}
 			<link rel="describedby" href="/llms.txt" />
 		</head>
-		<body className={`${chivo.variable} ${chivoMono.variable} min-h-screen bg-white text-ink antialiased`}>
+		<body className={`${chivo.variable} ${chivoMono.variable} min-h-screen bg-page text-ink antialiased`}>
 			{children}
 		</body>
 		</html>

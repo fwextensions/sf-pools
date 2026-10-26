@@ -244,7 +244,7 @@ function ModeSwitch({ mode, onChange }: { mode: Mode; onChange: (mode: Mode) => 
 					aria-pressed={mode === value}
 					onClick={() => onChange(value)}
 					className={`control flex-1 text-small min-[900px]:flex-none ${i > 0 ? "-ml-px" : ""} ${
-						mode === value ? "relative z-10 border-ink text-white" : "text-ink"
+						mode === value ? "relative z-10 border-ink text-on-ink" : "text-ink"
 					}`}
 					// inline, since the control utility sets its own white background
 					style={mode === value ? { background: "var(--color-ink)" } : undefined}

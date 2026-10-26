@@ -7,6 +7,11 @@
 /* The design tokens. Colors and type sizes in components go through these
    rather than hex or px values, so a change here reaches every page. */
 @theme static {
+	/* the page itself, and anything that sits flush on it (sticky bars,
+	   controls, popovers): white in the light theme */
+	--color-page: #fff;
+	/* text and glyphs on an ink fill (a pressed toggle, a ticked checkbox) */
+	--color-on-ink: #fff;
 	--color-ink: #0e2733;
 	/* all secondary text, labels, meta, counts */
 	--color-ink-2: #4f6672;
@@ -24,6 +29,13 @@
 	/* the selected cell's row and column on the week grid. Neutral, so the
 	   gaps in a schedule don't show a colour that could pass for another pool */
 	--color-band: #e6ebee;
+	/* the changes page's NEW and DROPPED tags */
+	--color-added-tint: #e3f1f7;
+	--color-added: #135e7a;
+	--color-removed-tint: #f8e8e8;
+	--color-removed: #8a2a2a;
+	/* the one amber on the site: the grid's selected cell */
+	--color-selection: #f0a202;
 	/* 28 / 20 / 15 / 13px at the desktop root size */
 	--text-title: 1.75rem;
 	--text-heading: 1.25rem;
@@ -123,7 +135,7 @@
 	min-height: 36px;
 	padding-inline: 12px;
 	border: 1px solid var(--color-line-strong);
-	background: #fff;
+	background: var(--color-page);
 	cursor: pointer;
 
 	@media (max-width: 899px) {
@@ -134,6 +146,57 @@
 	@media (max-width: 899px) and (max-height: 500px) {
 		min-height: 36px;
 	}
+}
+
+/* Dark theme: the same token names, so components never branch on the
+   theme. It follows the system setting unless the reader picked a theme,
+   which the head script in the root layout writes to <html data-theme>
+   before first paint. Pool colors don't change: they all clear 3:1 against
+   the dark cells, most by more than they do against the light ones. */
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) {
+		color-scheme: dark;
+		--color-page: #0c1a21;
+		--color-on-ink: #0c1a21;
+		--color-ink: #e4edf1;
+		--color-ink-2: #9db2bc;
+		--color-line-strong: #3a515c;
+		--color-line: #22343d;
+		--color-tint: #13232b;
+		--color-alert-tint: #2e1a17;
+		--color-alert: #f08f78;
+		--color-band: #22363f;
+		--color-added-tint: #12303c;
+		--color-added: #8fd0ea;
+		--color-removed-tint: #331a1a;
+		--color-removed: #f0a0a0;
+		--header-night: 1;
+		/* lanes faded toward a dark cell go muddy sooner than toward a light one */
+		--grid-fade: 0.55;
+		--grid-band-fade: 0.75;
+	}
+}
+
+:root[data-theme="dark"] {
+	color-scheme: dark;
+	--color-page: #0c1a21;
+	--color-on-ink: #0c1a21;
+	--color-ink: #e4edf1;
+	--color-ink-2: #9db2bc;
+	--color-line-strong: #3a515c;
+	--color-line: #22343d;
+	--color-tint: #13232b;
+	--color-alert-tint: #2e1a17;
+	--color-alert: #f08f78;
+	--color-band: #22363f;
+	--color-added-tint: #12303c;
+	--color-added: #8fd0ea;
+	--color-removed-tint: #331a1a;
+	--color-removed: #f0a0a0;
+	--header-night: 1;
+	/* lanes faded toward a dark cell go muddy sooner than toward a light one */
+	--grid-fade: 0.55;
+	--grid-band-fade: 0.75;
 }
 
 /* base theme tokens */
@@ -154,6 +217,10 @@
 	--site-nav-text-mid: calc(0.75rem + 0.625rem);
 	/* rows of water left showing once the header pins, with the tabs over them */
 	--site-strip-rows: 4;
+	/* how far the grid's lanes fade once a cell is picked: the rest of the
+	   grid, then the picked cell's row and column */
+	--grid-fade: 0.4;
+	--grid-band-fade: 0.6;
 }
 
 /* From about 560px wide (a phone on its side, a tablet upright) the tiles
@@ -333,13 +400,13 @@ input[type="radio"] {
 }
 
 [data-has-selection] .grid-cell {
-	--dim: 0.4;
+	--dim: var(--grid-fade);
 }
 
 /* The band is a grey wash run across the selected row and column so the day
    and hour can be traced back to the axes */
 [data-has-selection] .grid-cell[data-band] {
-	--dim: 0.6;
+	--dim: var(--grid-band-fade);
 	background: var(--color-band);
 }
 
@@ -351,7 +418,7 @@ input[type="radio"] {
 	--dim: 1;
 	/* back to the plain cell colour, so the ring frames it against the band */
 	background: var(--color-tint);
-	outline: 4px solid #f0a202;
+	outline: 4px solid var(--color-selection);
 	/* the ring sits outside the cell, past a 1px white gutter (.grid-ring),
 	   so it never covers the first and last lanes. It overlaps the
 	   neighbouring cells, which would paint over it without the z-index */
@@ -361,7 +428,7 @@ input[type="radio"] {
 
 .grid-ring {
 	display: none;
-	box-shadow: inset 0 0 0 1px #fff;
+	box-shadow: inset 0 0 0 1px var(--color-page);
 }
 
 .grid-cell[data-selected] > .grid-ring {
@@ -397,7 +464,7 @@ input[type="radio"] {
 	flex: none;
 	border: 1.5px solid var(--color-ink-2);
 	border-radius: 0;
-	background: #fff;
+	background: var(--color-page);
 	cursor: pointer;
 }
 

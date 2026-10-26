@@ -42,7 +42,7 @@ export default function SiteError({
 				<button
 					type="button"
 					onClick={reset}
-					className="control border-ink bg-ink font-mono text-small font-semibold tracking-[.08em] text-white"
+					className="control border-ink bg-ink font-mono text-small font-semibold tracking-[.08em] text-on-ink"
 				>
 					TRY AGAIN
 				</button>

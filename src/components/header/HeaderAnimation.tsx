@@ -5,6 +5,7 @@ import { HeaderPlaceholder, HEADER_HEIGHT } from "./HeaderPlaceholder";
 import "./header-placeholder.css";
 import displayFragShader from "./header-shader.frag";
 import { mountWater, type Water } from "./water";
+import { isDarkTheme } from "@/lib/theme";
 
 // Shader constants that ?water=no-<name> switches off, for comparing each
 // effect against the water without it. ?water=plain switches off all of them.
@@ -42,9 +43,12 @@ export default function HeaderAnimation()
 			.filter(([flag]) => plain || flags.includes(`no-${flag}`))
 			.map(([, name]) => name);
 		const timeOfDay = plain ? "day" : flags.find(f => f === "day" || f === "night");
+		// The dark theme is the pool after hours: the night water whatever the
+		// sun is doing, read each frame so a theme switch shows at once.
 		const waterOpts = {
 			displaySrc: zeroed.length ? withConstsZeroed(displayFragShader, zeroed) : undefined,
 			timeOfDay,
+			getEffects: () => ({ timeOfDay: timeOfDay ?? (isDarkTheme() ? "night" : undefined) }),
 		};
 
 		// Run the draw loop only while it can be seen. The site layout pins the
