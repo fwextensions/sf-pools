@@ -266,6 +266,13 @@ body {
 	height: 100%;
 }
 
+/* The page color on the root too, not just the body: iOS paints what shows
+   past either end of the page (the rubber-band overscroll) from it, and left
+   it white in the dark theme. */
+html {
+	background-color: var(--color-page);
+}
+
 /* The bar behind the section tabs once they're pinned over the water: no
    color of its own, just a blur of the water under the labels, so the white
    text sits on softened ripples rather than sharp caustics. On phones it
