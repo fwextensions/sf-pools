@@ -149,12 +149,11 @@
 }
 
 /* Dark theme: the same token names, so components never branch on the
-   theme. It follows the system setting unless the reader picked a theme,
-   which the head script in the root layout writes to <html data-theme>
-   before first paint. Pool colors don't change: they all clear 3:1 against
-   the dark cells, most by more than they do against the light ones. */
+   theme. It follows the system setting; there is no switch on the site.
+   Pool colors don't change: they all clear 3:1 against the dark cells,
+   most by more than they do against the light ones. */
 @media (prefers-color-scheme: dark) {
-	:root:not([data-theme="light"]) {
+	:root {
 		color-scheme: dark;
 		--color-page: #0c1a21;
 		--color-on-ink: #0c1a21;
@@ -174,27 +173,6 @@
 		--grid-fade: 0.55;
 		--grid-band-fade: 0.75;
 	}
-}
-
-:root[data-theme="dark"] {
-	color-scheme: dark;
-	--color-page: #0c1a21;
-	--color-on-ink: #0c1a21;
-	--color-ink: #e4edf1;
-	--color-ink-2: #9db2bc;
-	--color-line-strong: #557280;
-	--color-line: #22343d;
-	--color-tint: #13232b;
-	--color-alert-tint: #2e1a17;
-	--color-alert: #f08f78;
-	--color-band: #22363f;
-	--color-added-tint: #12303c;
-	--color-added: #8fd0ea;
-	--color-removed-tint: #331a1a;
-	--color-removed: #f0a0a0;
-	/* lanes faded toward a dark cell go muddy sooner than toward a light one */
-	--grid-fade: 0.55;
-	--grid-band-fade: 0.75;
 }
 
 /* base theme tokens */
