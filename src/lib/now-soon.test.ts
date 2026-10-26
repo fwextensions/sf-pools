@@ -101,6 +101,8 @@ describe("nowSoon", () => {
 		expect(v.soon.map((x) => [x.pool.id, x.stretch.startTime, x.stretch.names])).toEqual([
 			["garfield", "2:00p", ["Lap Swim", "Rec/Family Swim"]],
 		]);
+		// a session exactly two hours out counts, as it does for find_sessions
+		expect(view(pools, at(12)).soon.map((x) => x.pool.id)).toEqual(["garfield"]);
 		// nothing past the two hours
 		expect(view(pools, at(11)).soon).toEqual([]);
 	});
