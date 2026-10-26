@@ -1,5 +1,14 @@
 import { describe, it, expect } from "@jest/globals";
-import { hasYear, holidayClosures, mergeHolidays, parseHolidayPage, parseHolidayText, wantedYear, type CityHoliday } from "./city-holidays";
+import {
+	hasYear,
+	holidayClosures,
+	mergeHolidays,
+	parseHolidayPage,
+	parseHolidayText,
+	poolHolidays,
+	wantedYear,
+	type CityHoliday,
+} from "./city-holidays";
 
 // the 2026 list as the sf.gov API returned it on 2026-10-26, cut down
 const TEXT =
@@ -71,7 +80,7 @@ describe("holidays as a pool's closures", () => {
 		expect(holidayClosures(holidays, [])).toEqual([
 			allDay("2026-01-01", "2026-01-01", "New Year's Day"),
 			allDay("2026-02-16", "2026-02-16", "Presidents' Day"),
-			allDay("2026-07-03", "2026-07-04", "Independence Day"),
+			allDay("2026-07-04", "2026-07-04", "Independence Day"),
 			allDay("2026-10-12", "2026-10-12", "Indigenous Peoples Day"),
 			allDay("2026-11-26", "2026-11-27", "Thanksgiving Day"),
 		]);
@@ -88,7 +97,19 @@ describe("holidays as a pool's closures", () => {
 	});
 
 	it("follows the PDF's date for a holiday it names a few days from the city's", () => {
-		const own = [allDay("2026-07-04", "2026-07-04", "Fourth of July / Independence Day")];
-		expect(holidayClosures(holidays, own).map((c) => c.startDate)).not.toContain("2026-07-03");
+		const own = [allDay("2026-11-12", "2026-11-12", "Veterans Day")];
+		const veterans = [holiday("2026-11-11", "Veterans Day")];
+		expect(holidayClosures(veterans, own)).toEqual([]);
+	});
+
+	it("closes on the holiday itself, not the weekday the city observes it on", () => {
+		// the summer 2026 PDFs close on Sat July 4, not the observed Fri July 3
+		expect(poolHolidays(holidays).filter((h) => h.name === "Independence Day")).toEqual([holiday("2026-07-04", "Independence Day")]);
+		// a page that lists only the observed day: Christmas 2027 is a Saturday,
+		// New Year's 2023 a Sunday
+		expect(poolHolidays([holiday("2027-12-24", "Christmas", true), holiday("2023-01-02", "New Year's Day", true)])).toEqual([
+			holiday("2023-01-01", "New Year's Day"),
+			holiday("2027-12-25", "Christmas"),
+		]);
 	});
 });
