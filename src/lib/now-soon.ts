@@ -231,11 +231,13 @@ export function nowSoon(
 
 		if (!planned) {
 			const current = stretchAt(anchorWanted, from);
+			// a pool that closes and opens again within the span shows in both lists
+			const next = anchorWanted.find((s) => s.startMin > (current?.end ?? from) && s.startMin < to);
 			if (current) {
 				open.push({ pool, stretch: current });
+				if (next) soon.push({ pool, stretch: stretchAt(anchorWanted, next.startMin)! });
 				continue;
 			}
-			const next = anchorWanted.find((s) => s.startMin > from && s.startMin < to);
 			if (next) {
 				soon.push({ pool, stretch: stretchAt(anchorWanted, next.startMin)! });
 				continue;

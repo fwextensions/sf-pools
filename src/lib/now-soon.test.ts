@@ -84,6 +84,27 @@ describe("nowSoon", () => {
 		expect(v.closed.map((x) => x.pool.id)).toEqual(["rossi"]);
 	});
 
+	it("lists a pool open now under starting soon too when it reopens after a gap", () => {
+		const pools = [
+			pool("garfield", [
+				["Friday", "11:00a", "1:00p", "Lap Swim"],
+				["Friday", "2:00p", "3:45p", "Lap Swim"],
+				["Friday", "2:00p", "3:45p", "Rec/Family Swim", FAMILY],
+			]),
+			pool("rossi", [
+				["Friday", "11:00a", "1:30p", "Lap Swim"],
+				["Friday", "1:30p", "2:00p", "Family Swim", FAMILY],
+			]),
+		];
+		const v = view(pools, at(12, 44));
+		expect(v.open.map((x) => x.pool.id)).toEqual(["garfield", "rossi"]);
+		expect(v.soon.map((x) => [x.pool.id, x.stretch.startTime, x.stretch.names])).toEqual([
+			["garfield", "2:00p", ["Lap Swim", "Rec/Family Swim"]],
+		]);
+		// nothing past the two hours
+		expect(view(pools, at(11)).soon).toEqual([]);
+	});
+
 	it("leaves rentals and lessons out of drop-in, and says what is on instead", () => {
 		const pools = [
 			pool("coffman", [
