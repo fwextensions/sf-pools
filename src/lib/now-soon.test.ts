@@ -122,7 +122,7 @@ describe("nowSoon", () => {
 		expect(everything.open[0]!.stretch.restricted).toBe("Private");
 
 		const lessons = view([pool("rossi", [["Friday", "5:00p", "7:00p", "Learn to Swim", LESSONS]])], at(18), { mode: "all" });
-		expect(lessons.open[0]!.stretch.restricted).toBe("Registration");
+		expect(lessons.open[0]!.stretch.restricted).toBe("Reg req'd");
 	});
 
 	it("filters on a program", () => {

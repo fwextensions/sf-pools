@@ -128,6 +128,14 @@ describe("deriveTags", () => {
 		expect(deriveTags("Parent and Tot Swim")).toContain("access:drop-in");
 	});
 
+	it("marks every lesson as needing registration, asterisk or not", () => {
+		expect(deriveTags("Learn To Swim")).toContain("access:registration");
+		expect(deriveTags("Adult Lessons")).toContain("access:registration");
+		expect(deriveTags("Parent/Tot Lesson")).toContain("access:registration");
+		expect(deriveTags("Youth Lessons/Swim Team")).not.toContain("access:registration");
+		expect(deriveTags("Lap Swim")).not.toContain("access:registration");
+	});
+
 	it("reads a school group booking as one", () => {
 		const tags = deriveTags("Rec/Family Swim School Groups");
 		expect(tags).toContain("access:school-group");

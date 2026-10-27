@@ -171,7 +171,7 @@ describe("findSessions filters", () => {
 		expect(titles(rest)).toEqual([`${FRIDAY} 5:00p balboa Lap Swim`]);
 		const lessons = answers.findSessions({ when: "today", categories: ["kids-lessons"] }, at(15, 0));
 		expect(titles(lessons)).toEqual([`${FRIDAY} 3:30p balboa Lessons`]);
-		expect(lessons.sessions[0]!.restricted).toBe("Registration");
+		expect(lessons.sessions[0]!.restricted).toBe("Reg req'd");
 		const tomorrow = answers.findSessions({ when: "tomorrow", pools: ["balboa"], dropInOnly: false }, at(15, 0));
 		expect(titles(tomorrow)).toEqual(["2026-10-10 9:00a balboa Lap Swim"]);
 		const rentals = answers.findSessions({ when: "tomorrow", categories: ["Rentals"] }, at(15, 0));

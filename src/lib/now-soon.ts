@@ -104,14 +104,14 @@ export function joinNames(names: string[]): string {
 const TAG_LABELS: Array<[string, string]> = [
 	["access:rental", "Private"],
 	["access:school-group", "School group"],
-	["access:registration", "Registration"],
+	["access:registration", "Reg req'd"],
 	["access:contact-coach", "Contact coach"],
 ];
 
 export function restrictedLabel(tags: string[]): string | null {
 	for (const [tag, label] of TAG_LABELS) if (tags.includes(tag)) return label;
 	// lessons and teams need a sign-up even when the PDF prints no marker
-	return tags.includes("access:drop-in") ? null : "Registration";
+	return tags.includes("access:drop-in") ? null : "Reg req'd";
 }
 
 export function qualifies(s: Pick<Session, "tags">, { mode, program }: Pick<NowSoonOptions, "mode" | "program">): boolean {
