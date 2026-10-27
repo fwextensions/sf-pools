@@ -11,7 +11,6 @@ import { addDays, createPoolCalendar } from "@/lib/pool-calendar";
 import { pacificToday } from "@/lib/closures";
 import { initialGridState, writeGridUrl } from "@/lib/grid/url";
 import { trackFocusMode } from "@/lib/analytics";
-import { CATEGORY_GROUPS } from "@/lib/program-taxonomy";
 import type { AlertsData } from "@/lib/site-data";
 import GridBody from "./GridBody";
 import DetailPanel from "./DetailPanel";
@@ -59,9 +58,6 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays 
 	// read by the parts that show it
 	const filters = useSyncExternalStore(subscribeFilters, model.getFilters, model.getFilters);
 	const [openPanel, setOpenPanel] = useState<OpenPanel>(null);
-	const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>(
-		() => Object.fromEntries(CATEGORY_GROUPS.map((g) => [g.id, true]))
-	);
 	// phones only: pins the whole thing to the viewport so the page itself
 	// stops scrolling, which frees the grid to take touch drags
 	const [focusMode, setFocusMode] = useState(false);
@@ -121,10 +117,6 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays 
 
 	const hasAnyFilter = filters.tags.length > 0 || filters.pools.length > 0;
 
-	function toggleExpanded(id: string) {
-		setExpandedCats((prev) => ({ ...prev, [id]: !prev[id] }));
-	}
-
 	function toggleFocus() {
 		if (!focusMode) {
 			scrollBeforeFocusRef.current = window.scrollY;
@@ -150,8 +142,6 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays 
 				model={model}
 				filters={filters}
 				compact={false}
-				expanded={expandedCats}
-				onToggleExpanded={toggleExpanded}
 			/>
 		),
 		pools: <PoolRows model={model} filters={filters} />,
@@ -231,8 +221,6 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays 
 						model={model}
 						filters={filters}
 						compact
-						expanded={expandedCats}
-						onToggleExpanded={toggleExpanded}
 					/>
 					<div className="mx-4 mt-4 border-t-2 border-ink pb-1.5 pt-2.5 font-mono text-label font-semibold tracking-[.08em] text-ink-2">
 						POOLS
