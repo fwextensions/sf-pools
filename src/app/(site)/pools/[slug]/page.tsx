@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import AppleMapsLink from "@/components/AppleMapsLink";
 import GridLink from "@/components/grid/GridLink";
@@ -110,14 +109,9 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 				dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData(page)).replace(/</g, "\\u003c") }}
 			/>
 			<header className="pt-6 pb-3">
-				<nav aria-label="Breadcrumb" className="font-mono text-label font-medium tracking-[.08em] text-ink-2">
-					<Link href="/pools" className="link-inline">
-						ALL POOLS
-					</Link>
-				</nav>
 				{/* the chips stay beside a name that wraps, centered on its first
 				    line: their box is one line of the heading tall */}
-				<div className="mt-2 flex items-start gap-x-2.5">
+				<div className="flex items-start gap-x-2.5">
 					<span className="flex h-[1lh] flex-none items-center gap-1 text-title leading-tight">
 						{page.pools.map(({ schedule, token }) => (
 							<PoolChip key={schedule.id} token={token} />
