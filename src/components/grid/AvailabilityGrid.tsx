@@ -210,7 +210,7 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays 
 			    spanning the full container so the sidebar's edge lines up with
 			    the tabs and the footer. Below 900px the sidebar is narrower */}
 			<div className="hidden items-stretch min-[560px]:flex">
-				<div className="w-[260px] flex-none border-r border-line bg-tint min-[900px]:w-[280px]">
+				<div className="w-[260px] flex-none bg-tint min-[900px]:w-[280px]">
 					<div className="mx-4 mt-4 flex items-baseline justify-between border-t-2 border-ink pb-1.5 pt-2.5">
 						<span className="font-mono text-label font-semibold tracking-[.08em] text-ink-2">
 							PROGRAMS

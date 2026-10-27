@@ -1,5 +1,6 @@
 "use client";
 
+import PoolChip from "@/components/PoolChip";
 import { POOL_TOKENS } from "@/lib/pool-tokens";
 import { tagLabel } from "@/lib/program-taxonomy";
 import { Undo2 } from "lucide-react";
@@ -21,10 +22,12 @@ export function CategoryRows({
 	compact: boolean;
 }) {
 	const tagSet = new Set(filters.tags);
-	return <>{filters.groups.map((cat) => (
+	return <div>{filters.groups.map((cat) => (
 		<div
 			key={cat.id}
-			className={`flex flex-col gap-0.5 border-b border-line px-4 ${compact ? "py-1.5" : "py-2"}`}
+			// inset to match the PROGRAMS and POOLS rules, and the last group
+			// leaves the rule under it to the POOLS heading
+			className={`mx-4 flex flex-col gap-0.5 border-b border-line last:border-b-0 ${compact ? "py-1.5" : "py-2"}`}
 		>
 			{cat.tags.map((name) => (
 				<label
@@ -44,40 +47,32 @@ export function CategoryRows({
 				</label>
 			))}
 		</div>
-	))}</>;
+	))}</div>;
 }
 
+// a checkbox like the program rows', then the pool's chip and name
 export function PoolRows({ model, filters }: { model: GridModel; filters: FilterView }) {
 	const { poolSet } = filters.filter;
 	const selectedPools = filters.pools;
-	return <>{POOL_TOKENS.map((token) => {
+	return <div className="mx-4 flex flex-col gap-0.5 py-1.5">{POOL_TOKENS.map((token) => {
 		const active = !poolSet || poolSet.has(token.id);
 		return (
 			<label
 				key={token.id}
-				className="flex cursor-pointer items-center gap-2.5 border-b border-line px-4 py-2"
+				className="flex cursor-pointer items-center gap-2.5 py-1.5"
 				style={{ opacity: active ? 1 : 0.45 }}
 			>
 				<input
 					type="checkbox"
 					checked={selectedPools.includes(token.id)}
 					onChange={() => model.togglePool(token.id)}
-					className="sr-only"
+					className="picker-checkbox"
 				/>
-				<span
-					aria-hidden
-					className="flex h-[18px] w-[18px] flex-none items-center justify-center font-mono text-small font-bold text-white"
-					style={{ background: token.color }}
-				>
-					{selectedPools.includes(token.id) ? "✓" : ""}
-				</span>
-				<span className="w-[34px] font-mono text-small font-semibold text-ink-2">
-					{token.code}
-				</span>
-				<span className="flex-1 text-body font-medium text-ink">{token.name}</span>
+				<PoolChip token={token} />
+				<span className="flex-1 text-body text-ink">{token.name}</span>
 			</label>
 		);
-	})}</>;
+	})}</div>;
 }
 
 // compact is for the sidebar, where it sits beside the PROGRAMS label and
