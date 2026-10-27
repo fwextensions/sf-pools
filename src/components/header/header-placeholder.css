@@ -33,16 +33,18 @@
 	background-image:
 		var(--grout-lines),
 		/* The shader's pillowed bevel: `color += color * dot(slope, light) *
-		   0.14`, with the light from the upper right, so the top and right
-		   edges brighten and the bottom and left darken (normalize(0.35, 0.55)
-		   weights up and down over across about 1.6:1). On screen the
-		   refraction and caustics roughly double that contrast and spread it
-		   most of the way across the face, so these bands are stronger and
-		   wider than the shader's own constants. Black darkens
-		   multiplicatively, like the shader; the brightening is a tint with
-		   the tile's own R:G:B ratios, so it lightens without shifting the hue
-		   toward green. Each band's mid stop is its end alpha / 2.5. */
-		linear-gradient(90deg, rgba(0, 0, 0, 0.12) 0 7%, rgba(0, 0, 0, 0.05) 18%, transparent 35% 65%, rgba(114, 212, 250, 0.22) 82%, rgba(114, 212, 250, 0.55) 93% 100%),
+		   0.14`, with the light from the upper left, so the top and left
+		   edges brighten and the bottom and right darken
+		   (normalize(-0.35, 0.55) weights up and down over across about
+		   1.6:1). The across band runs 270deg, right to left, so its stops
+		   count from the right edge. On screen the refraction and caustics
+		   roughly double that contrast and spread it most of the way across
+		   the face, so these bands are stronger and wider than the shader's
+		   own constants. Black darkens multiplicatively, like the shader; the
+		   brightening is a tint with the tile's own R:G:B ratios, so it
+		   lightens without shifting the hue toward green. Each band's mid
+		   stop is its end alpha / 2.5. */
+		linear-gradient(270deg, rgba(0, 0, 0, 0.12) 0 7%, rgba(0, 0, 0, 0.05) 18%, transparent 35% 65%, rgba(114, 212, 250, 0.22) 82%, rgba(114, 212, 250, 0.55) 93% 100%),
 		linear-gradient(180deg, rgba(114, 212, 250, 0.85) 0 7%, rgba(114, 212, 250, 0.34) 18%, transparent 35% 65%, rgba(0, 0, 0, 0.08) 82%, rgba(0, 0, 0, 0.2) 93% 100%),
 		/* A stand-in for the caustics: soft pale patches a few tiles across.
 		   Each layer repeats only across, every prime number of tiles (its
@@ -148,7 +150,7 @@
 	/* the bevel as above, but white, since the shader clamps white tiles */
 	background-image:
 		var(--grout-lines),
-		linear-gradient(90deg, rgba(0, 0, 0, 0.12) 0 7%, rgba(0, 0, 0, 0.05) 18%, transparent 35% 65%, rgba(255, 255, 255, 0.2) 82%, rgba(255, 255, 255, 0.5) 93% 100%),
+		linear-gradient(270deg, rgba(0, 0, 0, 0.12) 0 7%, rgba(0, 0, 0, 0.05) 18%, transparent 35% 65%, rgba(255, 255, 255, 0.2) 82%, rgba(255, 255, 255, 0.5) 93% 100%),
 		linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0 7%, rgba(255, 255, 255, 0.32) 18%, transparent 35% 65%, rgba(0, 0, 0, 0.08) 82%, rgba(0, 0, 0, 0.2) 93% 100%);
 	background-size: var(--tile) var(--tile);
 	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 5'%3E%3Cpath d='M0 0h3v1h-3zM4 0h3v1h-3zM10 0h3v1h-3zM14 0h3v1h-3zM18 0h3v1h-3zM22 0h1v1h-1zM26 0h3v1h-3zM0 1h1v1h-1zM4 1h1v1h-1zM10 1h1v1h-1zM12 1h1v1h-1zM14 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM20 1h1v1h-1zM22 1h1v1h-1zM26 1h1v1h-1zM0 2h3v1h-3zM4 2h3v1h-3zM10 2h3v1h-3zM14 2h1v1h-1zM16 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM22 2h1v1h-1zM26 2h3v1h-3zM2 3h1v1h-1zM4 3h1v1h-1zM10 3h1v1h-1zM14 3h1v1h-1zM16 3h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM22 3h1v1h-1zM28 3h1v1h-1zM0 4h3v1h-3zM4 4h1v1h-1zM10 4h1v1h-1zM14 4h3v1h-3zM18 4h3v1h-3zM22 4h3v1h-3zM26 4h3v1h-3z'/%3E%3C/svg%3E");

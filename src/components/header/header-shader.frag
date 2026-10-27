@@ -613,14 +613,14 @@ void main() {
 	// --- Tile Bevel ---
 	// Fake a pillowed edge: near each tile border, tilt the surface outward
 	// (sign(bg) picks the direction, the smoothstep ramps the tilt in over the
-	// outer band of the tile) and light it from the same off-screen upper-right
+	// outer band of the tile) and light it from the same off-screen upper-left
 	// light as the glint. Multiplying by the current color keeps the shading
 	// tint-consistent, and by tileMask keeps grout flat. Pure ALU — no extra
 	// texture reads. 0.30..0.43 = where the bevel starts and ends (tile face
 	// spans |bg| < ~0.45); 0.14 = bevel contrast.
 	vec2 bg = fract(tileUV * tileCountV) - 0.5;
 	vec2 bevelSlope = sign(bg) * smoothstep(0.30, 0.43, abs(bg));
-	float bevelLight = dot(bevelSlope, normalize(vec2(0.35, 0.55)));
+	float bevelLight = dot(bevelSlope, normalize(vec2(-0.35, 0.55)));
 	color += color * bevelLight * 0.14 * tileMask;
 
 	// --- Pool lights ---
@@ -678,12 +678,12 @@ void main() {
 	// reflects nothing: dot(up, H)^64 is ~0.01. Reads glintGrad (wave groups
 	// A+B only) so the finest ripples cannot turn pow 64 into crawling speckle,
 	// and fades with the local ripple strength so the ambient swell alone does
-	// not sparkle. lightDir points toward the off-screen upper-right light; 64
+	// not sparkle. lightDir points toward the off-screen upper-left light; 64
 	// is the glint tightness (higher = smaller, sharper sparkles); 0.05 sets how
 	// much sim slope counts as "full-strength" ripple; 0.4 is the brightness.
 	// At night it is a streetlight's warm glint.
 	vec3 surfN = normalize(vec3(-glintGrad * GLINT_SLOPE, 1.0));
-	vec3 lightDir = normalize(vec3(0.35, 0.55, 0.75));
+	vec3 lightDir = normalize(vec3(-0.35, 0.55, 0.75));
 	vec3 halfVec = normalize(lightDir + vec3(0.0, 0.0, 1.0));
 	float spec = pow(max(dot(surfN, halfVec), 0.0), 64.0);
 	float rippleEnergy = min(length(simGrad * SIM_SLOPE_GAIN) * 0.05, 1.0);
