@@ -94,6 +94,8 @@ export type OpenPool = {
 	until: string;
 	endsInMinutes: number;
 	programs: string[];
+	/** when `programs` finish; before `until` when a different program follows straight on */
+	programsUntil: string;
 	/** the first change of program before it closes */
 	then: { programs: string[]; at: string } | null;
 };
@@ -616,6 +618,7 @@ export function createSwimAnswers(
 					until: stretch.endTime,
 					endsInMinutes: stretch.end - now.minutes,
 					programs: stretch.names,
+					programsUntil: stretch.namesEndTime,
 					then: stretch.then && { programs: stretch.then.names, at: stretch.then.at },
 				});
 			}

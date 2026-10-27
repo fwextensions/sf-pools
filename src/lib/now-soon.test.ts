@@ -52,6 +52,28 @@ describe("stretchAt", () => {
 		expect(s.then).toEqual({ names: ["Family Swim"], at: "1:00p" });
 	});
 
+	it("ends the programs named where a different program takes over", () => {
+		const s = stretchAt(sessions, 12 * 60 + 40)!;
+		expect([s.namesEndTime, s.namesEnd]).toEqual(["1:00p", 13 * 60]);
+		expect(stretchAt(sessions, 13 * 60 + 30)!.namesEndTime).toBe("2:30p");
+	});
+
+	it("carries a program on through back to back sessions of the same program", () => {
+		const s = stretchAt(
+			fridaySessions([
+				pool("mlk", [
+					["Friday", "7:30a", "9:00a", "Lap Swim"],
+					["Friday", "9:00a", "12:00p", "Senior Lap Swim"],
+					["Friday", "9:00a", "12:00p", "Lap Swim"],
+					["Friday", "12:00p", "1:00p", "Family Swim", FAMILY],
+				]),
+			]),
+			8 * 60
+		)!;
+		expect([s.names, s.namesEndTime, s.endTime]).toEqual([["Lap Swim"], "12:00p", "1:00p"]);
+		expect(s.then).toEqual({ names: ["Senior Lap Swim"], at: "9:00a" });
+	});
+
 	it("stops at a gap", () => {
 		expect(stretchAt(sessions, 14 * 60)!.endTime).toBe("2:30p");
 		expect(stretchAt(sessions, 14 * 60 + 45)).toBeNull();
@@ -67,11 +89,38 @@ describe("stretchAt", () => {
 		const s = stretchAt(shared, 7 * 60 + 30)!;
 		expect(s.names).toEqual(["Family Swim", "Lap Swim"]);
 		expect(s.endTime).toBe("8:45a");
+		expect(s.namesEndTime).toBe("8:45a");
 		expect(s.then).toBeNull();
 	});
 });
 
 describe("nowSoon", () => {
+	it("counts down to the end of the programs on now, not to the last of the programs that follow", () => {
+		// MLK on a Tuesday, seen with every program at 12:32p
+		const mlk = pool("mlk", [
+			["Friday", "12:30p", "3:30p", "Rec/Family Swim", FAMILY],
+			["Friday", "12:30p", "3:30p", "Lap Swim"],
+			["Friday", "3:30p", "6:00p", "Bayview Safety Swim & Splash", LESSONS],
+			["Friday", "6:00p", "7:00p", "Lap Swim"],
+			["Friday", "7:00p", "8:30p", "Rentals Masters", RENTAL],
+		]);
+		const [open] = view([mlk], at(12, 32), { mode: "all" }).open;
+		expect(open!.stretch.names).toEqual(["Rec/Family Swim", "Lap Swim"]);
+		expect([open!.stretch.namesEndTime, open!.stretch.endTime]).toEqual(["3:30p", "8:30p"]);
+		expect(open!.stretch.then).toEqual({ names: ["Bayview Safety Swim & Splash"], at: "3:30p" });
+	});
+
+	it("leads with the pool whose programs end first", () => {
+		const pools = [
+			pool("balboa", [["Friday", "11:00a", "2:00p", "Lap Swim"]]),
+			pool("garfield", [
+				["Friday", "11:00a", "1:00p", "Lap Swim"],
+				["Friday", "1:00p", "4:00p", "Family Swim", FAMILY],
+			]),
+		];
+		expect(view(pools, at(12)).open.map((x) => x.pool.id)).toEqual(["garfield", "balboa"]);
+	});
+
 	it("sorts pools into open, starting soon and not open", () => {
 		const pools = [
 			pool("balboa", [["Friday", "5:00p", "7:00p", "Lap Swim"]]),

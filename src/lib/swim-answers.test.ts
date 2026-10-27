@@ -133,6 +133,13 @@ describe("findSessions now", () => {
 		]);
 	});
 
+	it("says when the programs on now finish, apart from when the pool closes", () => {
+		expect(view.open!.map((o) => [o.poolId, o.programs, o.programsUntil, o.until])).toEqual([
+			["mlk", ["Lap Swim"], "1:30p", "1:30p"],
+			["balboa", ["Lap Swim"], "1:00p", "2:30p"],
+		]);
+	});
+
 	it("says why the other pools have nothing, and when they next do", () => {
 		const quiet = Object.fromEntries(view.quiet!.map((q) => [q.poolId, q]));
 		expect(Object.keys(quiet)).toEqual(["rossi", "northBeachCool", "northBeachWarm"]);
