@@ -139,13 +139,18 @@ function OpenRow({
 	// a session you can't walk in on reads in the secondary ink, tagged; never
 	// dimmed with opacity, which failed contrast
 	const tone = stretch.restricted ? "text-ink-2" : "text-ink";
+	// the times are those of the programs named, so a different program
+	// following straight on reads as "then …", not as more of the same; the
+	// pool only closes when nothing follows
+	const verb = stretch.namesEnd < stretch.end ? "Ends" : "Closes";
+	const span = `${stretch.startTime}–${stretch.namesEndTime}`;
 	const headline =
 		kind === "open"
-			? `Closes in ${formatDuration(stretch.end - now)}`
+			? `${verb} in ${formatDuration(stretch.namesEnd - now)}`
 			: kind === "soon"
 				? `Starts in ${formatDuration(stretch.start - now)}`
-				: `${stretch.startTime}–${stretch.endTime}`;
-	const detail = kind === "open" ? `until ${stretch.endTime}` : kind === "soon" ? `${stretch.startTime}–${stretch.endTime}` : null;
+				: span;
+	const detail = kind === "open" ? `until ${stretch.namesEndTime}` : kind === "soon" ? span : null;
 
 	return (
 		<li className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 border-b border-line py-3">

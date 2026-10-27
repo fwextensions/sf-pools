@@ -42,6 +42,13 @@ export type Stretch = {
 	end: number;
 	startTime: string;
 	endTime: string;
+	/**
+	 * when the programs on at the start of the stretch finish, each carried on
+	 * through back to back sessions of the same program; before `end` when a
+	 * different program follows without a break
+	 */
+	namesEnd: number;
+	namesEndTime: string;
 	/** what is on at the start of the stretch */
 	names: string[];
 	/** the label of a restricted session in the stretch, in Everything mode */
@@ -148,6 +155,25 @@ export function stretchAt(sessions: Session[], at: number): Stretch | null {
 	}
 
 	const names = unique(running.map((s) => s.title));
+	let namesEnd = end;
+	let namesEndTime = endTime;
+	if (later.length) {
+		// each program running now, until it stops without the same program
+		// carrying straight on
+		const runEnds = names.map((title) => {
+			let runEnd = Math.max(...running.filter((s) => s.title === title).map((s) => s.endMin));
+			let runEndTime = running.find((s) => s.title === title && s.endMin === runEnd)!.endTime;
+			for (const s of later) {
+				if (s.title !== title || s.startMin > runEnd || s.endMin <= runEnd) continue;
+				runEnd = s.endMin;
+				runEndTime = s.endTime;
+			}
+			return { runEnd, runEndTime };
+		});
+		const last = runEnds.reduce((a, b) => (b.runEnd > a.runEnd ? b : a));
+		namesEnd = last.runEnd;
+		namesEndTime = last.runEndTime;
+	}
 	const change = later.find((s) => !names.includes(s.title));
 	const then = change
 		? {
@@ -162,6 +188,8 @@ export function stretchAt(sessions: Session[], at: number): Stretch | null {
 		end,
 		startTime: running.find((s) => s.startMin === start)!.startTime,
 		endTime,
+		namesEnd,
+		namesEndTime,
 		names,
 		restricted: unique(running.map((s) => restrictedLabel(s.tags)).filter((l): l is string => !!l))[0] ?? null,
 		then,
@@ -268,9 +296,14 @@ export function nowSoon(
 		});
 	}
 
-	// open pools closing first lead, since they are the ones to hurry for; a
-	// slot of tomorrow lists them in the order they open
-	open.sort((a, b) => (planned ? a.stretch.start - b.stretch.start : a.stretch.end - b.stretch.end) || comparePools(a, b));
+	// open pools whose programs end first lead, matching the countdowns, since
+	// they are the ones to hurry for; a slot of tomorrow lists them in the
+	// order they open
+	open.sort(
+		(a, b) =>
+			(planned ? a.stretch.start - b.stretch.start : a.stretch.namesEnd - b.stretch.namesEnd || a.stretch.end - b.stretch.end) ||
+			comparePools(a, b)
+	);
 	soon.sort((a, b) => a.stretch.start - b.stretch.start || comparePools(a, b));
 	closed.sort(comparePools);
 
