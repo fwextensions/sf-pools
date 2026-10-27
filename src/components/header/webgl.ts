@@ -272,23 +272,26 @@ export class QuadRenderer {
 	}
 
 	/**
-	 * The brightest color channel (0-255) along the middle row of the frame
-	 * just drawn to the canvas, which is 0 for a black or empty frame, and for
-	 * a lost context. Call it right after drawing, before yielding: without
+	 * The brightest color channel and the highest alpha (each 0-255) along the
+	 * middle row of the frame just drawn to the canvas. Both are 0 when nothing
+	 * could be read back (a lost context, or a browser that won't read this
+	 * canvas). Call it right after drawing, before yielding: without
 	 * preserveDrawingBuffer the canvas buffer is only readable until the
 	 * browser composites it. Reading pixels makes the CPU wait for the GPU, so
 	 * call it now and then, not every frame.
 	 */
-	brightestInMiddleRow(w: number, h: number) {
+	middleRowLevels(w: number, h: number) {
 		const gl = this.gl;
 		const row = new Uint8Array(w * 4);
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		gl.readPixels(0, Math.floor(h / 2), w, 1, gl.RGBA, gl.UNSIGNED_BYTE, row);
 		let brightest = 0;
+		let alpha = 0;
 		for (let i = 0; i < row.length; i += 4) {
 			brightest = Math.max(brightest, row[i], row[i + 1], row[i + 2]);
+			alpha = Math.max(alpha, row[i + 3]);
 		}
-		return brightest;
+		return { brightest, alpha };
 	}
 
 	dispose() {
