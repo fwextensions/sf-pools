@@ -140,13 +140,13 @@ function OpenRow({
 	// dimmed with opacity, which failed contrast
 	const tone = stretch.restricted ? "text-ink-2" : "text-ink";
 	// the times are those of the programs named, so a different program
-	// following straight on reads as "then …", not as more of the same; the
-	// pool only closes when nothing follows
-	const verb = stretch.namesEnd < stretch.end ? "Ends" : "Closes";
+	// following straight on reads as "then …", not as more of the same; it
+	// says "Ends", not "Closes", since the building may stay open between
+	// sessions
 	const span = `${stretch.startTime}–${stretch.namesEndTime}`;
 	const headline =
 		kind === "open"
-			? `${verb} in ${formatDuration(stretch.namesEnd - now)}`
+			? `Ends in ${formatDuration(stretch.namesEnd - now)}`
 			: kind === "soon"
 				? `Starts in ${formatDuration(stretch.start - now)}`
 				: span;
