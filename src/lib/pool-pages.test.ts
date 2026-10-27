@@ -25,8 +25,8 @@ describe("pool pages", () => {
 		]);
 	});
 
-	it("falls back to the full schedules for a pool without a page", () => {
-		expect(poolPageHref("atlantis")).toBe("/schedules#pool-atlantis");
+	it("falls back to the list of pools for a pool without a page", () => {
+		expect(poolPageHref("atlantis")).toBe("/pools");
 	});
 
 	it("puts North Beach's two pools on one page", () => {
