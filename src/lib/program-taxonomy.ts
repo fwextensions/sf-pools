@@ -491,7 +491,7 @@ export const TAG_LABELS: Record<string, string> = {
 	"audience:preschool": "Preschool",
 	"access:drop-in": "Drop in, no sign-up",
 	"access:registration": "Registration required",
-	"access:rental": "Private · Rental",
+	"access:rental": "Private",
 	"access:school-group": "School group",
 	"access:closed": "Pool closed",
 	"access:shared-pool": "Shared pool",

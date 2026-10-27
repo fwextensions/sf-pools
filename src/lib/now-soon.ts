@@ -102,7 +102,7 @@ export function joinNames(names: string[]): string {
 
 // the tag on a row in Everything mode, in the words the grid's tags use
 const TAG_LABELS: Array<[string, string]> = [
-	["access:rental", "Private · Rental"],
+	["access:rental", "Private"],
 	["access:school-group", "School group"],
 	["access:registration", "Registration"],
 	["access:contact-coach", "Contact coach"],

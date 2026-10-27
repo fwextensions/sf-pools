@@ -78,7 +78,7 @@ export type SessionResult = {
 	title: string;
 	categories: string[];
 	dropIn: boolean;
-	/** "Registration", "Private · Rental", when the session isn't drop-in */
+	/** "Registration", "Private", when the session isn't drop-in */
 	restricted: string | null;
 	/** for "soon": minutes until it starts */
 	startsInMinutes?: number;
