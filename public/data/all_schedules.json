@@ -98,6 +98,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Parent/Tot Lesson",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"activity:parent-tot",
 					"audience:parent-child",
@@ -150,6 +151,7 @@
 				"programNameCanonical": "Adult Swim Lessons",
 				"title": "Adult Swim Lessons",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"audience:adult",
 					"program:adult-lessons"
@@ -267,6 +269,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -463,6 +466,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -511,6 +515,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -782,6 +787,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn-to - Swim Lessons",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -797,6 +803,7 @@
 				"programNameCanonical": "Adult Swim Lessons",
 				"title": "Adult Swim Lessons",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"audience:adult",
 					"program:adult-lessons"
@@ -995,6 +1002,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn-to - Swim Lessons",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -1010,6 +1018,7 @@
 				"programNameCanonical": "Adult Swim Lessons",
 				"title": "Adult Swim Lessons",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"audience:adult",
 					"program:adult-lessons"
@@ -1043,6 +1052,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -1175,6 +1185,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -1291,6 +1302,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -2043,6 +2055,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -2334,6 +2347,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -2526,6 +2540,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -2541,6 +2556,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -2736,6 +2752,7 @@
 				"programNameCanonical": "Bayview Safety Swim & Splash",
 				"title": "Bayview Safety Swim & Splash",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -2834,6 +2851,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -2882,6 +2900,7 @@
 				"programNameCanonical": "Bayview Safety Swim & Splash",
 				"title": "Bayview Safety Swim & Splash",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -2998,6 +3017,7 @@
 				"programNameCanonical": "Bayview Safety Swim & Splash",
 				"title": "Bayview Safety Swim & Splash",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -3096,6 +3116,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -3144,6 +3165,7 @@
 				"programNameCanonical": "Bayview Safety Swim & Splash",
 				"title": "Bayview Safety Swim & Splash",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -3211,6 +3233,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -4665,6 +4688,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -4680,6 +4704,7 @@
 				"programNameCanonical": "Adult Swim Lessons",
 				"title": "Adult Swim Lessons",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"audience:adult",
 					"program:adult-lessons"
@@ -4764,6 +4789,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -4779,6 +4805,7 @@
 				"programNameCanonical": "Adult Swim Lessons",
 				"title": "Adult Swim Lessons",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"audience:adult",
 					"program:adult-lessons"
@@ -4829,6 +4856,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -4860,6 +4888,7 @@
 				"programNameCanonical": "Adult Swim Lessons",
 				"title": "Adult Swim Lessons",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"audience:adult",
 					"program:adult-lessons"
@@ -5058,6 +5087,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -5089,6 +5119,7 @@
 				"programNameCanonical": "Adult Swim Lessons",
 				"title": "Adult Swim Lessons",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"audience:adult",
 					"program:adult-lessons"
@@ -5441,6 +5472,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lesson",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -5456,6 +5488,7 @@
 				"programNameCanonical": "Adult Swim Lessons",
 				"title": "Adult Swim Lessons",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"audience:adult",
 					"program:adult-lessons"
@@ -5623,6 +5656,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Preschool Swim Lessons",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"audience:preschool",
 					"program:kids-lessons"
@@ -5655,6 +5689,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Swim Lessons",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]
@@ -5702,6 +5737,7 @@
 				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
 				"title": "Learn to Swim",
 				"tags": [
+					"access:registration",
 					"activity:lessons",
 					"program:kids-lessons"
 				]

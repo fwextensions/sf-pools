@@ -85,7 +85,7 @@ const DetailPanel = memo(function DetailPanel({
 				return (
 					<div
 						key={i}
-						className="flex items-center gap-2.5 border-b border-line py-2 text-body"
+						className="flex items-baseline gap-2.5 border-b border-line py-2 text-body"
 					>
 						<PoolChip token={d.pool} />
 						{/* a wrapping flex row rather than inline text, so the lanes

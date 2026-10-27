@@ -368,6 +368,10 @@ export function deriveTags(raw: string): ProgramTag[] {
 
 	for (const category of programCategories(tags)) tags.add(`program:${category}`);
 
+	// every lesson is booked ahead, but only some PDFs mark it with the
+	// registration asterisk, so a lesson says so whichever pool it is at
+	if (tags.has("program:kids-lessons") || tags.has("program:adult-lessons")) tags.add("access:registration");
+
 	return [...tags].sort();
 }
 
@@ -490,8 +494,8 @@ export const TAG_LABELS: Record<string, string> = {
 	"audience:high-school": "High school",
 	"audience:preschool": "Preschool",
 	"access:drop-in": "Drop in, no sign-up",
-	"access:registration": "Registration required",
-	"access:rental": "Private · Rental",
+	"access:registration": "Reg req'd",
+	"access:rental": "Private",
 	"access:school-group": "School group",
 	"access:closed": "Pool closed",
 	"access:shared-pool": "Shared pool",
