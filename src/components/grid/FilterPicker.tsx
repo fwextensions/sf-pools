@@ -52,15 +52,12 @@ export function CategoryRows({
 
 // a checkbox like the program rows', then the pool's chip and name
 export function PoolRows({ model, filters }: { model: GridModel; filters: FilterView }) {
-	const { poolSet } = filters.filter;
 	const selectedPools = filters.pools;
 	return <div className="mx-4 flex flex-col gap-0.5 py-1.5">{POOL_TOKENS.map((token) => {
-		const active = !poolSet || poolSet.has(token.id);
 		return (
 			<label
 				key={token.id}
 				className="flex cursor-pointer items-center gap-2.5 py-1.5"
-				style={{ opacity: active ? 1 : 0.45 }}
 			>
 				<input
 					type="checkbox"
