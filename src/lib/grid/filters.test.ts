@@ -54,7 +54,7 @@ describe("facetGroups", () => {
 	it("lists the categories in use per group, in group order and alphabetized by label, with selection state", () => {
 		const groups = facetGroups(counts, ["program:lap", "program:family"]);
 		expect(groups.map((g) => [g.id, g.label, g.tags, g.allSelected, g.someSelected])).toEqual([
-			["swim", "Swim", ["program:family", "program:lap"], true, true],
+			["swim", "Swim", ["program:lap", "program:family"], true, true],
 			["exercise", "Exercise & therapy", ["program:senior"], false, false],
 		]);
 	});

@@ -395,7 +395,7 @@ export const CATEGORY_GROUPS = [
 
 export const PROGRAM_CATEGORIES = [
 	{ id: "lap", label: "Lap swim", group: "swim" },
-	{ id: "family", label: "Family & rec swim", group: "swim" },
+	{ id: "family", label: "Rec & family swim", group: "swim" },
 	{ id: "parent-tot", label: "Parent & tot swim", group: "swim" },
 	{ id: "senior", label: "Senior & therapy swim", group: "exercise" },
 	{ id: "self-guided", label: "Self-guided exercise", group: "exercise" },

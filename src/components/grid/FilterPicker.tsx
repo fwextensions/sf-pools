@@ -1,119 +1,75 @@
 "use client";
 
+import PoolChip from "@/components/PoolChip";
 import { POOL_TOKENS } from "@/lib/pool-tokens";
 import { tagLabel } from "@/lib/program-taxonomy";
 import { Undo2 } from "lucide-react";
-import { Chevron } from "@/components/icons";
 import type { FilterView, GridModel } from "@/lib/grid/grid-model";
 
 // The program and pool pickers, shared by the desktop sidebar and the mobile
 // panels, and the buttons that clear them.
 
+// the program categories, one block per group with a rule between them. The
+// groups have no heading or checkbox of their own; the rule is enough to
+// keep the open swims apart from the lessons and the private bookings.
 export function CategoryRows({
 	model,
 	filters,
 	compact,
-	expanded,
-	onToggleExpanded,
 }: {
 	model: GridModel;
 	filters: FilterView;
 	compact: boolean;
-	expanded: Record<string, boolean>;
-	onToggleExpanded: (id: string) => void;
 }) {
 	const tagSet = new Set(filters.tags);
-	return <>{filters.groups.map((cat) => (
-		<div key={cat.id} className="border-b border-line">
-			<div className={`flex items-center gap-2.5 ${compact ? "px-4 py-2" : "px-4 py-2.5"}`}>
-				<button
-					type="button"
-					aria-label={`Toggle every ${cat.label} tag`}
-					aria-pressed={cat.allSelected}
-					onClick={() => model.toggleGroup(cat.id)}
-					// drawn like the tag checkboxes under it: a filled square when
-					// every tag is on, a bar when some are
-					className={`picker-checkbox flex items-center justify-center ${cat.allSelected ? "picker-checkbox-on" : ""}`}
+	return <div>{filters.groups.map((cat) => (
+		<div
+			key={cat.id}
+			// inset to match the PROGRAMS and POOLS rules, and the last group
+			// leaves the rule under it to the POOLS heading
+			className={`mx-4 flex flex-col gap-0.5 border-b border-line last:border-b-0 ${compact ? "py-1.5" : "py-2"}`}
+		>
+			{cat.tags.map((name) => (
+				<label
+					key={name}
+					className="flex cursor-pointer items-center gap-2.5 py-1.5"
 				>
-					{cat.someSelected && !cat.allSelected ? (
-						<span aria-hidden className="block h-[1.5px] w-[8px] bg-ink" />
-					) : null}
-				</button>
-				<button
-					type="button"
-					onClick={() => model.toggleGroup(cat.id)}
-					className="flex-1 cursor-pointer text-left text-body font-semibold text-ink"
-				>
-					{cat.label}{" "}
+					<input
+						type="checkbox"
+						checked={tagSet.has(name)}
+						onChange={() => model.toggleTag(name)}
+						className="picker-checkbox"
+					/>
+					<span className="flex-1 text-body text-ink">{tagLabel(name)}</span>
 					<span className="font-mono text-small font-medium text-ink-2">
-						({cat.tags.length})
+						{filters.tagCounts.get(name)}
 					</span>
-				</button>
-				<button
-					type="button"
-					aria-label={`${expanded[cat.id] ? "Collapse" : "Expand"} ${cat.label}`}
-					onClick={() => onToggleExpanded(cat.id)}
-					className="cursor-pointer px-2 py-1 text-ink-2"
-				>
-					<Chevron open={expanded[cat.id]} />
-				</button>
-			</div>
-			{expanded[cat.id] ? (
-				<div className="flex flex-col gap-0.5 pb-2.5 pl-11 pr-4">
-					{cat.tags.map((name) => (
-						<label
-							key={name}
-							className="flex cursor-pointer items-center gap-2 py-1.5"
-						>
-							<input
-								type="checkbox"
-								checked={tagSet.has(name)}
-								onChange={() => model.toggleTag(name)}
-								className="picker-checkbox"
-							/>
-							<span className="flex-1 text-body text-ink-2">{tagLabel(name)}</span>
-							<span className="font-mono text-small font-medium text-ink-2">
-								{filters.tagCounts.get(name)}
-							</span>
-						</label>
-					))}
-				</div>
-			) : null}
+				</label>
+			))}
 		</div>
-	))}</>;
+	))}</div>;
 }
 
+// a checkbox like the program rows', then the pool's chip and name
 export function PoolRows({ model, filters }: { model: GridModel; filters: FilterView }) {
-	const { poolSet } = filters.filter;
 	const selectedPools = filters.pools;
-	return <>{POOL_TOKENS.map((token) => {
-		const active = !poolSet || poolSet.has(token.id);
+	return <div className="mx-4 flex flex-col gap-0.5 py-1.5">{POOL_TOKENS.map((token) => {
 		return (
 			<label
 				key={token.id}
-				className="flex cursor-pointer items-center gap-2.5 border-b border-line px-4 py-2"
-				style={{ opacity: active ? 1 : 0.45 }}
+				className="flex cursor-pointer items-center gap-2.5 py-1.5"
 			>
 				<input
 					type="checkbox"
 					checked={selectedPools.includes(token.id)}
 					onChange={() => model.togglePool(token.id)}
-					className="sr-only"
+					className="picker-checkbox"
 				/>
-				<span
-					aria-hidden
-					className="flex h-[18px] w-[18px] flex-none items-center justify-center font-mono text-small font-bold text-white"
-					style={{ background: token.color }}
-				>
-					{selectedPools.includes(token.id) ? "✓" : ""}
-				</span>
-				<span className="w-[34px] font-mono text-small font-semibold text-ink-2">
-					{token.code}
-				</span>
-				<span className="flex-1 text-body font-medium text-ink">{token.name}</span>
+				<PoolChip token={token} />
+				<span className="flex-1 text-body text-ink">{token.name}</span>
 			</label>
 		);
-	})}</>;
+	})}</div>;
 }
 
 // compact is for the sidebar, where it sits beside the PROGRAMS label and
