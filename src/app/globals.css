@@ -193,25 +193,145 @@
 	--site-nav-text-mid: calc(0.75rem + 0.625rem);
 	/* rows of water left showing once the header pins, with the tabs over them */
 	--site-strip-rows: 4;
-	/* The header water's tile edge and height (TILE and HEADER_HEIGHT in
-	   HeaderPlaceholder.tsx, which has the reasoning, and whose
-	   tileCssPx/headerHeightPx mirror the @supports values below). This first
-	   pair is for Safari before 15.4, which has no round(): fractional tiles
-	   and a fixed height, so the last row can be cut, but the header still
-	   shows and pins. */
-	--tile: min(22px, calc(100vw / 33));
-	--header-h: 198px;
+	/* The header water's tile edge, its height and how far up "SF POOLS"
+	   sits, under 264px wide; the media queries below take over from there.
+	   See the comment above them. */
+	--tile: 7px;
+	--header-h: 196px;
+	--header-text-bottom: 84px;
 	/* how far the grid's lanes fade once a cell is picked: the rest of the
 	   grid, then the picked cell's row and column */
 	--grid-fade: 0.4;
 	--grid-band-fade: 0.6;
 }
 
-/* Whole-pixel tiles, and the whole number of rows nearest 198px. */
-@supports (width: round(down, 1px, 1px)) {
+/* The header water's tiles, one step per whole-pixel tile size:
+   --tile is min(22px, floor(100vw / 33)), --header-h the whole number of
+   rows nearest 198px, and --header-text-bottom puts the bottom of the
+   5-row "SF POOLS" ceil((rows - 5) / 2) rows up, as the shader does.
+   tileCssPx and headerHeightPx in HeaderPlaceholder.tsx are the same math
+   for the canvas. Spelled out per width rather than computed with CSS
+   round() because Safari before 15.4 has none, and iOS 15 accepted it
+   for a height but not inside the sticky water's calc(), so the header
+   never pinned there. A media query's width, like 100vw, includes the
+   scrollbar. */
+@media (min-width: 264px) {
 	:root {
-		--tile: min(22px, round(down, calc(100vw / 33), 1px));
-		--header-h: round(nearest, 198px, var(--tile));
+		--tile: 8px;
+		--header-h: 200px;
+		--header-text-bottom: 80px;
+	}
+}
+
+@media (min-width: 297px) {
+	:root {
+		--tile: 9px;
+		--header-h: 198px;
+		--header-text-bottom: 81px;
+	}
+}
+
+@media (min-width: 330px) {
+	:root {
+		--tile: 10px;
+		--header-h: 200px;
+		--header-text-bottom: 80px;
+	}
+}
+
+@media (min-width: 363px) {
+	:root {
+		--tile: 11px;
+		--header-h: 198px;
+		--header-text-bottom: 77px;
+	}
+}
+
+@media (min-width: 396px) {
+	:root {
+		--tile: 12px;
+		--header-h: 204px;
+		--header-text-bottom: 72px;
+	}
+}
+
+@media (min-width: 429px) {
+	:root {
+		--tile: 13px;
+		--header-h: 195px;
+		--header-text-bottom: 65px;
+	}
+}
+
+@media (min-width: 462px) {
+	:root {
+		--tile: 14px;
+		--header-h: 196px;
+		--header-text-bottom: 70px;
+	}
+}
+
+@media (min-width: 495px) {
+	:root {
+		--tile: 15px;
+		--header-h: 195px;
+		--header-text-bottom: 60px;
+	}
+}
+
+@media (min-width: 528px) {
+	:root {
+		--tile: 16px;
+		--header-h: 192px;
+		--header-text-bottom: 64px;
+	}
+}
+
+@media (min-width: 561px) {
+	:root {
+		--tile: 17px;
+		--header-h: 204px;
+		--header-text-bottom: 68px;
+	}
+}
+
+@media (min-width: 594px) {
+	:root {
+		--tile: 18px;
+		--header-h: 198px;
+		--header-text-bottom: 54px;
+	}
+}
+
+@media (min-width: 627px) {
+	:root {
+		--tile: 19px;
+		--header-h: 190px;
+		--header-text-bottom: 57px;
+	}
+}
+
+@media (min-width: 660px) {
+	:root {
+		--tile: 20px;
+		--header-h: 200px;
+		--header-text-bottom: 60px;
+	}
+}
+
+@media (min-width: 693px) {
+	:root {
+		--tile: 21px;
+		--header-h: 189px;
+		--header-text-bottom: 42px;
+	}
+}
+
+@media (min-width: 726px) {
+	:root {
+		--tile: 22px;
+		--header-h: 198px;
+		--header-text-bottom: 44px;
 	}
 }
 

@@ -132,20 +132,18 @@
 
    Placement matches the shader's snapping, not true centering:
    textStart = (floor((totalTiles - 29) / 2), ceil((rows - 5) / 2)) in whole
-   tiles from the bottom-left grid origin. round(down|up) reproduces the
-   floor/ceil so the letters sit on the 0,0 grid even when the width is a
+   tiles from the bottom-left grid origin. The ceil is precomputed per tile
+   size in globals.css (--header-text-bottom); round(down) reproduces the
+   floor so the letters sit on the 0,0 grid even when the width is a
    fractional number of tiles. 100vw, not 100%: the canvas is sized from a
    100vw probe, which includes the scrollbar; 100% excludes it, which can flip
-   the floor by a column. The -0.1px keeps the round(up) from overshooting a
-   row when (100% - 5 * tile) / 2 lands exactly on a tile boundary (the tile
-   is a hair under 200/9px, so the operand comes out epsilon above 2 tiles at
-   9 rows). */
+   the floor by a column. */
 .header-placeholder-text {
 	position: absolute;
 	/* centered as is, for Safari before 15.4, which has no round(); the
 	   @supports below snaps it to the grid */
 	left: calc((100vw - 29 * var(--tile)) / 2);
-	bottom: calc((100% - 5 * var(--tile)) / 2);
+	bottom: var(--header-text-bottom);
 	width: calc(29 * var(--tile));
 	height: calc(5 * var(--tile));
 	background-color: var(--text-tile);
@@ -162,6 +160,5 @@
 @supports (width: round(down, 1px, 1px)) {
 	.header-placeholder-text {
 		left: round(down, calc((100vw - 29 * var(--tile)) / 2), var(--tile));
-		bottom: round(up, calc((100% - 5 * var(--tile)) / 2 - 0.1px), var(--tile));
 	}
 }

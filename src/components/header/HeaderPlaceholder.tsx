@@ -22,10 +22,9 @@ export const HEADER_TARGET_HEIGHT_PX = 198; // 9 rows of 22px tiles on wide scre
 export const TILE_MAX_PX = 22;
 export const TILE_MIN_COLS = 33; // 29 for the text + margin
 
-// The CSS sides of tileCssPx and headerHeightPx below. The expressions are
-// --tile and --header-h in globals.css, where an @supports can give Safari
-// before 15.4, which has no round(), a fallback: a round() it can't parse
-// left both unset there, and with them the placeholder and the pinned header.
+// The CSS sides of tileCssPx and headerHeightPx below: --tile and --header-h
+// in globals.css, set per tile size with media queries rather than computed
+// with round(), which old Safari either lacks or mishandles inside calc().
 export const TILE = "var(--tile)";
 
 // The header is the whole number of tile rows nearest the target height, so
