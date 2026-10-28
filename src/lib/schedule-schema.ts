@@ -2,7 +2,7 @@
 // reads it from public/data/all_schedules.json. Kept apart from the
 // extractor so the site's build doesn't load the model SDK.
 import { z } from "zod";
-import { ClosureSchema, ScheduledClosureSchema } from "./closures";
+import { ClosureSchema, ScheduledClosureSchema } from "./closure-schema";
 
 export const DayOfWeek = z.enum([
 	"Monday",

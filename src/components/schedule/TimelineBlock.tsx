@@ -78,11 +78,12 @@ export default function TimelineBlock({ program, color, compact, style }: Props)
 		document.fonts?.ready.then(() => {
 			if (!cancelled) checkClipped();
 		});
-		const observer = new ResizeObserver(checkClipped);
-		observer.observe(el);
+		// Safari before 13.1 has no ResizeObserver; the checks above still run
+		const observer = typeof ResizeObserver === "function" ? new ResizeObserver(checkClipped) : null;
+		observer?.observe(el);
 		return () => {
 			cancelled = true;
-			observer.disconnect();
+			observer?.disconnect();
 		};
 	}, [program, compact]);
 

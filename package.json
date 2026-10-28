@@ -40,6 +40,7 @@
 		"zod": "^4.6.7"
 	},
 	"devDependencies": {
+		"@csstools/postcss-cascade-layers": "^6.0.2",
 		"@jest/globals": "^30.5.2",
 		"@tailwindcss/postcss": "^4.3.3",
 		"@types/jest": "^30.0.0",
@@ -61,5 +62,12 @@
 		"@istanbuljs/load-nyc-config": {
 			"js-yaml": "^4.3.2"
 		}
-	}
+	},
+	"browserslist": [
+		"chrome >= 111",
+		"edge >= 111",
+		"firefox >= 111",
+		"safari >= 12",
+		"ios_saf >= 12"
+	]
 }

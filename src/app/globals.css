@@ -193,10 +193,26 @@
 	--site-nav-text-mid: calc(0.75rem + 0.625rem);
 	/* rows of water left showing once the header pins, with the tabs over them */
 	--site-strip-rows: 4;
+	/* The header water's tile edge and height (TILE and HEADER_HEIGHT in
+	   HeaderPlaceholder.tsx, which has the reasoning, and whose
+	   tileCssPx/headerHeightPx mirror the @supports values below). This first
+	   pair is for Safari before 15.4, which has no round(): fractional tiles
+	   and a fixed height, so the last row can be cut, but the header still
+	   shows and pins. */
+	--tile: min(22px, calc(100vw / 33));
+	--header-h: 198px;
 	/* how far the grid's lanes fade once a cell is picked: the rest of the
 	   grid, then the picked cell's row and column */
 	--grid-fade: 0.4;
 	--grid-band-fade: 0.6;
+}
+
+/* Whole-pixel tiles, and the whole number of rows nearest 198px. */
+@supports (width: round(down, 1px, 1px)) {
+	:root {
+		--tile: min(22px, round(down, calc(100vw / 33), 1px));
+		--header-h: round(nearest, 198px, var(--tile));
+	}
 }
 
 /* From about 560px wide (a phone on its side, a tablet upright) the tiles

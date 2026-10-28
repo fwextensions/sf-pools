@@ -11,6 +11,7 @@ import { addDays, createPoolCalendar } from "@/lib/pool-calendar";
 import { pacificToday } from "@/lib/closures";
 import { initialGridState, writeGridUrl } from "@/lib/grid/url";
 import { trackFocusMode } from "@/lib/analytics";
+import { onMediaChange } from "@/lib/media-query";
 import type { AlertsData } from "@/lib/site-data";
 import GridBody from "./GridBody";
 import DetailPanel from "./DetailPanel";
@@ -111,8 +112,7 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays 
 			if (wide.matches) setFocusMode(false);
 		};
 		leave();
-		wide.addEventListener("change", leave);
-		return () => wide.removeEventListener("change", leave);
+		return onMediaChange(wide, leave);
 	}, [focusMode]);
 
 	const hasAnyFilter = filters.tags.length > 0 || filters.pools.length > 0;
