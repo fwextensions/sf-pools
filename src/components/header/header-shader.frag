@@ -202,8 +202,17 @@ float hash(vec2 p) {
 float checkChar(vec2 p, int map) {
 	if (p.x < 0.0 || p.x > 2.0 || p.y < 0.0 || p.y > 4.0) return 0.0;
 	int bitIndex = int(p.x) + int(p.y) * 3;
-	float bit = mod(floor(float(map) / pow(2.0, float(bitIndex))), 2.0);
-	return bit;
+	// Integer math rather than floor(map / pow(2.0, bitIndex)): Apple GPUs
+	// compute pow() as an approximate exp2, so 2^4 can come out a hair under
+	// 16, the floor lands one low and the wrong tiles light up. GLSL ES 1.0
+	// has no shifts, and a loop's bound must be a constant.
+	int divisor = 1;
+	for (int i = 0; i < 15; i++) {
+		if (i >= bitIndex) break;
+		divisor *= 2;
+	}
+	int shifted = map / divisor;
+	return float(shifted - (shifted / 2) * 2);
 }
 
 float getText(vec2 gridID) {
