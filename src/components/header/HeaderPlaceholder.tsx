@@ -18,18 +18,19 @@
 //     They're in header-placeholder.css, which HeaderAnimation imports (so
 //     the sizing helpers here stay importable from tests).
 
-import type { CSSProperties } from "react";
-
 export const HEADER_TARGET_HEIGHT_PX = 198; // 9 rows of 22px tiles on wide screens
 export const TILE_MAX_PX = 22;
 export const TILE_MIN_COLS = 33; // 29 for the text + margin
 
-export const TILE = `min(${TILE_MAX_PX}px, round(down, calc(100vw / ${TILE_MIN_COLS}), 1px))`;
+// The CSS sides of tileCssPx and headerHeightPx below: --tile and --header-h
+// in globals.css, set per tile size with media queries rather than computed
+// with round(), which old Safari either lacks or mishandles inside calc().
+export const TILE = "var(--tile)";
 
 // The header is the whole number of tile rows nearest the target height, so
 // the grid always fits exactly top to bottom (no partial row on phones).
 // HEADER_HEIGHT is the CSS mirror of headerHeightPx; both round half up.
-export const HEADER_HEIGHT = `round(nearest, ${HEADER_TARGET_HEIGHT_PX}px, ${TILE})`;
+export const HEADER_HEIGHT = "var(--header-h)";
 
 // JS mirrors of TILE and HEADER_HEIGHT for sizing the canvas.
 export function tileCssPx(width: number) {
@@ -44,13 +45,9 @@ export function headerHeightPx(width: number) {
 export function HeaderPlaceholder()
 {
 	// The look is all in header-placeholder.css, so the browser caches it
-	// rather than every page inlining it; only the tile size comes from here.
+	// rather than every page inlining it.
 	return (
-		<div
-			aria-hidden
-			className="header-placeholder"
-			style={{ "--tile": TILE } as CSSProperties}
-		>
+		<div aria-hidden className="header-placeholder">
 			<div className="header-placeholder-text" />
 		</div>
 	);

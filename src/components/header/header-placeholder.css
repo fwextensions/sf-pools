@@ -3,8 +3,8 @@
    it once instead of every page carrying it twice (in the HTML and again in
    the RSC payload). It's render-blocking like the rest of the site's CSS, so
    it still paints in the first frame, before the WebGL loads.
-   --tile is set inline from TILE in HeaderPlaceholder.tsx, the same
-   expression the site layout and the canvas sizing mirror. */
+   --tile is the tile edge from globals.css, the same value the site layout
+   uses and the canvas sizing mirrors. */
 
 .header-placeholder {
 	/* The shader's base colors from header-shader.frag, seen through its
@@ -132,18 +132,18 @@
 
    Placement matches the shader's snapping, not true centering:
    textStart = (floor((totalTiles - 29) / 2), ceil((rows - 5) / 2)) in whole
-   tiles from the bottom-left grid origin. round(down|up) reproduces the
-   floor/ceil so the letters sit on the 0,0 grid even when the width is a
+   tiles from the bottom-left grid origin. The ceil is precomputed per tile
+   size in globals.css (--header-text-bottom); round(down) reproduces the
+   floor so the letters sit on the 0,0 grid even when the width is a
    fractional number of tiles. 100vw, not 100%: the canvas is sized from a
    100vw probe, which includes the scrollbar; 100% excludes it, which can flip
-   the floor by a column. The -0.1px keeps the round(up) from overshooting a
-   row when (100% - 5 * tile) / 2 lands exactly on a tile boundary (the tile
-   is a hair under 200/9px, so the operand comes out epsilon above 2 tiles at
-   9 rows). */
+   the floor by a column. */
 .header-placeholder-text {
 	position: absolute;
-	left: round(down, calc((100vw - 29 * var(--tile)) / 2), var(--tile));
-	bottom: round(up, calc((100% - 5 * var(--tile)) / 2 - 0.1px), var(--tile));
+	/* centered as is, for Safari before 15.4, which has no round(); the
+	   @supports below snaps it to the grid */
+	left: calc((100vw - 29 * var(--tile)) / 2);
+	bottom: var(--header-text-bottom);
 	width: calc(29 * var(--tile));
 	height: calc(5 * var(--tile));
 	background-color: var(--text-tile);
@@ -155,4 +155,10 @@
 	background-size: var(--tile) var(--tile);
 	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 5'%3E%3Cpath d='M0 0h3v1h-3zM4 0h3v1h-3zM10 0h3v1h-3zM14 0h3v1h-3zM18 0h3v1h-3zM22 0h1v1h-1zM26 0h3v1h-3zM0 1h1v1h-1zM4 1h1v1h-1zM10 1h1v1h-1zM12 1h1v1h-1zM14 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM20 1h1v1h-1zM22 1h1v1h-1zM26 1h1v1h-1zM0 2h3v1h-3zM4 2h3v1h-3zM10 2h3v1h-3zM14 2h1v1h-1zM16 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM22 2h1v1h-1zM26 2h3v1h-3zM2 3h1v1h-1zM4 3h1v1h-1zM10 3h1v1h-1zM14 3h1v1h-1zM16 3h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM22 3h1v1h-1zM28 3h1v1h-1zM0 4h3v1h-3zM4 4h1v1h-1zM10 4h1v1h-1zM14 4h3v1h-3zM18 4h3v1h-3zM22 4h3v1h-3zM26 4h3v1h-3z'/%3E%3C/svg%3E");
 	mask-size: 100% 100%;
+}
+
+@supports (width: round(down, 1px, 1px)) {
+	.header-placeholder-text {
+		left: round(down, calc((100vw - 29 * var(--tile)) / 2), var(--tile));
+	}
 }

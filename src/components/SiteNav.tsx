@@ -106,11 +106,14 @@ export default function SiteNav() {
 		>
 			{/* over the water the tabs share one bar that blurs the water behind
 			    their labels: as wide as the screen on a phone, and just around
-			    the three tabs from 560px up, where the nav shrinks to fit them */}
+			    the three tabs from 560px up, where the nav shrinks to fit them.
+			    It fades in but drops out at once: leaving the water, the nav
+			    goes back to full width straight away, and a fade out flashed
+			    the bar across the whole page for a frame or two. */}
 			<div
 				aria-hidden
-				className={`site-tab-bar pointer-events-none absolute -inset-x-4 transition-opacity duration-150 min-[560px]:-inset-x-3 ${
-					overWater ? "opacity-100" : "opacity-0"
+				className={`site-tab-bar pointer-events-none absolute -inset-x-4 min-[560px]:-inset-x-3 ${
+					overWater ? "opacity-100 transition-opacity duration-150" : "opacity-0"
 				}`}
 			/>
 			{SECTIONS.map(({ href, label }) => {

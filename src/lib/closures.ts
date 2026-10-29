@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { formatScheduleDate } from "./utils";
 
 /**
@@ -407,25 +406,6 @@ export function mergeClosure(
 }
 
 /**
- * Validation for a persisted closure. Defined here rather than beside the
- * schedule schema so the type and its validator can't drift apart.
- */
-export const ClosureSchema = z.object({
-	summary: z.string(),
-	rawText: z.string(),
-	startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
-	endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
-	indefinite: z.boolean(),
-	sourceUrl: z.string().url().nullable(),
-	reason: z.string().nullable(),
-	scope: z.enum(["whole-pool", "partial"]),
-	source: z.enum(["pattern", "model", "pattern+model"]),
-	suppressPrograms: z.boolean(),
-	confidence: z.number().min(0).max(1).nullable(),
-	disagreement: z.string().nullable(),
-});
-
-/**
  * A closure the schedule PDF itself announces in its notes: a holiday ("All
  * city pools will be closed on Oct. 12 for Indigenous Peoples Day"), a staff
  * training window ("Pool closed 12pm-2pm 8/27, 9/24, 10/22") or a maintenance
@@ -444,24 +424,6 @@ export type ScheduledClosure = {
 	reason: string | null;
 };
 
-const TIME = /^(0?[1-9]|1[0-2]):[0-5]\d[ap]$/;
-const DATE = /^\d{4}-\d{2}-\d{2}$/;
-
-export const ScheduledClosureSchema = z.object({
-	startDate: z.string().regex(DATE).describe("first closed day, YYYY-MM-DD"),
-	endDate: z.string().regex(DATE).describe("last closed day, YYYY-MM-DD; the same as startDate for one day"),
-	startTime: z
-		.string()
-		.regex(TIME)
-		.nullable()
-		.describe("h:mm[a|p] when only part of the day is closed, else null"),
-	endTime: z
-		.string()
-		.regex(TIME)
-		.nullable()
-		.describe("h:mm[a|p] when only part of the day is closed, else null"),
-	reason: z.string().nullable().describe("the holiday or reason as written, e.g. 'Veterans Day'"),
-});
 
 /** the longest stretch a schedule's own closure note may cover */
 export const MAX_SCHEDULED_CLOSURE_DAYS = 60;

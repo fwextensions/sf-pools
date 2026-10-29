@@ -5,6 +5,7 @@ import { HeaderPlaceholder, HEADER_HEIGHT } from "./HeaderPlaceholder";
 import "./header-placeholder.css";
 import displayFragShader from "./header-shader.frag";
 import { mountWater, type Water } from "./water";
+import { onMediaChange } from "@/lib/media-query";
 
 // Shader constants that ?water=no-<name> switches off, for comparing each
 // effect against the water without it. ?water=plain switches off all of them.
@@ -101,13 +102,13 @@ export default function HeaderAnimation()
 			visible = entries[entries.length - 1].isIntersecting;
 			applyLoopState();
 		});
-		reducedMotion.addEventListener("change", applyLoopState);
+		const stopWatchingMotion = onMediaChange(reducedMotion, applyLoopState);
 		observer.observe(host);
 		mount();
 
 		return () => {
 			observer.disconnect();
-			reducedMotion.removeEventListener("change", applyLoopState);
+			stopWatchingMotion();
 			cancelAnimationFrame(remountId);
 			water?.remove();
 		};
