@@ -1,0 +1,502 @@
+[
+	{
+		"id": "sava",
+		"name": "Sava Pool",
+		"nameTitle": "Sava Pool",
+		"shortName": "Sava",
+		"address": "19th Ave & Wawona St, San Francisco",
+		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Sava-Pool-220",
+		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/30374",
+		"scheduleLastUpdated": "2026-10-30",
+		"scheduleSeason": "Fall 2026",
+		"scheduleStartDate": "2026-11-03",
+		"scheduleEndDate": "2026-12-01",
+		"lanes": null,
+		"closure": null,
+		"scheduledClosures": [
+			{
+				"startDate": "2026-11-11",
+				"endDate": "2026-11-11",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Veterans Day"
+			},
+			{
+				"startDate": "2026-11-26",
+				"endDate": "2026-11-27",
+				"startTime": null,
+				"endTime": null,
+				"reason": "Thanksgiving"
+			},
+			{
+				"startDate": "2026-12-01",
+				"endDate": "2026-12-19",
+				"startTime": null,
+				"endTime": null,
+				"reason": "annual maintenance"
+			}
+		],
+		"programs": [
+			{
+				"programName": "High School Swim Programs",
+				"dayOfWeek": "Tuesday",
+				"startTime": "7:30a",
+				"endTime": "9:00a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SFUSD",
+				"programNameCanonical": "High School Swim Programs",
+				"title": "SFUSD",
+				"tags": [
+					"access:school-group",
+					"activity:school",
+					"program:school"
+				]
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "9:30a",
+				"endTime": "11:30a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Senior/ Therapy Swim",
+				"programNameCanonical": "Senior Swim / Therapy Swim",
+				"title": "Senior/Therapy Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:senior",
+					"activity:therapy",
+					"audience:senior",
+					"program:senior"
+				]
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "12:00p",
+				"endTime": "2:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim",
+				"title": "Lap Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:lap",
+					"program:lap"
+				]
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Tuesday",
+				"startTime": "3:00p",
+				"endTime": "5:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Family Swim",
+				"programNameCanonical": "Family Swim",
+				"title": "Family Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:family",
+					"program:family"
+				]
+			},
+			{
+				"programName": "Rentals / Private Use",
+				"dayOfWeek": "Tuesday",
+				"startTime": "5:30p",
+				"endTime": "7:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Rental (Youth Teams)",
+				"programNameCanonical": "Rentals / Private Use",
+				"title": "Rental (Youth Teams)",
+				"tags": [
+					"access:rental",
+					"activity:rental",
+					"activity:swim-team",
+					"audience:youth",
+					"program:rentals"
+				]
+			},
+			{
+				"programName": "Special Olympics",
+				"dayOfWeek": "Tuesday",
+				"startTime": "7:00p",
+				"endTime": "8:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Special Olympics",
+				"programNameCanonical": "Special Olympics",
+				"title": "Special Olympics",
+				"tags": [
+					"activity:special-olympics",
+					"program:swim-team"
+				]
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "6:30a",
+				"endTime": "9:00a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim",
+				"title": "Lap Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:lap",
+					"program:lap"
+				]
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "9:30a",
+				"endTime": "11:30a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Senior/ Therapy Swim",
+				"programNameCanonical": "Senior Swim / Therapy Swim",
+				"title": "Senior/Therapy Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:senior",
+					"activity:therapy",
+					"audience:senior",
+					"program:senior"
+				]
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "12:00p",
+				"endTime": "2:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim",
+				"title": "Lap Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:lap",
+					"program:lap"
+				]
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "2:30p",
+				"endTime": "5:30p",
+				"lanes": 4,
+				"notes": null,
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim",
+				"title": "Lap Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:lap",
+					"program:lap"
+				]
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "2:30p",
+				"endTime": "5:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Family Swim",
+				"programNameCanonical": "Family Swim",
+				"title": "Family Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:family",
+					"program:family"
+				]
+			},
+			{
+				"programName": "Rentals / Private Use",
+				"dayOfWeek": "Wednesday",
+				"startTime": "5:30p",
+				"endTime": "7:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Rental (Masters)",
+				"programNameCanonical": "Rentals / Private Use",
+				"title": "Rental (Masters)",
+				"tags": [
+					"access:rental",
+					"activity:masters",
+					"activity:rental",
+					"program:rentals"
+				]
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Wednesday",
+				"startTime": "7:00p",
+				"endTime": "8:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim",
+				"title": "Lap Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:lap",
+					"program:lap"
+				]
+			},
+			{
+				"programName": "High School Swim Programs",
+				"dayOfWeek": "Thursday",
+				"startTime": "7:30a",
+				"endTime": "9:30a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "SFUSD",
+				"programNameCanonical": "High School Swim Programs",
+				"title": "SFUSD",
+				"tags": [
+					"access:school-group",
+					"activity:school",
+					"program:school"
+				]
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "10:00a",
+				"endTime": "12:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Senior/ Therapy Swim",
+				"programNameCanonical": "Senior Swim / Therapy Swim",
+				"title": "Senior/Therapy Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:senior",
+					"activity:therapy",
+					"audience:senior",
+					"program:senior"
+				]
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "12:30p",
+				"endTime": "3:00p",
+				"lanes": null,
+				"notes": "CLOSED 9/24, 10/22 FOR STAFF TRAINING",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim",
+				"title": "Lap Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:lap",
+					"program:lap"
+				]
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Thursday",
+				"startTime": "3:30p",
+				"endTime": "5:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim",
+				"title": "Lap Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:lap",
+					"program:lap"
+				]
+			},
+			{
+				"programName": "Rentals / Private Use",
+				"dayOfWeek": "Thursday",
+				"startTime": "5:30p",
+				"endTime": "7:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Rental (Youth Teams)",
+				"programNameCanonical": "Rentals / Private Use",
+				"title": "Rental (Youth Teams)",
+				"tags": [
+					"access:rental",
+					"activity:rental",
+					"activity:swim-team",
+					"audience:youth",
+					"program:rentals"
+				]
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "6:30a",
+				"endTime": "9:00a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim",
+				"title": "Lap Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:lap",
+					"program:lap"
+				]
+			},
+			{
+				"programName": "Senior Swim / Therapy Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "9:30a",
+				"endTime": "11:30a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Senior/ Therapy Swim",
+				"programNameCanonical": "Senior Swim / Therapy Swim",
+				"title": "Senior/Therapy Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:senior",
+					"activity:therapy",
+					"audience:senior",
+					"program:senior"
+				]
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "12:00p",
+				"endTime": "3:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim",
+				"title": "Lap Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:lap",
+					"program:lap"
+				]
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "3:30p",
+				"endTime": "5:00p",
+				"lanes": 4,
+				"notes": null,
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim",
+				"title": "Lap Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:lap",
+					"program:lap"
+				]
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "3:30p",
+				"endTime": "5:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Family Swim",
+				"programNameCanonical": "Family Swim",
+				"title": "Family Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:family",
+					"program:family"
+				]
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "5:30p",
+				"endTime": "7:30p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Family Swim",
+				"programNameCanonical": "Family Swim",
+				"title": "Family Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:family",
+					"program:family"
+				]
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "9:00a",
+				"endTime": "11:00a",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim",
+				"title": "Lap Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:lap",
+					"program:lap"
+				]
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "11:30a",
+				"endTime": "1:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Family Swim",
+				"programNameCanonical": "Family Swim",
+				"title": "Family Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:family",
+					"program:family"
+				]
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "1:30p",
+				"endTime": "3:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Family Swim",
+				"programNameCanonical": "Family Swim",
+				"title": "Family Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:family",
+					"program:family"
+				]
+			},
+			{
+				"programName": "Lap Swim",
+				"dayOfWeek": "Saturday",
+				"startTime": "3:30p",
+				"endTime": "5:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim",
+				"title": "Lap Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:lap",
+					"program:lap"
+				]
+			}
+		]
+	}
+]

@@ -48,5 +48,10 @@
 		"pdfHash": "4b1055669e1df46512c16b051b02b8de52d1b935f7cbfde2f27bfe38ff03009c",
 		"extractedAt": "2026-10-12T22:10:10.807Z",
 		"grounding": 2
+	},
+	"sava.upcoming": {
+		"pdfHash": "eb848200d8e2426c44e499731ccfa050dd3042cabf2dea3735447655cc97f1aa",
+		"extractedAt": "2026-10-30T23:19:16.509Z",
+		"grounding": 2
 	}
 }

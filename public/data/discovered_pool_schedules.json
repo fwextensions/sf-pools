@@ -1,42 +1,62 @@
 [
 	{
 		"poolId": "balboa",
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29796"
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29796",
+		"upcomingPdfUrl": null,
+		"upcomingStartDate": null
 	},
 	{
 		"poolId": "coffman",
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29798"
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29798",
+		"upcomingPdfUrl": null,
+		"upcomingStartDate": null
 	},
 	{
 		"poolId": "garfield",
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29799"
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29799",
+		"upcomingPdfUrl": null,
+		"upcomingStartDate": null
 	},
 	{
 		"poolId": "hamilton",
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29800"
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29800",
+		"upcomingPdfUrl": null,
+		"upcomingStartDate": null
 	},
 	{
 		"poolId": "mlk",
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/30210"
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/30210",
+		"upcomingPdfUrl": null,
+		"upcomingStartDate": null
 	},
 	{
 		"poolId": "mission",
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/30319"
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/30319",
+		"upcomingPdfUrl": null,
+		"upcomingStartDate": null
 	},
 	{
 		"poolId": "northBeachCool",
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29953"
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29953",
+		"upcomingPdfUrl": null,
+		"upcomingStartDate": null
 	},
 	{
 		"poolId": "northBeachWarm",
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29954"
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29954",
+		"upcomingPdfUrl": null,
+		"upcomingStartDate": null
 	},
 	{
 		"poolId": "rossi",
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29804"
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/29804",
+		"upcomingPdfUrl": null,
+		"upcomingStartDate": null
 	},
 	{
 		"poolId": "sava",
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/30037"
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/30037",
+		"upcomingPdfUrl": "https://sfrecpark.org/DocumentCenter/View/30374",
+		"upcomingStartDate": "2026-11-03"
 	}
 ]
