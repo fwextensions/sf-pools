@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PoolChip from "@/components/PoolChip";
+import { markdownPath } from "@/lib/page-markdown";
 import { buildPoolPages } from "@/lib/pool-pages";
 import { loadPools, loadSchedules } from "@/lib/site-data";
 
 export const metadata: Metadata = {
 	title: "Pools",
 	description: "San Francisco's public swimming pools, with each one's address and weekly swim schedule.",
-	alternates: { canonical: "/pools" },
+	alternates: { canonical: "/pools", types: { "text/markdown": markdownPath("/pools") } },
 };
 
 export default async function PoolsPage() {

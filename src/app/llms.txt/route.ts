@@ -2,9 +2,11 @@
 // llms.txt proposal lays out (llmstxt.org): a title, a summary, details with
 // no headings, then H2 sections that are only lists of links, with the ones
 // an agent can skip under "Optional". Every page points here with
-// rel="describedby" (see the root layout).
+// rel="describedby" (see the root layout). Pages with a markdown copy are
+// linked by it, as the proposal asks.
 // Prerendered, since it only changes with the data.
 import { createSwimAnswers } from "@/lib/swim-answers";
+import { markdownPath } from "@/lib/page-markdown";
 import { loadSchedules } from "@/lib/site-data";
 import { SITE_URL } from "@/lib/site-url";
 
@@ -16,6 +18,7 @@ export async function GET(): Promise<Response> {
 	// North Beach's two pools share a page
 	const pages = pools.filter((p, i) => pools.findIndex((o) => o.pageUrl === p.pageUrl) === i);
 	const categories = answers.listCategories().filter((c) => c.public);
+	const md = (path: string) => `${SITE_URL}${markdownPath(path)}`;
 
 	const text = `# SF Pools
 
@@ -33,15 +36,16 @@ Program category ids, for the program and categories filters: ${categories.map((
 - [Week grid](${SITE_URL}/): which pools have a program at each hour of the week, filterable by program and pool, e.g. ${SITE_URL}/?program=lap&pools=balboa
 - [Now & soon](${SITE_URL}/now): what's open right now and what starts in the next two hours
 - [Full schedules](${SITE_URL}/schedules): every program at every pool
+- [Pools](${md("/pools")}): every pool, with its address and a link to its page
 
 ## Pools
 
-${pages.map((p) => `- [${p.name.replace(/\s*\(.*\)$/, "")}](${p.pageUrl}): ${p.address ?? ""}`.trimEnd()).join("\n")}
+${pages.map((p) => `- [${p.name.replace(/\s*\(.*\)$/, "")}](${markdownPath(p.pageUrl)}): ${p.address ?? ""}`.trimEnd()).join("\n")}
 
 ## Optional
 
 - [Schedule changes](${SITE_URL}/changes): what changed in each weekly update
-- [About](${SITE_URL}/about): where the data comes from and how far to trust it
+- [About](${md("/about")}): where the data comes from and how far to trust it
 `;
 	return new Response(text, { headers: { "Content-Type": "text/plain; charset=utf-8" } });
 }
