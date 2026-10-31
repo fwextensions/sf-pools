@@ -31,6 +31,7 @@ const TIMES_OF_DAY: { label: string; value?: string }[] = [
 // switches the effect off in production; on restores the committed default.
 const EFFECT_TOGGLES: { label: string; name: string }[] = [
 	{ label: "Water tint", name: "WATER_TINT" },
+	{ label: "Caustic floor offset", name: "CAUSTIC_OFFSET" },
 	{ label: "Pool lights (night)", name: "POOL_LIGHTS" },
 	{ label: "Night caustics", name: "NIGHT_CAUSTICS" },
 	{ label: "Night glint", name: "NIGHT_GLINT" },

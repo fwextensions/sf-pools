@@ -11,6 +11,7 @@ import { onMediaChange } from "@/lib/media-query";
 // effect against the water without it. ?water=plain switches off all of them.
 const EFFECTS: Record<string, string> = {
 	tint: "WATER_TINT",
+	offset: "CAUSTIC_OFFSET",
 };
 
 function withConstsZeroed(src: string, names: string[]) {
@@ -34,8 +35,9 @@ export default function HeaderAnimation()
 
 		// ?water=off leaves just the CSS placeholder, for comparing the two.
 		// Other comma-separated values preview the effects: day or night
-		// pins the time of day; no-tint switches the water tint off; plain
-		// switches every effect off, which is the water as it was before them;
+		// pins the time of day; no-tint switches the water tint off;
+		// no-offset stacks the caustics under their ripples; plain switches
+		// every effect off, which is the water as it was before them;
 		// no-check skips the black-frame check.
 		const flags = (new URLSearchParams(location.search).get("water") ?? "").split(",");
 		if (flags.includes("off")) return;

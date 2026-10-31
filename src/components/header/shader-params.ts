@@ -71,6 +71,11 @@ export const PARAM_SPECS: ParamSpec[] = [
 		label: "Shadow strength", min: 0.0, max: 1.0, step: 0.02,
 		hint: "Depth of the defocused regions. Free from the same determinant — where light left, it is darker.",
 	},
+	{
+		name: "CAUSTIC_OFFSET", domain: "display", group: "Caustics",
+		label: "Floor offset (tiles)", min: 0.0, max: 4.0, step: 0.05,
+		hint: "How far down and right of a ripple its caustics land on the floor, as slanted sunlight would put them. Crest, trough and glint stay on the surface, so the gap reads as depth. 0 stacks them. Daytime only; the ambient swell looks the same either way, so touch the water to judge it.",
+	},
 
 	// --- Wave field ---------------------------------------------------------
 	{

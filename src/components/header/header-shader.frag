@@ -145,6 +145,12 @@ const float CAUSTIC_DISPERSION = 0.07;
 // generated one it replaces.
 const float CAUSTIC_STRENGTH = 0.6;
 const float CAUSTIC_SHADOW = 0.45;
+// How far, in tiles, the floor's light pattern lands from the surface that
+// made it. The sun is off to the upper left, so light crosses the water on a
+// slant and a ripple's caustic ring falls down and to the right of the ripple
+// itself, while its crest, trough and glint stay put on the surface. That gap
+// is what makes the floor read as deep. 0.0 stacks the two, as before.
+const float CAUSTIC_OFFSET = 1.0;
 
 // --- Refraction ---
 // How far the tiles are displaced by the surface slope, as a multiple of what
@@ -534,6 +540,22 @@ void main() {
 
 	float simH; vec2 simGrad; vec3 simHess;
 	sampleWater(screenUV, simH, simGrad, simHess);
+
+	// The sunlit floor at p was lit through the surface up-sun of p, so the lens
+	// reads the sim from there (see CAUSTIC_OFFSET). The tiles, crest/trough and
+	// glint keep the surface straight above p, which is what the eye looks
+	// through. Only the sim is shifted: the ambient swell is statistically the
+	// same everywhere, so moving it would cost twelve more waves and change
+	// nothing anyone could see. The offset fades with the sun, leaving the lamp
+	// caustics at night where they were. The second call uses only the Hessian,
+	// and the surface call above only height and gradient, so the compiler drops
+	// the taps each doesn't need.
+	vec2 lensShift = normalize(vec2(-0.35, 0.55)) * (CAUSTIC_OFFSET * u_daylight * u_tilePx / u_resolution.y);
+	lensShift.x /= aspect;
+	if (CAUSTIC_OFFSET > 0.0) {
+		float lensH; vec2 lensGrad;
+		sampleWater(screenUV + lensShift, lensH, lensGrad, simHess);
+	}
 
 	// Two slope fields from the same taps. `grad` is the gradient of exactly the
 	// field whose Hessian goes into the caustic determinant below (same weights,
