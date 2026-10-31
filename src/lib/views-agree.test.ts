@@ -41,7 +41,7 @@ describe.each<Mode>(["all", "drop-in"])("the Now page in %s mode, on the publish
 	it("shows every session running now or starting later today", () => {
 		const missing: string[] = [];
 		for (const now of moments) {
-			const view = nowSoon(pools, calendar, now, { mode, program: null, when: "next" });
+			const view = nowSoon(pools, calendar, now, { mode, program: null });
 			const sessions = calendar.sessions(now.date, now.date).filter((s) => qualifies(s, { mode, program: null }));
 			for (const s of sessions) {
 				const open = view.open.find((o) => o.pool.id === s.poolId);
@@ -61,7 +61,7 @@ describe.each<Mode>(["all", "drop-in"])("the Now page in %s mode, on the publish
 	it("only lists a pool as open, soon or later when a session says so", () => {
 		const wrong: string[] = [];
 		for (const now of moments) {
-			const view = nowSoon(pools, calendar, now, { mode, program: null, when: "next" });
+			const view = nowSoon(pools, calendar, now, { mode, program: null });
 			const own = (id: string) =>
 				calendar.sessions(now.date, now.date).filter((s) => s.poolId === id && qualifies(s, { mode, program: null }));
 			for (const o of view.open) {
@@ -98,7 +98,7 @@ describe("find_sessions on the published schedules", () => {
 	it("agrees with the Now page's drop-in view on what's open now and what starts soon", () => {
 		const disagree: string[] = [];
 		for (const now of moments) {
-			const view = nowSoon(pools, calendar, now, { mode: "drop-in", program: null, when: "next" });
+			const view = nowSoon(pools, calendar, now, { mode: "drop-in", program: null });
 			const openNow = answers.findSessions({ when: "now", limit: 200 }, now);
 			const openIds = new Set((openNow.open ?? []).map((o) => o.poolId));
 			const pageOpen = new Set(view.open.map((o) => o.pool.id));
