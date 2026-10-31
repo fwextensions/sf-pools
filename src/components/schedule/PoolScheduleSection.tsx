@@ -1,9 +1,6 @@
-import Link from "next/link";
 import type { PoolSchedule, ProgramEntry } from "@/lib/schedule-schema";
 import ClosureNotice from "@/components/ClosureNotice";
 import ScheduledClosures from "@/components/ScheduledClosures";
-import { ExternalLinkIcon } from "@/components/icons";
-import PoolChip from "@/components/PoolChip";
 import SessionBlock from "@/components/schedule/SessionBlock";
 import TimelineBlock from "@/components/schedule/TimelineBlock";
 import { toTitleCase } from "@/lib/program-taxonomy";
@@ -12,13 +9,8 @@ import { DAYS, programMinutes } from "@/lib/sessions";
 import { parseTimeToMinutes } from "@/lib/time";
 import { formatScheduleDate } from "@/lib/utils";
 
-// One pool's weekly schedule, as the full schedules page and a pool's own page
-// both show it. Its pinned rows offset themselves by --schedule-nav-h, the
-// height of whatever pinned bar the page puts above them (none on a pool page).
-
-function formatDate(d?: string | null): string {
-	return formatScheduleDate(d, { year: "numeric", month: "short", day: "2-digit" });
-}
+// One pool's weekly schedule, as a pool's own page shows it. Its day row pins
+// straight under the site header.
 
 // a time that doesn't parse sorts last
 function startOrLast(p: ProgramEntry): number {
@@ -27,26 +19,6 @@ function startOrLast(p: ProgramEntry): number {
 
 function byStartTime(a: ProgramEntry, b: ProgramEntry): number {
 	return startOrLast(a) - startOrLast(b);
-}
-
-/** meta line pieces, joined with a mono interpunct */
-function MetaLine({ parts }: { parts: React.ReactNode[] }) {
-	const shown = parts.filter(Boolean);
-	if (!shown.length) return null;
-	return (
-		<div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-label font-medium tracking-[.08em] text-ink-2">
-			{shown.map((part, i) => (
-				<span key={i} className="flex items-center gap-2">
-					{i > 0 ? (
-						<span aria-hidden className="text-ink-2">
-							·
-						</span>
-					) : null}
-					{part}
-				</span>
-			))}
-		</div>
-	);
 }
 
 function DayColumn({
@@ -206,19 +178,19 @@ function WeekTimeline({
 			className="hidden min-[900px]:grid"
 			style={{ gridTemplateColumns: `${GUTTER} repeat(7, minmax(0, 1fr))`, columnGap: 3 }}
 		>
-			{/* the day names ride down the page under the pool's pinned name, so a
+			{/* the day names ride down the page under the site header, so a
 			    session two screens into a schedule still has a column heading. The
 			    strip behind them spans the time gutter and the column gaps, which
 			    the seven cells alone would let the rows show through. */}
 			<div
 				aria-hidden
-				style={{ gridRow: 1, gridColumn: "1 / -1", top: "calc(var(--site-sticky-h) + var(--schedule-day-row-top))" }}
+				style={{ gridRow: 1, gridColumn: "1 / -1", top: "var(--site-sticky-h)" }}
 				className="sticky z-[3] bg-page"
 			/>
 			{DAYS.map((day, i) => (
 				<div
 					key={day}
-					style={{ gridRow: 1, gridColumn: i + 2, top: "calc(var(--site-sticky-h) + var(--schedule-day-row-top))" }}
+					style={{ gridRow: 1, gridColumn: i + 2, top: "var(--site-sticky-h)" }}
 					// the breathing room above the labels is padding on the pinned row
 					// itself, not a margin above the grid: a margin is outside the
 					// sticky box, so it collapses the moment the row pins and the
@@ -307,17 +279,11 @@ function WeekTimeline({
 type Props = {
 	pool: PoolSchedule;
 	token: PoolToken | null;
-	/**
-	 * On a pool's own page, which already names the pool and gives its address
-	 * and PDF: a small label replaces the pinned name row, and the day row pins
-	 * straight under the site header.
-	 */
-	label?: string;
-	/** where the pool's name links, if anywhere */
-	href?: string;
+	/** the section's heading: the pool's page already names the pool */
+	label: string;
 };
 
-export default function PoolScheduleSection({ pool, token, label, href }: Props) {
+export default function PoolScheduleSection({ pool, token, label }: Props) {
 	const color = token?.color ?? "var(--color-ink-2)";
 	const all = pool.programs || [];
 	const byDay = DAYS.map((day) => ({
@@ -325,115 +291,38 @@ export default function PoolScheduleSection({ pool, token, label, href }: Props)
 		programs: all.filter((p) => p.dayOfWeek === day).sort(byStartTime),
 	}));
 	const period = [
-		pool.scheduleSeason,
-		pool.scheduleStartDate ? formatDate(pool.scheduleStartDate) : null,
-		pool.scheduleEndDate ? `– ${formatDate(pool.scheduleEndDate)}` : null,
+		pool.scheduleSeason ? toTitleCase(pool.scheduleSeason) : null,
+		[pool.scheduleStartDate, pool.scheduleEndDate]
+			.filter(Boolean)
+			.map((d) => formatScheduleDate(d, { year: "numeric", month: "short", day: "numeric" }))
+			.join(" – "),
 	]
 		.filter(Boolean)
 		.join(" ");
 
-	if (label) {
-		// sentence case and unpadded days, where the pinned row above uses caps
-		const pagePeriod = [
-			pool.scheduleSeason ? toTitleCase(pool.scheduleSeason) : null,
-			[pool.scheduleStartDate, pool.scheduleEndDate]
-				.filter(Boolean)
-				.map((d) => formatScheduleDate(d, { year: "numeric", month: "short", day: "numeric" }))
-				.join(" – "),
-		]
-			.filter(Boolean)
-			.join(" ");
-		return (
-			// ruled and labelled like the facts above it; a second pool's
-			// schedule gets more room, so it doesn't read as the first one's tail
-			<section id={`pool-${pool.id}`} className="mt-6 border-t border-line pt-2.5 [&+&]:mt-12">
-				<h2 className="font-mono text-label font-semibold tracking-[.08em] text-ink-2 uppercase">{label}</h2>
-				{pagePeriod ? <p className="mt-0.5 text-body text-ink">{pagePeriod}</p> : null}
-				{pool.scheduledClosures?.length ? (
-					<ScheduledClosures closures={pool.scheduledClosures} className="mt-0.5 text-body text-ink-2" />
-				) : null}
-				<p className="mt-0.5 text-body text-ink">
-					{all.length} session{all.length === 1 ? "" : "s"}
-					{pool.lanes ? ` · ${pool.lanes} lanes` : ""}
-				</p>
-				{pool.closure ? (
-					<div className="mt-3">
-						<ClosureNotice closure={pool.closure} poolName={toTitleCase(pool.name)} />
-					</div>
-				) : null}
-				{/* with the day row's own top padding, this matches the space above
-				    the section */}
-				<div className="mt-3">
-					<PoolWeek pool={pool} byDay={byDay} color={color} />
-				</div>
-			</section>
-		);
-	}
-
 	return (
-		// the space above each pool is margin, not padding: scroll-margin
-		// is measured from the border box, so padding would land a jump
-		// that far below the nav, with the previous pool showing through
-		<section id={`pool-${pool.id}`} className="mt-7 scroll-mt-[calc(var(--site-sticky-h)+var(--schedule-nav-h))]">
-			{/* the pool's name follows its programs down the page, pinned
-			    directly under the jump nav, so a session three screens into
-			    a schedule still says whose pool it is. Only the identity row
-			    sticks; the season, address and PDF link scroll away, since a
-			    third of the screen held down by chrome is worse than the
-			    question it answers. Below the nav's z-index, so the two never
-			    bleed into each other. */}
-			<header
-				// the hairline is drawn outside the box so it reads as the
-				// pinned bar's edge over the sessions passing under it,
-				// without adding a rule between the name and the meta line
-				className="sticky top-[calc(var(--site-sticky-h)+var(--schedule-nav-h))] z-[5] border-t-[3px] bg-page pt-2.5 pb-2 shadow-[0_1px_0_var(--color-line)]"
-				style={{ borderColor: color }}
-			>
-				<div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-					<PoolChip token={token} />
-					<h2 className="text-heading font-semibold leading-tight">
-						{href ? (
-							<Link href={href} className="underline-offset-[3px] hover:underline">
-								{toTitleCase(pool.name)}
-							</Link>
-						) : (
-							toTitleCase(pool.name)
-						)}
-					</h2>
-					<span className="font-mono text-label font-medium text-ink-2">
-						{all.length} SESSION{all.length === 1 ? "" : "S"}
-					</span>
-				</div>
-			</header>
-			<MetaLine
-				parts={[
-					period ? <span className="uppercase">{period}</span> : null,
-					pool.address ? <span className="uppercase">{pool.address}</span> : null,
-					pool.lanes ? <span>{pool.lanes} LANES</span> : null,
-					pool.pdfScheduleUrl ? (
-						<a
-							href={pool.pdfScheduleUrl}
-							target="_blank"
-							rel="noreferrer"
-							className="link-utility"
-						>
-							Source PDF<ExternalLinkIcon />
-						</a>
-					) : null,
-				]}
-			/>
-
+		// ruled and labelled like the facts above it; a second pool's
+		// schedule gets more room, so it doesn't read as the first one's tail
+		<section id={`pool-${pool.id}`} className="mt-6 border-t border-line pt-2.5 [&+&]:mt-12">
+			<h2 className="font-mono text-label font-semibold tracking-[.08em] text-ink-2 uppercase">{label}</h2>
+			{period ? <p className="mt-0.5 text-body text-ink">{period}</p> : null}
 			{pool.scheduledClosures?.length ? (
-				<ScheduledClosures closures={pool.scheduledClosures} />
+				<ScheduledClosures closures={pool.scheduledClosures} className="mt-0.5 text-body text-ink-2" />
 			) : null}
-
+			<p className="mt-0.5 text-body text-ink">
+				{all.length} session{all.length === 1 ? "" : "s"}
+				{pool.lanes ? ` · ${pool.lanes} lanes` : ""}
+			</p>
 			{pool.closure ? (
 				<div className="mt-3">
 					<ClosureNotice closure={pool.closure} poolName={toTitleCase(pool.name)} />
 				</div>
 			) : null}
-
-			<PoolWeek pool={pool} byDay={byDay} color={color} />
+			{/* with the day row's own top padding, this matches the space above
+			    the section */}
+			<div className="mt-3">
+				<PoolWeek pool={pool} byDay={byDay} color={color} />
+			</div>
 		</section>
 	);
 }

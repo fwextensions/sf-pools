@@ -11,7 +11,7 @@ import { trackSectionNav } from "@/lib/analytics";
 const SECTIONS = [
 	{ href: "/", label: "WEEK GRID" },
 	{ href: "/now", label: "NOW & SOON" },
-	{ href: "/schedules", label: "FULL SCHEDULES" },
+	{ href: "/pools", label: "POOLS" },
 ];
 
 function isCurrent(pathname: string, href: string) {

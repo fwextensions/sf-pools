@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
 			{ source: "/lane/:path*", destination: "https://us.i.posthog.com/:path*" },
 		];
 	},
+	// the full schedules page gave way to a page per pool. A browser carries
+	// an old #pool-<id> link's hash across the redirect, and the pools list
+	// sends it on to that pool's page
+	async redirects() {
+		return [{ source: "/schedules", destination: "/pools", permanent: true }];
+	},
 	// posthog's api is sensitive to a trailing slash being added by a redirect
 	skipTrailingSlashRedirect: true,
 	turbopack: {
