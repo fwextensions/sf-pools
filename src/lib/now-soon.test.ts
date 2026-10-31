@@ -121,19 +121,31 @@ describe("nowSoon", () => {
 		expect(view(pools, at(12)).open.map((x) => x.pool.id)).toEqual(["garfield", "balboa"]);
 	});
 
-	it("sorts pools into open, starting soon and not open", () => {
+	it("sorts pools into now and soon, and lists every pool under later", () => {
 		const pools = [
-			pool("balboa", [["Friday", "5:00p", "7:00p", "Lap Swim"]]),
+			pool("balboa", [
+				["Friday", "5:00p", "7:00p", "Lap Swim"],
+				["Saturday", "9:00a", "10:00a", "Lap Swim"],
+			]),
 			pool("mission", [["Friday", "6:30p", "8:00p", "Family Swim", FAMILY]]),
-			pool("rossi", [["Friday", "9:00a", "10:00a", "Lap Swim"]]),
+			pool("rossi", [
+				["Friday", "9:00a", "10:00a", "Lap Swim"],
+				["Monday", "7:00a", "8:00a", "Lap Swim"],
+			]),
 		];
 		const v = view(pools, at(17, 57));
 		expect(v.open.map((x) => x.pool.id)).toEqual(["balboa"]);
 		expect(v.soon.map((x) => x.pool.id)).toEqual(["mission"]);
-		expect(v.closed.map((x) => x.pool.id)).toEqual(["rossi"]);
+		expect(v.closed).toEqual([]);
+		expect(v.later.map((x) => [x.pool.id, x.day, x.stretch?.startTime ?? null])).toEqual([
+			["balboa", "Tomorrow", "9:00a"],
+			["rossi", "Mon", "7:00a"],
+			["mission", null, null],
+		]);
+		expect(v.later[2]!.note).toBe("No drop-in after today");
 	});
 
-	it("lists a pool open now under starting soon too when it reopens after a gap", () => {
+	it("lists a pool open now under soon too when it reopens after a gap", () => {
 		const pools = [
 			pool("garfield", [
 				["Friday", "11:00a", "1:00p", "Lap Swim"],
@@ -150,10 +162,12 @@ describe("nowSoon", () => {
 		expect(v.soon.map((x) => [x.pool.id, x.stretch.startTime, x.stretch.names])).toEqual([
 			["garfield", "2:00p", ["Lap Swim", "Rec/Family Swim"]],
 		]);
-		// a session exactly two hours out counts, as it does for find_sessions
-		expect(view(pools, at(12)).soon.map((x) => x.pool.id)).toEqual(["garfield"]);
-		// nothing past the two hours
-		expect(view(pools, at(11)).soon).toEqual([]);
+		expect(view(pools, at(14, 30)).soon).toEqual([]);
+	});
+
+	it("looks ahead to the end of the day", () => {
+		const pools = [pool("sava", [["Friday", "8:00p", "9:00p", "Lap Swim"]])];
+		expect(view(pools, at(9)).soon[0]!.stretch.startTime).toBe("8:00p");
 	});
 
 	it("leaves rentals and lessons out of drop-in, and says what is on instead", () => {
@@ -165,7 +179,8 @@ describe("nowSoon", () => {
 		];
 		const dropIn = view(pools, at(18));
 		expect(dropIn.open).toEqual([]);
-		expect(dropIn.closed[0]!.next).toEqual({ day: "Sat", time: "9:00a", names: ["Rec Swim"] });
+		expect(dropIn.soon).toEqual([]);
+		expect(dropIn.later[0]).toMatchObject({ day: "Tomorrow", stretch: { startTime: "9:00a", names: ["Rec Swim"] } });
 
 		const everything = view(pools, at(18), { mode: "all" });
 		expect(everything.open[0]!.stretch.restricted).toBe("Private");
@@ -185,13 +200,7 @@ describe("nowSoon", () => {
 		expect(v.open).toEqual([]);
 		expect(v.soon[0]!.stretch.startTime).toBe("7:00p");
 		expect(v.noun).toBe("lap swim");
-		expect(view(pools, at(16), { program: "lap" }).closed[0]!.next).toEqual({ day: "Today", time: "7:00p", names: ["Lap Swim"] });
-	});
-
-	it("widens the window to the rest of the day", () => {
-		const pools = [pool("sava", [["Friday", "8:00p", "9:00p", "Lap Swim"]])];
-		expect(view(pools, at(15)).soon).toEqual([]);
-		expect(view(pools, at(15), { when: "today" }).soon[0]!.pool.id).toBe("sava");
+		expect(view(pools, at(16), { program: "lap" }).later[0]!.note).toBe("No lap swim after today");
 	});
 
 	it("plans a slot of tomorrow, with the pools in the order they open", () => {
@@ -206,23 +215,33 @@ describe("nowSoon", () => {
 		expect(v.closed[0]!.next).toEqual({ day: "Sat", time: "1:00p", names: ["Lap Swim"] });
 	});
 
-	it("lists closed pools in the order they next open, then those with nothing this week", () => {
+	it("lists later pools in the order they next open, then those with nothing this week", () => {
 		const pools = [
 			pool("balboa", [["Tuesday", "9:00a", "10:00a", "Lap Swim"]]),
 			pool("coffman", [["Sunday", "8:30a", "10:00a", "Lap Swim"]]),
 			pool("garfield", [["Sunday", "7:00a", "8:00a", "Lap Swim"]]),
 			pool("hamilton", [], { scheduleEndDate: "2026-10-01" }),
-			pool("mlk", [["Friday", "9:00p", "9:30p", "Lap Swim"]]),
+			pool("mlk", [["Saturday", "9:00p", "9:30p", "Lap Swim"]]),
 		];
-		expect(view(pools, at(18)).closed.map((x) => x.pool.id)).toEqual(["mlk", "garfield", "coffman", "balboa", "hamilton"]);
+		expect(view(pools, at(18)).later.map((x) => x.pool.id)).toEqual(["mlk", "garfield", "coffman", "balboa", "hamilton"]);
 	});
 
-	it("finds the next opening up to a week out, and leaves the note for when there is none", () => {
-		const pools = [pool("garfield", [["Sunday", "8:30a", "10:00a", "Lap Swim"]])];
+	it("finds the first opening after today up to a week out, and leaves the note for when there is none", () => {
+		const pools = [
+			pool("garfield", [
+				["Friday", "9:00p", "9:30p", "Lap Swim"],
+				["Sunday", "8:30a", "10:00a", "Lap Swim"],
+				["Sunday", "10:00a", "11:00a", "Family Swim", FAMILY],
+			]),
+		];
 		const v = view(pools, at(18));
-		expect(v.closed[0]).toMatchObject({ next: { day: "Sun", time: "8:30a", names: ["Lap Swim"] }, note: null });
-		expect(view(pools, at(18), { program: "family" }).closed[0]).toMatchObject({ next: null, note: "No family swim this week" });
-		expect(view([pool("x", [["Friday", "9:00p", "9:30p", "Lap Swim"]])], at(18)).closed[0]!.next!.day).toBe("Today");
+		expect(v.soon[0]!.stretch.startTime).toBe("9:00p");
+		expect(v.later[0]).toMatchObject({
+			day: "Sun",
+			stretch: { startTime: "8:30a", namesEndTime: "10:00a", names: ["Lap Swim"], then: { names: ["Family Swim"], at: "10:00a" } },
+			note: null,
+		});
+		expect(view(pools, at(18), { program: "senior" }).later[0]).toMatchObject({ stretch: null, note: "No senior swim this week" });
 	});
 
 	it("skips days a closure covers", () => {
@@ -243,7 +262,7 @@ describe("nowSoon", () => {
 		// the calendar leaves out the closed days, Friday through Sunday
 		const pools = [pool("northBeachCool", [["Monday", "7:00a", "8:00a", "Lap Swim"]], { closure })];
 		const v = view(pools, at(10));
-		expect(v.closed[0]!.next!.day).toBe("Mon");
+		expect(v.later[0]!.day).toBe("Mon");
 	});
 
 	it("names a closure that starts before the pool opens again", () => {
@@ -262,7 +281,7 @@ describe("nowSoon", () => {
 			disagreement: null,
 		} satisfies Closure;
 		const v = view([pool("northBeachWarm", [], { closure })], at(18));
-		expect(v.closed[0]!.note).toBe("Closes Oct 10 – Nov 1 for annual maintenance");
+		expect(v.later[0]!.note).toBe("Closes Oct 10 – Nov 1 for annual maintenance");
 	});
 
 	it("says a pool is closed for the day the PDF lists, alongside its next opening", () => {
@@ -272,7 +291,7 @@ describe("nowSoon", () => {
 		];
 		const pools = [pool("hamilton", [["Saturday", "9:00a", "10:00a", "Lap Swim"]], { scheduledClosures })];
 		const v = view(pools, at(10));
-		expect(v.closed[0]).toMatchObject({ closedFor: "Closed today for Staff Training", next: { day: "Sat" } });
+		expect(v.later[0]).toMatchObject({ closedFor: "Closed today for Staff Training", day: "Tomorrow" });
 		// a closure for part of the day isn't the whole day's story
 		expect(view(pools, at(21), { when: "tomorrow-pm" }).closed[0]!.closedFor).toBeNull();
 		const holiday = [{ startDate: "2026-10-10", endDate: "2026-10-10", startTime: null, endTime: null, reason: null }];
@@ -283,7 +302,7 @@ describe("nowSoon", () => {
 	it("gives the end of a longer closure, from the PDF or the facility page", () => {
 		const maintenance = [{ startDate: "2026-10-05", endDate: "2026-10-21", startTime: null, endTime: null, reason: "annual maintenance" }];
 		const v = view([pool("sava", [], { scheduledClosures: maintenance })], at(10));
-		expect(v.closed[0]).toMatchObject({ closedFor: "Closed through Oct 21 for annual maintenance", note: null });
+		expect(v.later[0]).toMatchObject({ closedFor: "Closed through Oct 21 for annual maintenance", note: null });
 		const closure = {
 			summary: "",
 			rawText: "",
@@ -299,15 +318,18 @@ describe("nowSoon", () => {
 			disagreement: null,
 		} satisfies Closure;
 		const both = view([pool("northBeachCool", [], { closure, scheduledClosures: maintenance })], at(10));
-		expect(both.closed[0]).toMatchObject({ closedFor: "Closed through Oct 22 for annual maintenance", note: null });
+		expect(both.later[0]).toMatchObject({ closedFor: "Closed through Oct 22 for annual maintenance", note: null });
 	});
 
 	it("stops at the end of the printed schedule", () => {
 		const pools = [pool("mlk", [["Friday", "6:00p", "7:00p", "Lap Swim"]], { scheduleEndDate: "2026-09-26" })];
 		const v = view(pools, at(18, 30));
 		expect(v.open).toEqual([]);
-		expect(v.closed[0]!.note).toBe("Schedule ended Sep 26");
-		expect(v.closed[0]!.next).toBeNull();
+		expect(v.later[0]!.note).toBe("Schedule ended Sep 26");
+		expect(v.later[0]!.stretch).toBeNull();
+		// a schedule ending today has the rest of the week to explain
+		const today = view([pool("mlk", [["Friday", "6:00p", "7:00p", "Lap Swim"]], { scheduleEndDate: FRIDAY })], at(18, 30));
+		expect(today.later[0]).toMatchObject({ stretch: null, note: "Schedule ends Oct 9" });
 	});
 });
 

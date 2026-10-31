@@ -8,7 +8,7 @@ import { describe, it, expect, beforeAll } from "@jest/globals";
 import type { PoolSchedule } from "@/lib/schedule-schema";
 import { loadCityHolidays, loadSchedules, loadUpcomingSchedules } from "@/lib/site-data";
 import { addDays, createPoolCalendar, weekdayOf, type PoolCalendar } from "./pool-calendar";
-import { nowSoon, qualifies, SOON_MINUTES, type Mode, type Moment } from "./now-soon";
+import { nowSoon, qualifies, type Mode, type Moment } from "./now-soon";
 import { createSwimAnswers, pacificMoment, type SwimAnswers } from "./swim-answers";
 import type { Session } from "./sessions";
 
@@ -38,7 +38,7 @@ const label = (now: Moment, s?: Session) =>
 	(s ? `: ${s.poolId} ${s.title} ${s.startTime}–${s.endTime}` : "");
 
 describe.each<Mode>(["all", "drop-in"])("the Now page in %s mode, on the published schedules", (mode) => {
-	it("shows every session running now or starting in the next 2 hours", () => {
+	it("shows every session running now or starting later today", () => {
 		const missing: string[] = [];
 		for (const now of moments) {
 			const view = nowSoon(pools, calendar, now, { mode, program: null, when: "next" });
@@ -48,7 +48,7 @@ describe.each<Mode>(["all", "drop-in"])("the Now page in %s mode, on the publish
 				const soon = view.soon.find((o) => o.pool.id === s.poolId);
 				if (s.startMin <= now.minutes && now.minutes < s.endMin) {
 					if (!open || !open.stretch.names.includes(s.title)) missing.push(`running, not open: ${label(now, s)}`);
-				} else if (s.startMin > now.minutes && s.startMin <= now.minutes + SOON_MINUTES) {
+				} else if (s.startMin > now.minutes) {
 					// it shows inside the open stretch, or the soon row starts at or before it
 					const shown = (open && s.startMin <= open.stretch.end) || (soon && soon.stretch.start <= s.startMin);
 					if (!shown) missing.push(`starts soon, not shown: ${label(now, s)}`);
@@ -58,7 +58,7 @@ describe.each<Mode>(["all", "drop-in"])("the Now page in %s mode, on the publish
 		expect(missing).toEqual([]);
 	});
 
-	it("only lists a pool as open or starting soon when a session says so", () => {
+	it("only lists a pool as open, soon or later when a session says so", () => {
 		const wrong: string[] = [];
 		for (const now of moments) {
 			const view = nowSoon(pools, calendar, now, { mode, program: null, when: "next" });
@@ -70,16 +70,23 @@ describe.each<Mode>(["all", "drop-in"])("the Now page in %s mode, on the publish
 				}
 			}
 			for (const o of view.soon) {
-				const start = o.stretch.start;
-				if (start <= now.minutes || start > now.minutes + SOON_MINUTES) wrong.push(`soon outside the window: ${o.pool.id} ${label(now)}`);
+				if (o.stretch.start <= now.minutes) wrong.push(`soon but already started: ${o.pool.id} ${label(now)}`);
 			}
-			const listed = new Set([...view.open, ...view.soon, ...view.closed].map((o) => o.pool.id));
+			// every pool under later, at its first session after today
+			const after = calendar
+				.sessions(addDays(now.date, 1), addDays(now.date, 6))
+				.filter((s) => qualifies(s, { mode, program: null }));
+			const listed = new Set(view.later.map((o) => o.pool.id));
 			for (const pool of pools) {
-				if (!listed.has(pool.id)) wrong.push(`left off the page: ${pool.id} ${label(now)}`);
+				if (!listed.has(pool.id)) wrong.push(`left out of later: ${pool.id} ${label(now)}`);
 			}
-			for (const o of view.closed) {
-				if (listed.has(o.pool.id) && [...view.open, ...view.soon].some((x) => x.pool.id === o.pool.id)) {
-					wrong.push(`closed and open or soon: ${o.pool.id} ${label(now)}`);
+			for (const o of view.later) {
+				const own = after.filter((s) => s.poolId === o.pool.id);
+				const date = own.map((s) => s.date).sort()[0];
+				const day = !date ? null : date === addDays(now.date, 1) ? "Tomorrow" : weekdayOf(date).slice(0, 3);
+				const start = date ? Math.min(...own.filter((s) => s.date === date).map((s) => s.startMin)) : undefined;
+				if (o.day !== day || o.stretch?.start !== start) {
+					wrong.push(`later isn't the first session after today: ${o.pool.id} ${label(now)}`);
 				}
 			}
 		}

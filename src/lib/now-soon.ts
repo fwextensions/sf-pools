@@ -1,5 +1,6 @@
-// Where each pool stands for the Now & Soon page: open now, starting soon, or
-// not open, with the countdown, what comes next and why a pool is quiet.
+// Where each pool stands for the Now & Soon page: open now, opening again
+// later today, and its first opening after today, with the countdown, what
+// comes next and why a pool is quiet.
 //
 // Pure functions over the pool calendar, so the view only lays out what this
 // returns. Times are minutes past midnight on a Pacific date; a date is
@@ -17,20 +18,20 @@ export type Mode = "drop-in" | "all";
 export const PROGRAM_CHOICES = ["lap", "family", "senior"] as const;
 export type ProgramChoice = (typeof PROGRAM_CHOICES)[number];
 
-export const WHEN_CHOICES = ["next", "today", "tomorrow-am", "tomorrow-pm", "tomorrow-eve"] as const;
+export const WHEN_CHOICES = ["next", "tomorrow-am", "tomorrow-pm", "tomorrow-eve"] as const;
 export type When = (typeof WHEN_CHOICES)[number];
 
 export type NowSoonOptions = { mode: Mode; program: ProgramChoice | null; when: When };
 
 export type Moment = { day: Day; date: string; minutes: number };
 
-/** how far ahead "Next 2 hours" looks */
+/** how far ahead find_sessions' "soon" looks */
 export const SOON_MINUTES = 120;
 
 const DAY_END = 24 * 60;
 
 // the named parts of tomorrow, as [from, to) in minutes
-const SLOTS: Record<Exclude<When, "next" | "today">, { from: number; to: number; label: string }> = {
+const SLOTS: Record<Exclude<When, "next">, { from: number; to: number; label: string }> = {
 	"tomorrow-am": { from: 0, to: 12 * 60, label: "tomorrow morning" },
 	"tomorrow-pm": { from: 12 * 60, to: 17 * 60, label: "tomorrow afternoon" },
 	"tomorrow-eve": { from: 17 * 60, to: DAY_END, label: "tomorrow evening" },
@@ -66,6 +67,18 @@ export type NextOpening = {
 
 export type OpenStanding = { pool: PoolSchedule; stretch: Stretch };
 /**
+ * a pool's first opening after today, within a week: `day` is "Tomorrow" or
+ * the weekday's three-letter abbreviation. With none, `note` says why;
+ * `closedFor` names a whole-day closure today
+ */
+export type LaterStanding = {
+	pool: PoolSchedule;
+	day: string | null;
+	stretch: Stretch | null;
+	note: string | null;
+	closedFor: string | null;
+};
+/**
  * a pool that isn't open: when it next is, or, when not within a week, why;
  * `closedFor` names a whole-day closure the PDF lists on the day in view
  */
@@ -81,11 +94,15 @@ export type NowSoonView = {
 	planned: boolean;
 	/** open now, or open during the slot when planned */
 	open: OpenStanding[];
+	/** opening again later today; empty when planned */
 	soon: OpenStanding[];
+	/** every pool's first opening after today; empty when planned */
+	later: LaterStanding[];
+	/** pools not open during the slot; empty unless planned */
 	closed: ClosedStanding[];
 	/** the noun the headings use: "drop-in", "lap swim", "sessions" */
 	noun: string;
-	/** "in the next 2 hours", "later today", "tomorrow morning" */
+	/** "today", "tomorrow morning" */
 	span: string;
 };
 
@@ -220,25 +237,26 @@ export function nowSoon(
 	now: Moment,
 	options: NowSoonOptions
 ): NowSoonView {
-	const planned = options.when !== "next" && options.when !== "today";
-	const slot = planned ? SLOTS[options.when as keyof typeof SLOTS] : null;
+	const slot = options.when === "next" ? null : SLOTS[options.when];
+	const planned = !!slot;
 	// the day the view is about, as an offset from today, and its [from, to)
 	const anchor = slot ? 1 : 0;
 	const from = slot ? slot.from : now.minutes;
-	const to = slot ? slot.to : options.when === "today" ? DAY_END : now.minutes + SOON_MINUTES;
+	const to = slot ? slot.to : DAY_END;
 	const anchorDate = addDays(now.date, anchor);
 
 	const programName = options.program
 		? { lap: "lap swim", family: "family swim", senior: "senior swim" }[options.program]
 		: null;
 	const noun = programName ?? (options.mode === "drop-in" ? "drop-in" : "sessions");
-	const span = slot ? slot.label : options.when === "today" ? "later today" : "in the next 2 hours";
+	const span = slot ? slot.label : "today";
 
 	const open: OpenStanding[] = [];
 	const soon: OpenStanding[] = [];
+	const later: LaterStanding[] = [];
 	const closed: ClosedStanding[] = [];
-	// minutes from the start of today to each closed pool's next opening
-	const nextAt = new Map<ClosedStanding, number>();
+	// minutes from the start of today to each later or closed pool's next opening
+	const nextAt = new Map<LaterStanding | ClosedStanding, number>();
 
 	// the week from today, as far as a next opening is looked for
 	const sessionsByPool = new Map<string, Session[]>();
@@ -260,24 +278,35 @@ export function nowSoon(
 		const anchorWanted = wanted(anchor);
 
 		if (!planned) {
+			// a pool can show in all three: open now, opening again later
+			// today, and its first opening after today
 			const current = stretchAt(anchorWanted, from);
-			// a pool that closes and opens again within the span shows in both lists
-			const next = anchorWanted.find((s) => s.startMin > (current?.end ?? from) && s.startMin <= to);
-			if (current) {
-				open.push({ pool, stretch: current });
-				if (next) soon.push({ pool, stretch: stretchAt(anchorWanted, next.startMin)! });
-				continue;
-			}
-			if (next) {
-				soon.push({ pool, stretch: stretchAt(anchorWanted, next.startMin)! });
-				continue;
-			}
-		} else {
-			const first = anchorWanted.find((s) => s.startMin < to && s.endMin > from);
-			if (first) {
-				open.push({ pool, stretch: stretchAt(anchorWanted, Math.max(from, first.startMin))! });
-				continue;
-			}
+			if (current) open.push({ pool, stretch: current });
+			const next = anchorWanted.find((s) => s.startMin > (current?.end ?? from));
+			if (next) soon.push({ pool, stretch: stretchAt(anchorWanted, next.startMin)! });
+
+			const found = findNext(wanted, 1, 0);
+			const closedFor = dayClosure(calendar, pool, now.date, "today");
+			const standing: LaterStanding = {
+				pool,
+				day: found ? (found.offset === 1 ? "Tomorrow" : weekdayOf(addDays(now.date, found.offset)).slice(0, 3)) : null,
+				stretch: found ? stretchAt(wanted(found.offset), found.startMin) : null,
+				// a pool open today has the rest of the week to explain
+				note:
+					found || closedFor
+						? null
+						: absenceNote(calendar, pool, now.date, current || next ? 1 : 0, noun, current || next ? "after today" : "this week"),
+				closedFor,
+			};
+			later.push(standing);
+			if (found) nextAt.set(standing, found.offset * DAY_END + found.startMin);
+			continue;
+		}
+
+		const first = anchorWanted.find((s) => s.startMin < to && s.endMin > from);
+		if (first) {
+			open.push({ pool, stretch: stretchAt(anchorWanted, Math.max(from, first.startMin))! });
+			continue;
 		}
 
 		const found = findNext(wanted, anchor, to);
@@ -293,7 +322,7 @@ export function nowSoon(
 			pool,
 			next,
 			// the closure says why the week is empty, so it stands in for the note
-			note: next || closedFor ? null : absenceNote(calendar, pool, now.date, noun),
+			note: next || closedFor ? null : absenceNote(calendar, pool, now.date, 0, noun, "this week"),
 			closedFor,
 		};
 		closed.push(standing);
@@ -309,13 +338,14 @@ export function nowSoon(
 			comparePools(a, b)
 	);
 	soon.sort((a, b) => a.stretch.start - b.stretch.start || comparePools(a, b));
-	// closed pools in the order they next open; those with nothing this week
-	// follow, by name
-	closed.sort(
-		(a, b) => (nextAt.get(a) ?? Infinity) - (nextAt.get(b) ?? Infinity) || comparePools(a, b)
-	);
+	// later and closed pools in the order they next open; those with nothing
+	// this week follow, by name
+	const byNext = (a: LaterStanding | ClosedStanding, b: LaterStanding | ClosedStanding) =>
+		(nextAt.get(a) ?? Infinity) - (nextAt.get(b) ?? Infinity) || comparePools(a, b);
+	later.sort(byNext);
+	closed.sort(byNext);
 
-	return { planned, open, soon, closed, noun, span };
+	return { planned, open, soon, later, closed, noun, span };
 }
 
 function poolName(pool: PoolSchedule): string {
@@ -348,22 +378,29 @@ function dayClosure(calendar: PoolCalendar, pool: PoolSchedule, date: string, wh
 }
 
 /**
- * Why a pool has nothing for a week: a closure, a printed schedule that has
- * run out or not begun, or simply nothing that matches. Only shown when there
- * is no next opening to say it instead.
+ * Why a pool has nothing for the rest of the week from `skip` days out: a
+ * closure, a printed schedule that has run out or not begun, or simply nothing
+ * that matches. Only shown when there is no next opening to say it instead.
  */
-function absenceNote(calendar: PoolCalendar, pool: PoolSchedule, today: string, noun: string): string {
+function absenceNote(
+	calendar: PoolCalendar,
+	pool: PoolSchedule,
+	today: string,
+	skip: number,
+	noun: string,
+	span: string
+): string {
 	// the facility page's closure, when it reaches into the week
-	const week = Array.from({ length: 7 }, (_, offset) => addDays(today, offset));
+	const week = Array.from({ length: 7 - skip }, (_, i) => addDays(today, skip + i));
 	const alert = week.flatMap((date) => calendar.closuresOn(pool.id, date)).find((r) => r.kind === "alert");
 	if (alert?.kind === "alert") {
 		const closure = alert.closure;
 		const verb = isClosureActive(closure, today) ? "Closed" : "Closes";
 		return [verb, formatClosurePeriod(closure), closure.reason ? `for ${closure.reason}` : ""].filter(Boolean).join(" ");
 	}
-	const ended = calendar.closuresOn(pool.id, today).find((r) => r.kind === "ended");
-	if (ended?.kind === "ended") return `Schedule ended ${shortDate(ended.endDate)}`;
+	const ended = calendar.closuresOn(pool.id, week[0]!).find((r) => r.kind === "ended");
+	if (ended?.kind === "ended") return `Schedule ${skip ? "ends" : "ended"} ${shortDate(ended.endDate)}`;
 	const starts = calendar.closuresOn(pool.id, addDays(today, 6)).find((r) => r.kind === "not-started");
 	if (starts?.kind === "not-started") return `New schedule starts ${shortDate(starts.startDate)}`;
-	return `No ${noun} this week`;
+	return `No ${noun} ${span}`;
 }

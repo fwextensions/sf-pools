@@ -15,6 +15,7 @@ import {
 	joinNames,
 	nowSoon,
 	type ClosedStanding,
+	type LaterStanding,
 	type Mode,
 	type NowSoonOptions,
 	type OpenStanding,
@@ -41,7 +42,7 @@ type Props = {
  * Status is deliberately a separate channel from pool identity: the chip
  * always carries the pool's token color, so status reads from a glyph and a
  * word in ink rather than from a color. A filled dot is open, a ring is soon,
- * and a faint ring is not open. The group heading carries it, once.
+ * and a faint ring is later or not open. The group heading carries it, once.
  */
 const GLYPHS = {
 	open: "bg-ink",
@@ -57,8 +58,7 @@ const PROGRAM_OPTIONS: Array<[ProgramChoice | "", string]> = [
 ];
 
 const WHEN_OPTIONS: Array<[When, string]> = [
-	["next", "Next 2 hours"],
-	["today", "Rest of today"],
+	["next", "From now"],
 	["tomorrow-am", "Tomorrow morning"],
 	["tomorrow-pm", "Tomorrow afternoon"],
 	["tomorrow-eve", "Tomorrow evening"],
@@ -181,6 +181,42 @@ function OpenRow({
 				<div className={`whitespace-nowrap text-body font-semibold ${tone}`}>{headline}</div>
 				{detail ? <div className="whitespace-nowrap font-mono text-label font-medium text-ink-2">{detail}</div> : null}
 			</div>
+		</li>
+	);
+}
+
+function LaterRow({ standing }: { standing: LaterStanding }) {
+	const { pool, day, stretch, note, closedFor } = standing;
+	const tone = stretch?.restricted ? "text-ink-2" : "text-ink";
+	return (
+		<li className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 border-b border-line py-3">
+			<div className="min-w-0">
+				<div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+					<PoolName pool={pool} weight="font-semibold" />
+					{stretch ? (
+						<span className="text-body text-ink-2">
+							<Names names={stretch.names} />
+						</span>
+					) : null}
+					{stretch?.restricted ? <span className="tag self-center">{stretch.restricted}</span> : null}
+				</div>
+				{closedFor ? <p className="mt-1 text-small font-medium text-alert">{closedFor}</p> : null}
+				{stretch?.then ? (
+					<p className="mt-1 text-small text-ink-2">
+						then <Names names={stretch.then.names} /> at {stretch.then.at}
+					</p>
+				) : null}
+			</div>
+			{stretch ? (
+				<div className="text-right">
+					<div className={`whitespace-nowrap text-body font-semibold ${tone}`}>{day}</div>
+					<div className="whitespace-nowrap font-mono text-label font-medium text-ink-2">
+						{stretch.startTime}–{stretch.namesEndTime}
+					</div>
+				</div>
+			) : (
+				<div className="text-right text-small text-ink-2">{note}</div>
+			)}
 		</li>
 	);
 }
@@ -332,7 +368,6 @@ export default function NowSoon({ all, upcoming = [], holidays = [], at = null }
 
 	const calendar = useMemo(() => createPoolCalendar(all, upcoming, holidays), [all, upcoming, holidays]);
 	const view = useMemo(() => nowSoon(all, calendar, now, options), [all, calendar, now, options]);
-	const quiet = `No ${view.noun} ${view.span}`;
 
 	return (
 		<div className="font-sans text-ink">
@@ -360,26 +395,26 @@ export default function NowSoon({ all, upcoming = [], holidays = [], at = null }
 				</Section>
 			) : (
 				<>
-					<Section label="Open now" glyph={GLYPHS.open} count={view.open.length} empty={`No pools have ${view.noun} running right now.`}>
+					<Section label="Now" glyph={GLYPHS.open} count={view.open.length} empty={`No pools have ${view.noun} running right now.`}>
 						{view.open.map((s) => (
 							<OpenRow key={s.pool.id} standing={s} kind="open" now={now.minutes} />
 						))}
 					</Section>
-					<Section
-						label={`Starting ${view.span}`}
-						glyph={GLYPHS.soon}
-						count={view.soon.length}
-						empty={`Nothing else starts ${view.span}.`}
-					>
+					<Section label="Soon" glyph={GLYPHS.soon} count={view.soon.length} empty={`No more ${view.noun} today.`}>
 						{view.soon.map((s) => (
 							<OpenRow key={s.pool.id} standing={s} kind="soon" now={now.minutes} />
+						))}
+					</Section>
+					<Section label="Later" glyph={GLYPHS.closed} count={view.later.length} empty="">
+						{view.later.map((s) => (
+							<LaterRow key={s.pool.id} standing={s} />
 						))}
 					</Section>
 				</>
 			)}
 
 			{view.closed.length ? (
-				<Section label={quiet} glyph={GLYPHS.closed} count={view.closed.length} empty="">
+				<Section label={`No ${view.noun} ${view.span}`} glyph={GLYPHS.closed} count={view.closed.length} empty="">
 					{view.closed.map((s) => (
 						<ClosedRow key={s.pool.id} standing={s} />
 					))}
