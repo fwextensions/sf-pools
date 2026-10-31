@@ -24,7 +24,7 @@ import {
 import { initialNowSoonOptions, writeNowSoonUrl } from "@/lib/now-soon-url";
 import PoolChip from "./PoolChip";
 import ProgramName from "@/components/ProgramName";
-import { Chevron, ExternalLinkIcon } from "@/components/icons";
+import { Chevron } from "@/components/icons";
 
 type Props = {
 	all: PoolSchedule[];
@@ -110,16 +110,6 @@ function poolLabel(pool: PoolSchedule): string {
 	return pool.shortName || pool.nameTitle || toTitleCase(pool.name);
 }
 
-/** utility link, rendered only when the pool actually has the URL */
-function SourceLink({ href, children }: { href?: string | null; children: React.ReactNode }) {
-	if (!href) return null;
-	return (
-		<a href={href} target="_blank" rel="noreferrer" className="link-utility">
-			{children}
-		</a>
-	);
-}
-
 /** the program names, with the full list on hover when it is shortened */
 function Names({ names }: { names: string[] }) {
 	const joined = joinNames(names);
@@ -185,12 +175,6 @@ function OpenRow({
 					<p className="mt-1 text-small text-ink-2">
 						then <Names names={stretch.then.names} /> at {stretch.then.at}
 					</p>
-				) : null}
-				{pool.pdfScheduleUrl || pool.sfRecParkUrl ? (
-					<div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1">
-						<SourceLink href={pool.pdfScheduleUrl}>PDF<ExternalLinkIcon /></SourceLink>
-						<SourceLink href={pool.sfRecParkUrl}>Pool<ExternalLinkIcon /></SourceLink>
-					</div>
 				) : null}
 			</div>
 			<div className="text-right">
