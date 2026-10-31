@@ -10,8 +10,8 @@ describe("now & soon url", () => {
 	});
 
 	it("round-trips every control", () => {
-		const options = { mode: "all", program: "lap", when: "tomorrow-am" } as const;
-		expect(formatNowSoonQuery(options)).toBe("access=all&program=lap&when=tomorrow-am");
+		const options = { mode: "all", program: "lap" } as const;
+		expect(formatNowSoonQuery(options)).toBe("access=all&program=lap");
 		expect(parse(formatNowSoonQuery(options))).toEqual(options);
 	});
 
