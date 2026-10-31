@@ -206,6 +206,17 @@ describe("nowSoon", () => {
 		expect(v.closed[0]!.next).toEqual({ day: "Sat", time: "1:00p", names: ["Lap Swim"] });
 	});
 
+	it("lists closed pools in the order they next open, then those with nothing this week", () => {
+		const pools = [
+			pool("balboa", [["Tuesday", "9:00a", "10:00a", "Lap Swim"]]),
+			pool("coffman", [["Sunday", "8:30a", "10:00a", "Lap Swim"]]),
+			pool("garfield", [["Sunday", "7:00a", "8:00a", "Lap Swim"]]),
+			pool("hamilton", [], { scheduleEndDate: "2026-10-01" }),
+			pool("mlk", [["Friday", "9:00p", "9:30p", "Lap Swim"]]),
+		];
+		expect(view(pools, at(18)).closed.map((x) => x.pool.id)).toEqual(["mlk", "garfield", "coffman", "balboa", "hamilton"]);
+	});
+
 	it("finds the next opening up to a week out, and leaves the note for when there is none", () => {
 		const pools = [pool("garfield", [["Sunday", "8:30a", "10:00a", "Lap Swim"]])];
 		const v = view(pools, at(18));
