@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { PoolSchedule } from "@/lib/schedule-schema";
 import type { CityHoliday } from "@/lib/city-holidays";
@@ -251,7 +251,14 @@ function Section({
 			{count === 0 ? (
 				<p className="mt-2.5 text-body text-ink-2">{empty}</p>
 			) : (
-				<ul className="mt-1 grid gap-x-10 min-[900px]:grid-cols-2">{children}</ul>
+				// two columns read down the first and then the second, so the
+				// order the rows are sorted in runs down the page
+				<ul
+					className="mt-1 grid gap-x-10 min-[900px]:grid-flow-col min-[900px]:grid-cols-2 min-[900px]:grid-rows-[repeat(var(--rows),auto)]"
+					style={{ "--rows": Math.ceil(count / 2) } as CSSProperties}
+				>
+					{children}
+				</ul>
 			)}
 		</section>
 	);
