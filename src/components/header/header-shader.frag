@@ -552,18 +552,22 @@ void main() {
 	// the taps each doesn't need.
 	//
 	// Near the top and left edges the shifted point lands past the wall, where
-	// the clamped texture would smear the edge row into streaks. The sim's walls
-	// reflect, so the water just past one is the mirror image of the water just
-	// inside it; reading there instead continues a ripple's ring smoothly. A
-	// mirror in one axis flips the sign of the mixed partial.
+	// there is no water: that strip of floor gets its sun over the wall, so
+	// ripples put no caustics there. The lens fades out over the first half
+	// tile past the wall. Reading the clamped texture there smeared the edge row
+	// into streaks, and reading the mirror image showed a ripple's reflection
+	// before the ripple had reached the wall, so the fade reads the mirror only
+	// to stay smooth while it goes. A mirror in one axis flips the mixed partial.
 	vec2 lensShift = normalize(vec2(-0.35, 0.55)) * (CAUSTIC_OFFSET * u_daylight * u_tilePx / u_resolution.y);
 	lensShift.x /= aspect;
 	if (CAUSTIC_OFFSET > 0.0) {
 		vec2 lensUV = screenUV + lensShift;
 		vec2 inside = step(0.0, lensUV) * step(lensUV, vec2(1.0));
+		vec2 pastWall = max(max(-lensUV, lensUV - 1.0), 0.0) * u_resolution.xy / u_tilePx;
 		float lensH; vec2 lensGrad;
 		sampleWater(1.0 - abs(1.0 - abs(lensUV)), lensH, lensGrad, simHess);
 		simHess.z *= (2.0 * inside.x - 1.0) * (2.0 * inside.y - 1.0);
+		simHess *= 1.0 - smoothstep(0.0, 0.5, max(pastWall.x, pastWall.y));
 	}
 
 	// Two slope fields from the same taps. `grad` is the gradient of exactly the
