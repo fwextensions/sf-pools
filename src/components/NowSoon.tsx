@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { PoolSchedule } from "@/lib/schedule-schema";
 import type { CityHoliday } from "@/lib/city-holidays";
 import type { Day } from "@/lib/sessions";
-import { createPoolCalendar } from "@/lib/pool-calendar";
+import { createPoolCalendar, weekdayOf } from "@/lib/pool-calendar";
 import { pacificToday } from "@/lib/closures";
 import { toTitleCase } from "@/lib/program-taxonomy";
 import { poolPageHref } from "@/lib/pool-pages";
@@ -24,7 +24,7 @@ import {
 import { initialNowSoonOptions, writeNowSoonUrl } from "@/lib/now-soon-url";
 import PoolChip from "./PoolChip";
 import ProgramName from "@/components/ProgramName";
-import { Chevron, ExternalLinkIcon } from "@/components/icons";
+import { Chevron } from "@/components/icons";
 
 type Props = {
 	all: PoolSchedule[];
@@ -32,6 +32,9 @@ type Props = {
 	upcoming?: PoolSchedule[];
 	/** the city's, which close every pool */
 	holidays?: CityHoliday[];
+	/** a fixed San Francisco date and time, "2026-11-26T10:00", in place of
+	    the live clock; the preview page passes it */
+	at?: string | null;
 };
 
 /**
@@ -61,7 +64,26 @@ const WHEN_OPTIONS: Array<[When, string]> = [
 	["tomorrow-eve", "Tomorrow evening"],
 ];
 
-function getNowInPT(): { day: Day; date: string; minutes: number; display: string } {
+type Now = { day: Day; date: string; minutes: number; display: string };
+
+// written the way the schedules write times, "1:23p"
+function displayTime(minutes: number): string {
+	const h = Math.floor(minutes / 60);
+	const min = minutes % 60;
+	return `${h % 12 || 12}:${String(min).padStart(2, "0")}${h >= 12 ? "p" : "a"}`;
+}
+
+/** "2026-11-26T10:00" read as San Francisco time, or null when it isn't one */
+export function pacificMoment(at: string): Now | null {
+	const match = /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})$/.exec(at);
+	if (!match) return null;
+	const [, date, hh, mm] = match;
+	const minutes = Number(hh) * 60 + Number(mm);
+	if (Number(hh) > 23 || Number(mm) > 59 || Number.isNaN(Date.parse(date))) return null;
+	return { day: weekdayOf(date), date, minutes, display: displayTime(minutes) };
+}
+
+function getNowInPT(): Now {
 	const fmt = new Intl.DateTimeFormat("en-US", {
 		timeZone: "America/Los_Angeles",
 		hour: "numeric",
@@ -81,24 +103,11 @@ function getNowInPT(): { day: Day; date: string; minutes: number; display: strin
 	let minutes = h * 60 + min;
 	if (dayPeriod.startsWith("p")) minutes += 12 * 60;
 
-	// written the way the schedules write times, "1:23p"
-	const display = `${h % 12 || 12}:${String(min).padStart(2, "0")}${dayPeriod.startsWith("p") ? "p" : "a"}`;
-
-	return { day: weekday, date: pacificToday(), minutes, display };
+	return { day: weekday, date: pacificToday(), minutes, display: displayTime(minutes) };
 }
 
 function poolLabel(pool: PoolSchedule): string {
 	return pool.shortName || pool.nameTitle || toTitleCase(pool.name);
-}
-
-/** utility link, rendered only when the pool actually has the URL */
-function SourceLink({ href, children }: { href?: string | null; children: React.ReactNode }) {
-	if (!href) return null;
-	return (
-		<a href={href} target="_blank" rel="noreferrer" className="link-utility">
-			{children}
-		</a>
-	);
 }
 
 /** the program names, with the full list on hover when it is shortened */
@@ -167,12 +176,6 @@ function OpenRow({
 						then <Names names={stretch.then.names} /> at {stretch.then.at}
 					</p>
 				) : null}
-				{pool.pdfScheduleUrl || pool.sfRecParkUrl ? (
-					<div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1">
-						<SourceLink href={pool.pdfScheduleUrl}>PDF<ExternalLinkIcon /></SourceLink>
-						<SourceLink href={pool.sfRecParkUrl}>Pool<ExternalLinkIcon /></SourceLink>
-					</div>
-				) : null}
 			</div>
 			<div className="text-right">
 				<div className={`whitespace-nowrap text-body font-semibold ${tone}`}>{headline}</div>
@@ -190,8 +193,10 @@ function ClosedRow({ standing }: { standing: ClosedStanding }) {
 				<PoolName pool={pool} weight="font-normal" />
 				{closedFor ? <span className="text-small font-medium text-alert">{closedFor}</span> : null}
 			</div>
+			{/* ml-auto keeps it on the right when a closure notice wraps it to
+			    its own line, in line with the rows that don't wrap */}
 			{next ? (
-				<div className="text-small text-ink-2">
+				<div className="ml-auto text-small text-ink-2">
 					Next:{" "}
 					<span className="font-mono text-ink">
 						{next.day} {next.time}
@@ -199,7 +204,7 @@ function ClosedRow({ standing }: { standing: ClosedStanding }) {
 					<Names names={next.names} />
 				</div>
 			) : (
-				<div className="text-small text-ink-2">{note}</div>
+				<div className="ml-auto text-small text-ink-2">{note}</div>
 			)}
 		</li>
 	);
@@ -232,7 +237,14 @@ function Section({
 			{count === 0 ? (
 				<p className="mt-2.5 text-body text-ink-2">{empty}</p>
 			) : (
-				<ul className="mt-1 grid gap-x-10 min-[900px]:grid-cols-2">{children}</ul>
+				// two columns read down the first and then the second, so the
+				// order the rows are sorted in runs down the page
+				<ul
+					className="mt-1 grid gap-x-10 min-[900px]:grid-flow-col min-[900px]:grid-cols-2 min-[900px]:grid-rows-[repeat(var(--rows),auto)]"
+					style={{ "--rows": Math.ceil(count / 2) } as CSSProperties}
+				>
+					{children}
+				</ul>
 			)}
 		</section>
 	);
@@ -298,16 +310,19 @@ function Select<T extends string>({
 	);
 }
 
-export default function NowSoon({ all, upcoming = [], holidays = [] }: Props) {
+export default function NowSoon({ all, upcoming = [], holidays = [], at = null }: Props) {
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 	const [options, setOptions] = useState<NowSoonOptions>(() => initialNowSoonOptions(searchParams));
-	const [now, setNow] = useState(() => getNowInPT());
+	const [liveNow, setLiveNow] = useState(() => getNowInPT());
+	const fixedNow = useMemo(() => (at ? pacificMoment(at) : null), [at]);
+	const now = fixedNow ?? liveNow;
 
 	useEffect(() => {
-		const id = setInterval(() => setNow(getNowInPT()), 60_000);
+		if (fixedNow) return;
+		const id = setInterval(() => setLiveNow(getNowInPT()), 60_000);
 		return () => clearInterval(id);
-	}, []);
+	}, [fixedNow]);
 
 	const update = (change: Partial<NowSoonOptions>) => {
 		const next = { ...options, ...change };

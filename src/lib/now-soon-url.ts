@@ -37,8 +37,13 @@ export function initialNowSoonOptions(searchParams: Pick<URLSearchParams, "get">
 	return parseNowSoonQuery(lastWrittenQuery == null ? searchParams : new URLSearchParams(lastWrittenQuery));
 }
 
+// params this page doesn't own, like the preview page's `at`, are kept ahead
+// of its own
 export function writeNowSoonUrl(pathname: string, options: NowSoonOptions): void {
-	const qs = formatNowSoonQuery(options);
+	const others = new URLSearchParams(window.location.search);
+	for (const key of ["access", "program", "when"]) others.delete(key);
+	const kept = [...others].map(([key, value]) => `${key}=${encodeURIComponent(value).replace(/%3A/gi, ":")}`);
+	const qs = [...kept, formatNowSoonQuery(options)].filter(Boolean).join("&");
 	lastWrittenQuery = qs;
 	window.history.replaceState(null, "", qs ? `${pathname}?${qs}` : pathname);
 }

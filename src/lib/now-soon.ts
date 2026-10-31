@@ -196,7 +196,7 @@ export function stretchAt(sessions: Session[], at: number): Stretch | null {
 	};
 }
 
-type NextFound = { offset: number; time: string; names: string[] };
+type NextFound = { offset: number; startMin: number; time: string; names: string[] };
 
 /**
  * The first qualifying opening at or after minute `from` on the day `start`
@@ -209,7 +209,7 @@ function findNext(wanted: (offset: number) => Session[], start: number, from: nu
 		if (!candidates.length) continue;
 		const first = Math.min(...candidates.map((s) => s.startMin));
 		const atFirst = candidates.filter((s) => s.startMin === first);
-		return { offset, time: atFirst[0]!.startTime, names: unique(atFirst.map((s) => s.title)) };
+		return { offset, startMin: first, time: atFirst[0]!.startTime, names: unique(atFirst.map((s) => s.title)) };
 	}
 	return null;
 }
@@ -237,6 +237,8 @@ export function nowSoon(
 	const open: OpenStanding[] = [];
 	const soon: OpenStanding[] = [];
 	const closed: ClosedStanding[] = [];
+	// minutes from the start of today to each closed pool's next opening
+	const nextAt = new Map<ClosedStanding, number>();
 
 	// the week from today, as far as a next opening is looked for
 	const sessionsByPool = new Map<string, Session[]>();
@@ -287,13 +289,15 @@ export function nowSoon(
 				}
 			: null;
 		const closedFor = dayClosure(calendar, pool, anchorDate, anchor ? "tomorrow" : "today");
-		closed.push({
+		const standing: ClosedStanding = {
 			pool,
 			next,
 			// the closure says why the week is empty, so it stands in for the note
 			note: next || closedFor ? null : absenceNote(calendar, pool, now.date, noun),
 			closedFor,
-		});
+		};
+		closed.push(standing);
+		if (found) nextAt.set(standing, found.offset * DAY_END + found.startMin);
 	}
 
 	// open pools whose programs end first lead, matching the countdowns, since
@@ -305,7 +309,11 @@ export function nowSoon(
 			comparePools(a, b)
 	);
 	soon.sort((a, b) => a.stretch.start - b.stretch.start || comparePools(a, b));
-	closed.sort(comparePools);
+	// closed pools in the order they next open; those with nothing this week
+	// follow, by name
+	closed.sort(
+		(a, b) => (nextAt.get(a) ?? Infinity) - (nextAt.get(b) ?? Infinity) || comparePools(a, b)
+	);
 
 	return { planned, open, soon, closed, noun, span };
 }
