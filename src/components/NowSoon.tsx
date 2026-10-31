@@ -209,8 +209,10 @@ function ClosedRow({ standing }: { standing: ClosedStanding }) {
 				<PoolName pool={pool} weight="font-normal" />
 				{closedFor ? <span className="text-small font-medium text-alert">{closedFor}</span> : null}
 			</div>
+			{/* ml-auto keeps it on the right when a closure notice wraps it to
+			    its own line, in line with the rows that don't wrap */}
 			{next ? (
-				<div className="text-small text-ink-2">
+				<div className="ml-auto text-small text-ink-2">
 					Next:{" "}
 					<span className="font-mono text-ink">
 						{next.day} {next.time}
@@ -218,7 +220,7 @@ function ClosedRow({ standing }: { standing: ClosedStanding }) {
 					<Names names={next.names} />
 				</div>
 			) : (
-				<div className="text-small text-ink-2">{note}</div>
+				<div className="ml-auto text-small text-ink-2">{note}</div>
 			)}
 		</li>
 	);
