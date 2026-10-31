@@ -1,52 +1,20 @@
 import type { Metadata } from "next";
 import BaseLink from "next/link";
+import Markdown, { type Components } from "react-markdown";
 import PoolChip from "@/components/PoolChip";
 import { ExternalLinkIcon } from "@/components/icons";
+import { aboutFacilities, loadAboutSource, parseAbout, type Facility } from "@/lib/about-content";
+import { markdownPath } from "@/lib/page-markdown";
 import { poolPageHref } from "@/lib/pool-pages";
-import { getPoolToken, type PoolToken } from "@/lib/pool-tokens";
 import { loadPools } from "@/lib/site-data";
 import { SITE_URL } from "@/lib/site-url";
 
+// the words come from src/content/about.md, which /about.md also serves
 export const metadata: Metadata = {
 	title: "About",
 	description: "What SF Pools is, where its schedules come from, and how far to trust them.",
+	alternates: { types: { "text/markdown": markdownPath("/about") } },
 };
-
-const GITHUB_URL = "https://github.com/fwextensions/sf-pools";
-const ISSUES_URL = "https://github.com/fwextensions/sf-pools/issues/new";
-const REC_PARK_URL = "https://sfrecpark.org";
-const POOLS_URL = "https://sfrecpark.org/482/Swimming-Pools";
-
-type Facility = {
-	// the first pool's id, whose page the facility's name links to
-	poolId: string;
-	name: string;
-	address: string;
-	pageUrl: string;
-	tokens: PoolToken[];
-};
-
-// North Beach's warm and cool pools are two schedules at one address with one
-// page, so the list is of facilities: one row each, with every pool's chip
-async function readFacilities(): Promise<Facility[]> {
-	const byPage = new Map<string, Facility>();
-	for (const pool of await loadPools()) {
-		const token = getPoolToken(pool.id);
-		const existing = byPage.get(pool.pageUrl);
-		if (existing) {
-			if (token) existing.tokens.push(token);
-			continue;
-		}
-		byPage.set(pool.pageUrl, {
-			poolId: pool.id,
-			name: pool.nameTitle.replace(/\s*\(.*\)$/, ""),
-			address: pool.address.replace(/, San Francisco$/, ""),
-			pageUrl: pool.pageUrl,
-			tokens: token ? [token] : [],
-		});
-	}
-	return [...byPage.values()];
-}
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
 	return (
@@ -77,116 +45,85 @@ function ExternalLink({ href, children }: { href: string, children: React.ReactN
 	)
 }
 
+// the site's own pages go through the router; its files and API, like
+// /llms.txt, are plain links, and anything elsewhere opens a new tab
+const components: Components = {
+	a({ href = "", children }) {
+		if (/^https?:/.test(href)) return <ExternalLink href={href}>{children}</ExternalLink>;
+		if (href.startsWith("/api/") || /\.\w+$/.test(href)) return <a href={href} className={inlineLink}>{children}</a>;
+		return <Link href={href}>{children}</Link>;
+	},
+	code({ children }) {
+		return <code className="font-mono text-small">{children}</code>;
+	},
+};
+
+function PoolList({ facilities }: { facilities: Facility[] }) {
+	return (
+		<ul className="flex flex-col">
+			{facilities.map((facility) => (
+				<li
+					key={facility.pageUrl}
+					className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-line py-2.5"
+				>
+					<span className="flex gap-1 self-center">
+						{facility.tokens.map((token) => (
+							<BaseLink
+								key={token.id}
+								href={poolPageHref(token.id)}
+								className="flex"
+							>
+								<PoolChip token={token} />
+							</BaseLink>
+						))}
+					</span>
+					<BaseLink
+						href={poolPageHref(facility.poolId)}
+						className={`font-medium ${inlineLink}`}
+					>
+						{facility.name}
+					</BaseLink>
+					<span className="text-body text-ink-2">{facility.address}</span>
+					<a
+						href={facility.pageUrl}
+						target="_blank"
+						rel="noreferrer"
+						className="link-utility ml-auto"
+					>
+						Pool page<ExternalLinkIcon />
+					</a>
+				</li>
+			))}
+		</ul>
+	);
+}
+
 export default async function AboutPage() {
-	const facilities = await readFacilities();
+	const [source, records] = await Promise.all([loadAboutSource(), loadPools()]);
+	const about = parseAbout(source, SITE_URL);
+	const facilities = aboutFacilities(records);
 
 	return (
 		<main>
 			<header className="pt-6">
-				<h1 className="text-title font-semibold leading-tight">About SF Pools</h1>
-				<p className="mt-1.5 max-w-[62ch] text-body text-ink-2">
-					Every public pool schedule in San Francisco, in one place.
-				</p>
+				<h1 className="text-title font-semibold leading-tight">{about.title}</h1>
+				<p className="mt-1.5 max-w-[62ch] text-body text-ink-2">{about.lede}</p>
 			</header>
 
 			<div className="mt-7 flex max-w-[68ch] flex-col gap-10">
-				<Section title="WHAT THIS IS">
-					<p>
-						The <ExternalLink href={REC_PARK_URL}>San Francisco Recreation and Park Department</ExternalLink> runs nine public pools,
-						and each one posts its schedule as a separate PDF. Finding a lap swim that fits your morning routine means
-						opening several PDFs and comparing them by hand. This site does that comparison for you.
-					</p>
-					<p>
-						The <Link href="/">week grid</Link> shows which pools have a program
-						at each hour of the week,{" "}
-						<Link href="/now">now &amp; soon</Link>
-						{" "}shows what&rsquo;s open at the moment, and the{" "}
-						<Link href="/schedules">full schedules</Link> list every session at
-						every pool.
-					</p>
-				</Section>
-
-				<Section title="WHERE THE SCHEDULES COME FROM">
-					<p>
-						Every Friday, a script checks each pool&rsquo;s page on the Rec &amp; Parks site, downloads any
-						schedule PDF that has changed, and has an AI model read it into structured data. It also picks
-						up the closure and alert notices posted on those pages.
-					</p>
-					<p>
-						Each update is checked for signs of a bad read before it goes live. If one pool&rsquo;s
-						schedule looks wrong, that pool keeps last week&rsquo;s data while the others update. You can
-						see what changed in each update on the{" "}
-						<Link href="/changes">schedule changes</Link> page.
-					</p>
-				</Section>
-
-				<Section title="CHECK BEFORE YOU GO">
-					<p>
-						This is an independent project, not a city site. Reading PDFs automatically can get details
-						wrong, and pools change hours, close for maintenance, or cancel sessions at short notice. Before
-						you head out, confirm the schedule on the pool&rsquo;s page at{" "}
-						<ExternalLink href={POOLS_URL}>SF Rec &amp; Parks</ExternalLink>.
-					</p>
-				</Section>
-
-				{facilities.length > 0 && (
-					<Section title="THE POOLS">
-						<ul className="flex flex-col">
-							{facilities.map((facility) => (
-								<li
-									key={facility.pageUrl}
-									className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-line py-2.5"
-								>
-									<span className="flex gap-1 self-center">
-										{facility.tokens.map((token) => (
-											<BaseLink
-												key={token.id}
-												href={poolPageHref(token.id)}
-												className="flex"
-											>
-												<PoolChip token={token} />
-											</BaseLink>
-										))}
-									</span>
-									<BaseLink
-										href={poolPageHref(facility.poolId)}
-										className={`font-medium ${inlineLink}`}
-									>
-										{facility.name}
-									</BaseLink>
-									<span className="text-body text-ink-2">{facility.address}</span>
-									<a
-										href={facility.pageUrl}
-										target="_blank"
-										rel="noreferrer"
-										className="link-utility ml-auto"
-									>
-										Pool page<ExternalLinkIcon />
-									</a>
-								</li>
-							))}
-						</ul>
-					</Section>
+				{about.sections.map((section) =>
+					section.pools ? (
+						facilities.length > 0 && (
+							<Section key={section.title} title={section.title.toUpperCase()}>
+								<PoolList facilities={facilities} />
+							</Section>
+						)
+					) : (
+						<Section key={section.title} title={section.title.toUpperCase()}>
+							<Markdown components={components}>{section.body}</Markdown>
+						</Section>
+					)
 				)}
-
-				<Section title="FOR AI ASSISTANTS">
-					<p>
-						AI assistants can ask this site what&rsquo;s open now, what&rsquo;s coming up, or which sessions
-						match a pool, program, day or time. Add <code className="font-mono text-small">{`${SITE_URL}/mcp`}</code> as
-						a custom connector (it&rsquo;s an MCP server, no sign-in needed), or fetch the same answers as JSON
-						from <a href="/api/sessions?when=now" className={inlineLink}>/api/sessions</a>.{" "}
-						<a href="/llms.txt" className={inlineLink}>llms.txt</a> describes both.
-					</p>
-				</Section>
-
-				<Section title="THE CODE">
-					<p>
-						The site and the pipeline behind it are open source on{" "}
-						<ExternalLink href={GITHUB_URL}>GitHub</ExternalLink>. If a schedule looks wrong or something
-						doesn&rsquo;t work, <ExternalLink href={ISSUES_URL}>opening an issue there</ExternalLink> is the best
-						way to report it.
-					</p>
-				</Section>
 			</div>
 		</main>
 	);

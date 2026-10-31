@@ -7,6 +7,7 @@ import GridLink from "@/components/grid/GridLink";
 import PoolChip from "@/components/PoolChip";
 import { ExternalLinkIcon } from "@/components/icons";
 import PoolScheduleSection from "@/components/schedule/PoolScheduleSection";
+import { markdownPath } from "@/lib/page-markdown";
 import { buildPoolPages, poolPageSlugs, type PoolPage } from "@/lib/pool-pages";
 import { describeProgram } from "@/lib/program-display";
 import { loadAlerts, loadPools, loadSchedules } from "@/lib/site-data";
@@ -48,7 +49,10 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 			`Weekly swim schedule for ${page.name} at ${page.address}, San Francisco` +
 			(programs ? `: ${programs} and more.` : ".") +
 			" Session times, closures and the official schedule PDF.",
-		alternates: { canonical: `/pools/${page.slug}` },
+		alternates: {
+			canonical: `/pools/${page.slug}`,
+			types: { "text/markdown": markdownPath(`/pools/${page.slug}`) },
+		},
 	};
 }
 
