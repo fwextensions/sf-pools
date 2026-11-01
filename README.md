@@ -42,7 +42,7 @@ Centralized, searchable schedules for San Francisco public swimming pools. This 
 	npm run build-schedules
 	```
 
-This will scrape PDF URLs, download PDFs, extract schedules, and write `public/data/all_schedules.json`. View at `/schedules`.
+This will scrape PDF URLs, download PDFs, extract schedules, and write `public/data/all_schedules.json`. View at `/pools`.
 
 ## Architecture
 

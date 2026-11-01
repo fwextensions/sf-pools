@@ -100,9 +100,9 @@ export default async function AboutPage() {
 						The <Link href="/">week grid</Link> shows which pools have a program
 						at each hour of the week,{" "}
 						<Link href="/now">now &amp; soon</Link>
-						{" "}shows what&rsquo;s open at the moment, and the{" "}
-						<Link href="/schedules">full schedules</Link> list every session at
-						every pool.
+						{" "}shows what&rsquo;s open at the moment, and each of the{" "}
+						<Link href="/pools">pools</Link> has a page with its address and
+						every session on its schedule.
 					</p>
 				</Section>
 
