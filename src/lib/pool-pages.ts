@@ -47,10 +47,10 @@ export function poolPageSlug(poolId: string): string | null {
 	return SLUG_BY_POOL_ID[poolId] ?? null;
 }
 
-/** a link to a pool's page, falling back to its section of the full schedules */
+/** a link to a pool's page, falling back to the list of pools */
 export function poolPageHref(poolId: string): string {
 	const slug = poolPageSlug(poolId);
-	return slug ? `/pools/${slug}` : `/schedules#pool-${poolId}`;
+	return slug ? `/pools/${slug}` : "/pools";
 }
 
 /** every slug, in the order the pages are listed */

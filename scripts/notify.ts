@@ -174,8 +174,8 @@ export async function notifyScheduleUpdate(changelog?: ChangelogEntry | null): P
 
 	let title = "🏊 Pool Schedules Updated";
 	let message = "Schedules have been updated.";
-	let url = `${SITE_URL}/schedules`;
-	let urlTitle = "View Schedules";
+	let url = `${SITE_URL}/pools`;
+	let urlTitle = "View Pools";
 
 	if (entry) {
 		const emoji = severityEmoji(entry.changeSeverity);
