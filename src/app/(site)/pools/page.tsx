@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
+import AdmissionFees from "@/components/pools/AdmissionFees";
 import PoolAnchorRedirect from "@/components/pools/PoolAnchorRedirect";
 import PoolList from "@/components/pools/PoolList";
 import { buildPoolPages } from "@/lib/pool-pages";
-import { loadPools, loadSchedules } from "@/lib/site-data";
+import { loadAdmissionFees, loadPools, loadSchedules } from "@/lib/site-data";
 
 export const metadata: Metadata = {
 	title: "Pools",
-	description: "San Francisco's public swimming pools, with each one's address and weekly swim schedule.",
+	description: "San Francisco's public swimming pools, with each one's address and weekly swim schedule, and what a swim costs.",
 	alternates: { canonical: "/pools" },
 };
 
 export default async function PoolsPage() {
-	const [records, schedules] = await Promise.all([loadPools(), loadSchedules()]);
+	const [records, schedules, fees] = await Promise.all([loadPools(), loadSchedules(), loadAdmissionFees()]);
 	const pages = buildPoolPages(records, schedules);
 
 	return (
@@ -25,6 +26,7 @@ export default async function PoolsPage() {
 			</header>
 
 			<PoolList pages={pages} className="mt-3 border-t-2 border-ink" />
+			{fees ? <AdmissionFees fees={fees} /> : null}
 			<PoolAnchorRedirect />
 		</main>
 	);
