@@ -36,6 +36,8 @@ export type PoolPage = {
 	facilityName: string;
 	/** street address without the city */
 	address: string;
+	/** the ZIP code, for structured data */
+	postalCode?: string;
 	/** the facility's page on sfrecpark.org */
 	pageUrl: string;
 	/** the pools on this page, in POOL_TOKENS order */
@@ -84,6 +86,7 @@ export function buildPoolPages(records: PoolRecord[], schedules: PoolSchedule[])
 			name: token.fullName.replace(/\s*\(.*\)$/, ""),
 			facilityName: (record?.name ?? schedule.name).replace(/\s+-\s+\w+ Pool$/, ""),
 			address: (record?.address ?? schedule.address ?? "").replace(/, San Francisco$/, ""),
+			postalCode: record?.postalCode,
 			pageUrl: record?.pageUrl ?? schedule.sfRecParkUrl ?? "",
 			pools: [{ schedule, token }],
 		});
