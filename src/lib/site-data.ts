@@ -20,6 +20,7 @@ export type PoolRecord = {
 	nameTitle: string;
 	shortName: string;
 	address: string;
+	postalCode?: string;
 	pageUrl: string;
 	// optional keyword used to disambiguate when one facility page hosts multiple
 	// schedule PDFs (e.g. North Beach has separate "warm" and "cool" pool schedules)

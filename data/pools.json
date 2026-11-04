@@ -4,7 +4,8 @@
 		"name": "Balboa Aquatics Center",
 		"nameTitle": "Balboa Pool",
 		"shortName": "Balboa",
-		"address": "1000 Ocean Ave, San Francisco",
+		"address": "51 Havelock St, San Francisco",
+		"postalCode": "94112",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Balboa-Pool-212"
 	},
 	{
@@ -13,6 +14,7 @@
 		"nameTitle": "Coffman Pool",
 		"shortName": "Coffman",
 		"address": "1701 Visitacion Ave, San Francisco",
+		"postalCode": "94134",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Coffman-Pool-213"
 	},
 	{
@@ -20,7 +22,8 @@
 		"name": "Garfield Aquatic Center",
 		"nameTitle": "Garfield Pool",
 		"shortName": "Garfield",
-		"address": "1475 Harrison St, San Francisco",
+		"address": "1271 Treat Ave, San Francisco",
+		"postalCode": "94110",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Garfield-Pool-214"
 	},
 	{
@@ -29,6 +32,7 @@
 		"nameTitle": "Hamilton Pool",
 		"shortName": "Hamilton",
 		"address": "1900 Geary Blvd, San Francisco",
+		"postalCode": "94115",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Hamilton-Pool-215"
 	},
 	{
@@ -37,6 +41,7 @@
 		"nameTitle": "MLK Pool",
 		"shortName": "MLK",
 		"address": "5701 3rd St, San Francisco",
+		"postalCode": "94124",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Martin-Luther-King-Jr-Pool-216"
 	},
 	{
@@ -44,7 +49,8 @@
 		"name": "Mission Aquatic Center",
 		"nameTitle": "Mission Pool",
 		"shortName": "Mission",
-		"address": "19th St & Linda St, San Francisco",
+		"address": "101 Linda St, San Francisco",
+		"postalCode": "94110",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Mission-Community-Pool-217"
 	},
 	{
@@ -53,6 +59,7 @@
 		"nameTitle": "North Beach Pool (Cool)",
 		"shortName": "North Beach (Cool)",
 		"address": "661 Lombard St, San Francisco",
+		"postalCode": "94133",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 		"scheduleMatch": "cool"
 	},
@@ -62,6 +69,7 @@
 		"nameTitle": "North Beach Pool (Warm)",
 		"shortName": "North Beach (Warm)",
 		"address": "661 Lombard St, San Francisco",
+		"postalCode": "94133",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 		"scheduleMatch": "warm"
 	},
@@ -71,6 +79,7 @@
 		"nameTitle": "Rossi Pool",
 		"shortName": "Rossi",
 		"address": "600 Arguello Blvd, San Francisco",
+		"postalCode": "94118",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Rossi-Pool-219"
 	},
 	{
@@ -78,7 +87,8 @@
 		"name": "Sava Pool",
 		"nameTitle": "Sava Pool",
 		"shortName": "Sava",
-		"address": "19th Ave & Wawona St, San Francisco",
+		"address": "2695 19th Ave, San Francisco",
+		"postalCode": "94116",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Sava-Pool-220"
 	}
 ]

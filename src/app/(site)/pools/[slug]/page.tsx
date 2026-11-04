@@ -74,6 +74,7 @@ function structuredData(page: PoolPage) {
 			streetAddress: page.address,
 			addressLocality: "San Francisco",
 			addressRegion: "CA",
+			postalCode: page.postalCode,
 			addressCountry: "US",
 		},
 	};
