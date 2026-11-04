@@ -53,7 +53,7 @@ export default function AdmissionFees({ fees }: { fees: AdmissionFeesData }) {
 			</div>
 
 			<p className="mt-2 text-body text-ink-2">
-				{effective ? `Effective ${effective}. ` : ""}Other passes are in the{" "}
+				{effective ? `Effective ${effective}. ` : ""}The full list of passes is in the{" "}
 				<a href={fees.source} target="_blank" rel="noreferrer" className="link-inline">
 					fee notice PDF<ExternalLinkIcon />
 				</a>
