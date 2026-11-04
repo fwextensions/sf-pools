@@ -1,0 +1,61 @@
+{
+	"source": "https://sfrecpark.org/DocumentCenter/View/29763/Annual-Maintenance-26-27",
+	"pdfHash": "8a665c24c0f785c5dfc41a0ef2188d73a8857a0c9bf9bf47aed827450b9e090f",
+	"title": "2026- 2027 POOL MAINTENANCE SCHEDULE and TASK Draft",
+	"lastUpdated": "2026-11-03",
+	"entries": [
+		{
+			"poolIds": [
+				"garfield"
+			],
+			"startDate": "2026-08-17",
+			"endDate": "2026-09-04",
+			"reason": "Annual maintenance"
+		},
+		{
+			"poolIds": [
+				"northBeachCool",
+				"northBeachWarm"
+			],
+			"startDate": "2026-10-13",
+			"endDate": "2026-10-31",
+			"reason": "Annual maintenance"
+		},
+		{
+			"poolIds": [
+				"rossi"
+			],
+			"startDate": "2026-11-02",
+			"endDate": "2026-11-21",
+			"reason": "Annual maintenance"
+		},
+		{
+			"poolIds": [
+				"sava"
+			],
+			"startDate": "2026-12-01",
+			"endDate": "2026-12-19",
+			"reason": "Annual maintenance"
+		},
+		{
+			"poolIds": [],
+			"startDate": "2026-08-22",
+			"endDate": "2026-08-22",
+			"reason": "In-service training"
+		},
+		{
+			"poolIds": [],
+			"startDate": "2026-12-12",
+			"endDate": "2026-12-12",
+			"reason": "In-service training"
+		},
+		{
+			"poolIds": [
+				"hamilton"
+			],
+			"startDate": "2026-11-23",
+			"endDate": "2026-11-29",
+			"reason": "Wet scrub"
+		}
+	]
+}
