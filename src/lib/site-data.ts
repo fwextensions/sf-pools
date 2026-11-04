@@ -11,6 +11,7 @@ import path from "node:path";
 import { AllSchedulesSchema, type PoolSchedule } from "@/lib/schedule-schema";
 import type { Closure } from "@/lib/closures";
 import type { CityHoliday, CityHolidaysData } from "@/lib/city-holidays";
+import type { AdmissionFeesData } from "@/lib/admission-fees";
 
 /** one pool in data/pools.json, the list the scrapers start from */
 export type PoolRecord = {
@@ -20,6 +21,8 @@ export type PoolRecord = {
 	shortName: string;
 	address: string;
 	postalCode?: string;
+	/** the facility's number as its sfrecpark.org page lists it, "(415) 831-6805" */
+	phone?: string;
 	pageUrl: string;
 	// optional keyword used to disambiguate when one facility page hosts multiple
 	// schedule PDFs (e.g. North Beach has separate "warm" and "cool" pool schedules)
@@ -99,6 +102,7 @@ const SCHEDULES_FILE = () => path.join(process.cwd(), "public", "data", "all_sch
 const UPCOMING_FILE = () => path.join(process.cwd(), "public", "data", "upcoming_schedules.json");
 const ALERTS_FILE = () => path.join(process.cwd(), "public", "data", "alerts.json");
 const HOLIDAYS_FILE = () => path.join(process.cwd(), "public", "data", "city_holidays.json");
+const FEES_FILE = () => path.join(process.cwd(), "public", "data", "admission_fees.json");
 const POOLS_FILE = () => path.join(process.cwd(), "data", "pools.json");
 const CHANGELOG_DIR = () => path.join(process.cwd(), "data", "changelog");
 
@@ -169,6 +173,18 @@ export async function loadCityHolidays(): Promise<CityHoliday[]> {
 		throw error;
 	}
 	return ((await readJson(file)) as CityHolidaysData).holidays;
+}
+
+/** the citywide admission fees, or null when the fees file is missing */
+export async function loadAdmissionFees(): Promise<AdmissionFeesData | null> {
+	const file = FEES_FILE();
+	try {
+		await fs.access(file);
+	} catch (error) {
+		if (isMissing(error)) return null;
+		throw error;
+	}
+	return (await readJson(file)) as AdmissionFeesData;
 }
 
 /** the pools the scrapers visit; throws when the list can't be read */

@@ -326,6 +326,35 @@ describe("releaseSchedules", () => {
 		]);
 	});
 
+	it("adds the maintenance schedule's closures the PDF leaves out", () => {
+		const day = (date: string, reason: string) => ({
+			startDate: date,
+			endDate: date,
+			startTime: null,
+			endTime: null,
+			reason,
+		});
+		const result = release({
+			extracts: [
+				balboaExtract({
+					scheduleStartDate: "2026-09-01",
+					scheduleEndDate: "2026-12-12",
+					scheduledClosures: [day("2026-11-11", "Veterans Day")],
+				}),
+			],
+			maintenance: [
+				{ poolIds: ["balboa"], startDate: "2026-11-10", endDate: "2026-11-12", reason: "Annual maintenance" },
+				{ poolIds: [], startDate: "2026-12-12", endDate: "2026-12-12", reason: "In-service training" },
+				{ poolIds: ["sava"], startDate: "2026-12-01", endDate: "2026-12-05", reason: "Annual maintenance" },
+			],
+		});
+		// the PDF's Veterans Day overlaps the maintenance row, so the PDF's say wins
+		expect(result.schedules[0]!.scheduledClosures).toEqual([
+			day("2026-11-11", "Veterans Day"),
+			day("2026-12-12", "In-service training"),
+		]);
+	});
+
 	it("keeps a schedule date the PDF supplied", () => {
 		const result = release({ extracts: [balboaExtract({ scheduleLastUpdated: "2026-09-01" })] });
 		expect(result.schedules[0].scheduleLastUpdated).toBe("2026-09-01");

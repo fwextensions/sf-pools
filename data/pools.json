@@ -6,6 +6,7 @@
 		"shortName": "Balboa",
 		"address": "51 Havelock St, San Francisco",
 		"postalCode": "94112",
+		"phone": "(415) 831-6805",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Balboa-Pool-212"
 	},
 	{
@@ -15,6 +16,7 @@
 		"shortName": "Coffman",
 		"address": "1701 Visitacion Ave, San Francisco",
 		"postalCode": "94134",
+		"phone": "(415) 337-9085",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Coffman-Pool-213"
 	},
 	{
@@ -24,6 +26,7 @@
 		"shortName": "Garfield",
 		"address": "1271 Treat Ave, San Francisco",
 		"postalCode": "94110",
+		"phone": "(628) 652-7221",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Garfield-Pool-214"
 	},
 	{
@@ -33,6 +36,7 @@
 		"shortName": "Hamilton",
 		"address": "1900 Geary Blvd, San Francisco",
 		"postalCode": "94115",
+		"phone": "(415) 292-2008",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Hamilton-Pool-215"
 	},
 	{
@@ -42,6 +46,7 @@
 		"shortName": "MLK",
 		"address": "5701 3rd St, San Francisco",
 		"postalCode": "94124",
+		"phone": "(415) 822-2807",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Martin-Luther-King-Jr-Pool-216"
 	},
 	{
@@ -51,6 +56,7 @@
 		"shortName": "Mission",
 		"address": "101 Linda St, San Francisco",
 		"postalCode": "94110",
+		"phone": "(415) 641-2841",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Mission-Community-Pool-217"
 	},
 	{
@@ -60,6 +66,7 @@
 		"shortName": "North Beach (Cool)",
 		"address": "661 Lombard St, San Francisco",
 		"postalCode": "94133",
+		"phone": "(415) 391-0407",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 		"scheduleMatch": "cool"
 	},
@@ -70,6 +77,7 @@
 		"shortName": "North Beach (Warm)",
 		"address": "661 Lombard St, San Francisco",
 		"postalCode": "94133",
+		"phone": "(415) 391-0407",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 		"scheduleMatch": "warm"
 	},
@@ -80,6 +88,7 @@
 		"shortName": "Rossi",
 		"address": "600 Arguello Blvd, San Francisco",
 		"postalCode": "94118",
+		"phone": "(628) 652-7230",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Rossi-Pool-219"
 	},
 	{
@@ -89,6 +98,7 @@
 		"shortName": "Sava",
 		"address": "2695 19th Ave, San Francisco",
 		"postalCode": "94116",
+		"phone": "(415) 661-6327",
 		"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Sava-Pool-220"
 	}
 ]

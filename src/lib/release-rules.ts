@@ -8,6 +8,7 @@ import { cleanProgramTitle, deriveTags, findCanonicalProgram, normalizeProgramNa
 import { getPoolIdFromName, getPoolById } from "./pool-mapping";
 import { detectScheduleAnomalies, detectRegressionAnomalies, repairMeridiemTypos } from "./schedule-validation";
 import { checkScheduledClosure, hasClosureEnded, isClosureActive, type Closure, type ScheduledClosure } from "./closures";
+import { maintenanceClosures, type MaintenanceEntry } from "./maintenance";
 
 /** the pools.json entry a PDF was downloaded for */
 export type SourcePool = {
@@ -47,6 +48,11 @@ export type ReleaseInput = {
 	closures: Map<string, Closure>;
 	/** YYYY-MM-DD */
 	today: string;
+	/**
+	 * the aquatics division's maintenance schedule, whose closures fill in
+	 * for the ones a pool's PDF leaves out
+	 */
+	maintenance?: MaintenanceEntry[];
 	/** ship extracts even when they fail health checks (local dev escape hatch) */
 	allowUnhealthy?: boolean;
 	log?: ReleaseLog;
@@ -163,6 +169,7 @@ export function releaseSchedules(input: ReleaseInput): ReleaseResult {
 		previousSchedules,
 		closures,
 		today,
+		maintenance = [],
 		allowUnhealthy = false,
 		log = silentLog,
 	} = input;
@@ -219,6 +226,11 @@ export function releaseSchedules(input: ReleaseInput): ReleaseResult {
 					result.rejectedClosures.push(msg);
 					log.warn("⚠️  ignored a PDF closure:", msg);
 				});
+				const filled = maintenanceClosures(s, maintenance, today);
+				for (const c of filled) {
+					log.log(`🔧 ${label}: ${c.startDate}–${c.endDate} (${c.reason}) from the maintenance schedule`);
+				}
+				s.scheduledClosures = [...s.scheduledClosures, ...filled];
 
 				// A closure rides along with the regular schedule rather than
 				// replacing it: the site hides the sessions on the dates it covers,

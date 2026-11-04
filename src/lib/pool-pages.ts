@@ -38,6 +38,8 @@ export type PoolPage = {
 	address: string;
 	/** the ZIP code, for structured data */
 	postalCode?: string;
+	/** "(415) 831-6805", when the facility's page lists one */
+	phone?: string;
 	/** the facility's page on sfrecpark.org */
 	pageUrl: string;
 	/** the pools on this page, in POOL_TOKENS order */
@@ -87,6 +89,7 @@ export function buildPoolPages(records: PoolRecord[], schedules: PoolSchedule[])
 			facilityName: (record?.name ?? schedule.name).replace(/\s+-\s+\w+ Pool$/, ""),
 			address: (record?.address ?? schedule.address ?? "").replace(/, San Francisco$/, ""),
 			postalCode: record?.postalCode,
+			phone: record?.phone,
 			pageUrl: record?.pageUrl ?? schedule.sfRecParkUrl ?? "",
 			pools: [{ schedule, token }],
 		});

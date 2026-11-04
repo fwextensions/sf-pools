@@ -60,6 +60,12 @@ function mapsUrl(page: PoolPage): string {
 	return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }
 
+/** "(415) 831-6805" -> "+1-415-831-6805", the international form schema.org asks for */
+function telephone(phone: string): string {
+	const digits = phone.replace(/\D/g, "");
+	return `+1-${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
 /** schema.org's description of the place, for search engines */
 function structuredData(page: PoolPage) {
 	return {
@@ -77,6 +83,7 @@ function structuredData(page: PoolPage) {
 			postalCode: page.postalCode,
 			addressCountry: "US",
 		},
+		telephone: page.phone ? telephone(page.phone) : undefined,
 	};
 }
 
@@ -134,6 +141,11 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 							className="link-inline"
 						/>
 					</span>
+					{page.phone ? (
+						<a href={`tel:${page.phone.replace(/\D/g, "")}`} className="link-inline block w-fit">
+							{page.phone}
+						</a>
+					) : null}
 				</Fact>
 				{pdfs.length || page.pageUrl ? (
 					<Fact label="OFFICIAL">

@@ -1,0 +1,120 @@
+{
+	"source": "https://sfrecpark.org/DocumentCenter/View/29318/Aquatic-Fee-Increases-Effective-July-1-2026",
+	"pdfHash": "43bf5f5285c922b1607940e0b47e0a601f28023b0403cb1c7906332a386b9cdd",
+	"effectiveDate": "2026-07-01",
+	"lastUpdated": "2026-11-03",
+	"groups": [
+		{
+			"name": "Children",
+			"detail": "0-17",
+			"fees": [
+				{
+					"name": "Rec Swim and Lap Swim Drop-in",
+					"price": 2
+				},
+				{
+					"name": "Monthly Pass - not including lessons",
+					"price": 27
+				},
+				{
+					"name": "Summer Pass",
+					"price": 34
+				},
+				{
+					"name": "Yearly Swim Pass",
+					"price": 285
+				}
+			]
+		},
+		{
+			"name": "Adult",
+			"detail": "18-64",
+			"fees": [
+				{
+					"name": "Rec Swim and Lap Swim Drop-in",
+					"price": 8
+				},
+				{
+					"name": "Recreation Swim Pass - 10 visits",
+					"price": 76
+				},
+				{
+					"name": "Water Exercise Drop-in",
+					"price": 12
+				},
+				{
+					"name": "Water Exercise Swim Pass - 10 visits",
+					"price": 101
+				},
+				{
+					"name": "Monthly Swim Pass (not including lessons)",
+					"price": 111
+				},
+				{
+					"name": "Yearly Swim Pass",
+					"price": 1007
+				}
+			]
+		},
+		{
+			"name": "Seniors",
+			"detail": "65+",
+			"fees": [
+				{
+					"name": "Rec Swim and Lap Swim Drop-in",
+					"price": 7
+				},
+				{
+					"name": "Recreation Swim Pass - 10 visits",
+					"price": 35
+				},
+				{
+					"name": "Water Exercise Drop-in",
+					"price": 12
+				},
+				{
+					"name": "Water Exercise Swim Pass - 10 visits",
+					"price": 52
+				},
+				{
+					"name": "Monthly Swim Pass (not including lessons)",
+					"price": 59
+				},
+				{
+					"name": "Yearly Swim Pass",
+					"price": 672
+				}
+			]
+		},
+		{
+			"name": "Economic Need",
+			"detail": "Medi-Cal recipients",
+			"fees": [
+				{
+					"name": "Rec Swim and Lap Swim Drop-in",
+					"price": 7
+				},
+				{
+					"name": "Recreation Swim Pass - 10 visits",
+					"price": 35
+				},
+				{
+					"name": "Water Exercise Drop-in",
+					"price": 12
+				},
+				{
+					"name": "Water Exercise Swim Pass - 10 visits",
+					"price": 52
+				},
+				{
+					"name": "Monthly Swim Pass (not including lessons)",
+					"price": 62
+				},
+				{
+					"name": "Yearly Swim Pass",
+					"price": 672
+				}
+			]
+		}
+	]
+}
