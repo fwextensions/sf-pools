@@ -20,7 +20,7 @@ export default function AdmissionFees({ fees }: { fees: AdmissionFeesData }) {
 				ADMISSION FEES
 			</h2>
 			<p className="mt-1.5 max-w-[62ch] text-body text-ink-2">
-				The same at every pool{effective ? `, since ${effective}` : ""}.{" "}
+				{effective ? `Effective ${effective}. ` : ""}
 				<a href={fees.source} target="_blank" rel="noreferrer" className="link-inline">
 					Fee notice PDF<ExternalLinkIcon />
 				</a>

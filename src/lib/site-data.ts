@@ -21,6 +21,8 @@ export type PoolRecord = {
 	shortName: string;
 	address: string;
 	postalCode?: string;
+	/** the facility's number as its sfrecpark.org page lists it, "(415) 831-6805" */
+	phone?: string;
 	pageUrl: string;
 	// optional keyword used to disambiguate when one facility page hosts multiple
 	// schedule PDFs (e.g. North Beach has separate "warm" and "cool" pool schedules)
