@@ -25,6 +25,14 @@ export default function AdmissionFees({ fees }: { fees: AdmissionFeesData }) {
 					Fee notice PDF<ExternalLinkIcon />
 				</a>
 			</p>
+			{/* as the Swimming Pools page on sfrecpark.org puts it */}
+			<p className="mt-1.5 max-w-[62ch] text-body text-ink-2">
+				To purchase a swim pass or register for a class, visit{" "}
+				<a href="https://sfrecpark.org/register" target="_blank" rel="noreferrer" className="link-inline">
+					sfrecpark.org/register<ExternalLinkIcon />
+				</a>
+				. Drop-in visitors can pay the entry fee with exact cash or credit card at the pool entrance.
+			</p>
 
 			<div className="mt-4 grid grid-cols-1 gap-x-8 gap-y-6 min-[560px]:grid-cols-2">
 				{fees.groups.map((group) => (
