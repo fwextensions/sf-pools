@@ -7,6 +7,7 @@ import type { PoolSchedule } from "@/lib/schedule-schema";
 import { buildDayCells, formatDayCells, type DayCell } from "@/lib/pdf-table";
 import { applyGrounding, groundSessions } from "@/lib/grounding";
 import type { Closure } from "@/lib/closures";
+import type { MaintenanceData, MaintenanceEntry } from "@/lib/maintenance";
 import {
 	releaseSchedules,
 	releaseVerdict,
@@ -33,6 +34,7 @@ const OUT_FILE = path.join(OUT_DIR, "all_schedules.json");
 const UPCOMING_FILE = path.join(OUT_DIR, "upcoming_schedules.json");
 const EXTRACTED_DIR = path.join(process.cwd(), "data", "extracted");
 const ALERTS_FILE = path.join(process.cwd(), "public", "data", "alerts.json");
+const MAINTENANCE_FILE = path.join(process.cwd(), "public", "data", "maintenance_schedule.json");
 
 type ExtractedMeta = {
 	pdfHash: string;
@@ -180,6 +182,15 @@ async function loadClosures(today: string): Promise<Map<string, Closure>> {
 	}
 }
 
+/** the maintenance schedule scrape-aquatics-docs saved, or none before its first run */
+async function loadMaintenance(): Promise<MaintenanceEntry[]> {
+	try {
+		return (JSON.parse(await readFile(MAINTENANCE_FILE, "utf-8")) as MaintenanceData).entries;
+	} catch {
+		return [];
+	}
+}
+
 export type ProcessResult = {
 	success: boolean;
 	changelog: ReturnType<typeof computeChangelog>;
@@ -241,6 +252,7 @@ export async function main(): Promise<ProcessResult> {
 	let skippedCount = 0;
 	const today = todayISO();
 	const closures = await loadClosures(today);
+	const maintenance = await loadMaintenance();
 
 	const extracts: PoolExtract[] = [];
 	const upcomingExtracts: PoolExtract[] = [];
@@ -339,6 +351,7 @@ export async function main(): Promise<ProcessResult> {
 		knownPoolIds: pools.map((p) => p.id),
 		closures,
 		today,
+		maintenance,
 		// escape hatch for local dev: ship extracts even when they fail health checks
 		allowUnhealthy: process.env.ALLOW_UNHEALTHY === "1",
 		log: console,
@@ -366,6 +379,7 @@ export async function main(): Promise<ProcessResult> {
 		knownPoolIds: [...upcomingPdfIds],
 		closures,
 		today,
+		maintenance,
 		allowUnhealthy: process.env.ALLOW_UNHEALTHY === "1",
 		log: console,
 	});
