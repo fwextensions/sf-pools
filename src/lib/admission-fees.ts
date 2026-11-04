@@ -28,3 +28,40 @@ export type AdmissionFeesData = {
 	lastUpdated: string;
 	groups: FeeGroup[];
 };
+
+/** a price and every group that pays it */
+export type SharedPrice = {
+	/** "Children", "Seniors" */
+	groups: { name: string; detail: string | null }[];
+	price: number;
+};
+
+/** one kind of entry with what each group pays for it */
+export type PassPrices = { name: string; prices: SharedPrice[] };
+
+const normalize = (s: string) => s.replace(/\s+/g, " ").trim().toLowerCase();
+
+// the entries most visitors want; the notice has the monthly and yearly
+// passes too
+const SHOWN = /\bdrop-?in\b|\b10 visits\b/i;
+
+/**
+ * The drop-in and 10-visit prices, one entry per kind of entry in the order
+ * the notice first lists them, with the groups that pay the same price
+ * merged ("Seniors" and "Economic Need" both pay $7 to drop in).
+ */
+export function passPrices(groups: FeeGroup[]): PassPrices[] {
+	const passes: PassPrices[] = [];
+	for (const group of groups) {
+		for (const fee of group.fees) {
+			if (!SHOWN.test(fee.name)) continue;
+			let pass = passes.find((p) => normalize(p.name) === normalize(fee.name));
+			if (!pass) passes.push((pass = { name: fee.name, prices: [] }));
+			const who = { name: group.name, detail: group.detail };
+			const same = pass.prices.find((p) => p.price === fee.price);
+			if (same) same.groups.push(who);
+			else pass.prices.push({ groups: [who], price: fee.price });
+		}
+	}
+	return passes;
+}
