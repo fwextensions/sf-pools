@@ -8,7 +8,7 @@ import { tagLabel } from "@/lib/program-taxonomy";
 import { cellDetail, emptyCellMessage } from "@/lib/grid/cell-detail";
 import type { FilterView, GridModel } from "@/lib/grid/grid-model";
 import { formatHour } from "@/lib/grid/sessions";
-import { poolPageHref } from "@/lib/pool-pages";
+import { poolSessionHref } from "@/lib/pool-pages";
 import HeightRatchet from "./HeightRatchet";
 
 // a session you cannot simply show up for says so on the card; drop-in is the
@@ -86,10 +86,11 @@ const DetailPanel = memo(function DetailPanel({
 				const access = accessNote(d.tags);
 				return (
 					// the whole row links to the pool's page, like the rows of the
-					// pools list, with the program name underlining on hover
+					// pools list, with the program name underlining on hover. The
+					// page picks this session out of the week
 					<Link
 						key={i}
-						href={poolPageHref(d.pool.id)}
+						href={poolSessionHref(d.pool.id, { dayOfWeek: d.day, startTime: d.startTime, title: d.title })}
 						className="group flex items-baseline gap-2.5 border-b border-line py-2 text-body"
 					>
 						<PoolChip token={d.pool} />

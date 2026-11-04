@@ -57,6 +57,37 @@ export function poolPageHref(poolId: string): string {
 	return slug ? `/pools/${slug}` : "/pools";
 }
 
+/**
+ * The ?session= value naming one weekly session on its pool's page, from the
+ * weekday, start time and title: "tue-1230p-lap-swim". No pool has two
+ * sessions with the same title starting at the same time on one day. A page
+ * shared by two pools (North Beach) starts it with the pool's code, since
+ * both can run a lap swim at once: "nbw-fri-900a-lap-swim".
+ */
+export function sessionParam(
+	poolId: string,
+	session: { dayOfWeek: string; startTime: string; title: string }
+): string {
+	const slug = SLUG_BY_POOL_ID[poolId];
+	const shared = POOL_TOKENS.filter((t) => SLUG_BY_POOL_ID[t.id] === slug).length > 1;
+	const parts = [
+		session.dayOfWeek.slice(0, 3),
+		session.startTime.replace(/[^a-z0-9]/gi, ""),
+		session.title.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, ""),
+	];
+	if (shared) parts.unshift(getPoolToken(poolId)?.code ?? poolId);
+	return parts.join("-").toLowerCase();
+}
+
+/** a link to a pool's page with one of its sessions picked out */
+export function poolSessionHref(
+	poolId: string,
+	session: { dayOfWeek: string; startTime: string; title: string }
+): string {
+	const href = poolPageHref(poolId);
+	return poolPageSlug(poolId) ? `${href}?session=${sessionParam(poolId, session)}` : href;
+}
+
 /** every slug, in the order the pages are listed */
 export function poolPageSlugs(): string[] {
 	return [...new Set(POOL_TOKENS.map((t) => SLUG_BY_POOL_ID[t.id]!))];

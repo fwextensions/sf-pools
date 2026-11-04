@@ -3,7 +3,9 @@ import ClosureNotice from "@/components/ClosureNotice";
 import ScheduledClosures from "@/components/ScheduledClosures";
 import SessionBlock from "@/components/schedule/SessionBlock";
 import TimelineBlock from "@/components/schedule/TimelineBlock";
+import { describeProgram } from "@/lib/program-display";
 import { toTitleCase } from "@/lib/program-taxonomy";
+import { sessionParam } from "@/lib/pool-pages";
 import type { PoolToken } from "@/lib/pool-tokens";
 import { DAYS, programMinutes } from "@/lib/sessions";
 import { parseTimeToMinutes } from "@/lib/time";
@@ -21,11 +23,18 @@ function byStartTime(a: ProgramEntry, b: ProgramEntry): number {
 	return startOrLast(a) - startOrLast(b);
 }
 
+// what the grid's links name this session by, so SessionFocus can find it
+function keyOf(poolId: string, program: ProgramEntry): string {
+	return sessionParam(poolId, { ...program, title: describeProgram(program).title });
+}
+
 function DayColumn({
+	poolId,
 	day,
 	programs,
 	color,
 }: {
+	poolId: string;
 	day: ProgramEntry["dayOfWeek"];
 	programs: ProgramEntry[];
 	color: string;
@@ -38,7 +47,7 @@ function DayColumn({
 			{programs.length ? (
 				<div className="mt-1 flex flex-col gap-[3px]">
 					{programs.map((program, i) => (
-						<SessionBlock key={i} program={program} color={color} row />
+						<SessionBlock key={i} program={program} color={color} row sessionKey={keyOf(poolId, program)} />
 					))}
 				</div>
 			) : (
@@ -150,9 +159,11 @@ const BLOCK_GAP_PX = 2;
  * one ever-taller single column. Most cells never overlap and stay full width.
  */
 function WeekTimeline({
+	poolId,
 	byDay,
 	color,
 }: {
+	poolId: string;
 	byDay: Array<{ day: ProgramEntry["dayOfWeek"]; programs: ProgramEntry[] }>;
 	color: string;
 }) {
@@ -244,6 +255,7 @@ function WeekTimeline({
 								program={item.program}
 								color={color}
 								compact={height < 46}
+								sessionKey={keyOf(poolId, item.program)}
 								style={{
 									top,
 									height,
@@ -257,7 +269,7 @@ function WeekTimeline({
 					{unplacedByDay[dayIndex]?.length ? (
 						<div className="absolute inset-x-0 flex flex-col gap-[3px]" style={{ top: heightPx + 6 }}>
 							{unplacedByDay[dayIndex].map((program, i) => (
-								<SessionBlock key={i} program={program} color={color} />
+								<SessionBlock key={i} program={program} color={color} sessionKey={keyOf(poolId, program)} />
 							))}
 						</div>
 					) : null}
@@ -347,12 +359,12 @@ function PoolWeek({
 
 	return (
 		<>
-			<WeekTimeline byDay={byDay} color={color} />
+			<WeekTimeline poolId={pool.id} byDay={byDay} color={color} />
 			{/* narrow screens show one day at a time, where aligning
 			    across days buys nothing and seven columns will not fit */}
 			<div className="mt-3 flex flex-col gap-4 min-[900px]:hidden">
 				{byDay.map(({ day, programs }) => (
-					<DayColumn key={day} day={day} programs={programs} color={color} />
+					<DayColumn key={day} poolId={pool.id} day={day} programs={programs} color={color} />
 				))}
 			</div>
 		</>

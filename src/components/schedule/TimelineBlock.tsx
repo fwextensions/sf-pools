@@ -13,6 +13,8 @@ type Props = {
 	color: string;
 	compact: boolean;
 	style: CSSProperties;
+	/** the ?session= value that picks this block out, see SessionFocus */
+	sessionKey?: string;
 };
 
 /**
@@ -33,7 +35,7 @@ type Props = {
  * they fall back to a plain native `title` tooltip instead (unstyled and
  * unpositioned, but still the full detail on hover).
  */
-export default function TimelineBlock({ program, color, compact, style }: Props) {
+export default function TimelineBlock({ program, color, compact, style, sessionKey }: Props) {
 	const boxRef = useRef<HTMLDivElement>(null);
 	const [clipped, setClipped] = useState(false);
 	// static for the life of the tab, and undetectable on the server — so this
@@ -99,6 +101,7 @@ export default function TimelineBlock({ program, color, compact, style }: Props)
 		<>
 			<div
 				ref={boxRef}
+				data-session={sessionKey}
 				tabIndex={clipped ? 0 : undefined}
 				title={titleFallback}
 				className="tt-anchor absolute overflow-hidden outline-none"
