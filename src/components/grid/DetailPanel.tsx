@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { memo, useCallback, useMemo, useSyncExternalStore } from "react";
 import ProgramName from "@/components/ProgramName";
 import PoolChip from "@/components/PoolChip";
@@ -7,6 +8,7 @@ import { tagLabel } from "@/lib/program-taxonomy";
 import { cellDetail, emptyCellMessage } from "@/lib/grid/cell-detail";
 import type { FilterView, GridModel } from "@/lib/grid/grid-model";
 import { formatHour } from "@/lib/grid/sessions";
+import { poolPageHref } from "@/lib/pool-pages";
 import HeightRatchet from "./HeightRatchet";
 
 // a session you cannot simply show up for says so on the card; drop-in is the
@@ -83,9 +85,12 @@ const DetailPanel = memo(function DetailPanel({
 			{detail?.map((d, i) => {
 				const access = accessNote(d.tags);
 				return (
-					<div
+					// the whole row links to the pool's page, like the rows of the
+					// pools list, with the program name underlining on hover
+					<Link
 						key={i}
-						className="flex items-baseline gap-2.5 border-b border-line py-2 text-body"
+						href={poolPageHref(d.pool.id)}
+						className="group flex items-baseline gap-2.5 border-b border-line py-2 text-body"
 					>
 						<PoolChip token={d.pool} />
 						{/* a wrapping flex row rather than inline text, so the lanes
@@ -93,7 +98,7 @@ const DetailPanel = memo(function DetailPanel({
 						    line instead of keeping the gap that separates them from
 						    the name */}
 						<span className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-3 gap-y-1 font-medium text-ink">
-							<span><ProgramName name={d.title} /></span>
+							<span className="underline-offset-[3px] group-hover:underline"><ProgramName name={d.title} /></span>
 							{d.badges.length ? (
 								<span className="meta whitespace-nowrap">{d.badges.join(" · ")}</span>
 							) : null}
@@ -104,7 +109,7 @@ const DetailPanel = memo(function DetailPanel({
 						<span className="font-mono text-small font-medium text-ink-2">
 							{d.startTime}–{d.endTime}
 						</span>
-					</div>
+					</Link>
 				);
 			})}
 			{emptyReason ? (
