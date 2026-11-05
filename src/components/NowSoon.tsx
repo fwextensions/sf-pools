@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { PoolSchedule } from "@/lib/schedule-schema";
 import type { CityHoliday } from "@/lib/city-holidays";
@@ -112,29 +113,40 @@ function Names({ names }: { names: string[] }) {
 	);
 }
 
-/**
- * chip and pool name, the name linking to the pool's page with the row's
- * sessions picked out
- */
-function PoolName({
-	pool,
-	weight,
-	stretch,
-}: {
-	pool: PoolSchedule;
-	weight: "font-semibold" | "font-normal";
-	stretch: Stretch | null;
-}) {
+/** chip and pool name, the name underlining while the row it heads is hovered */
+function PoolName({ pool, weight }: { pool: PoolSchedule; weight: "font-semibold" | "font-normal" }) {
 	return (
 		<>
 			<PoolChip token={getPoolToken(pool.id)} className="self-center" />
-			<a
-				href={poolSessionHref(pool.id, stretch?.running ?? [])}
-				className={`text-body ${weight} text-ink decoration-1 underline-offset-[3px] hover:underline`}
-			>
+			<span className={`text-body ${weight} text-ink decoration-1 underline-offset-[3px] group-hover:underline`}>
 				{poolLabel(pool)}
-			</a>
+			</span>
 		</>
+	);
+}
+
+/**
+ * A row that links as a whole to the pool's page with its sessions picked
+ * out, like the grid's list of a cell's sessions
+ */
+function RowLink({
+	pool,
+	stretch,
+	children,
+}: {
+	pool: PoolSchedule;
+	stretch: Stretch | null;
+	children: React.ReactNode;
+}) {
+	return (
+		<li className="border-b border-line">
+			<Link
+				href={poolSessionHref(pool.id, stretch?.running ?? [])}
+				className="group grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 py-3"
+			>
+				{children}
+			</Link>
+		</li>
 	);
 }
 
@@ -163,10 +175,10 @@ function OpenRow({
 	const detail = kind === "open" ? `until ${stretch.namesEndTime}` : span;
 
 	return (
-		<li className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 border-b border-line py-3">
+		<RowLink pool={pool} stretch={stretch}>
 			<div className="min-w-0">
 				<div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-					<PoolName pool={pool} weight="font-semibold" stretch={stretch} />
+					<PoolName pool={pool} weight="font-semibold" />
 					<span className="text-body text-ink-2">
 						<Names names={stretch.names} />
 					</span>
@@ -182,7 +194,7 @@ function OpenRow({
 				<div className={`whitespace-nowrap text-body font-semibold ${tone}`}>{headline}</div>
 				<div className="whitespace-nowrap font-mono text-label font-medium text-ink-2">{detail}</div>
 			</div>
-		</li>
+		</RowLink>
 	);
 }
 
@@ -190,10 +202,10 @@ function LaterRow({ standing }: { standing: LaterStanding }) {
 	const { pool, day, stretch, note, closedFor } = standing;
 	const tone = stretch?.restricted ? "text-ink-2" : "text-ink";
 	return (
-		<li className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 border-b border-line py-3">
+		<RowLink pool={pool} stretch={stretch}>
 			<div className="min-w-0">
 				<div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-					<PoolName pool={pool} weight="font-semibold" stretch={stretch} />
+					<PoolName pool={pool} weight="font-semibold" />
 					{stretch ? (
 						<span className="text-body text-ink-2">
 							<Names names={stretch.names} />
@@ -218,7 +230,7 @@ function LaterRow({ standing }: { standing: LaterStanding }) {
 			) : (
 				<div className="text-right text-small text-ink-2">{note}</div>
 			)}
-		</li>
+		</RowLink>
 	);
 }
 
