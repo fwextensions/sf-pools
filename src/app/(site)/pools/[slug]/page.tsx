@@ -6,6 +6,7 @@ import PoolChip from "@/components/PoolChip";
 import { ExternalLinkIcon } from "@/components/icons";
 import PoolList from "@/components/pools/PoolList";
 import PoolScheduleSection from "@/components/schedule/PoolScheduleSection";
+import SessionFocus from "@/components/schedule/SessionFocus";
 import { buildPoolPages, poolPageSlugs, type PoolPage } from "@/lib/pool-pages";
 import { describeProgram } from "@/lib/program-display";
 import { loadAlerts, loadPools, loadSchedules } from "@/lib/site-data";
@@ -204,6 +205,7 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 					label={single ? "Weekly schedule" : `${token?.name.match(/\((\w+)\)/)?.[1] ?? schedule.shortName} pool weekly schedule`}
 				/>
 			))}
+			<SessionFocus />
 
 			{/* the way on to the next pool, without going back up to the list */}
 			<nav aria-labelledby="other-pools" className="mt-12 border-t border-line pt-2.5">

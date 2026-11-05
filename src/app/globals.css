@@ -599,3 +599,10 @@ input[type="radio"] {
 		visibility: visible;
 	}
 }
+
+/* a pool page opened from a grid row (?session=, see SessionFocus) fades
+   every other session, so the one you picked is the brightest thing in the
+   week, much as the grid steps back around its selected cell */
+[data-session-focus] [data-session]:not([data-focused]) {
+	opacity: var(--grid-fade);
+}

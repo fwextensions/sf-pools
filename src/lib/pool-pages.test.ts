@@ -1,7 +1,7 @@
 import { describe, it, expect } from "@jest/globals";
 import type { PoolSchedule } from "./schedule-schema";
 import type { PoolRecord } from "./site-data";
-import { buildPoolPages, poolPageHref, poolPageSlugs } from "./pool-pages";
+import { buildPoolPages, poolPageHref, poolPageSlugs, poolSessionHref, sessionParam } from "./pool-pages";
 import { POOL_TOKENS } from "./pool-tokens";
 
 function schedule(id: string, name: string): PoolSchedule {
@@ -23,6 +23,17 @@ describe("pool pages", () => {
 		expect(poolPageSlugs()).toEqual([
 			"balboa", "coffman", "garfield", "hamilton", "mission", "mlk", "north-beach", "rossi", "sava",
 		]);
+	});
+
+	it("names a session by its day, start time and title", () => {
+		const session = { dayOfWeek: "Tuesday", startTime: "12:30p", title: "Rec/Family Swim" };
+		expect(sessionParam("mlk", session)).toBe("tue-1230p-rec-family-swim");
+		expect(poolSessionHref("mlk", session)).toBe("/pools/mlk?session=tue-1230p-rec-family-swim");
+	});
+
+	it("adds the pool's code on a page two pools share", () => {
+		const session = { dayOfWeek: "Friday", startTime: "9:00a", title: "Lap Swim (Lap/Therapy)" };
+		expect(sessionParam("northBeachWarm", session)).toBe("nbw-fri-900a-lap-swim-lap-therapy");
 	});
 
 	it("falls back to the list of pools for a pool without a page", () => {

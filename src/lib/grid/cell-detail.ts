@@ -2,12 +2,13 @@
 // sessions that pass both filters, in pool order and then by start time, or,
 // when none do, why not.
 import { POOL_TOKENS, type PoolToken } from "@/lib/pool-tokens";
-import type { Session } from "@/lib/sessions";
+import type { Day, Session } from "@/lib/sessions";
 import type { GridFilter } from "./filters";
 import { sessionsInCell, type GridCell } from "./sessions";
 
 export type DetailRow = {
 	pool: PoolToken;
+	day: Day;
 	title: string;
 	badges: string[];
 	tags: string[];
@@ -37,6 +38,7 @@ export function cellDetail(
 			if (s.poolId !== token.id || !matchesTags(s)) continue;
 			rows.push({
 				pool: token,
+				day: s.dayOfWeek,
 				title: s.title,
 				badges: s.badges,
 				tags: s.tags,
