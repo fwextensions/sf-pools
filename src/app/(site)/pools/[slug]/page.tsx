@@ -5,6 +5,7 @@ import GridLink from "@/components/grid/GridLink";
 import PoolChip from "@/components/PoolChip";
 import { ExternalLinkIcon } from "@/components/icons";
 import PoolList from "@/components/pools/PoolList";
+import PoolPageHeader from "@/components/pools/PoolPageHeader";
 import PoolScheduleSection from "@/components/schedule/PoolScheduleSection";
 import SessionFocus from "@/components/schedule/SessionFocus";
 import { buildPoolPages, poolPageSlugs, type PoolPage } from "@/lib/pool-pages";
@@ -126,7 +127,7 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 				type="application/ld+json"
 				dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData(page)).replace(/</g, "\\u003c") }}
 			/>
-			<header className="pt-6 pb-3">
+			<PoolPageHeader>
 				{/* the chips stay beside a name that wraps, centered on its first
 				    line: their box is one line of the heading tall */}
 				<div className="flex items-start gap-x-2.5">
@@ -137,7 +138,7 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 					</span>
 					<h1 className="text-title font-semibold leading-tight">{page.facilityName}</h1>
 				</div>
-			</header>
+			</PoolPageHeader>
 
 			<dl className="grid grid-cols-1 gap-x-8 min-[560px]:grid-cols-3">
 				<Fact label="ADDRESS">
