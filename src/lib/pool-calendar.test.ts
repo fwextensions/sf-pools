@@ -218,6 +218,13 @@ describe("upcoming schedules", () => {
 		expect(calendar.closuresOn("mission", "2026-11-23")).toEqual([{ kind: "ended", endDate: "2026-11-21" }]);
 	});
 
+	it("names the schedule in force on a date", () => {
+		const calendar = createPoolCalendar([fall], [next]);
+		expect(calendar.scheduleOn("mission", "2026-10-19")).toBe(fall);
+		expect(calendar.scheduleOn("mission", "2026-10-20")).toBe(next);
+		expect(calendar.scheduleOn("rossi", "2026-10-20")).toBeUndefined();
+	});
+
 	it("takes over from a schedule that prints no end date", () => {
 		const open = { ...fall, scheduleEndDate: null } as PoolSchedule;
 		const sessions = createPoolCalendar([open], [next]).sessions("2026-10-19", "2026-10-27");

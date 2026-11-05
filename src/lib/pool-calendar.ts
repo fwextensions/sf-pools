@@ -78,6 +78,8 @@ export type PoolCalendar = {
 	 * the posted schedules that take over between the two.
 	 */
 	scheduleGaps(from: string, to: string): ScheduleGap[];
+	/** the pool's schedule in force on a date: the latest to have started */
+	scheduleOn(poolId: string, date: string): PoolSchedule | undefined;
 };
 
 const WEEKDAYS: Day[] = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -262,7 +264,11 @@ export function createPoolCalendar(
 		return gaps.sort((a, b) => a.date.localeCompare(b.date));
 	}
 
-	return { sessions, closuresOn, closures, scheduleGaps };
+	function scheduleOn(poolId: string, date: string): PoolSchedule | undefined {
+		return periodOn(poolId, date)?.schedule;
+	}
+
+	return { sessions, closuresOn, closures, scheduleGaps, scheduleOn };
 }
 
 function weeklySessions(pool: PoolSchedule): Weekly[] {

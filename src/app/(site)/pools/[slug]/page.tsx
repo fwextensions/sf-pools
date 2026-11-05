@@ -9,7 +9,9 @@ import PoolScheduleSection from "@/components/schedule/PoolScheduleSection";
 import SessionFocus from "@/components/schedule/SessionFocus";
 import { buildPoolPages, poolPageSlugs, type PoolPage } from "@/lib/pool-pages";
 import { describeProgram } from "@/lib/program-display";
-import { loadAlerts, loadPools, loadSchedules } from "@/lib/site-data";
+import { pacificToday } from "@/lib/closures";
+import { createPoolCalendar } from "@/lib/pool-calendar";
+import { loadAlerts, loadPools, loadSchedules, loadUpcomingSchedules } from "@/lib/site-data";
 import { SITE_URL } from "@/lib/site-url";
 
 type Params = { slug: string };
@@ -21,9 +23,16 @@ export function generateStaticParams(): Params[] {
 	return poolPageSlugs().map((slug) => ({ slug }));
 }
 
+// each pool's schedule in force when the page is built: a newer PDF that
+// has started takes over here as it does in the grid and Now & Soon, which
+// go by the pool calendar, rather than waiting for the weekly run to promote
+// it into the current schedules
 async function loadPages(): Promise<PoolPage[]> {
-	const [records, schedules] = await Promise.all([loadPools(), loadSchedules()]);
-	return buildPoolPages(records, schedules);
+	const [records, schedules, upcoming] = await Promise.all([loadPools(), loadSchedules(), loadUpcomingSchedules()]);
+	const calendar = createPoolCalendar(schedules, upcoming);
+	const today = pacificToday();
+	const inForce = schedules.map((s) => calendar.scheduleOn(s.id, today) ?? s);
+	return buildPoolPages(records, inForce);
 }
 
 async function loadPage(slug: string): Promise<PoolPage | null> {
