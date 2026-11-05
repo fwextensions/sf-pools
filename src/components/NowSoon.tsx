@@ -8,7 +8,7 @@ import type { Day } from "@/lib/sessions";
 import { createPoolCalendar, weekdayOf } from "@/lib/pool-calendar";
 import { pacificToday } from "@/lib/closures";
 import { toTitleCase } from "@/lib/program-taxonomy";
-import { poolPageHref } from "@/lib/pool-pages";
+import { poolSessionHref } from "@/lib/pool-pages";
 import { getPoolToken } from "@/lib/pool-tokens";
 import {
 	formatDuration,
@@ -19,6 +19,7 @@ import {
 	type NowSoonOptions,
 	type OpenStanding,
 	type ProgramChoice,
+	type Stretch,
 } from "@/lib/now-soon";
 import { initialNowSoonOptions, writeNowSoonUrl } from "@/lib/now-soon-url";
 import PoolChip from "./PoolChip";
@@ -111,13 +112,24 @@ function Names({ names }: { names: string[] }) {
 	);
 }
 
-/** chip and pool name, the name linking to the pool's page */
-function PoolName({ pool, weight }: { pool: PoolSchedule; weight: "font-semibold" | "font-normal" }) {
+/**
+ * chip and pool name, the name linking to the pool's page with the row's
+ * sessions picked out
+ */
+function PoolName({
+	pool,
+	weight,
+	stretch,
+}: {
+	pool: PoolSchedule;
+	weight: "font-semibold" | "font-normal";
+	stretch: Stretch | null;
+}) {
 	return (
 		<>
 			<PoolChip token={getPoolToken(pool.id)} className="self-center" />
 			<a
-				href={poolPageHref(pool.id)}
+				href={poolSessionHref(pool.id, stretch?.running ?? [])}
 				className={`text-body ${weight} text-ink decoration-1 underline-offset-[3px] hover:underline`}
 			>
 				{poolLabel(pool)}
@@ -154,7 +166,7 @@ function OpenRow({
 		<li className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 border-b border-line py-3">
 			<div className="min-w-0">
 				<div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-					<PoolName pool={pool} weight="font-semibold" />
+					<PoolName pool={pool} weight="font-semibold" stretch={stretch} />
 					<span className="text-body text-ink-2">
 						<Names names={stretch.names} />
 					</span>
@@ -181,7 +193,7 @@ function LaterRow({ standing }: { standing: LaterStanding }) {
 		<li className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 border-b border-line py-3">
 			<div className="min-w-0">
 				<div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-					<PoolName pool={pool} weight="font-semibold" />
+					<PoolName pool={pool} weight="font-semibold" stretch={stretch} />
 					{stretch ? (
 						<span className="text-body text-ink-2">
 							<Names names={stretch.names} />

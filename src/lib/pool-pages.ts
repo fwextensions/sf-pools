@@ -57,6 +57,9 @@ export function poolPageHref(poolId: string): string {
 	return slug ? `/pools/${slug}` : "/pools";
 }
 
+/** what a link needs to know to name a session */
+export type SessionRef = { dayOfWeek: string; startTime: string; title: string };
+
 /**
  * The ?session= value naming one weekly session on its pool's page, from the
  * weekday, start time and title: "tue-1230p-lap-swim". No pool has two
@@ -64,10 +67,7 @@ export function poolPageHref(poolId: string): string {
  * shared by two pools (North Beach) starts it with the pool's code, since
  * both can run a lap swim at once: "nbw-fri-900a-lap-swim".
  */
-export function sessionParam(
-	poolId: string,
-	session: { dayOfWeek: string; startTime: string; title: string }
-): string {
+export function sessionParam(poolId: string, session: SessionRef): string {
 	const slug = SLUG_BY_POOL_ID[poolId];
 	const shared = POOL_TOKENS.filter((t) => SLUG_BY_POOL_ID[t.id] === slug).length > 1;
 	const parts = [
@@ -79,13 +79,16 @@ export function sessionParam(
 	return parts.join("-").toLowerCase();
 }
 
-/** a link to a pool's page with one of its sessions picked out */
-export function poolSessionHref(
-	poolId: string,
-	session: { dayOfWeek: string; startTime: string; title: string }
-): string {
+/**
+ * a link to a pool's page with one or more of its sessions picked out, their
+ * keys joined with commas (which a key never holds)
+ */
+export function poolSessionHref(poolId: string, sessions: SessionRef | SessionRef[]): string {
 	const href = poolPageHref(poolId);
-	return poolPageSlug(poolId) ? `${href}?session=${sessionParam(poolId, session)}` : href;
+	const list = Array.isArray(sessions) ? sessions : [sessions];
+	if (!poolPageSlug(poolId) || !list.length) return href;
+	const keys = [...new Set(list.map((session) => sessionParam(poolId, session)))];
+	return `${href}?session=${keys.join(",")}`;
 }
 
 /** every slug, in the order the pages are listed */
