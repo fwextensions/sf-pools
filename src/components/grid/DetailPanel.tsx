@@ -5,7 +5,7 @@ import { memo, useCallback, useMemo, useSyncExternalStore } from "react";
 import ProgramName from "@/components/ProgramName";
 import PoolChip from "@/components/PoolChip";
 import { tagLabel } from "@/lib/program-taxonomy";
-import { cellDetail, emptyCellMessage } from "@/lib/grid/cell-detail";
+import { cellDetail, emptyCellMessage, sessionSpans } from "@/lib/grid/cell-detail";
 import type { FilterView, GridModel } from "@/lib/grid/grid-model";
 import { formatHour } from "@/lib/grid/sessions";
 import { poolSessionHref } from "@/lib/pool-pages";
@@ -55,6 +55,10 @@ const DetailPanel = memo(function DetailPanel({
 		[selectedCell, model, filter]
 	);
 	const detail = cellView?.rows ?? null;
+	const spans = useMemo(
+		() => (detail && selectedCell ? sessionSpans(detail, selectedCell.hour) : []),
+		[detail, selectedCell]
+	);
 	const emptyReason = cellView?.empty ?? null;
 	const emptyAction =
 		emptyReason?.kind === "programs"
@@ -84,6 +88,7 @@ const DetailPanel = memo(function DetailPanel({
 			<HeightRatchet enabled={ratchet} resetKey={filterKey} hold={holdFloor}>
 			{detail?.map((d, i) => {
 				const access = accessNote(d.tags);
+				const span = spans[i];
 				return (
 					// the whole row links to the pool's page, like the rows of the
 					// pools list, with the program name underlining on hover. The
@@ -91,7 +96,7 @@ const DetailPanel = memo(function DetailPanel({
 					<Link
 						key={i}
 						href={poolSessionHref(d.pool.id, { dayOfWeek: d.day, startTime: d.startTime, title: d.title })}
-						className="group flex items-baseline gap-2.5 border-b border-line py-2 text-body"
+						className="group relative flex items-baseline gap-2.5 border-b border-line py-2 text-body"
 					>
 						<PoolChip token={d.pool} />
 						{/* a wrapping flex row rather than inline text, so the lanes
@@ -110,6 +115,16 @@ const DetailPanel = memo(function DetailPanel({
 						<span className="font-mono text-small font-medium text-ink-2">
 							{d.startTime}–{d.endTime}
 						</span>
+						{/* the session's length against the others in the list, on
+						    one shared scale, with the part inside the selected hour
+						    darker. It sits on the rule under the times, as wide as the
+						    longest time range, so it reads with them */}
+						{span ? (
+							<span aria-hidden="true" className="pointer-events-none absolute right-0 bottom-px h-[3px] w-[13ch] font-mono text-small">
+								<span className="absolute inset-y-0 bg-line-strong" style={{ left: `${span.left}%`, width: `${span.width}%` }} />
+								<span className="absolute inset-y-0 bg-ink-2" style={{ left: `${span.hourLeft}%`, width: `${span.hourWidth}%` }} />
+							</span>
+						) : null}
 					</Link>
 				);
 			})}

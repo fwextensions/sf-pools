@@ -15,6 +15,7 @@ export type DetailRow = {
 	startTime: string;
 	endTime: string;
 	startMin: number;
+	endMin: number;
 };
 
 export type CellDetail = {
@@ -45,11 +46,46 @@ export function cellDetail(
 				startTime: s.startTime,
 				endTime: s.endTime,
 				startMin: s.startMin,
+				endMin: s.endMin,
 			});
 		}
 	}
 	rows.sort((a, b) => a.startMin - b.startMin);
 	return { rows, empty: rows.length ? null : explainEmptyCell(inCell, matchesTags, poolSet) };
+}
+
+// Where each row's session sits on a timeline shared by the whole list, so
+// the bars under the times compare: a 9:00-10:30 session starts left of one
+// running 10:15-12:00. The scale runs from the earliest start to the latest
+// end, widened to take in the whole selected hour. Each value is a percentage
+// of the track: the session's span, then the part of it inside the hour.
+export type SessionSpan = {
+	left: number;
+	width: number;
+	hourLeft: number;
+	hourWidth: number;
+};
+
+export function sessionSpans(rows: Pick<DetailRow, "startMin" | "endMin">[], hour: number): SessionSpan[] {
+	const hourStart = hour * 60;
+	const hourEnd = hourStart + 60;
+	let from = hourStart;
+	let to = hourEnd;
+	for (const r of rows) {
+		from = Math.min(from, r.startMin);
+		to = Math.max(to, r.endMin);
+	}
+	const pct = (min: number) => ((min - from) / (to - from)) * 100;
+	return rows.map((r) => {
+		const inStart = Math.max(r.startMin, hourStart);
+		const inEnd = Math.min(r.endMin, hourEnd);
+		return {
+			left: pct(r.startMin),
+			width: pct(r.endMin) - pct(r.startMin),
+			hourLeft: pct(inStart),
+			hourWidth: Math.max(0, pct(inEnd) - pct(inStart)),
+		};
+	});
 }
 
 // Why a selected grid cell lists no sessions. "Nothing scheduled" was the only
