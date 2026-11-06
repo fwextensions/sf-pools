@@ -55,8 +55,8 @@
 	},
 	{
 		"poolId": "sava",
-		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/30037",
-		"upcomingPdfUrl": "https://sfrecpark.org/DocumentCenter/View/30374",
-		"upcomingStartDate": "2026-11-03"
+		"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/30374",
+		"upcomingPdfUrl": null,
+		"upcomingStartDate": null
 	}
 ]
