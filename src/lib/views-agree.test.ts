@@ -8,7 +8,8 @@ import { describe, it, expect, beforeAll } from "@jest/globals";
 import type { PoolSchedule } from "@/lib/schedule-schema";
 import { loadCityHolidays, loadSchedules, loadUpcomingSchedules } from "@/lib/site-data";
 import { addDays, createPoolCalendar, weekdayOf, type PoolCalendar } from "./pool-calendar";
-import { nowSoon, qualifies, type Mode, type Moment } from "./now-soon";
+import { isDropIn, nowSoon, type Moment, type NowSoonFilter } from "./now-soon";
+import { PUBLIC_SESSIONS } from "./grid/now-filter";
 import { createSwimAnswers, pacificMoment, type SwimAnswers } from "./swim-answers";
 import type { Session } from "./sessions";
 
@@ -37,12 +38,19 @@ const label = (now: Moment, s?: Session) =>
 	`${now.day} ${now.date} at ${Math.floor(now.minutes / 60)}:${String(now.minutes % 60).padStart(2, "0")}` +
 	(s ? `: ${s.poolId} ${s.title} ${s.startTime}–${s.endTime}` : "");
 
-describe.each<Mode>(["all", "drop-in"])("the Now page in %s mode, on the published schedules", (mode) => {
+const DROP_IN: NowSoonFilter = { matches: isDropIn, noun: "drop-in" };
+// what counts, as Now & Soon decides it: no closures, then the filter
+const counts = (filter: NowSoonFilter) => (s: Session) => !s.tags.includes("access:closed") && filter.matches(s);
+
+describe.each<[string, NowSoonFilter]>([
+	["unfiltered", PUBLIC_SESSIONS],
+	["drop-in", DROP_IN],
+])("Now & Soon, %s, on the published schedules", (_, filter) => {
 	it("shows every session running now or starting later today", () => {
 		const missing: string[] = [];
 		for (const now of moments) {
-			const view = nowSoon(pools, calendar, now, { mode, program: null });
-			const sessions = calendar.sessions(now.date, now.date).filter((s) => qualifies(s, { mode, program: null }));
+			const view = nowSoon(pools, calendar, now, filter);
+			const sessions = calendar.sessions(now.date, now.date).filter(counts(filter));
 			for (const s of sessions) {
 				const open = view.open.find((o) => o.pool.id === s.poolId);
 				const soon = view.soon.find((o) => o.pool.id === s.poolId);
@@ -61,9 +69,9 @@ describe.each<Mode>(["all", "drop-in"])("the Now page in %s mode, on the publish
 	it("only lists a pool as open, soon or later when a session says so", () => {
 		const wrong: string[] = [];
 		for (const now of moments) {
-			const view = nowSoon(pools, calendar, now, { mode, program: null });
+			const view = nowSoon(pools, calendar, now, filter);
 			const own = (id: string) =>
-				calendar.sessions(now.date, now.date).filter((s) => s.poolId === id && qualifies(s, { mode, program: null }));
+				calendar.sessions(now.date, now.date).filter((s) => s.poolId === id && counts(filter)(s));
 			for (const o of view.open) {
 				if (!own(o.pool.id).some((s) => s.startMin <= now.minutes && now.minutes < s.endMin)) {
 					wrong.push(`open with nothing running: ${o.pool.id} ${label(now)}`);
@@ -75,7 +83,7 @@ describe.each<Mode>(["all", "drop-in"])("the Now page in %s mode, on the publish
 			// every pool under later, at its first session after today
 			const after = calendar
 				.sessions(addDays(now.date, 1), addDays(now.date, 6))
-				.filter((s) => qualifies(s, { mode, program: null }));
+				.filter(counts(filter));
 			const listed = new Set(view.later.map((o) => o.pool.id));
 			for (const pool of pools) {
 				if (!listed.has(pool.id)) wrong.push(`left out of later: ${pool.id} ${label(now)}`);
@@ -98,7 +106,7 @@ describe("find_sessions on the published schedules", () => {
 	it("agrees with the Now page's drop-in view on what's open now and what starts soon", () => {
 		const disagree: string[] = [];
 		for (const now of moments) {
-			const view = nowSoon(pools, calendar, now, { mode: "drop-in", program: null });
+			const view = nowSoon(pools, calendar, now, DROP_IN);
 			const openNow = answers.findSessions({ when: "now", limit: 200 }, now);
 			const openIds = new Set((openNow.open ?? []).map((o) => o.poolId));
 			const pageOpen = new Set(view.open.map((o) => o.pool.id));

@@ -17,7 +17,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 	return [
 		{ url: `${SITE_URL}/`, lastModified: lastChange },
-		{ url: `${SITE_URL}/now`, lastModified: lastChange },
 		{ url: `${SITE_URL}/pools` },
 		...poolPages,
 		{ url: `${SITE_URL}/changes`, lastModified: lastChange },

@@ -11,14 +11,11 @@ import { formatScheduleDate } from "@/lib/utils";
 import type { Day, Session } from "@/lib/sessions";
 import { addDays, isAllDay, weekdayOf, type PoolCalendar } from "@/lib/pool-calendar";
 
-/** Drop-in counts only the sessions you can walk in on; Everything counts all */
-export type Mode = "drop-in" | "all";
-
-/** the programs the page filters on, as program category slugs, shared with the grid's ?program= */
-export const PROGRAM_CHOICES = ["lap", "family", "senior"] as const;
-export type ProgramChoice = (typeof PROGRAM_CHOICES)[number];
-
-export type NowSoonOptions = { mode: Mode; program: ProgramChoice | null };
+/**
+ * Which sessions count, which the grid's program filter decides, and the word
+ * the notes call them: "lap swim", "sessions". A closed pool never counts.
+ */
+export type NowSoonFilter = { matches: (s: Session) => boolean; noun: string };
 
 export type Moment = { day: Day; date: string; minutes: number };
 
@@ -44,7 +41,7 @@ export type Stretch = {
 	names: string[];
 	/** the sessions on at the start of the stretch, the ones `names` names */
 	running: Session[];
-	/** the label of a restricted session in the stretch, in Everything mode */
+	/** the label of a session in the stretch you can't just walk in on */
 	restricted: string | null;
 	/** the first change of program inside the stretch */
 	then: { names: string[]; at: string } | null;
@@ -70,7 +67,7 @@ export type NowSoonView = {
 	soon: OpenStanding[];
 	/** every pool's first opening after today */
 	later: LaterStanding[];
-	/** the noun the headings use: "drop-in", "lap swim", "sessions" */
+	/** the noun the headings use: "lap swim", "sessions" */
 	noun: string;
 };
 
@@ -92,7 +89,7 @@ export function joinNames(names: string[]): string {
 	return `${names[0]} +${names.length - 1} more`;
 }
 
-// the tag on a row in Everything mode, in the words the grid's tags use
+// the tag on a row you can't walk in on, in the words the grid's tags use
 const TAG_LABELS: Array<[string, string]> = [
 	["access:rental", "Private"],
 	["access:school-group", "School group"],
@@ -106,10 +103,9 @@ export function restrictedLabel(tags: string[]): string | null {
 	return tags.includes("access:drop-in") ? null : "Reg req'd";
 }
 
-export function qualifies(s: Pick<Session, "tags">, { mode, program }: Pick<NowSoonOptions, "mode" | "program">): boolean {
-	if (s.tags.includes("access:closed")) return false;
-	if (mode === "drop-in" && !s.tags.includes("access:drop-in")) return false;
-	return !program || s.tags.includes(`program:${program}`);
+/** the sessions you can walk in on, the ones find_sessions answers with */
+export function isDropIn(s: Pick<Session, "tags">): boolean {
+	return s.tags.includes("access:drop-in") && !s.tags.includes("access:closed");
 }
 
 function unique(list: string[]): string[] {
@@ -198,12 +194,8 @@ export function nowSoon(
 	pools: PoolSchedule[],
 	calendar: PoolCalendar,
 	now: Moment,
-	options: NowSoonOptions
+	{ matches, noun }: NowSoonFilter
 ): NowSoonView {
-	const programName = options.program
-		? { lap: "lap swim", family: "family swim", senior: "senior swim" }[options.program]
-		: null;
-	const noun = programName ?? (options.mode === "drop-in" ? "drop-in" : "sessions");
 
 	const open: OpenStanding[] = [];
 	const soon: OpenStanding[] = [];
@@ -221,11 +213,10 @@ export function nowSoon(
 
 	for (const pool of pools) {
 		const all = sessionsByPool.get(pool.id) ?? [];
-		// the sessions on the date `offset` days out that pass the program and
-		// access filters
+		// the sessions on the date `offset` days out that pass the filter
 		const wanted = (offset: number) => {
 			const date = addDays(now.date, offset);
-			return all.filter((s) => s.date === date && qualifies(s, options)).sort((a, b) => a.startMin - b.startMin);
+			return all.filter((s) => s.date === date && !s.tags.includes("access:closed") && matches(s)).sort((a, b) => a.startMin - b.startMin);
 		};
 		const today = wanted(0);
 

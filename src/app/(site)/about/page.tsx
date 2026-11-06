@@ -97,10 +97,9 @@ export default async function AboutPage() {
 						opening several PDFs and comparing them by hand. This site does that comparison for you.
 					</p>
 					<p>
-						The <Link href="/">week grid</Link> shows which pools have a program
-						at each hour of the week,{" "}
-						<Link href="/now">now &amp; soon</Link>
-						{" "}shows what&rsquo;s open at the moment, and each of the{" "}
+						The <Link href="/">swim times</Link> grid shows which pools have a
+						program at each hour of the week, with what&rsquo;s open at the
+						moment under it, and each of the{" "}
 						<Link href="/pools">pools</Link> has a page with its address and
 						every session on its schedule.
 					</p>

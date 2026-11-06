@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
 import type { PoolSchedule } from "@/lib/schedule-schema";
 import type { CityHoliday } from "@/lib/city-holidays";
 import type { Day } from "@/lib/sessions";
@@ -16,16 +15,13 @@ import {
 	joinNames,
 	nowSoon,
 	type LaterStanding,
-	type Mode,
-	type NowSoonOptions,
 	type OpenStanding,
-	type ProgramChoice,
 	type Stretch,
 } from "@/lib/now-soon";
-import { initialNowSoonOptions, writeNowSoonUrl } from "@/lib/now-soon-url";
+import type { GridFilter } from "@/lib/grid/filters";
+import { PUBLIC_SESSIONS, nowSoonFilter } from "@/lib/grid/now-filter";
 import PoolChip from "./PoolChip";
 import ProgramName from "@/components/ProgramName";
-import { Chevron } from "@/components/icons";
 
 type Props = {
 	all: PoolSchedule[];
@@ -33,6 +29,8 @@ type Props = {
 	upcoming?: PoolSchedule[];
 	/** the city's, which close every pool */
 	holidays?: CityHoliday[];
+	/** the grid's program and pool filters; without them, every pool's public sessions */
+	filter?: GridFilter | null;
 	/** a fixed San Francisco date and time, "2026-11-26T10:00", in place of
 	    the live clock; the preview page passes it */
 	at?: string | null;
@@ -49,13 +47,6 @@ const GLYPHS = {
 	soon: "ring-2 ring-ink ring-inset",
 	later: "ring-2 ring-ink-2 ring-inset opacity-60",
 };
-
-const PROGRAM_OPTIONS: Array<[ProgramChoice | "", string]> = [
-	["", "All programs"],
-	["lap", "Lap swim"],
-	["family", "Family swim"],
-	["senior", "Senior swim"],
-];
 
 type Now = { day: Day; date: string; minutes: number; display: string };
 
@@ -235,12 +226,14 @@ function LaterRow({ standing }: { standing: LaterStanding }) {
 }
 
 function Section({
+	first = false,
 	label,
 	glyph,
 	count,
 	empty,
 	children,
 }: {
+	first?: boolean;
 	label: string;
 	glyph: string;
 	count: number;
@@ -248,7 +241,7 @@ function Section({
 	children: React.ReactNode;
 }) {
 	return (
-		<section className="mt-8">
+		<section className={first ? "mt-3" : "mt-8"}>
 			<div className="flex items-baseline justify-between border-t-2 border-ink pt-2.5">
 				<span className="font-mono text-label font-semibold uppercase tracking-[.08em] text-ink">
 					<span aria-hidden className={`status-dot ${glyph}`} />
@@ -274,70 +267,12 @@ function Section({
 	);
 }
 
-function ModeSwitch({ mode, onChange }: { mode: Mode; onChange: (mode: Mode) => void }) {
-	const options: Array<[Mode, string]> = [
-		["drop-in", "Drop-in"],
-		["all", "Everything"],
-	];
-	return (
-		<div role="group" aria-label="Which sessions" className="flex">
-			{options.map(([value, label], i) => (
-				<button
-					key={value}
-					type="button"
-					aria-pressed={mode === value}
-					onClick={() => onChange(value)}
-					className={`control flex-1 text-small min-[900px]:flex-none ${i > 0 ? "-ml-px" : ""} ${
-						mode === value ? "relative z-10 border-ink text-on-ink" : "text-ink"
-					}`}
-					// inline, since the control utility sets its own white background
-					style={mode === value ? { background: "var(--color-ink)" } : undefined}
-				>
-					{label}
-				</button>
-			))}
-		</div>
-	);
-}
-
-function Select<T extends string>({
-	label,
-	value,
-	options,
-	onChange,
-}: {
-	label: string;
-	value: T;
-	options: Array<[T, string]>;
-	onChange: (value: T) => void;
-}) {
-	return (
-		<label className="relative flex min-w-0">
-			<span className="sr-only">{label}</span>
-			<select
-				value={value}
-				onChange={(e) => onChange(e.target.value as T)}
-				className="control w-full appearance-none justify-start pr-9 text-small text-ink focus:border-ink focus:outline-none"
-			>
-				{options.map(([v, text]) => (
-					<option key={v} value={v}>
-						{text}
-					</option>
-				))}
-			</select>
-			{/* centered by flex rather than top-1/2, which the chevron's negative
-			    margins pushed off center */}
-			<span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-ink-2">
-				<Chevron />
-			</span>
-		</label>
-	);
-}
-
-export default function NowSoon({ all, upcoming = [], holidays = [], at = null }: Props) {
-	const pathname = usePathname();
-	const searchParams = useSearchParams();
-	const [options, setOptions] = useState<NowSoonOptions>(() => initialNowSoonOptions(searchParams));
+/**
+ * Where every pool stands: open now, opening later today, and its first
+ * opening after today, counting what the grid's filters pick. It fills the
+ * panel under the grid until a cell is picked.
+ */
+export default function NowSoon({ all, upcoming = [], holidays = [], filter = null, at = null }: Props) {
 	const [liveNow, setLiveNow] = useState(() => getNowInPT());
 	const fixedNow = useMemo(() => (at ? pacificMoment(at) : null), [at]);
 	const now = fixedNow ?? liveNow;
@@ -348,33 +283,25 @@ export default function NowSoon({ all, upcoming = [], holidays = [], at = null }
 		return () => clearInterval(id);
 	}, [fixedNow]);
 
-	const update = (change: Partial<NowSoonOptions>) => {
-		const next = { ...options, ...change };
-		setOptions(next);
-		writeNowSoonUrl(pathname, next);
-	};
-
 	const calendar = useMemo(() => createPoolCalendar(all, upcoming, holidays), [all, upcoming, holidays]);
-	const view = useMemo(() => nowSoon(all, calendar, now, options), [all, calendar, now, options]);
+	// just the picked pools, rather than the rest saying they have nothing
+	const pools = useMemo(() => {
+		const picked = filter?.poolSet;
+		return picked ? all.filter((p) => picked.has(p.id)) : all;
+	}, [all, filter]);
+	const counted = useMemo(() => (filter ? nowSoonFilter(filter) : PUBLIC_SESSIONS), [filter]);
+	const view = useMemo(() => nowSoon(pools, calendar, now, counted), [pools, calendar, now, counted]);
 
 	return (
 		<div className="font-sans text-ink">
-			<div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+			<div className="flex items-baseline justify-between gap-4">
+				<h2 className="text-body font-semibold text-ink">Now &amp; soon</h2>
 				<span className="text-small text-ink-2">
 					{now.day.slice(0, 3)} {now.display} Pacific
 				</span>
-				<div className="grid w-full grid-cols-2 gap-2 min-[900px]:flex min-[900px]:w-auto min-[900px]:items-center">
-					<ModeSwitch mode={options.mode} onChange={(mode) => update({ mode })} />
-					<Select
-						label="Program"
-						value={options.program ?? ""}
-						options={PROGRAM_OPTIONS}
-						onChange={(program) => update({ program: program || null })}
-					/>
-				</div>
 			</div>
 
-			<Section label="Now" glyph={GLYPHS.open} count={view.open.length} empty={`No pools have ${view.noun} running right now.`}>
+			<Section first label="Now" glyph={GLYPHS.open} count={view.open.length} empty={`No pools have ${view.noun} running right now.`}>
 				{view.open.map((s) => (
 					<OpenRow key={s.pool.id} standing={s} kind="open" now={now.minutes} />
 				))}

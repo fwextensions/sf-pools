@@ -14,9 +14,13 @@ const nextConfig: NextConfig = {
 	},
 	// the full schedules page gave way to a page per pool. A browser carries
 	// an old #pool-<id> link's hash across the redirect, and the pools list
-	// sends it on to that pool's page
+	// sends it on to that pool's page. Now & Soon moved under the grid on the
+	// home page; its ?program= means the same there, and the query carries over
 	async redirects() {
-		return [{ source: "/schedules", destination: "/pools", permanent: true }];
+		return [
+			{ source: "/schedules", destination: "/pools", permanent: true },
+			{ source: "/now", destination: "/", permanent: true },
+		];
 	},
 	// posthog's api is sensitive to a trailing slash being added by a redirect
 	skipTrailingSlashRedirect: true,

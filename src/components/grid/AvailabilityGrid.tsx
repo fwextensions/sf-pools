@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import type { PoolSchedule } from "@/lib/schedule-schema";
 import type { CityHoliday } from "@/lib/city-holidays";
 import PoolAlerts from "@/components/PoolAlerts";
+import NowSoon from "@/components/NowSoon";
 import { createGridModel } from "@/lib/grid/grid-model";
 import { trackGridChange } from "@/lib/grid/grid-analytics";
 import { addDays, createPoolCalendar } from "@/lib/pool-calendar";
@@ -136,6 +137,10 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays 
 			onToggleFocus={toggleFocus}
 		/>
 	);
+	// the panel under the grid shows where every pool stands now, counting
+	// what the filters pick, until a cell is picked
+	const nowSoon = <NowSoon all={all} upcoming={upcoming} holidays={holidays} filter={filters.filter} />;
+
 	const mobilePanelRows = {
 		programs: (
 			<CategoryRows
@@ -182,7 +187,7 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays 
 							    list gives its space to the panel and comes back after */}
 							{openPanel ? null : (
 								<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-4 short:w-2/5 short:flex-none">
-									<DetailPanel model={model} filters={filters} canDrag={true} ratchet={false} />
+									<DetailPanel model={model} filters={filters} canDrag={true} ratchet={false} idle={nowSoon} />
 								</div>
 							)}
 						</div>
@@ -201,6 +206,7 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays 
 						canDrag={false}
 						ratchet={true}
 						holdFloor={openPanel !== null}
+						idle={nowSoon}
 					/>
 				</div>
 			)}
@@ -229,7 +235,7 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays 
 				</div>
 				<div className="min-w-0 flex-1 pl-4">
 					<GridBody model={model} filters={filters} cellHeightClass="h-[19px]" touchDrag={false} />
-					<DetailPanel model={model} filters={filters} canDrag={false} ratchet={true} />
+					<DetailPanel model={model} filters={filters} canDrag={false} ratchet={true} idle={nowSoon} />
 				</div>
 			</div>
 		</div>
