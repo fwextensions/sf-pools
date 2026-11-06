@@ -117,10 +117,10 @@ const DetailPanel = memo(function DetailPanel({
 						</span>
 						{/* the session's length against the others in the list, on
 						    one shared scale, with the part inside the selected hour
-						    darker. It sits on the rule under the times, as wide as the
+						    darker. It sits right on the rule under the times, as wide as the
 						    longest time range, so it reads with them */}
 						{span ? (
-							<span aria-hidden="true" className="pointer-events-none absolute right-0 bottom-px h-[3px] w-[13ch] font-mono text-small">
+							<span aria-hidden="true" className="pointer-events-none absolute right-0 bottom-0 h-[2px] w-[13ch] font-mono text-small">
 								<span className="absolute inset-y-0 bg-line-strong" style={{ left: `${span.left}%`, width: `${span.width}%` }} />
 								<span className="absolute inset-y-0 bg-ink-2" style={{ left: `${span.hourLeft}%`, width: `${span.hourWidth}%` }} />
 							</span>
