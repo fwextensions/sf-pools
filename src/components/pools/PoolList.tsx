@@ -17,13 +17,17 @@ export default function PoolList({ pages, className = "" }: { pages: PoolPage[];
 							href={`/pools/${page.slug}`}
 							className="group flex flex-wrap items-baseline gap-x-3 gap-y-1 py-3"
 						>
-							<span className="flex gap-1 self-center">
-								{page.pools.map(({ schedule, token }) => (
-									<PoolChip key={schedule.id} token={token} />
-								))}
-							</span>
-							<span className="text-heading font-semibold leading-tight text-ink underline-offset-[3px] group-hover:underline">
-								{page.facilityName}
+							{/* the chips and name stay on one row, the name wrapping
+								beside the chips rather than dropping below them */}
+							<span className="flex min-w-0 items-start gap-x-3 text-heading leading-tight">
+								<span className="flex h-[1lh] flex-none items-center gap-1">
+									{page.pools.map(({ schedule, token }) => (
+										<PoolChip key={schedule.id} token={token} />
+									))}
+								</span>
+								<span className="self-baseline font-semibold text-ink underline-offset-[3px] group-hover:underline">
+									{page.facilityName}
+								</span>
 							</span>
 							<span className="text-body text-ink-2">{page.address}</span>
 							<span className="ml-auto font-mono text-label font-medium text-ink-2">
