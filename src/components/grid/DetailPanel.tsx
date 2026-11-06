@@ -124,7 +124,7 @@ const DetailPanel = memo(function DetailPanel({
 							onClick={() => model.clearFilters(emptyAction.what, "empty_cell")}
 							className="control font-mono text-label font-semibold tracking-[.08em] text-ink-2 hover:border-ink"
 						>
-							{emptyAction.label}
+							<span className="inline-block [text-box:trim-both_cap_alphabetic]">{emptyAction.label}</span>
 						</button>
 					</div>
 				) : (

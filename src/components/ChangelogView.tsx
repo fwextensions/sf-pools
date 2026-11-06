@@ -91,7 +91,7 @@ function PoolSection({ pool }: { pool: PoolChanges }) {
 					{pool.name}
 					{/* a newly posted schedule's changes, listed before they start */}
 					{pool.effectiveDate && (
-						<span className="ml-2.5 font-mono text-label font-medium tracking-[.08em] text-ink-2">
+						<span className="ml-2.5 font-mono text-label font-medium tracking-[.08em] text-alert">
 							FROM {formatShortDate(pool.effectiveDate).toUpperCase()}
 						</span>
 					)}
@@ -136,7 +136,9 @@ function PoolSection({ pool }: { pool: PoolChanges }) {
 				// no "show fewer", since the rows above it would jump out from under it
 				<details className="[&[open]>summary]:hidden">
 					<summary className="control mt-2.5 list-none font-mono text-label font-semibold tracking-[.08em] hover:border-ink [&::-webkit-details-marker]:hidden">
-						SHOW ALL {pool.rows.length} CHANGES
+						{/* trimmed to the caps, so the label centers in the box rather
+						    than riding above the room left for descenders */}
+						<span className="inline-block [text-box:trim-both_cap_alphabetic]">SHOW ALL {pool.rows.length} CHANGES</span>
 					</summary>
 					<ul>
 						{hidden.map((row, i) => (
