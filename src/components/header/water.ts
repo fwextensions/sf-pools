@@ -322,14 +322,18 @@ export function mountWater(
 
 	let simRead: Target | null = null;
 	let simWrite: Target | null = null;
+	// A filtered copy of simRead, made each frame for the display pass where
+	// the sim's own format won't filter (iPhones; see Filtering in webgl.ts).
+	const needsView = renderer.filtering === "copy";
+	let simView: Target | null = null;
 	let simTexel = [1 / SIM_MAX_WIDTH, 1 / SIM_MAX_WIDTH];
 
 	let firstFrame = true;
-	// 1.0 when the GPU can linearly filter the float sim texture, 0.0 otherwise.
-	// Feeds u_simLens: without linear filtering the sim's second derivative is
-	// meaningless, so the caustic lens falls back to the analytic field alone
-	// rather than rendering per-texel blocks.
-	const simLens = renderer.linearFilter ? 1.0 : 0.0;
+	// 1.0 when the display pass can sample the sim filtered, directly or through
+	// a copy, 0.0 otherwise. Feeds u_simLens: without linear filtering the sim's
+	// second derivative is meaningless, so the caustic lens falls back to the
+	// analytic field alone rather than rendering per-texel blocks.
+	const simLens = renderer.filtering === "none" ? 0.0 : 1.0;
 	// Antialias fade for ambient wave groups B and C, recomputed on resize. A
 	// band whose wavelength approaches a few device pixels is faded out rather
 	// than left to alias into crawling speckle. Frame-invariant, so it is
@@ -408,8 +412,10 @@ export function mountWater(
 	function createSimBuffers() {
 		renderer.deleteTarget(simRead);
 		renderer.deleteTarget(simWrite);
+		renderer.deleteTarget(simView);
 		simRead = null;
 		simWrite = null;
+		simView = null;
 		// A minimized window can report a zero width; there is nothing to
 		// simulate until it comes back.
 		if (!width || !height) return;
@@ -423,6 +429,7 @@ export function mountWater(
 		const simHeight = Math.max(32, Math.round((simWidth * height) / width));
 		simRead = renderer.createTarget(simWidth, simHeight);
 		simWrite = renderer.createTarget(simWidth, simHeight);
+		if (needsView) simView = renderer.createViewTarget(simWidth, simHeight);
 		simTexel = [1 / simWidth, 1 / simHeight];
 		simDims = [simWidth, simHeight];
 
@@ -556,11 +563,11 @@ export function mountWater(
 
 	function draw() {
 		if (!width || !height) return;
-		if (!simRead || !simWrite) {
+		if (!simRead || !simWrite || (needsView && !simView)) {
 			// The GPU refused the buffers at the last resize. Try once more, and
 			// if it still won't, there is no water to draw.
 			createSimBuffers();
-			if (!simRead || !simWrite) {
+			if (!simRead || !simWrite || (needsView && !simView)) {
 				fail("the GPU would not allocate the simulation buffers");
 				return;
 			}
@@ -753,6 +760,11 @@ export function mountWater(
 			[simRead, simWrite] = [simWrite, simRead];
 		}
 		impulseAmp = 0.0;
+		let waterTex = simRead;
+		if (simView) {
+			renderer.copy(simRead, simView, simDims[0], simDims[1]);
+			waterTex = simView;
+		}
 
 		// --- render the pool ---
 		displayShader.use();
@@ -761,7 +773,7 @@ export function mountWater(
 		}
 		displayShader.set2f("u_resolution", width * d, height * d);
 		displayShader.set1f("u_time", shaderTime);
-		displayShader.setTexture("u_water", simRead.tex, 0);
+		displayShader.setTexture("u_water", waterTex.tex, 0);
 		displayShader.set2f("u_waterTexel", simTexel[0], simTexel[1]);
 		displayShader.set2f("u_bandFade", bandFade[0], bandFade[1]);
 		displayShader.set1f("u_simLens", simLens);
@@ -884,6 +896,7 @@ export function mountWater(
 		}
 		renderer.deleteTarget(simRead);
 		renderer.deleteTarget(simWrite);
+		renderer.deleteTarget(simView);
 		displayShader.dispose();
 		simShader.dispose();
 		renderer.dispose();
