@@ -20,6 +20,8 @@ export type PoolChanges = {
 	token: PoolToken | null;
 	/** the schedule PDF the update read; older entries don't record one */
 	pdfUrl: string | null;
+	/** YYYY-MM-DD the changes start on, for a newly posted schedule; null for the schedule in force */
+	effectiveDate: string | null;
 	moved: number;
 	added: number;
 	removed: number;
@@ -118,14 +120,19 @@ export async function getChangelog(date?: string): Promise<ChangelogDetail | nul
 				name: poolMeta?.displayName ?? pool.poolName,
 				token: poolMeta ? getPoolToken(poolMeta.id) : null,
 				pdfUrl: pool.pdfUrl ?? null,
+				effectiveDate: pool.effectiveDate ?? null,
 				moved: pool.programsModified,
 				added: pool.programsAdded,
 				removed: pool.programsRemoved,
 				rows,
 			};
 		})
-		// the grid's fixed pool order, so a pool is always in the same place
-		.sort((a, b) => poolIndex(a) - poolIndex(b));
+		// the grid's fixed pool order, so a pool is always in the same place;
+		// a pool's changes in force come before those a posted schedule will make
+		.sort(
+			(a, b) =>
+				poolIndex(a) - poolIndex(b) || (a.effectiveDate ?? "").localeCompare(b.effectiveDate ?? "")
+		);
 
 	return {
 		...summarize(entry, index, entries),

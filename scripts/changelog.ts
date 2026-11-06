@@ -242,6 +242,69 @@ export function computeChangelog(
 	};
 }
 
+/**
+ * One run's changelog: the changes to the schedules in force, plus the
+ * changes each newly posted (upcoming) schedule will make on the date it
+ * starts, listed now so they're news before they happen. A schedule posted
+ * before is compared against what was posted then, so only its edits show;
+ * one seen for the first time is compared against the pool's schedule in
+ * force. When an upcoming schedule is promoted to the one in force, its
+ * changes were already listed, so the promoted pool is compared against the
+ * last run's upcoming copy of the same PDF instead of the schedule it replaced.
+ */
+export function computeRunChangelog({
+	previous,
+	previousUpcoming,
+	current,
+	upcoming,
+}: {
+	previous: PoolSchedule[];
+	previousUpcoming: PoolSchedule[];
+	current: PoolSchedule[];
+	upcoming: PoolSchedule[];
+}): ChangelogEntry {
+	const previousUpcomingById = new Map(previousUpcoming.map((s) => [s.id, s]));
+	const currentById = new Map(current.map((s) => [s.id, s]));
+
+	const baseline = previous.map((old) => {
+		const posted = previousUpcomingById.get(old.id);
+		const now = currentById.get(old.id);
+		// keyed by name below, so the posted copy takes the name it's diffed under
+		return posted && now?.pdfScheduleUrl && posted.pdfScheduleUrl === now.pdfScheduleUrl
+			? { ...posted, name: now.name }
+			: old;
+	});
+	const entry = computeChangelog(baseline, current);
+
+	const upcomingPools: PoolChange[] = [];
+	for (const next of upcoming) {
+		if (!next.scheduleStartDate) continue;
+		const base = previousUpcomingById.get(next.id) ?? currentById.get(next.id);
+		const diff = computeChangelog(base ? [{ ...base, name: next.name }] : [], [next]);
+		for (const pool of diff.pools) upcomingPools.push({ ...pool, effectiveDate: next.scheduleStartDate });
+	}
+	if (!upcomingPools.length) return entry;
+
+	const pools = [...entry.pools, ...upcomingPools];
+	const totalAdded = pools.reduce((sum, p) => sum + p.programsAdded, 0);
+	const totalRemoved = pools.reduce((sum, p) => sum + p.programsRemoved, 0);
+	const totalModified = pools.reduce((sum, p) => sum + p.programsModified, 0);
+	const totalChanges = totalAdded + totalRemoved + totalModified;
+	const changeSeverity = [severityFromTotal(totalChanges), entry.changeSeverity].reduce((a, b) =>
+		SEVERITY_ORDER.indexOf(a) >= SEVERITY_ORDER.indexOf(b) ? a : b
+	);
+	return {
+		...entry,
+		poolsChanged: new Set(pools.map((p) => p.poolName)).size,
+		totalProgramsAdded: totalAdded,
+		totalProgramsRemoved: totalRemoved,
+		totalProgramsModified: totalModified,
+		totalChanges,
+		changeSeverity,
+		pools,
+	};
+}
+
 export async function loadPreviousSchedules(): Promise<PoolSchedule[]> {
 	const outFile = path.join(process.cwd(), "public", "data", "all_schedules.json");
 	try {
@@ -286,16 +349,22 @@ function fromStep(s: Step): ProgramChange {
  * one ended) is joined to it, which cancels a removal the later run undid.
  */
 export function mergeChangelogs(earlier: ChangelogEntry, later: ChangelogEntry): ChangelogEntry {
+	// a pool's changes to its schedule in force and those a posted schedule
+	// will make are kept apart, as are two posted schedules' changes
+	const keyOf = (pool: PoolChange) => `${pool.poolName}|${pool.effectiveDate ?? ""}`;
 	const stepsByPool = new Map<string, Step[]>();
+	const poolOf = new Map<string, Pick<PoolChange, "poolName" | "effectiveDate">>();
 	// the later run read the PDF the merged changes end at
 	const pdfUrls = new Map<string, string>();
 	for (const pool of earlier.pools) {
-		stepsByPool.set(pool.poolName, pool.changes.map(toStep));
-		if (pool.pdfUrl) pdfUrls.set(pool.poolName, pool.pdfUrl);
+		stepsByPool.set(keyOf(pool), pool.changes.map(toStep));
+		poolOf.set(keyOf(pool), pool);
+		if (pool.pdfUrl) pdfUrls.set(keyOf(pool), pool.pdfUrl);
 	}
 	for (const pool of later.pools) {
-		if (pool.pdfUrl) pdfUrls.set(pool.poolName, pool.pdfUrl);
-		const steps = stepsByPool.get(pool.poolName) ?? [];
+		poolOf.set(keyOf(pool), pool);
+		if (pool.pdfUrl) pdfUrls.set(keyOf(pool), pool.pdfUrl);
+		const steps = stepsByPool.get(keyOf(pool)) ?? [];
 		for (const next of pool.changes.map(toStep)) {
 			const i = steps.findIndex(
 				(s) => s.program === next.program && s.day === next.day && s.after === next.before
@@ -303,17 +372,19 @@ export function mergeChangelogs(earlier: ChangelogEntry, later: ChangelogEntry):
 			if (i >= 0) steps[i] = { ...steps[i]!, after: next.after };
 			else steps.push(next);
 		}
-		stepsByPool.set(pool.poolName, steps);
+		stepsByPool.set(keyOf(pool), steps);
 	}
 
 	const pools: PoolChange[] = [];
-	for (const [poolName, steps] of stepsByPool) {
+	for (const [key, steps] of stepsByPool) {
 		const changes = steps.filter((s) => s.before !== s.after).map(fromStep);
 		if (changes.length === 0) continue;
-		const pdfUrl = pdfUrls.get(poolName);
+		const { poolName, effectiveDate } = poolOf.get(key)!;
+		const pdfUrl = pdfUrls.get(key);
 		pools.push({
 			poolName,
 			...(pdfUrl ? { pdfUrl } : {}),
+			...(effectiveDate ? { effectiveDate } : {}),
 			programsAdded: changes.filter((c) => c.type === "added").length,
 			programsRemoved: changes.filter((c) => c.type === "removed").length,
 			programsModified: changes.filter((c) => c.type === "modified").length,
@@ -333,7 +404,7 @@ export function mergeChangelogs(earlier: ChangelogEntry, later: ChangelogEntry):
 
 	return {
 		...later,
-		poolsChanged: pools.length,
+		poolsChanged: new Set(pools.map((p) => p.poolName)).size,
 		totalProgramsAdded: totalAdded,
 		totalProgramsRemoved: totalRemoved,
 		totalProgramsModified: totalModified,
@@ -398,7 +469,7 @@ export function formatChangelogSummary(entry: ChangelogEntry): string {
 		lines.push("");
 		lines.push("Details:");
 		for (const pool of entry.pools) {
-			lines.push(`  ${pool.poolName}:`);
+			lines.push(`  ${pool.poolName}${pool.effectiveDate ? ` (from ${pool.effectiveDate})` : ""}:`);
 			for (const c of pool.changes.slice(0, 10)) {
 				if (c.type === "added") {
 					lines.push(`    + ${c.program} (${c.day}) ${c.newTime}`);

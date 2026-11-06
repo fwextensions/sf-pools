@@ -20,7 +20,7 @@ import { upcomingBase, type DiscoveredPool } from "./downloadPdf";
 import type { PoolRecord } from "@/lib/site-data";
 import { readPdfLines } from "./read-pdf-lines";
 import {
-	computeChangelog,
+	computeRunChangelog,
 	loadPreviousSchedules,
 	saveChangelog,
 	formatChangelogSummary,
@@ -193,7 +193,7 @@ async function loadMaintenance(): Promise<MaintenanceEntry[]> {
 
 export type ProcessResult = {
 	success: boolean;
-	changelog: ReturnType<typeof computeChangelog>;
+	changelog: ReturnType<typeof computeRunChangelog>;
 	extractedCount: number;
 	skippedCount: number;
 	/** pools with an announced closure running today */
@@ -371,9 +371,10 @@ export async function main(): Promise<ProcessResult> {
 	// as upcoming last time. One the facility page no longer lists, or whose
 	// season has started, isn't carried over
 	const upcomingPdfIds = new Set(discovered.filter((d) => d.upcomingPdfUrl).map((d) => d.poolId));
+	const previousUpcoming = await loadPreviousUpcoming();
 	const upcomingRelease = releaseSchedules({
 		extracts: upcomingExtracts,
-		previousSchedules: (await loadPreviousUpcoming()).filter(
+		previousSchedules: previousUpcoming.filter(
 			(s) => upcomingPdfIds.has(s.id) && !!s.scheduleStartDate && s.scheduleStartDate > today
 		),
 		knownPoolIds: [...upcomingPdfIds],
@@ -401,7 +402,12 @@ export async function main(): Promise<ProcessResult> {
 
 	// compute and save changelog before writing new data; fold extraction
 	// anomalies into its warnings so they're persisted and surfaced by notify
-	const changelog = computeChangelog(previousSchedules, aggregated);
+	const changelog = computeRunChangelog({
+		previous: previousSchedules,
+		previousUpcoming,
+		current: aggregated,
+		upcoming,
+	});
 	changelog.quarantinedPools = quarantinedPools;
 	changelog.warnings.push(
 		...releaseWarnings(release),
