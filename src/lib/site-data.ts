@@ -61,6 +61,11 @@ export type PoolChange = {
 	poolName: string;
 	/** the schedule PDF this run read, so a reader can check the changes against it */
 	pdfUrl?: string;
+	/**
+	 * YYYY-MM-DD, set when these are the changes a newly posted schedule will
+	 * make on the date it starts, rather than changes to the schedule in force
+	 */
+	effectiveDate?: string;
 	programsAdded: number;
 	programsRemoved: number;
 	programsModified: number;

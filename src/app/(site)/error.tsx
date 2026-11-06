@@ -44,13 +44,13 @@ export default function SiteError({
 					onClick={reset}
 					className="control border-ink bg-ink font-mono text-small font-semibold tracking-[.08em] text-on-ink"
 				>
-					TRY AGAIN
+					<span className="inline-block [text-box:trim-both_cap_alphabetic]">TRY AGAIN</span>
 				</button>
 				<Link
 					href="/"
 					className="control font-mono text-small font-semibold tracking-[.08em] text-ink-2"
 				>
-					WEEK GRID
+					<span className="inline-block [text-box:trim-both_cap_alphabetic]">WEEK GRID</span>
 				</Link>
 			</div>
 		</div>
