@@ -31,6 +31,13 @@ describe("pool pages", () => {
 		expect(poolSessionHref("mlk", session)).toBe("/pools/mlk?session=tue-1230p-rec-family-swim");
 	});
 
+	it("joins several sessions' keys with commas", () => {
+		const lap = { dayOfWeek: "Tuesday", startTime: "12:30p", title: "Lap Swim" };
+		const rec = { dayOfWeek: "Tuesday", startTime: "12:30p", title: "Rec/Family Swim" };
+		expect(poolSessionHref("mlk", [lap, rec, lap])).toBe("/pools/mlk?session=tue-1230p-lap-swim,tue-1230p-rec-family-swim");
+		expect(poolSessionHref("mlk", [])).toBe("/pools/mlk");
+	});
+
 	it("adds the pool's code on a page two pools share", () => {
 		const session = { dayOfWeek: "Friday", startTime: "9:00a", title: "Lap Swim (Lap/Therapy)" };
 		expect(sessionParam("northBeachWarm", session)).toBe("nbw-fri-900a-lap-swim-lap-therapy");

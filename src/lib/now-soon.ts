@@ -42,6 +42,8 @@ export type Stretch = {
 	namesEndTime: string;
 	/** what is on at the start of the stretch */
 	names: string[];
+	/** the sessions on at the start of the stretch, the ones `names` names */
+	running: Session[];
 	/** the label of a restricted session in the stretch, in Everything mode */
 	restricted: string | null;
 	/** the first change of program inside the stretch */
@@ -174,6 +176,7 @@ export function stretchAt(sessions: Session[], at: number): Stretch | null {
 		namesEnd,
 		namesEndTime,
 		names,
+		running,
 		restricted: unique(running.map((s) => restrictedLabel(s.tags)).filter((l): l is string => !!l))[0] ?? null,
 		then,
 	};

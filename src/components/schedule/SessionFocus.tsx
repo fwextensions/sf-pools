@@ -3,9 +3,10 @@
 import { useEffect } from "react";
 
 /**
- * Picks out the session a link names with ?session= (a grid row links here
- * with one, see sessionParam): every other session on the page fades and the
- * picked one scrolls into view. A click or Escape anywhere puts the week back.
+ * Picks out the sessions a link names with ?session= (grid and Now & Soon rows
+ * link here with one, see sessionParam): every other session on the page fades
+ * and the first picked one scrolls into view. A click or Escape anywhere puts
+ * the week back.
  *
  * It reads the URL after hydration rather than through useSearchParams, which
  * would push the prerendered page into client rendering, and it marks the
@@ -13,10 +14,12 @@ import { useEffect } from "react";
  */
 export default function SessionFocus() {
 	useEffect(() => {
-		const key = new URLSearchParams(window.location.search).get("session");
-		if (!key) return;
+		// one key, or several joined with commas when a Now & Soon row names
+		// sessions running side by side
+		const keys = new URLSearchParams(window.location.search).get("session")?.split(",").filter(Boolean);
+		if (!keys?.length) return;
 		const blocks = [...document.querySelectorAll<HTMLElement>("[data-session]")].filter(
-			(el) => el.dataset.session === key
+			(el) => keys.includes(el.dataset.session!)
 		);
 		// a link from an older schedule names nothing here: show the week as is
 		if (!blocks.length) return;
@@ -25,7 +28,8 @@ export default function SessionFocus() {
 		root.setAttribute("data-session-focus", "");
 		for (const el of blocks) el.setAttribute("data-focused", "");
 
-		// the timeline and the day list both hold the session, one of them hidden
+		// the timeline and the day list both hold the session, one of them
+		// hidden; with several, the first in the page
 		const shown = blocks.find((el) => el.getClientRects().length);
 		// after the router has done its own scrolling for the navigation
 		const frame = requestAnimationFrame(() => shown?.scrollIntoView({ block: "center" }));

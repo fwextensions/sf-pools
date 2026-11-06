@@ -12,7 +12,7 @@ import { parseTimeToMinutes } from "@/lib/time";
 import { formatScheduleDate } from "@/lib/utils";
 
 // One pool's weekly schedule, as a pool's own page shows it. Its day row pins
-// straight under the site header.
+// under the site header and the page's pinned name row (--pool-head-h).
 
 // a time that doesn't parse sorts last
 function startOrLast(p: ProgramEntry): number {
@@ -195,13 +195,13 @@ function WeekTimeline({
 			    the seven cells alone would let the rows show through. */}
 			<div
 				aria-hidden
-				style={{ gridRow: 1, gridColumn: "1 / -1", top: "var(--site-sticky-h)" }}
+				style={{ gridRow: 1, gridColumn: "1 / -1", top: "calc(var(--site-sticky-h) + var(--pool-head-h, 0px))" }}
 				className="sticky z-[3] bg-page"
 			/>
 			{DAYS.map((day, i) => (
 				<div
 					key={day}
-					style={{ gridRow: 1, gridColumn: i + 2, top: "var(--site-sticky-h)" }}
+					style={{ gridRow: 1, gridColumn: i + 2, top: "calc(var(--site-sticky-h) + var(--pool-head-h, 0px))" }}
 					// the breathing room above the labels is padding on the pinned row
 					// itself, not a margin above the grid: a margin is outside the
 					// sticky box, so it collapses the moment the row pins and the

@@ -5,11 +5,14 @@ import GridLink from "@/components/grid/GridLink";
 import PoolChip from "@/components/PoolChip";
 import { ExternalLinkIcon } from "@/components/icons";
 import PoolList from "@/components/pools/PoolList";
+import PoolPageHeader from "@/components/pools/PoolPageHeader";
 import PoolScheduleSection from "@/components/schedule/PoolScheduleSection";
 import SessionFocus from "@/components/schedule/SessionFocus";
 import { buildPoolPages, poolPageSlugs, type PoolPage } from "@/lib/pool-pages";
 import { describeProgram } from "@/lib/program-display";
-import { loadAlerts, loadPools, loadSchedules } from "@/lib/site-data";
+import { pacificToday } from "@/lib/closures";
+import { createPoolCalendar } from "@/lib/pool-calendar";
+import { loadAlerts, loadPools, loadSchedules, loadUpcomingSchedules } from "@/lib/site-data";
 import { SITE_URL } from "@/lib/site-url";
 
 type Params = { slug: string };
@@ -21,9 +24,16 @@ export function generateStaticParams(): Params[] {
 	return poolPageSlugs().map((slug) => ({ slug }));
 }
 
+// each pool's schedule in force when the page is built: a newer PDF that
+// has started takes over here as it does in the grid and Now & Soon, which
+// go by the pool calendar, rather than waiting for the weekly run to promote
+// it into the current schedules
 async function loadPages(): Promise<PoolPage[]> {
-	const [records, schedules] = await Promise.all([loadPools(), loadSchedules()]);
-	return buildPoolPages(records, schedules);
+	const [records, schedules, upcoming] = await Promise.all([loadPools(), loadSchedules(), loadUpcomingSchedules()]);
+	const calendar = createPoolCalendar(schedules, upcoming);
+	const today = pacificToday();
+	const inForce = schedules.map((s) => calendar.scheduleOn(s.id, today) ?? s);
+	return buildPoolPages(records, inForce);
 }
 
 async function loadPage(slug: string): Promise<PoolPage | null> {
@@ -117,7 +127,7 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 				type="application/ld+json"
 				dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData(page)).replace(/</g, "\\u003c") }}
 			/>
-			<header className="pt-6 pb-3">
+			<PoolPageHeader>
 				{/* the chips stay beside a name that wraps, centered on its first
 				    line: their box is one line of the heading tall */}
 				<div className="flex items-start gap-x-2.5">
@@ -128,7 +138,7 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 					</span>
 					<h1 className="text-title font-semibold leading-tight">{page.facilityName}</h1>
 				</div>
-			</header>
+			</PoolPageHeader>
 
 			<dl className="grid grid-cols-1 gap-x-8 min-[560px]:grid-cols-3">
 				<Fact label="ADDRESS">
