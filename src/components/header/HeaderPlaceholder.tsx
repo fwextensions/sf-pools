@@ -49,6 +49,7 @@ export function HeaderPlaceholder()
 	return (
 		<div aria-hidden className="header-placeholder">
 			<div className="header-placeholder-text" />
+			<div className="header-placeholder-night" />
 		</div>
 	);
 }
