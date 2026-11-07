@@ -162,3 +162,21 @@
 		left: round(down, calc((100vw - 29 * var(--tile)) / 2), var(--tile));
 	}
 }
+
+/* Night, when HeaderAnimation sets data-night on the placeholder's host. The
+   shader multiplies the pool by a dim blue after dark and lights it from the
+   walls; this multiplies the day placeholder by the ratio of the night
+   water's average color to the day placeholder's (#3587bc over #68b6d7 in
+   a 390px wide render), which leaves out the lamps but gets the overall
+   brightness right. */
+.header-placeholder-night {
+	position: absolute;
+	inset: 0;
+	display: none;
+	background-color: #82bdde;
+	mix-blend-mode: multiply;
+}
+
+[data-night] .header-placeholder-night {
+	display: block;
+}
