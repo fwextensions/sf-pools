@@ -4,6 +4,7 @@ import Link from "next/link";
 import { memo, useCallback, useMemo, useSyncExternalStore } from "react";
 import ProgramName from "@/components/ProgramName";
 import PoolChip from "@/components/PoolChip";
+import SessionBar from "@/components/SessionBar";
 import { tagLabel } from "@/lib/program-taxonomy";
 import { cellDetail, emptyCellMessage, sessionSpans } from "@/lib/grid/cell-detail";
 import type { FilterView, GridModel } from "@/lib/grid/grid-model";
@@ -115,16 +116,7 @@ const DetailPanel = memo(function DetailPanel({
 						<span className="font-mono text-small font-medium text-ink-2">
 							{d.startTime}–{d.endTime}
 						</span>
-						{/* the session's length against the others in the list, on
-						    one shared scale, with the part inside the selected hour
-						    darker. It sits right on the rule under the times, as wide as the
-						    longest time range, so it reads with them */}
-						{span ? (
-							<span aria-hidden="true" className="pointer-events-none absolute right-0 bottom-0 h-[2px] w-[13ch] font-mono text-small">
-								<span className="absolute inset-y-0 bg-line-strong" style={{ left: `${span.left}%`, width: `${span.width}%` }} />
-								<span className="absolute inset-y-0 bg-ink-2" style={{ left: `${span.hourLeft}%`, width: `${span.hourWidth}%` }} />
-							</span>
-						) : null}
+						{span ? <SessionBar span={span} /> : null}
 					</Link>
 				);
 			})}

@@ -4,6 +4,7 @@
 import { POOL_TOKENS, type PoolToken } from "@/lib/pool-tokens";
 import type { Day, Session } from "@/lib/sessions";
 import type { GridFilter } from "./filters";
+import { spansOnOneScale, type SessionSpan } from "@/lib/session-span";
 import { sessionsInCell, type GridCell } from "./sessions";
 
 export type DetailRow = {
@@ -54,38 +55,14 @@ export function cellDetail(
 	return { rows, empty: rows.length ? null : explainEmptyCell(inCell, matchesTags, poolSet) };
 }
 
-// Where each row's session sits on a timeline shared by the whole list, so
-// the bars under the times compare: a 9:00-10:30 session starts left of one
-// running 10:15-12:00. The scale runs from the earliest start to the latest
-// end, widened to take in the whole selected hour. Each value is a percentage
-// of the track: the session's span, then the part of it inside the hour.
-export type SessionSpan = {
-	left: number;
-	width: number;
-	hourLeft: number;
-	hourWidth: number;
-};
-
+// Where each row's session sits on a timeline shared by the whole list, the
+// part inside the selected hour marked darker
 export function sessionSpans(rows: Pick<DetailRow, "startMin" | "endMin">[], hour: number): SessionSpan[] {
-	const hourStart = hour * 60;
-	const hourEnd = hourStart + 60;
-	let from = hourStart;
-	let to = hourEnd;
-	for (const r of rows) {
-		from = Math.min(from, r.startMin);
-		to = Math.max(to, r.endMin);
-	}
-	const pct = (min: number) => ((min - from) / (to - from)) * 100;
-	return rows.map((r) => {
-		const inStart = Math.max(r.startMin, hourStart);
-		const inEnd = Math.min(r.endMin, hourEnd);
-		return {
-			left: pct(r.startMin),
-			width: pct(r.endMin) - pct(r.startMin),
-			hourLeft: pct(inStart),
-			hourWidth: Math.max(0, pct(inEnd) - pct(inStart)),
-		};
-	});
+	const hourSpan: [number, number] = [hour * 60, hour * 60 + 60];
+	return spansOnOneScale(
+		rows.map((r) => ({ start: r.startMin, end: r.endMin, mark: hourSpan })),
+		hourSpan
+	);
 }
 
 // Why a selected grid cell lists no sessions. "Nothing scheduled" was the only

@@ -105,7 +105,7 @@ describe("sessionSpans", () => {
 			10
 		);
 		const round = (n: number) => Math.round(n * 100) / 100;
-		expect(spans.map((s) => [s.left, s.width, s.hourLeft, s.hourWidth].map(round))).toEqual([
+		expect(spans.map((s) => [s.left, s.width, s.markLeft, s.markWidth].map(round))).toEqual([
 			[0, 50, 33.33, 16.67],
 			[41.67, 58.33, 41.67, 25],
 		]);
@@ -113,6 +113,6 @@ describe("sessionSpans", () => {
 
 	it("keeps the whole hour on the scale when every session is shorter", () => {
 		const [span] = sessionSpans([{ startMin: 600, endMin: 630 }], 10);
-		expect(span).toEqual({ left: 0, width: 50, hourLeft: 0, hourWidth: 50 });
+		expect(span).toEqual({ left: 0, width: 50, markLeft: 0, markWidth: 50 });
 	});
 });
