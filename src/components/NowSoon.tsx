@@ -15,6 +15,7 @@ import {
 	formatDuration,
 	joinNames,
 	nowSoon,
+	nowSoonSpans,
 	type LaterStanding,
 	type Mode,
 	type NowSoonOptions,
@@ -23,7 +24,9 @@ import {
 	type Stretch,
 } from "@/lib/now-soon";
 import { initialNowSoonOptions, writeNowSoonUrl } from "@/lib/now-soon-url";
+import type { SessionSpan } from "@/lib/session-span";
 import PoolChip from "./PoolChip";
+import SessionBar from "./SessionBar";
 import ProgramName from "@/components/ProgramName";
 import { Chevron } from "@/components/icons";
 
@@ -132,19 +135,23 @@ function PoolName({ pool, weight }: { pool: PoolSchedule; weight: "font-semibold
 function RowLink({
 	pool,
 	stretch,
+	span = null,
 	children,
 }: {
 	pool: PoolSchedule;
 	stretch: Stretch | null;
+	/** where the row's times sit against the other rows', as the grid's list shows */
+	span?: SessionSpan | null;
 	children: React.ReactNode;
 }) {
 	return (
 		<li className="border-b border-line">
 			<Link
 				href={poolSessionHref(pool.id, stretch?.running ?? [])}
-				className="group grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 py-3"
+				className="group relative grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 py-3"
 			>
 				{children}
+				{span ? <SessionBar span={span} className="text-label" /> : null}
 			</Link>
 		</li>
 	);
@@ -154,10 +161,12 @@ function OpenRow({
 	standing,
 	kind,
 	now,
+	bar,
 }: {
 	standing: OpenStanding;
 	kind: "open" | "soon";
 	now: number;
+	bar: SessionSpan;
 }) {
 	const { pool, stretch } = standing;
 	// a session you can't walk in on reads in the secondary ink, tagged; never
@@ -175,7 +184,7 @@ function OpenRow({
 	const detail = kind === "open" ? `until ${stretch.namesEndTime}` : span;
 
 	return (
-		<RowLink pool={pool} stretch={stretch}>
+		<RowLink pool={pool} stretch={stretch} span={bar}>
 			<div className="min-w-0">
 				<div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
 					<PoolName pool={pool} weight="font-semibold" />
@@ -356,6 +365,7 @@ export default function NowSoon({ all, upcoming = [], holidays = [], at = null }
 
 	const calendar = useMemo(() => createPoolCalendar(all, upcoming, holidays), [all, upcoming, holidays]);
 	const view = useMemo(() => nowSoon(all, calendar, now, options), [all, calendar, now, options]);
+	const spans = useMemo(() => nowSoonSpans(view.open, view.soon, now.minutes), [view, now.minutes]);
 
 	return (
 		<div className="font-sans text-ink">
@@ -375,15 +385,15 @@ export default function NowSoon({ all, upcoming = [], holidays = [], at = null }
 			</div>
 
 			<Section label="Now" glyph={GLYPHS.open} count={view.open.length} empty={`No pools have ${view.noun} running right now.`}>
-				{view.open.map((s) => (
-					<OpenRow key={s.pool.id} standing={s} kind="open" now={now.minutes} />
+				{view.open.map((s, i) => (
+					<OpenRow key={s.pool.id} standing={s} kind="open" now={now.minutes} bar={spans.open[i]} />
 				))}
 			</Section>
 			{/* nothing more today needs no section of its own; Later has the rest */}
 			{view.soon.length ? (
 				<Section label="Soon" glyph={GLYPHS.soon} count={view.soon.length} empty="">
-					{view.soon.map((s) => (
-						<OpenRow key={s.pool.id} standing={s} kind="soon" now={now.minutes} />
+					{view.soon.map((s, i) => (
+						<OpenRow key={s.pool.id} standing={s} kind="soon" now={now.minutes} bar={spans.soon[i]} />
 					))}
 				</Section>
 			) : null}
