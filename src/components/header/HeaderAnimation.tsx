@@ -68,7 +68,14 @@ export default function HeaderAnimation()
 			const altitude = timeOfDay ? PRESET_ALTITUDES[timeOfDay] : sunAltitudeDeg(new Date());
 			const sun = daylight(altitude);
 			host.toggleAttribute("data-night", sun < 0.5);
-			if (strip) strip.style.backgroundColor = stripColor(sun);
+			if (strip) {
+				const color = stripColor(sun);
+				strip.style.backgroundColor = color;
+				// the same color carried 8px above the strip, so at the top of the
+				// page the seam where Safari's bar meets the page has the strip's
+				// color under it rather than the page's
+				strip.style.boxShadow = `0 -8px 0 ${color}`;
+			}
 		};
 		const sunTimer = setInterval(updateSun, 60_000);
 		document.addEventListener("visibilitychange", updateSun);
