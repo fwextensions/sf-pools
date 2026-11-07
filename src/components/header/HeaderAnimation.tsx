@@ -24,7 +24,7 @@ function withConstsZeroed(src: string, names: string[]) {
 // The pinned water's background by day and by night, as RGB, for the bar
 // Safari 26 colors from it (see the effect below).
 const STRIP_DAY = [0x7b, 0xbc, 0xda];
-const STRIP_NIGHT = [0x2c, 0x5f, 0x8e];
+const STRIP_NIGHT = [0x15, 0x40, 0x7a];
 
 function stripColor(sun: number) {
 	const [r, g, b] = STRIP_NIGHT.map((night, i) => Math.round(night + (STRIP_DAY[i] - night) * sun));
