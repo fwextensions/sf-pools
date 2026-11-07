@@ -2,7 +2,7 @@ import { describe, it, expect } from "@jest/globals";
 import type { PoolSchedule } from "@/lib/schedule-schema";
 import type { Closure } from "./closures";
 import { createPoolCalendar } from "./pool-calendar";
-import { formatDuration, joinNames, nowSoon, stretchAt, type Moment, type NowSoonOptions } from "./now-soon";
+import { formatDuration, isDropIn, joinNames, nowSoon, stretchAt, type Moment, type NowSoonFilter } from "./now-soon";
 
 type Row = [day: string, start: string, end: string, name: string, tags?: string[]];
 
@@ -31,10 +31,15 @@ const pool = (id: string, rows: Row[], extra: Partial<PoolSchedule> = {}) =>
 const FRIDAY = "2026-10-09";
 const fridaySessions = (pools: PoolSchedule[]) => createPoolCalendar(pools).sessions(FRIDAY, FRIDAY);
 const at = (hh: number, mm = 0): Moment => ({ day: "Friday", date: FRIDAY, minutes: hh * 60 + mm });
-const DROP_IN: NowSoonOptions = { mode: "drop-in", program: null };
+const DROP_IN: NowSoonFilter = { matches: isDropIn, noun: "drop-in" };
+const EVERYTHING: NowSoonFilter = { matches: () => true, noun: "sessions" };
+const only = (program: string, noun: string): NowSoonFilter => ({
+	matches: (s) => s.tags.includes(`program:${program}`),
+	noun,
+});
 
-function view(pools: PoolSchedule[], now: Moment, options: Partial<NowSoonOptions> = {}) {
-	return nowSoon(pools, createPoolCalendar(pools), now, { ...DROP_IN, ...options });
+function view(pools: PoolSchedule[], now: Moment, filter: NowSoonFilter = DROP_IN) {
+	return nowSoon(pools, createPoolCalendar(pools), now, filter);
 }
 
 describe("stretchAt", () => {
@@ -104,7 +109,7 @@ describe("nowSoon", () => {
 			["Friday", "6:00p", "7:00p", "Lap Swim"],
 			["Friday", "7:00p", "8:30p", "Rentals Masters", RENTAL],
 		]);
-		const [open] = view([mlk], at(12, 32), { mode: "all" }).open;
+		const [open] = view([mlk], at(12, 32), EVERYTHING).open;
 		expect(open!.stretch.names).toEqual(["Rec/Family Swim", "Lap Swim"]);
 		expect([open!.stretch.namesEndTime, open!.stretch.endTime]).toEqual(["3:30p", "8:30p"]);
 		expect(open!.stretch.then).toEqual({ names: ["Bayview Safety Swim & Splash"], at: "3:30p" });
@@ -181,10 +186,10 @@ describe("nowSoon", () => {
 		expect(dropIn.soon).toEqual([]);
 		expect(dropIn.later[0]).toMatchObject({ day: "Tomorrow", stretch: { startTime: "9:00a", names: ["Rec Swim"] } });
 
-		const everything = view(pools, at(18), { mode: "all" });
+		const everything = view(pools, at(18), EVERYTHING);
 		expect(everything.open[0]!.stretch.restricted).toBe("Private");
 
-		const lessons = view([pool("rossi", [["Friday", "5:00p", "7:00p", "Learn to Swim", LESSONS]])], at(18), { mode: "all" });
+		const lessons = view([pool("rossi", [["Friday", "5:00p", "7:00p", "Learn to Swim", LESSONS]])], at(18), EVERYTHING);
 		expect(lessons.open[0]!.stretch.restricted).toBe("Reg req'd");
 	});
 
@@ -195,11 +200,11 @@ describe("nowSoon", () => {
 				["Friday", "7:00p", "8:00p", "Lap Swim"],
 			]),
 		];
-		const v = view(pools, at(18), { program: "lap" });
+		const v = view(pools, at(18), only("lap", "lap swim"));
 		expect(v.open).toEqual([]);
 		expect(v.soon[0]!.stretch.startTime).toBe("7:00p");
 		expect(v.noun).toBe("lap swim");
-		expect(view(pools, at(16), { program: "lap" }).later[0]!.note).toBe("No lap swim after today");
+		expect(view(pools, at(16), only("lap", "lap swim")).later[0]!.note).toBe("No lap swim after today");
 	});
 
 	it("lists later pools in the order they next open, then those with nothing this week", () => {
@@ -228,7 +233,7 @@ describe("nowSoon", () => {
 			stretch: { startTime: "8:30a", namesEndTime: "10:00a", names: ["Lap Swim"], then: { names: ["Family Swim"], at: "10:00a" } },
 			note: null,
 		});
-		expect(view(pools, at(18), { program: "senior" }).later[0]).toMatchObject({ stretch: null, note: "No senior swim this week" });
+		expect(view(pools, at(18), only("senior", "senior swim")).later[0]).toMatchObject({ stretch: null, note: "No senior swim this week" });
 	});
 
 	it("skips days a closure covers", () => {

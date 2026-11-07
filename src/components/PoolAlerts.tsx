@@ -3,6 +3,7 @@ import { PoolSchedule } from "@/lib/schedule-schema";
 import ClosureNotice from "@/components/ClosureNotice";
 import type { ClosureWindow, ScheduleGap, SharedClosure } from "@/lib/pool-calendar";
 import { formatScheduleDate } from "@/lib/utils";
+import { hasClosureEnded } from "@/lib/closures";
 
 type Props = {
 	alerts?: AlertsData | null;
@@ -17,7 +18,9 @@ type Props = {
 }
 
 export default function PoolAlerts({ alerts, pools, selectedPools, weekClosures = [], scheduleGaps = [], from = "" }: Props) {
-	const poolAlerts = alerts?.poolAlerts ?? [];
+	// a facility page can keep a closure notice up after the pool reopens,
+	// until the next weekly scrape drops it; one that has ended says nothing
+	const poolAlerts = (alerts?.poolAlerts ?? []).filter((a) => !(from && a.closure && hasClosureEnded(a.closure, from)));
 	// a closure shows when any pool it names is in the filter
 	const relevantClosures = weekClosures
 		.map((c) => ({
@@ -81,8 +84,9 @@ export default function PoolAlerts({ alerts, pools, selectedPools, weekClosures 
 
 	return (
 		// two to a row when there's room, rather than full-width boxes that are
-		// mostly empty; a lone alert still spans the row
-		<div className="mt-3 mb-6 grid grid-cols-[repeat(auto-fit,minmax(min(100%,24rem),1fr))] gap-2">
+		// mostly empty; a lone alert still spans the row. On a phone they
+		// scroll sideways in one row instead (alert-carousel in globals.css)
+		<div className="alert-carousel mt-3 mb-6 grid grid-cols-[repeat(auto-fit,minmax(min(100%,24rem),1fr))] gap-2">
 			{relevantClosures.map((c) => (
 				<div
 					key={`week-${c.startDate}-${c.endDate}-${c.reason}`}
