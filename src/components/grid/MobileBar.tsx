@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import type { FilterView, GridModel } from "@/lib/grid/grid-model";
 import { Expand, X } from "lucide-react";
 import { Chevron } from "@/components/icons";
@@ -110,20 +110,22 @@ export function MobileChips({
 export function MobilePanel({
 	fill = false,
 	openPanel,
+	ref,
 	children,
 }: {
 	fill?: boolean;
 	openPanel: OpenPanel;
+	ref?: Ref<HTMLDivElement>;
 	children: { programs: ReactNode; pools: ReactNode };
 }) {
 	const className = `border-b-2 border-ink bg-tint ${
 		fill ? "overflow-y-auto overscroll-contain min-h-0 flex-initial" : ""
 	}`;
 	if (openPanel === "programs") {
-		return <div className={className}>{children.programs}</div>;
+		return <div ref={ref} className={className}>{children.programs}</div>;
 	}
 	if (openPanel === "pools") {
-		return <div className={className}>{children.pools}</div>;
+		return <div ref={ref} className={className}>{children.pools}</div>;
 	}
 	return null;
 }

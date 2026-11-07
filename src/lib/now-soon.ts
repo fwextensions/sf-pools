@@ -10,6 +10,7 @@ import { formatClosurePeriod, isClosureActive } from "@/lib/closures";
 import { formatScheduleDate } from "@/lib/utils";
 import type { Day, Session } from "@/lib/sessions";
 import { addDays, isAllDay, weekdayOf, type PoolCalendar } from "@/lib/pool-calendar";
+import { spansOnOneScale, type SessionSpan } from "@/lib/session-span";
 
 /**
  * Which sessions count, which the grid's program filter decides, and the word
@@ -314,4 +315,26 @@ function absenceNote(
 	const starts = calendar.closuresOn(pool.id, addDays(today, 6)).find((r) => r.kind === "not-started");
 	if (starts?.kind === "not-started") return `New schedule starts ${shortDate(starts.startDate)}`;
 	return `No ${noun} ${span}`;
+}
+
+/**
+ * Bars for the Now and Soon rows on one timeline across both lists, from the
+ * times each row shows: when the stretch starts to when its programs end.
+ * What is left of a running session, from now on, is marked darker, so every
+ * Now row's dark stretch starts at the same point; Soon rows sit to its right
+ * with nothing marked.
+ */
+export function nowSoonSpans(
+	open: OpenStanding[],
+	soon: OpenStanding[],
+	now: number
+): { open: SessionSpan[]; soon: SessionSpan[] } {
+	const spans = spansOnOneScale(
+		[
+			...open.map(({ stretch }) => ({ start: stretch.start, end: stretch.namesEnd, mark: [now, stretch.namesEnd] as [number, number] })),
+			...soon.map(({ stretch }) => ({ start: stretch.start, end: stretch.namesEnd, mark: null })),
+		],
+		[now, now]
+	);
+	return { open: spans.slice(0, open.length), soon: spans.slice(open.length) };
 }

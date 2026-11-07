@@ -7,7 +7,7 @@
 		"address": "51 Havelock St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Balboa-Pool-212",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29796",
-		"scheduleLastUpdated": "2026-10-30",
+		"scheduleLastUpdated": "2026-11-06",
 		"scheduleSeason": "FALL 2026",
 		"scheduleStartDate": "2026-09-01",
 		"scheduleEndDate": "2026-12-12",
@@ -578,7 +578,7 @@
 		"address": "1701 Visitacion Ave, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Coffman-Pool-213",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29798",
-		"scheduleLastUpdated": "2026-10-30",
+		"scheduleLastUpdated": "2026-11-06",
 		"scheduleSeason": "Fall 2026",
 		"scheduleStartDate": "2026-08-18",
 		"scheduleEndDate": "2026-12-12",
@@ -1135,7 +1135,7 @@
 		"address": "1271 Treat Ave, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Garfield-Pool-214",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29799",
-		"scheduleLastUpdated": "2026-10-30",
+		"scheduleLastUpdated": "2026-11-06",
 		"scheduleSeason": "Fall 2026",
 		"scheduleStartDate": "2026-09-08",
 		"scheduleEndDate": "2026-12-10",
@@ -1934,7 +1934,7 @@
 		"address": "1900 Geary Blvd, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Hamilton-Pool-215",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29800",
-		"scheduleLastUpdated": "2026-10-30",
+		"scheduleLastUpdated": "2026-11-06",
 		"scheduleSeason": "FALL 2026",
 		"scheduleStartDate": "2026-08-18",
 		"scheduleEndDate": "2026-12-12",
@@ -2621,7 +2621,7 @@
 		"address": "5701 3rd St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Martin-Luther-King-Jr-Pool-216",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/30210",
-		"scheduleLastUpdated": "2026-10-30",
+		"scheduleLastUpdated": "2026-11-06",
 		"scheduleSeason": "Fall 2026 pt.2",
 		"scheduleStartDate": "2026-09-29",
 		"scheduleEndDate": "2026-12-12",
@@ -3281,7 +3281,7 @@
 		"address": "101 Linda St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Mission-Community-Pool-217",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/30319",
-		"scheduleLastUpdated": "2026-10-30",
+		"scheduleLastUpdated": "2026-11-06",
 		"scheduleSeason": "Fall 2026",
 		"scheduleStartDate": "2026-10-20",
 		"scheduleEndDate": "2026-11-21",
@@ -3557,33 +3557,13 @@
 		"address": "661 Lombard St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29953",
-		"scheduleLastUpdated": "2026-10-30",
+		"scheduleLastUpdated": "2026-11-06",
 		"scheduleSeason": "FALL 2026",
 		"scheduleStartDate": "2026-09-01",
 		"scheduleEndDate": "2026-12-12",
 		"lanes": null,
-		"closure": {
-			"summary": "North Beach Pool is closed for annual maintenance from October 13 through November 1.",
-			"rawText": "Please note, North Beach Pool will be closed for its annual maintenance from October 13 and reopen on November 2. For schedules of our other pools please visit:",
-			"startDate": "2026-10-13",
-			"endDate": "2026-11-01",
-			"indefinite": false,
-			"sourceUrl": null,
-			"reason": "annual maintenance",
-			"scope": "whole-pool",
-			"source": "pattern+model",
-			"suppressPrograms": true,
-			"confidence": 1,
-			"disagreement": null
-		},
+		"closure": null,
 		"scheduledClosures": [
-			{
-				"startDate": "2026-10-13",
-				"endDate": "2026-10-31",
-				"startTime": null,
-				"endTime": null,
-				"reason": "ANNUAL MAINTENANCE"
-			},
 			{
 				"startDate": "2026-11-11",
 				"endDate": "2026-11-11",
@@ -3987,33 +3967,13 @@
 		"address": "661 Lombard St, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29954",
-		"scheduleLastUpdated": "2026-10-30",
+		"scheduleLastUpdated": "2026-11-06",
 		"scheduleSeason": "Fall 2026",
 		"scheduleStartDate": "2026-09-01",
 		"scheduleEndDate": "2026-12-12",
 		"lanes": null,
-		"closure": {
-			"summary": "North Beach Pool is closed for annual maintenance from October 13 through November 1.",
-			"rawText": "Please note, North Beach Pool will be closed for its annual maintenance from October 13 and reopen on November 2. For schedules of our other pools please visit:",
-			"startDate": "2026-10-13",
-			"endDate": "2026-11-01",
-			"indefinite": false,
-			"sourceUrl": null,
-			"reason": "annual maintenance",
-			"scope": "whole-pool",
-			"source": "pattern+model",
-			"suppressPrograms": true,
-			"confidence": 1,
-			"disagreement": null
-		},
+		"closure": null,
 		"scheduledClosures": [
-			{
-				"startDate": "2026-10-13",
-				"endDate": "2026-10-31",
-				"startTime": null,
-				"endTime": null,
-				"reason": "ANNUAL MAINTENCE"
-			},
 			{
 				"startDate": "2026-11-26",
 				"endDate": "2026-11-26",
@@ -4624,7 +4584,7 @@
 		"address": "600 Arguello Blvd, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Rossi-Pool-219",
 		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/29804",
-		"scheduleLastUpdated": "2026-10-30",
+		"scheduleLastUpdated": "2026-11-06",
 		"scheduleSeason": "FALL 2026",
 		"scheduleStartDate": "2026-08-16",
 		"scheduleEndDate": "2026-12-10",
@@ -5249,11 +5209,11 @@
 		"shortName": "Sava",
 		"address": "2695 19th Ave, San Francisco",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Sava-Pool-220",
-		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/30037",
-		"scheduleLastUpdated": "2026-10-30",
+		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/30374",
+		"scheduleLastUpdated": "2026-11-06",
 		"scheduleSeason": "Fall 2026",
-		"scheduleStartDate": "2026-08-29",
-		"scheduleEndDate": "2026-12-12",
+		"scheduleStartDate": "2026-11-03",
+		"scheduleEndDate": "2026-12-01",
 		"lanes": null,
 		"closure": null,
 		"scheduledClosures": [
@@ -5433,7 +5393,7 @@
 				"programName": "Lap Swim",
 				"dayOfWeek": "Wednesday",
 				"startTime": "2:30p",
-				"endTime": "3:30p",
+				"endTime": "5:30p",
 				"lanes": 4,
 				"notes": null,
 				"programNameOriginal": "Lap Swim",
@@ -5449,7 +5409,7 @@
 				"programName": "Family Swim",
 				"dayOfWeek": "Wednesday",
 				"startTime": "2:30p",
-				"endTime": "3:30p",
+				"endTime": "5:30p",
 				"lanes": null,
 				"notes": null,
 				"programNameOriginal": "Family Swim",
@@ -5459,39 +5419,6 @@
 					"access:drop-in",
 					"activity:family",
 					"program:family"
-				]
-			},
-			{
-				"programName": "Swim Lessons (General/Youth/Community)",
-				"dayOfWeek": "Wednesday",
-				"startTime": "4:00p",
-				"endTime": "5:30p",
-				"lanes": null,
-				"notes": null,
-				"programNameOriginal": "Swim Lesson",
-				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
-				"title": "Swim Lesson",
-				"tags": [
-					"access:registration",
-					"activity:lessons",
-					"program:kids-lessons"
-				]
-			},
-			{
-				"programName": "Adult Swim Lessons",
-				"dayOfWeek": "Wednesday",
-				"startTime": "5:30p",
-				"endTime": "6:00p",
-				"lanes": null,
-				"notes": null,
-				"programNameOriginal": "Adult Swim Lessons",
-				"programNameCanonical": "Adult Swim Lessons",
-				"title": "Adult Swim Lessons",
-				"tags": [
-					"access:registration",
-					"activity:lessons",
-					"audience:adult",
-					"program:adult-lessons"
 				]
 			},
 			{
@@ -5646,27 +5573,10 @@
 				]
 			},
 			{
-				"programName": "Swim Lessons (General/Youth/Community)",
-				"dayOfWeek": "Friday",
-				"startTime": "11:30a",
-				"endTime": "12:00p",
-				"lanes": null,
-				"notes": null,
-				"programNameOriginal": "Preschool Swim Lessons",
-				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
-				"title": "Preschool Swim Lessons",
-				"tags": [
-					"access:registration",
-					"activity:lessons",
-					"audience:preschool",
-					"program:kids-lessons"
-				]
-			},
-			{
 				"programName": "Lap Swim",
 				"dayOfWeek": "Friday",
 				"startTime": "12:00p",
-				"endTime": "3:30p",
+				"endTime": "3:00p",
 				"lanes": null,
 				"notes": null,
 				"programNameOriginal": "Lap Swim",
@@ -5679,25 +5589,41 @@
 				]
 			},
 			{
-				"programName": "Swim Lessons (General/Youth/Community)",
+				"programName": "Lap Swim",
 				"dayOfWeek": "Friday",
-				"startTime": "4:00p",
-				"endTime": "5:30p",
-				"lanes": null,
+				"startTime": "3:30p",
+				"endTime": "5:00p",
+				"lanes": 4,
 				"notes": null,
-				"programNameOriginal": "Swim Lessons",
-				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
-				"title": "Swim Lessons",
+				"programNameOriginal": "Lap Swim",
+				"programNameCanonical": "Lap Swim",
+				"title": "Lap Swim",
 				"tags": [
-					"access:registration",
-					"activity:lessons",
-					"program:kids-lessons"
+					"access:drop-in",
+					"activity:lap",
+					"program:lap"
 				]
 			},
 			{
 				"programName": "Family Swim",
 				"dayOfWeek": "Friday",
-				"startTime": "6:00p",
+				"startTime": "3:30p",
+				"endTime": "5:00p",
+				"lanes": null,
+				"notes": null,
+				"programNameOriginal": "Family Swim",
+				"programNameCanonical": "Family Swim",
+				"title": "Family Swim",
+				"tags": [
+					"access:drop-in",
+					"activity:family",
+					"program:family"
+				]
+			},
+			{
+				"programName": "Family Swim",
+				"dayOfWeek": "Friday",
+				"startTime": "5:30p",
 				"endTime": "7:30p",
 				"lanes": null,
 				"notes": null,
@@ -5715,7 +5641,7 @@
 				"dayOfWeek": "Saturday",
 				"startTime": "9:00a",
 				"endTime": "11:00a",
-				"lanes": 4,
+				"lanes": null,
 				"notes": null,
 				"programNameOriginal": "Lap Swim",
 				"programNameCanonical": "Lap Swim",
@@ -5724,22 +5650,6 @@
 					"access:drop-in",
 					"activity:lap",
 					"program:lap"
-				]
-			},
-			{
-				"programName": "Swim Lessons (General/Youth/Community)",
-				"dayOfWeek": "Saturday",
-				"startTime": "9:00a",
-				"endTime": "11:00a",
-				"lanes": null,
-				"notes": null,
-				"programNameOriginal": "Learn To Swim",
-				"programNameCanonical": "Swim Lessons (General/Youth/Community)",
-				"title": "Learn to Swim",
-				"tags": [
-					"access:registration",
-					"activity:lessons",
-					"program:kids-lessons"
 				]
 			},
 			{

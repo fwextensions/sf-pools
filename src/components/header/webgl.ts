@@ -114,34 +114,55 @@ export class Program {
 export type Target = { tex: WebGLTexture; fbo: WebGLFramebuffer };
 
 /**
- * The texel format targets are allocated in, best first: 32-bit float, then
- * 16-bit. `linear` says whether it can also be sampled with LINEAR filtering,
- * which is a separate extension for float textures and missing on some mobile
- * GPUs; a caller that reconstructs derivatives from a target needs to know
- * (the water's display shader degrades gracefully — see u_simLens).
+ * How the display pass gets a smoothly filtered view of the simulation, which
+ * it needs to reconstruct curvature (the caustics) from it:
+ *   native - the simulation's own float format filters, so it is sampled as is
+ *   copy   - it doesn't, but a 16-bit float format does, so each frame the
+ *            simulation is copied into one of those and the copy is sampled
+ *   none   - nothing filters; the display shader drops the simulated lens
+ *            (see u_simLens)
  *
- * 16-bit is a real step down for the wave simulation: heights near 1 only
- * resolve to ~0.001, which is the size of one step's damping. It is here so a
- * phone without renderable 32-bit float still gets moving water rather than
- * none.
+ * iPhones are the reason for "copy": their GPUs cannot filter 32-bit float
+ * textures, and iOS Safari has at times advertised OES_texture_float_linear
+ * anyway, so the sim came back unfiltered, with no curvature inside a texel,
+ * and the ripples lost their caustics. A half-float texture filters on every
+ * WebGL2 GPU, and 16 bits is plenty for a view of the heights, which only has
+ * to survive a few frames' worth of derivatives, not thousands of sim steps.
+ */
+export type Filtering = "native" | "copy" | "none";
+
+/**
+ * A texel format a target can be allocated in. `linear` says whether the
+ * browser claims it can also be sampled with LINEAR filtering, which is a
+ * separate extension for float textures and missing on some mobile GPUs. Only
+ * probeLinear() says whether it actually does.
+ *
+ * 16-bit is a real step down for the wave simulation itself: heights near 1
+ * only resolve to ~0.001, which is the size of one step's damping. It is a sim
+ * format only so a phone without renderable 32-bit float still gets moving
+ * water rather than none.
  */
 type FloatFormat = {
 	internal: number; format: number; type: number; linear: boolean;
 };
 
-function pickFloatFormat(gl: GL): FloatFormat | null {
+/** Renderable float formats, most precise first. */
+function floatFormats(gl: GL): FloatFormat[] {
 	const candidates: FloatFormat[] = [];
 	if (typeof WebGL2RenderingContext !== "undefined" && gl instanceof WebGL2RenderingContext) {
-		if (gl.getExtension("EXT_color_buffer_float")) {
+		const float = gl.getExtension("EXT_color_buffer_float");
+		if (float) {
 			candidates.push({
 				internal: gl.RGBA32F, format: gl.RGBA, type: gl.FLOAT,
 				linear: !!gl.getExtension("OES_texture_float_linear"),
 			});
 		}
-		if (gl.getExtension("EXT_color_buffer_half_float")) {
+		// EXT_color_buffer_float makes RGBA16F renderable too. Filtering it is
+		// core WebGL2, no extension needed.
+		if (float || gl.getExtension("EXT_color_buffer_half_float")) {
 			candidates.push({
 				internal: gl.RGBA16F, format: gl.RGBA, type: gl.HALF_FLOAT,
-				linear: !!gl.getExtension("OES_texture_half_float_linear"),
+				linear: true,
 			});
 		}
 	} else {
@@ -161,17 +182,67 @@ function pickFloatFormat(gl: GL): FloatFormat | null {
 	}
 	// Extensions advertise the format; only a completeness check proves the
 	// GPU will render to it.
-	for (const fmt of candidates) {
-		const probe = createTarget(gl, 4, 4, fmt);
-		if (!probe) continue;
+	return candidates.filter(fmt => {
+		const probe = createTarget(gl, 4, 4, fmt, false);
+		if (!probe) return false;
 		gl.deleteTexture(probe.tex);
 		gl.deleteFramebuffer(probe.fbo);
-		return fmt;
-	}
-	return null;
+		return true;
+	});
 }
 
-function createTarget(gl: GL, w: number, h: number, fmt: FloatFormat): Target | null {
+// Writes 0 to the left texel of a 2x1 target and 1 to the right one.
+const PROBE_FILL_FRAG = `
+	precision mediump float;
+	void main() {
+		gl_FragColor = vec4(step(1.0, gl_FragCoord.x));
+	}
+`;
+
+// Samples that target exactly between its two texels.
+const PROBE_SAMPLE_FRAG = `
+	precision mediump float;
+	uniform sampler2D u_tex;
+	void main() {
+		gl_FragColor = vec4(texture2D(u_tex, vec2(0.5)).r, 0.0, 0.0, 1.0);
+	}
+`;
+
+/**
+ * Whether `fmt` really filters: fill a 2x1 texture with 0 and 1, sample it
+ * halfway between with LINEAR set, and read the answer back off the canvas.
+ * Filtered, that is 0.5; unfiltered, the sampler snaps to one texel and it is
+ * 0 or 1. An advertised extension is not enough — see Filtering.
+ */
+function probeLinear(gl: GL, quad: WebGLBuffer, fmt: FloatFormat) {
+	if (!fmt.linear) return false;
+	const target = createTarget(gl, 2, 1, fmt, true);
+	if (!target) return false;
+	let fill: Program | null = null;
+	let sample: Program | null = null;
+	try {
+		fill = new Program(gl, QUAD_VERT, PROBE_FILL_FRAG);
+		sample = new Program(gl, QUAD_VERT, PROBE_SAMPLE_FRAG);
+		fill.use();
+		drawQuad(gl, fill, quad, target.fbo, 2, 1);
+		sample.use();
+		sample.setTexture("u_tex", target.tex, 0);
+		drawQuad(gl, sample, quad, null, 1, 1);
+		const pixel = new Uint8Array(4);
+		gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel);
+		return pixel[0] > 64 && pixel[0] < 192;
+	} catch {
+		return false;
+	} finally {
+		fill?.dispose();
+		sample?.dispose();
+		gl.bindTexture(gl.TEXTURE_2D, null);
+		gl.deleteTexture(target.tex);
+		gl.deleteFramebuffer(target.fbo);
+	}
+}
+
+function createTarget(gl: GL, w: number, h: number, fmt: FloatFormat, linear: boolean): Target | null {
 	const tex = gl.createTexture();
 	const fbo = gl.createFramebuffer();
 	if (!tex || !fbo) return null;
@@ -180,7 +251,7 @@ function createTarget(gl: GL, w: number, h: number, fmt: FloatFormat): Target | 
 	// walls: it samples past the edge and gets the edge texel back.
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-	const filter = fmt.linear ? gl.LINEAR : gl.NEAREST;
+	const filter = linear ? gl.LINEAR : gl.NEAREST;
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
 	gl.texImage2D(gl.TEXTURE_2D, 0, fmt.internal, w, h, 0, fmt.format, fmt.type, null);
@@ -203,6 +274,26 @@ function createTarget(gl: GL, w: number, h: number, fmt: FloatFormat): Target | 
 	return { tex, fbo };
 }
 
+function drawQuad(gl: GL, prog: Program, quad: WebGLBuffer, fbo: WebGLFramebuffer | null, w: number, h: number) {
+	gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+	gl.viewport(0, 0, w, h);
+	gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+	gl.enableVertexAttribArray(prog.aPosition);
+	gl.vertexAttribPointer(prog.aPosition, 2, gl.FLOAT, false, 0, 0);
+	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+// Copies a target texel for texel: each fragment of a same-size destination
+// lands on a source texel centre, so this is exact even unfiltered.
+const COPY_FRAG = `
+	precision highp float;
+	uniform sampler2D u_source;
+	varying vec2 vTexCoord;
+	void main() {
+		gl_FragColor = texture2D(u_source, vTexCoord);
+	}
+`;
+
 /**
  * A canvas context and one quad covering it. It owns nothing it hands out: the
  * programs and targets belong to the caller, which disposes of them before
@@ -211,8 +302,12 @@ function createTarget(gl: GL, w: number, h: number, fmt: FloatFormat): Target | 
 export class QuadRenderer {
 	private constructor(
 		private gl: GL,
-		private format: FloatFormat,
-		private quad: WebGLBuffer)
+		private quad: WebGLBuffer,
+		private simFormat: FloatFormat,
+		/** How the display pass gets a filtered view of the simulation. */
+		readonly filtering: Filtering,
+		// set only when filtering is "copy"
+		private view: { format: FloatFormat; copy: Program } | null = null)
 	{}
 
 	/**
@@ -225,9 +320,9 @@ export class QuadRenderer {
 			canvas.getContext("webgl", GL_OPTIONS)) as GL | null;
 		if (!gl) return null;
 
-		const format = pickFloatFormat(gl);
-		const quad = format && gl.createBuffer();
-		if (!format || !quad) {
+		const formats = floatFormats(gl);
+		const quad = formats.length ? gl.createBuffer() : null;
+		if (!quad) {
 			gl.getExtension("WEBGL_lose_context")?.loseContext();
 			return null;
 		}
@@ -237,12 +332,21 @@ export class QuadRenderer {
 			new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
 			gl.STATIC_DRAW
 		);
-		return new QuadRenderer(gl, format, quad);
-	}
 
-	/** Whether targets from createTarget can be sampled with LINEAR filtering. */
-	get linearFilter() {
-		return this.format.linear;
+		const simFormat = formats[0];
+		if (probeLinear(gl, quad, simFormat)) {
+			return new QuadRenderer(gl, quad, simFormat, "native");
+		}
+		const viewFormat = formats.slice(1).find(fmt => probeLinear(gl, quad, fmt));
+		if (viewFormat) {
+			try {
+				const copy = new Program(gl, QUAD_VERT, COPY_FRAG);
+				return new QuadRenderer(gl, quad, simFormat, "copy", { format: viewFormat, copy });
+			} catch {
+				// fall through to no filtered view at all
+			}
+		}
+		return new QuadRenderer(gl, quad, simFormat, "none");
 	}
 
 	/** Compile and link a fragment shader against the quad. Throws on failure. */
@@ -250,8 +354,29 @@ export class QuadRenderer {
 		return new Program(this.gl, QUAD_VERT, fragSrc);
 	}
 
+	/** A target for the simulation, filtered only when that is native. */
 	createTarget(w: number, h: number) {
-		return createTarget(this.gl, w, h, this.format);
+		return createTarget(this.gl, w, h, this.simFormat, this.filtering === "native");
+	}
+
+	/**
+	 * A filtered target to copy the simulation into, when filtering is "copy";
+	 * null otherwise.
+	 */
+	createViewTarget(w: number, h: number) {
+		return this.view && createTarget(this.gl, w, h, this.view.format, true);
+	}
+
+	/**
+	 * Copy `source` into a `dest` of the same size, w by h. Does nothing unless
+	 * filtering is "copy".
+	 */
+	copy(source: Target, dest: Target, w: number, h: number) {
+		if (!this.view) return;
+		const prog = this.view.copy;
+		prog.use();
+		prog.setTexture("u_source", source.tex, 0);
+		this.draw(prog, dest, w, h);
 	}
 
 	deleteTarget(target: Target | null) {
@@ -262,13 +387,7 @@ export class QuadRenderer {
 
 	/** Run `prog` over the whole of `target`, or of the canvas when it is null. */
 	draw(prog: Program, target: Target | null, w: number, h: number) {
-		const gl = this.gl;
-		gl.bindFramebuffer(gl.FRAMEBUFFER, target ? target.fbo : null);
-		gl.viewport(0, 0, w, h);
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.quad);
-		gl.enableVertexAttribArray(prog.aPosition);
-		gl.vertexAttribPointer(prog.aPosition, 2, gl.FLOAT, false, 0, 0);
-		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+		drawQuad(this.gl, prog, this.quad, target ? target.fbo : null, w, h);
 	}
 
 	/**
@@ -295,6 +414,7 @@ export class QuadRenderer {
 	}
 
 	dispose() {
+		this.view?.copy.dispose();
 		this.gl.deleteBuffer(this.quad);
 		// Give the context back now rather than when the GC gets to it; a
 		// browser only allows a handful at once.

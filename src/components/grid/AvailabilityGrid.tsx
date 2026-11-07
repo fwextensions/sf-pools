@@ -64,6 +64,8 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays 
 	// stops scrolling, which frees the grid to take touch drags
 	const [focusMode, setFocusMode] = useState(false);
 	const scrollBeforeFocusRef = useRef<number | null>(null);
+	const chipBarRef = useRef<HTMLDivElement>(null);
+	const panelRef = useRef<HTMLDivElement>(null);
 	// the closure notices above the grid follow the pool filter, so picking
 	// a pool in the phone panel shrank the page above the chip bar and
 	// yanked the bar and the list out from under the finger. They catch up
@@ -102,6 +104,21 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays 
 			scrollBeforeFocusRef.current = null;
 		}
 	}, [focusMode]);
+
+	// the chip bar sticks under the header, but the panel opens in the flow
+	// right after the bar's own spot, so with the page scrolled down past
+	// the grid it opened somewhere above the screen and the tap looked like
+	// it did nothing. Bring the panel's top up to the bar's bottom before
+	// it paints. Switching panels lands at the top of the new list, too.
+	useLayoutEffect(() => {
+		const bar = chipBarRef.current;
+		const panel = panelRef.current;
+		if (!openPanel || focusMode || !bar || !panel) return;
+		const hidden = bar.getBoundingClientRect().bottom - panel.getBoundingClientRect().top;
+		if (hidden > 1) {
+			window.scrollBy(0, -hidden);
+		}
+	}, [openPanel, focusMode]);
 
 	// focus mode only exists in the phone layout; turning a phone on its side
 	// switches to the sidebar layout, which would leave the page locked behind
@@ -195,10 +212,10 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays 
 				</div>
 			) : (
 				<div className="mx-auto max-w-[430px] min-[560px]:hidden">
-					<div className="sticky top-[var(--site-sticky-h)] z-10 border-b border-line bg-tint py-2.5 short:py-1.5">
+					<div ref={chipBarRef} className="sticky top-[var(--site-sticky-h)] z-10 border-b border-line bg-tint py-2.5 short:py-1.5">
 						{mobileChips}
 					</div>
-					<MobilePanel openPanel={openPanel}>{mobilePanelRows}</MobilePanel>
+					<MobilePanel ref={panelRef} openPanel={openPanel}>{mobilePanelRows}</MobilePanel>
 					<GridBody model={model} filters={filters} cellHeightClass="h-[15px]" touchDrag={false} />
 					<DetailPanel
 						model={model}

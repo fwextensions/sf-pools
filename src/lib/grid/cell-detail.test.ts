@@ -1,5 +1,5 @@
 import { describe, it, expect } from "@jest/globals";
-import { cellDetail, emptyCellMessage, explainEmptyCell } from "./cell-detail";
+import { cellDetail, emptyCellMessage, explainEmptyCell, sessionSpans } from "./cell-detail";
 import type { Session } from "@/lib/sessions";
 
 type S = { poolId: string; tags: string[] };
@@ -91,5 +91,28 @@ describe("cellDetail", () => {
 		const { rows, empty } = cellDetail(sessions, cell, { matchesTags: wantsLap, poolSet: new Set(["sava"]) });
 		expect(rows).toEqual([]);
 		expect(empty).toEqual({ kind: "pools", hidden: 3 });
+	});
+});
+
+describe("sessionSpans", () => {
+	it("places every row on one scale, widened to the whole hour", () => {
+		// 9:00-10:30 and 10:15-12:00 with 10a selected: the scale runs 9 to 12
+		const spans = sessionSpans(
+			[
+				{ startMin: 540, endMin: 630 },
+				{ startMin: 615, endMin: 720 },
+			],
+			10
+		);
+		const round = (n: number) => Math.round(n * 100) / 100;
+		expect(spans.map((s) => [s.left, s.width, s.markLeft, s.markWidth].map(round))).toEqual([
+			[0, 50, 33.33, 16.67],
+			[41.67, 58.33, 41.67, 25],
+		]);
+	});
+
+	it("keeps the whole hour on the scale when every session is shorter", () => {
+		const [span] = sessionSpans([{ startMin: 600, endMin: 630 }], 10);
+		expect(span).toEqual({ left: 0, width: 50, markLeft: 0, markWidth: 50 });
 	});
 });

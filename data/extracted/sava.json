@@ -4,13 +4,13 @@
 		"name": "Sava Pool",
 		"nameTitle": "Sava Pool",
 		"shortName": "Sava",
-		"address": "2695 19th Ave, San Francisco, CA 94132",
+		"address": "2695 19th Ave, San Francisco, CA 94116",
 		"sfRecParkUrl": "https://sfrecpark.org/Facilities/Facility/Details/Sava-Pool-220",
-		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/30037",
+		"pdfScheduleUrl": "https://sfrecpark.org/DocumentCenter/View/30374",
 		"scheduleLastUpdated": null,
 		"scheduleSeason": "Fall 2026",
-		"scheduleStartDate": "2026-08-29",
-		"scheduleEndDate": "2026-12-12",
+		"scheduleStartDate": "2026-11-03",
+		"scheduleEndDate": "2026-12-01",
 		"lanes": null,
 		"closure": null,
 		"scheduledClosures": [
@@ -47,20 +47,6 @@
 				"endDate": "2026-12-22",
 				"startTime": "9:00a",
 				"endTime": "11:00a",
-				"reason": "staff training"
-			},
-			{
-				"startDate": "2026-09-24",
-				"endDate": "2026-09-24",
-				"startTime": "12:00p",
-				"endTime": "2:00p",
-				"reason": "staff training"
-			},
-			{
-				"startDate": "2026-10-22",
-				"endDate": "2026-10-22",
-				"startTime": "12:00p",
-				"endTime": "2:00p",
 				"reason": "staff training"
 			},
 			{
@@ -184,7 +170,7 @@
 				"programName": "Lap Swim",
 				"dayOfWeek": "Wednesday",
 				"startTime": "2:30p",
-				"endTime": "3:30p",
+				"endTime": "5:30p",
 				"lanes": 4,
 				"notes": null,
 				"programNameOriginal": null,
@@ -196,31 +182,7 @@
 				"programName": "Family Swim",
 				"dayOfWeek": "Wednesday",
 				"startTime": "2:30p",
-				"endTime": "3:30p",
-				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
-			},
-			{
-				"programName": "Swim Lesson",
-				"dayOfWeek": "Wednesday",
-				"startTime": "4:00p",
 				"endTime": "5:30p",
-				"lanes": null,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
-			},
-			{
-				"programName": "Adult Swim Lessons",
-				"dayOfWeek": "Wednesday",
-				"startTime": "5:30p",
-				"endTime": "6:00p",
 				"lanes": null,
 				"notes": null,
 				"programNameOriginal": null,
@@ -337,10 +299,10 @@
 				"tags": null
 			},
 			{
-				"programName": "Preschool Swim Lessons",
+				"programName": "Lap Swim",
 				"dayOfWeek": "Friday",
-				"startTime": "11:30a",
-				"endTime": "12:00p",
+				"startTime": "12:00p",
+				"endTime": "3:00p",
 				"lanes": null,
 				"notes": null,
 				"programNameOriginal": null,
@@ -351,9 +313,9 @@
 			{
 				"programName": "Lap Swim",
 				"dayOfWeek": "Friday",
-				"startTime": "12:00p",
-				"endTime": "3:30p",
-				"lanes": null,
+				"startTime": "3:30p",
+				"endTime": "5:00p",
+				"lanes": 4,
 				"notes": null,
 				"programNameOriginal": null,
 				"programNameCanonical": null,
@@ -361,10 +323,10 @@
 				"tags": null
 			},
 			{
-				"programName": "Swim Lessons",
+				"programName": "Family Swim",
 				"dayOfWeek": "Friday",
-				"startTime": "4:00p",
-				"endTime": "5:30p",
+				"startTime": "3:30p",
+				"endTime": "5:00p",
 				"lanes": null,
 				"notes": null,
 				"programNameOriginal": null,
@@ -375,7 +337,7 @@
 			{
 				"programName": "Family Swim",
 				"dayOfWeek": "Friday",
-				"startTime": "6:00p",
+				"startTime": "5:30p",
 				"endTime": "7:30p",
 				"lanes": null,
 				"notes": null,
@@ -386,18 +348,6 @@
 			},
 			{
 				"programName": "Lap Swim",
-				"dayOfWeek": "Saturday",
-				"startTime": "9:00a",
-				"endTime": "11:00a",
-				"lanes": 4,
-				"notes": null,
-				"programNameOriginal": null,
-				"programNameCanonical": null,
-				"title": null,
-				"tags": null
-			},
-			{
-				"programName": "Learn To Swim",
 				"dayOfWeek": "Saturday",
 				"startTime": "9:00a",
 				"endTime": "11:00a",

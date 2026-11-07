@@ -12,7 +12,7 @@ jest.mock("./webgl", () => ({ QuadRenderer: { create: jest.fn() } }));
  * animation frames, so a test can play out any frame rate and count the passes
  * that actually reach the GPU.
  */
-function setup(opts: WaterOptions = {}) {
+function setup(opts: WaterOptions = {}, filtering = "native") {
 	let now = 0;
 	let nextId = 1;
 	let viewportWidth = 1440;
@@ -38,9 +38,11 @@ function setup(opts: WaterOptions = {}) {
 	const display = program();
 	const sim = program();
 	const renderer = {
-		linearFilter: true,
+		filtering,
 		program: jest.fn().mockReturnValueOnce(display).mockReturnValueOnce(sim),
 		createTarget: jest.fn(() => ({ tex: {}, fbo: {} })),
+		createViewTarget: jest.fn(() => filtering === "copy" ? { tex: { view: true }, fbo: {} } : null),
+		copy: jest.fn(),
 		deleteTarget: jest.fn(),
 		draw: jest.fn<(...args: unknown[]) => void>(),
 		// the darkest water is well above black; a test can make it read black
@@ -237,6 +239,41 @@ describe("failure", () => {
 		s.frame(1000);
 		expect(onBroken).toHaveBeenCalledTimes(1);
 		expect(s.canvas.style).toMatchObject({ opacity: "0" });
+		s.water.remove();
+	});
+});
+
+describe("filtered view of the sim", () => {
+	function lens(s: ReturnType<typeof setup>) {
+		return s.display.set1f.mock.calls.find(([name]) => name === "u_simLens")?.[1];
+	}
+	function waterTexture(s: ReturnType<typeof setup>) {
+		return s.display.setTexture.mock.calls.at(-1)?.[1];
+	}
+
+	it("samples the sim itself where it filters", () => {
+		const s = setup();
+		s.frame(0);
+		expect(s.renderer.copy).not.toHaveBeenCalled();
+		expect(waterTexture(s)).not.toEqual({ view: true });
+		expect(lens(s)).toBe(1);
+		s.water.remove();
+	});
+
+	it("samples a filtered copy, and keeps the lens, where it doesn't", () => {
+		const s = setup({}, "copy");
+		s.frame(0);
+		expect(s.renderer.copy).toHaveBeenCalledTimes(1);
+		expect(waterTexture(s)).toEqual({ view: true });
+		expect(lens(s)).toBe(1);
+		s.water.remove();
+	});
+
+	it("drops the simulated lens when nothing filters", () => {
+		const s = setup({}, "none");
+		s.frame(0);
+		expect(s.renderer.copy).not.toHaveBeenCalled();
+		expect(lens(s)).toBe(0);
 		s.water.remove();
 	});
 });
