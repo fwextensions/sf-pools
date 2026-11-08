@@ -11,7 +11,7 @@ import {
 	dueBucket,
 	hash01,
 } from "./wave-schedule";
-import { QuadRenderer, type Program, type Target } from "./webgl";
+import { QuadRenderer, type Filtering, type Program, type Target } from "./webgl";
 
 // Size the simulation by CSS pixels, not a fixed texel count, so ripples
 // have the same on-screen wavelength, dent size, and speed on every device.
@@ -265,6 +265,8 @@ export type Water = {
 	resize: () => void;
 	/** tear down the canvas, the GL context, and every listener */
 	remove: () => void;
+	/** how the display pass samples the simulation (see Filtering in webgl.ts) */
+	filtering: Filtering;
 };
 
 // ============================================================================
@@ -913,5 +915,5 @@ export function mountWater(
 	// One frame regardless of looping — see setLooping.
 	rafId = requestAnimationFrame(frame);
 
-	return { setLooping, resize, remove };
+	return { setLooping, resize, remove, filtering: renderer.filtering };
 }

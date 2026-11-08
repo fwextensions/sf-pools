@@ -179,6 +179,7 @@ export default function PoolAlerts({ alerts, pools, selectedPools, weekClosures 
 					<div
 						key={`pool-${i}`}
 						className="font-sans border-l-[3px] border-alert bg-alert-tint px-3 py-2.5"
+						data-pool={alert.poolName}
 					>
 						<div className="font-mono text-label font-semibold tracking-[.08em] text-alert">
 							ALERT

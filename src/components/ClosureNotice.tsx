@@ -18,7 +18,7 @@ export default function ClosureNotice({ closure, poolName }: Props) {
 	const period = formatClosurePeriod(closure);
 
 	return (
-		<div className="font-sans border-l-[3px] border-alert bg-alert-tint px-3 py-2.5">
+		<div className="font-sans border-l-[3px] border-alert bg-alert-tint px-3 py-2.5" data-pool={poolName}>
 			<div className="font-mono text-label font-semibold tracking-[.08em] text-alert">
 				<span aria-hidden className="status-dot ring-2 ring-alert ring-inset" />
 				CLOSED
