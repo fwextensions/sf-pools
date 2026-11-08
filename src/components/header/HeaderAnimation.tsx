@@ -6,6 +6,7 @@ import "./header-placeholder.css";
 import displayFragShader from "./header-shader.frag";
 import { daylight, PRESET_ALTITUDES, sunAltitudeDeg } from "./sun";
 import { mountWater, type Water } from "./water";
+import { setWaterMode } from "@/lib/analytics";
 import { onMediaChange } from "@/lib/media-query";
 
 // Shader constants that ?water=no-<name> switches off, for comparing each
@@ -78,7 +79,10 @@ export default function HeaderAnimation()
 			document.removeEventListener("visibilitychange", updateSun);
 		};
 
-		if (flags.includes("off")) return stopSun;
+		if (flags.includes("off")) {
+			setWaterMode({ mode: "off" });
+			return stopSun;
+		}
 		const zeroed = Object.entries(EFFECTS)
 			.filter(([flag]) => plain || flags.includes(`no-${flag}`))
 			.map(([, name]) => name);
@@ -112,10 +116,27 @@ export default function HeaderAnimation()
 		const applyLoopState = () => {
 			water?.setLooping(visible && !reducedMotion.matches);
 		};
+		// tells analytics what the header ended up showing, so vitals,
+		// bounces and crashes can be split by it
+		const reportMode = () => {
+			if (water) setWaterMode({ mode: "webgl", filtering: water.filtering, still: reducedMotion.matches });
+		};
+		const onMotionChange = () => {
+			applyLoopState();
+			reportMode();
+		};
+		let remounting = false;
 		const mount = () => {
 			remountId = 0;
 			mountedAt = performance.now();
 			water = mountWater(host, { ...waterOpts, onBroken: handleBroken });
+			if (water) {
+				reportMode();
+			} else {
+				// no WebGL or no usable float texture, or a GPU that wouldn't
+				// give back a context after taking one away
+				setWaterMode({ mode: "placeholder", reason: remounting ? "kept_breaking" : "unsupported" });
+			}
 			applyLoopState();
 		};
 
@@ -131,8 +152,10 @@ export default function HeaderAnimation()
 			water = null;
 			if (performance.now() - mountedAt < REMOUNT_GIVE_UP_MS) {
 				console.warn("Header water broke again right after mounting; leaving the placeholder.");
+				setWaterMode({ mode: "placeholder", reason: "kept_breaking" });
 				return;
 			}
+			remounting = true;
 			remountId = requestAnimationFrame(mount);
 		}
 
@@ -140,7 +163,7 @@ export default function HeaderAnimation()
 			visible = entries[entries.length - 1].isIntersecting;
 			applyLoopState();
 		});
-		const stopWatchingMotion = onMediaChange(reducedMotion, applyLoopState);
+		const stopWatchingMotion = onMediaChange(reducedMotion, onMotionChange);
 		observer.observe(host);
 		mount();
 

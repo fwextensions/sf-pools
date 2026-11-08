@@ -107,6 +107,7 @@ function PoolSection({ pool }: { pool: PoolChanges }) {
 								target="_blank"
 								rel="noreferrer"
 								aria-label={`${pool.name} schedule PDF`}
+								data-pool={pool.name}
 								className="link-inline whitespace-nowrap"
 							>
 								PDF<ExternalLinkIcon />

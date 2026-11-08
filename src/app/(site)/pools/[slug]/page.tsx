@@ -122,7 +122,7 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 	const single = page.pools.length === 1;
 
 	return (
-		<main>
+		<main data-pool={page.name}>
 			<script
 				type="application/ld+json"
 				dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData(page)).replace(/</g, "\\u003c") }}

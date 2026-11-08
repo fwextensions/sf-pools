@@ -45,9 +45,18 @@ export function initAnalytics(): boolean {
 			capture_unhandled_rejections: true,
 			capture_console_errors: false,
 		},
+		// Core Web Vitals (LCP, INP, CLS, FCP) as $web_vitals events, mainly
+		// to see what the WebGL header costs a phone. Named here rather than
+		// left to the dashboard toggle for the same reason as the exceptions
+		// above. Network timing only feeds session replay, which is off
+		capture_performance: {
+			web_vitals: true,
+			network_timing: false,
+		},
 	});
 	enabled = true;
 	applyInternalTag();
+	watchOutboundLinks();
 	return true;
 }
 
@@ -98,9 +107,9 @@ function applyInternalTag() {
 	}
 }
 
-function capture(event: string, properties?: Record<string, unknown>) {
+function capture(event: string, properties?: Record<string, unknown>, options?: { beacon?: boolean }) {
 	if (!enabled) return;
-	posthog.capture(event, properties);
+	posthog.capture(event, properties, options?.beacon ? { transport: "sendBeacon" } : undefined);
 }
 
 /**
@@ -168,4 +177,90 @@ export function trackSectionNav(from: string, to: string) {
  */
 export function trackCrashSuspected(properties: Record<string, unknown>) {
 	capture("page_crash_suspected", properties);
+}
+
+/**
+ * A tab that outlived its deploy is reloading itself (see lib/stale-deploy).
+ * Sent by beacon because the page is about to go. How often this happens is
+ * what Vercel's Skew Protection would save.
+ */
+export function trackStaleDeployReload(boundary: "page" | "root") {
+	capture("stale_deploy_reloaded", { boundary }, { beacon: true });
+}
+
+export type WaterMode =
+	| { mode: "webgl"; filtering: string; still: boolean }
+	| { mode: "placeholder"; reason: "unsupported" | "kept_breaking" }
+	| { mode: "off" };
+
+/**
+ * What the header is showing: the WebGL water, or the CSS placeholder and
+ * why. A super property rather than an event, so every later event on the
+ * page carries it and anything (bounces, vitals, crashes) can be split by it.
+ * `still` is a reduced-motion visitor's single frame; `filtering` is how the
+ * display pass samples the sim (see Filtering in header/webgl.ts).
+ */
+export function setWaterMode(water: WaterMode) {
+	if (!enabled) return;
+	posthog.register({
+		water_mode: water.mode,
+		water_filtering: water.mode === "webgl" ? water.filtering : null,
+		water_still: water.mode === "webgl" ? water.still : null,
+		water_fallback_reason: water.mode === "placeholder" ? water.reason : null,
+	});
+}
+
+export type OutboundLink = {
+	kind: "pdf" | "phone" | "email" | "map" | "rec_park" | "github" | "external";
+	url: string;
+	host: string;
+};
+
+/**
+ * Whether a clicked href leaves the site, and what for. Rec & Park serves its
+ * PDFs from /DocumentCenter/View/<id> without a .pdf extension, so those
+ * count as PDFs too. null for links within the site.
+ */
+export function outboundLinkFor(href: string, origin: string): OutboundLink | null {
+	let url: URL;
+	try {
+		url = new URL(href, origin);
+	} catch {
+		return null;
+	}
+	if (url.protocol === "tel:") return { kind: "phone", url: url.href, host: "" };
+	if (url.protocol === "mailto:") return { kind: "email", url: url.href, host: "" };
+	if (!/^https?:$/.test(url.protocol) || url.origin === origin) return null;
+
+	const host = url.hostname.replace(/^www\./, "");
+	const path = url.pathname.toLowerCase();
+	let kind: OutboundLink["kind"] = "external";
+	if (path.endsWith(".pdf") || path.includes("/documentcenter/")) kind = "pdf";
+	else if (host === "maps.apple.com" || (host.startsWith("google.") && path.startsWith("/maps")) || host === "maps.google.com") kind = "map";
+	else if (host === "sfrecpark.org" || host.endsWith(".sfrecpark.org")) kind = "rec_park";
+	else if (host === "github.com") kind = "github";
+	return { kind, url: url.href, host };
+}
+
+/**
+ * Clicks on links that leave the site: schedule PDFs, Rec & Park pages, maps,
+ * phone numbers. One listener on the document instead of a call at every
+ * link, so a link added later is counted without anyone remembering to.
+ * `pool` comes from the nearest data-pool attribute, `page` is where the
+ * click happened. Sent by beacon, since a same-tab link unloads the page.
+ */
+function watchOutboundLinks() {
+	document.addEventListener("click", (event) => {
+		const target = event.target;
+		if (!(target instanceof Element)) return;
+		const anchor = target.closest("a[href]");
+		if (!anchor) return;
+		const link = outboundLinkFor(anchor.getAttribute("href") ?? "", location.origin);
+		if (!link) return;
+		capture("outbound_link_clicked", {
+			...link,
+			pool: anchor.closest<HTMLElement>("[data-pool]")?.dataset.pool ?? null,
+			page: location.pathname,
+		}, { beacon: true });
+	}, { capture: true });
 }
