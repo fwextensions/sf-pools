@@ -525,15 +525,9 @@ input[type="radio"] {
 	color: var(--color-ink-2);
 }
 
-/* the weekend reads as one block: its headings are in full ink, with a 2px
-   rule run under both of them, filling the gap above the first row. The
-   rule hangs off Saturday's heading and spans Sunday's column too, plus the
-   3px column gap between them */
-.grid-day[data-day="Saturday"],
-.grid-day[data-day="Sunday"] {
-	color: var(--color-ink);
-}
-
+/* the weekend reads as one block: a 2px rule runs under both its headings,
+   filling the gap above the first row. The rule hangs off Saturday's heading
+   and spans Sunday's column too, plus the 3px column gap between them */
 .grid-day[data-day="Saturday"] {
 	position: relative;
 }
