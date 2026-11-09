@@ -29,10 +29,6 @@
 	/* the selected cell's row and column on the week grid. Neutral, so the
 	   gaps in a schedule don't show a colour that could pass for another pool */
 	--color-band: #e6ebee;
-	/* the empty cells of Saturday and Sunday on the week grid, so the weekend
-	   reads as one block. Bluer and lighter than the band, so a selected
-	   weekend row or column still stands out from the tint */
-	--color-weekend: #eef4f7;
 	/* the changes page's NEW and DROPPED tags */
 	--color-added-tint: #e3f1f7;
 	--color-added: #135e7a;
@@ -169,7 +165,6 @@
 		--color-alert-tint: #2e1a17;
 		--color-alert: #f08f78;
 		--color-band: #22363f;
-		--color-weekend: #16282f;
 		--color-added-tint: #12303c;
 		--color-added: #8fd0ea;
 		--color-removed-tint: #331a1a;
@@ -490,13 +485,6 @@ input[type="radio"] {
 	background: var(--color-tint);
 }
 
-/* the weekend's tint. The band and the selected cell below both outrank it,
-   so a selection over the weekend looks the same as anywhere else */
-.grid-cell[data-day="Saturday"],
-.grid-cell[data-day="Sunday"] {
-	background: var(--color-weekend);
-}
-
 [data-has-selection] .grid-cell {
 	--dim: var(--grid-fade);
 }
@@ -537,9 +525,27 @@ input[type="radio"] {
 	color: var(--color-ink-2);
 }
 
+/* the weekend reads as one block: its headings are in full ink, with a 2px
+   rule run under both of them, filling the gap above the first row. The
+   rule hangs off Saturday's heading and spans Sunday's column too, plus the
+   3px column gap between them */
 .grid-day[data-day="Saturday"],
 .grid-day[data-day="Sunday"] {
 	color: var(--color-ink);
+}
+
+.grid-day[data-day="Saturday"] {
+	position: relative;
+}
+
+.grid-day[data-day="Saturday"]::after {
+	content: "";
+	position: absolute;
+	top: 100%;
+	left: 0;
+	width: calc(200% + 3px);
+	height: 2px;
+	background: var(--color-line-strong);
 }
 
 .grid-hour {
