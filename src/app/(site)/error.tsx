@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { trackError } from "@/lib/analytics";
+import { trackError, trackStaleDeployReload } from "@/lib/analytics";
 import { reloadForNewDeploy } from "@/lib/stale-deploy";
 
 /**
@@ -28,7 +28,7 @@ export default function SiteError({
 		trackError(error, "page", error.digest);
 		// a tab left open across a deploy asks for chunks that are gone;
 		// a full reload fixes it, so do that rather than show this page
-		reloadForNewDeploy(error);
+		reloadForNewDeploy(error, () => trackStaleDeployReload("page"));
 	}, [error]);
 
 	return (
@@ -44,13 +44,13 @@ export default function SiteError({
 					onClick={reset}
 					className="control border-ink bg-ink font-mono text-small font-semibold tracking-[.08em] text-on-ink"
 				>
-					TRY AGAIN
+					<span className="inline-block [text-box:trim-both_cap_alphabetic]">TRY AGAIN</span>
 				</button>
 				<Link
 					href="/"
 					className="control font-mono text-small font-semibold tracking-[.08em] text-ink-2"
 				>
-					WEEK GRID
+					<span className="inline-block [text-box:trim-both_cap_alphabetic]">WEEK GRID</span>
 				</Link>
 			</div>
 		</div>

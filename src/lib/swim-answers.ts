@@ -378,7 +378,7 @@ type Window = {
 /**
  * `schedules` are the current ones, `upcoming` the ones posted to take over,
  * `holidays` the city's.
- * `siteUrl` makes links absolute ("https://sfpools.info"); left empty they
+ * `siteUrl` makes links absolute ("https://sfpools.org"); left empty they
  * start at the site's root.
  */
 export function createSwimAnswers(

@@ -5,7 +5,7 @@ import path from "node:path";
 import type { ChangelogEntry } from "../src/lib/site-data";
 
 const PUSHOVER_API_URL = "https://api.pushover.net/1/messages.json";
-const SITE_URL = "https://sf-pools.vercel.app";
+const SITE_URL = "https://sfpools.org";
 const GITHUB_REPO = "fwextensions/sf-pools";
 const GITHUB_CHANGELOG_PATH = "data/changelog";
 // Pushover counts the message in characters, not UTF-16 code units
@@ -174,8 +174,8 @@ export async function notifyScheduleUpdate(changelog?: ChangelogEntry | null): P
 
 	let title = "🏊 Pool Schedules Updated";
 	let message = "Schedules have been updated.";
-	let url = `${SITE_URL}/schedules`;
-	let urlTitle = "View Schedules";
+	let url = `${SITE_URL}/pools`;
+	let urlTitle = "View Pools";
 
 	if (entry) {
 		const emoji = severityEmoji(entry.changeSeverity);

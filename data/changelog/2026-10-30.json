@@ -1,0 +1,102 @@
+{
+	"date": "2026-10-30",
+	"timestamp": "2026-10-30T23:19:16.525Z",
+	"poolsChanged": 1,
+	"totalProgramsAdded": 2,
+	"totalProgramsRemoved": 5,
+	"totalProgramsModified": 4,
+	"totalChanges": 11,
+	"changeSeverity": "moderate",
+	"scheduleStartDate": "2026-08-16",
+	"scheduleEndDate": "2026-12-12",
+	"scheduleSeason": "FALL 2026",
+	"seasonChanged": false,
+	"quarantinedPools": [],
+	"pools": [
+		{
+			"poolName": "Sava Pool",
+			"pdfUrl": "https://sfrecpark.org/DocumentCenter/View/30374",
+			"effectiveDate": "2026-11-03",
+			"programsAdded": 2,
+			"programsRemoved": 5,
+			"programsModified": 4,
+			"changes": [
+				{
+					"type": "modified",
+					"program": "Lap Swim",
+					"day": "Wednesday",
+					"oldTime": "2:30p–3:30p",
+					"newTime": "2:30p–5:30p"
+				},
+				{
+					"type": "modified",
+					"program": "Family Swim",
+					"day": "Wednesday",
+					"oldTime": "2:30p–3:30p",
+					"newTime": "2:30p–5:30p"
+				},
+				{
+					"type": "modified",
+					"program": "Lap Swim",
+					"day": "Friday",
+					"oldTime": "12:00p–3:30p",
+					"newTime": "12:00p–3:00p"
+				},
+				{
+					"type": "added",
+					"program": "Lap Swim",
+					"day": "Friday",
+					"newTime": "3:30p–5:00p"
+				},
+				{
+					"type": "modified",
+					"program": "Family Swim",
+					"day": "Friday",
+					"oldTime": "6:00p–7:30p",
+					"newTime": "3:30p–5:00p"
+				},
+				{
+					"type": "added",
+					"program": "Family Swim",
+					"day": "Friday",
+					"newTime": "5:30p–7:30p"
+				},
+				{
+					"type": "removed",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Wednesday",
+					"oldTime": "4:00p–5:30p"
+				},
+				{
+					"type": "removed",
+					"program": "Adult Swim Lessons",
+					"day": "Wednesday",
+					"oldTime": "5:30p–6:00p"
+				},
+				{
+					"type": "removed",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Friday",
+					"oldTime": "11:30a–12:00p"
+				},
+				{
+					"type": "removed",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Friday",
+					"oldTime": "4:00p–5:30p"
+				},
+				{
+					"type": "removed",
+					"program": "Swim Lessons (General/Youth/Community)",
+					"day": "Saturday",
+					"oldTime": "9:00a–11:00a"
+				}
+			]
+		}
+	],
+	"warnings": [
+		"ignored closure: Sava: 2026-12-22–2026-12-22 (staff training) starts after the season ends (2026-12-12)",
+		"upcoming ignored closure: Sava: 2026-12-22–2026-12-22 (staff training) starts after the season ends (2026-12-01)",
+		"grounding: Balboa: Tuesday 2:30p-3:30p \"Family/Lap Swim\": the PDF says \"Family/Lap Swim (small/main) (Lap swim until 4pm) 2:30pm-3:30pm\", so this program runs to a different time than the rest of the cell"
+	]
+}

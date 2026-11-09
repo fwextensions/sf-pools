@@ -34,9 +34,8 @@ Program category ids, for the program and categories filters: ${categories.map((
 ## Pages
 
 - [Week grid](${SITE_URL}/): which pools have a program at each hour of the week, filterable by program and pool, e.g. ${SITE_URL}/?program=lap&pools=balboa
-- [Now & soon](${SITE_URL}/now): what's open right now and what starts in the next two hours
-- [Full schedules](${SITE_URL}/schedules): every program at every pool
-- [Pools](${md("/pools")}): every pool, with its address and a link to its page
+- [Now & soon](${SITE_URL}/now): what's open right now, what opens later today, and each pool's next opening after today
+- [Pools](${md("/pools")}): every pool, each with a page of its address, official links and full weekly schedule
 
 ## Pools
 

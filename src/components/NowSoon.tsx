@@ -1,30 +1,34 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { PoolSchedule } from "@/lib/schedule-schema";
 import type { CityHoliday } from "@/lib/city-holidays";
 import type { Day } from "@/lib/sessions";
-import { createPoolCalendar } from "@/lib/pool-calendar";
+import { createPoolCalendar, weekdayOf } from "@/lib/pool-calendar";
 import { pacificToday } from "@/lib/closures";
 import { toTitleCase } from "@/lib/program-taxonomy";
-import { poolPageHref } from "@/lib/pool-pages";
+import { poolSessionHref } from "@/lib/pool-pages";
 import { getPoolToken } from "@/lib/pool-tokens";
 import {
 	formatDuration,
 	joinNames,
 	nowSoon,
-	type ClosedStanding,
+	nowSoonSpans,
+	type LaterStanding,
 	type Mode,
 	type NowSoonOptions,
 	type OpenStanding,
 	type ProgramChoice,
-	type When,
+	type Stretch,
 } from "@/lib/now-soon";
 import { initialNowSoonOptions, writeNowSoonUrl } from "@/lib/now-soon-url";
+import type { SessionSpan } from "@/lib/session-span";
 import PoolChip from "./PoolChip";
+import SessionBar from "./SessionBar";
 import ProgramName from "@/components/ProgramName";
-import { Chevron, ExternalLinkIcon } from "@/components/icons";
+import { Chevron } from "@/components/icons";
 
 type Props = {
 	all: PoolSchedule[];
@@ -32,18 +36,21 @@ type Props = {
 	upcoming?: PoolSchedule[];
 	/** the city's, which close every pool */
 	holidays?: CityHoliday[];
+	/** a fixed San Francisco date and time, "2026-11-26T10:00", in place of
+	    the live clock; the preview page passes it */
+	at?: string | null;
 };
 
 /**
  * Status is deliberately a separate channel from pool identity: the chip
  * always carries the pool's token color, so status reads from a glyph and a
  * word in ink rather than from a color. A filled dot is open, a ring is soon,
- * and a faint ring is not open. The group heading carries it, once.
+ * and a faint ring is later. The group heading carries it, once.
  */
 const GLYPHS = {
 	open: "bg-ink",
 	soon: "ring-2 ring-ink ring-inset",
-	closed: "ring-2 ring-ink-2 ring-inset opacity-60",
+	later: "ring-2 ring-ink-2 ring-inset opacity-60",
 };
 
 const PROGRAM_OPTIONS: Array<[ProgramChoice | "", string]> = [
@@ -53,15 +60,26 @@ const PROGRAM_OPTIONS: Array<[ProgramChoice | "", string]> = [
 	["senior", "Senior swim"],
 ];
 
-const WHEN_OPTIONS: Array<[When, string]> = [
-	["next", "Next 2 hours"],
-	["today", "Rest of today"],
-	["tomorrow-am", "Tomorrow morning"],
-	["tomorrow-pm", "Tomorrow afternoon"],
-	["tomorrow-eve", "Tomorrow evening"],
-];
+type Now = { day: Day; date: string; minutes: number; display: string };
 
-function getNowInPT(): { day: Day; date: string; minutes: number; display: string } {
+// written the way the schedules write times, "1:23p"
+function displayTime(minutes: number): string {
+	const h = Math.floor(minutes / 60);
+	const min = minutes % 60;
+	return `${h % 12 || 12}:${String(min).padStart(2, "0")}${h >= 12 ? "p" : "a"}`;
+}
+
+/** "2026-11-26T10:00" read as San Francisco time, or null when it isn't one */
+export function pacificMoment(at: string): Now | null {
+	const match = /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})$/.exec(at);
+	if (!match) return null;
+	const [, date, hh, mm] = match;
+	const minutes = Number(hh) * 60 + Number(mm);
+	if (Number(hh) > 23 || Number(mm) > 59 || Number.isNaN(Date.parse(date))) return null;
+	return { day: weekdayOf(date), date, minutes, display: displayTime(minutes) };
+}
+
+function getNowInPT(): Now {
 	const fmt = new Intl.DateTimeFormat("en-US", {
 		timeZone: "America/Los_Angeles",
 		hour: "numeric",
@@ -81,24 +99,11 @@ function getNowInPT(): { day: Day; date: string; minutes: number; display: strin
 	let minutes = h * 60 + min;
 	if (dayPeriod.startsWith("p")) minutes += 12 * 60;
 
-	// written the way the schedules write times, "1:23p"
-	const display = `${h % 12 || 12}:${String(min).padStart(2, "0")}${dayPeriod.startsWith("p") ? "p" : "a"}`;
-
-	return { day: weekday, date: pacificToday(), minutes, display };
+	return { day: weekday, date: pacificToday(), minutes, display: displayTime(minutes) };
 }
 
 function poolLabel(pool: PoolSchedule): string {
 	return pool.shortName || pool.nameTitle || toTitleCase(pool.name);
-}
-
-/** utility link, rendered only when the pool actually has the URL */
-function SourceLink({ href, children }: { href?: string | null; children: React.ReactNode }) {
-	if (!href) return null;
-	return (
-		<a href={href} target="_blank" rel="noreferrer" className="link-utility">
-			{children}
-		</a>
-	);
 }
 
 /** the program names, with the full list on hover when it is shortened */
@@ -111,18 +116,44 @@ function Names({ names }: { names: string[] }) {
 	);
 }
 
-/** chip and pool name, the name linking to the pool's page */
+/** chip and pool name, the name underlining while the row it heads is hovered */
 function PoolName({ pool, weight }: { pool: PoolSchedule; weight: "font-semibold" | "font-normal" }) {
 	return (
 		<>
 			<PoolChip token={getPoolToken(pool.id)} className="self-center" />
-			<a
-				href={poolPageHref(pool.id)}
-				className={`text-body ${weight} text-ink decoration-1 underline-offset-[3px] hover:underline`}
-			>
+			<span className={`text-body ${weight} text-ink decoration-1 underline-offset-[3px] group-hover:underline`}>
 				{poolLabel(pool)}
-			</a>
+			</span>
 		</>
+	);
+}
+
+/**
+ * A row that links as a whole to the pool's page with its sessions picked
+ * out, like the grid's list of a cell's sessions
+ */
+function RowLink({
+	pool,
+	stretch,
+	span = null,
+	children,
+}: {
+	pool: PoolSchedule;
+	stretch: Stretch | null;
+	/** where the row's times sit against the other rows', as the grid's list shows */
+	span?: SessionSpan | null;
+	children: React.ReactNode;
+}) {
+	return (
+		<li className="border-b border-line">
+			<Link
+				href={poolSessionHref(pool.id, stretch?.running ?? [])}
+				className="group relative grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 py-3"
+			>
+				{children}
+				{span ? <SessionBar span={span} className="text-label" /> : null}
+			</Link>
+		</li>
 	);
 }
 
@@ -130,10 +161,12 @@ function OpenRow({
 	standing,
 	kind,
 	now,
+	bar,
 }: {
 	standing: OpenStanding;
-	kind: "open" | "soon" | "planned";
+	kind: "open" | "soon";
 	now: number;
+	bar: SessionSpan;
 }) {
 	const { pool, stretch } = standing;
 	// a session you can't walk in on reads in the secondary ink, tagged; never
@@ -147,13 +180,11 @@ function OpenRow({
 	const headline =
 		kind === "open"
 			? `Ends in ${formatDuration(stretch.namesEnd - now)}`
-			: kind === "soon"
-				? `Starts in ${formatDuration(stretch.start - now)}`
-				: span;
-	const detail = kind === "open" ? `until ${stretch.namesEndTime}` : kind === "soon" ? span : null;
+			: `Starts in ${formatDuration(stretch.start - now)}`;
+	const detail = kind === "open" ? `until ${stretch.namesEndTime}` : span;
 
 	return (
-		<li className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 border-b border-line py-3">
+		<RowLink pool={pool} stretch={stretch} span={bar}>
 			<div className="min-w-0">
 				<div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
 					<PoolName pool={pool} weight="font-semibold" />
@@ -167,41 +198,48 @@ function OpenRow({
 						then <Names names={stretch.then.names} /> at {stretch.then.at}
 					</p>
 				) : null}
-				{pool.pdfScheduleUrl || pool.sfRecParkUrl ? (
-					<div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1">
-						<SourceLink href={pool.pdfScheduleUrl}>PDF<ExternalLinkIcon /></SourceLink>
-						<SourceLink href={pool.sfRecParkUrl}>Pool<ExternalLinkIcon /></SourceLink>
-					</div>
-				) : null}
 			</div>
 			<div className="text-right">
 				<div className={`whitespace-nowrap text-body font-semibold ${tone}`}>{headline}</div>
-				{detail ? <div className="whitespace-nowrap font-mono text-label font-medium text-ink-2">{detail}</div> : null}
+				<div className="whitespace-nowrap font-mono text-label font-medium text-ink-2">{detail}</div>
 			</div>
-		</li>
+		</RowLink>
 	);
 }
 
-function ClosedRow({ standing }: { standing: ClosedStanding }) {
-	const { pool, next, note, closedFor } = standing;
+function LaterRow({ standing }: { standing: LaterStanding }) {
+	const { pool, day, stretch, note, closedFor } = standing;
+	const tone = stretch?.restricted ? "text-ink-2" : "text-ink";
 	return (
-		<li className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line py-2.5">
-			<div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
-				<PoolName pool={pool} weight="font-normal" />
-				{closedFor ? <span className="text-small font-medium text-alert">{closedFor}</span> : null}
+		<RowLink pool={pool} stretch={stretch}>
+			<div className="min-w-0">
+				<div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+					<PoolName pool={pool} weight="font-semibold" />
+					{stretch ? (
+						<span className="text-body text-ink-2">
+							<Names names={stretch.names} />
+						</span>
+					) : null}
+					{stretch?.restricted ? <span className="tag self-center">{stretch.restricted}</span> : null}
+				</div>
+				{closedFor ? <p className="mt-1 text-small font-medium text-alert">{closedFor}</p> : null}
+				{stretch?.then ? (
+					<p className="mt-1 text-small text-ink-2">
+						then <Names names={stretch.then.names} /> at {stretch.then.at}
+					</p>
+				) : null}
 			</div>
-			{next ? (
-				<div className="text-small text-ink-2">
-					Next:{" "}
-					<span className="font-mono text-ink">
-						{next.day} {next.time}
-					</span>{" "}
-					<Names names={next.names} />
+			{stretch ? (
+				<div className="text-right">
+					<div className={`whitespace-nowrap text-body font-semibold ${tone}`}>{day}</div>
+					<div className="whitespace-nowrap font-mono text-label font-medium text-ink-2">
+						{stretch.startTime}–{stretch.namesEndTime}
+					</div>
 				</div>
 			) : (
-				<div className="text-small text-ink-2">{note}</div>
+				<div className="text-right text-small text-ink-2">{note}</div>
 			)}
-		</li>
+		</RowLink>
 	);
 }
 
@@ -232,7 +270,14 @@ function Section({
 			{count === 0 ? (
 				<p className="mt-2.5 text-body text-ink-2">{empty}</p>
 			) : (
-				<ul className="mt-1 grid gap-x-10 min-[900px]:grid-cols-2">{children}</ul>
+				// two columns read down the first and then the second, so the
+				// order the rows are sorted in runs down the page
+				<ul
+					className="mt-1 grid gap-x-10 min-[900px]:grid-flow-col min-[900px]:grid-cols-2 min-[900px]:grid-rows-[repeat(var(--rows),auto)]"
+					style={{ "--rows": Math.ceil(count / 2) } as CSSProperties}
+				>
+					{children}
+				</ul>
 			)}
 		</section>
 	);
@@ -244,7 +289,7 @@ function ModeSwitch({ mode, onChange }: { mode: Mode; onChange: (mode: Mode) => 
 		["all", "Everything"],
 	];
 	return (
-		<div role="group" aria-label="Which sessions" className="col-span-2 flex">
+		<div role="group" aria-label="Which sessions" className="flex">
 			{options.map(([value, label], i) => (
 				<button
 					key={value}
@@ -298,16 +343,19 @@ function Select<T extends string>({
 	);
 }
 
-export default function NowSoon({ all, upcoming = [], holidays = [] }: Props) {
+export default function NowSoon({ all, upcoming = [], holidays = [], at = null }: Props) {
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 	const [options, setOptions] = useState<NowSoonOptions>(() => initialNowSoonOptions(searchParams));
-	const [now, setNow] = useState(() => getNowInPT());
+	const [liveNow, setLiveNow] = useState(() => getNowInPT());
+	const fixedNow = useMemo(() => (at ? pacificMoment(at) : null), [at]);
+	const now = fixedNow ?? liveNow;
 
 	useEffect(() => {
-		const id = setInterval(() => setNow(getNowInPT()), 60_000);
+		if (fixedNow) return;
+		const id = setInterval(() => setLiveNow(getNowInPT()), 60_000);
 		return () => clearInterval(id);
-	}, []);
+	}, [fixedNow]);
 
 	const update = (change: Partial<NowSoonOptions>) => {
 		const next = { ...options, ...change };
@@ -317,7 +365,7 @@ export default function NowSoon({ all, upcoming = [], holidays = [] }: Props) {
 
 	const calendar = useMemo(() => createPoolCalendar(all, upcoming, holidays), [all, upcoming, holidays]);
 	const view = useMemo(() => nowSoon(all, calendar, now, options), [all, calendar, now, options]);
-	const quiet = `No ${view.noun} ${view.span}`;
+	const spans = useMemo(() => nowSoonSpans(view.open, view.soon, now.minutes), [view, now.minutes]);
 
 	return (
 		<div className="font-sans text-ink">
@@ -333,43 +381,27 @@ export default function NowSoon({ all, upcoming = [], holidays = [] }: Props) {
 						options={PROGRAM_OPTIONS}
 						onChange={(program) => update({ program: program || null })}
 					/>
-					<Select label="When" value={options.when} options={WHEN_OPTIONS} onChange={(when) => update({ when })} />
 				</div>
 			</div>
 
-			{view.planned ? (
-				<Section label={`Open ${view.span}`} glyph={GLYPHS.open} count={view.open.length} empty={`No pools have ${view.noun} ${view.span}.`}>
-					{view.open.map((s) => (
-						<OpenRow key={s.pool.id} standing={s} kind="planned" now={now.minutes} />
-					))}
-				</Section>
-			) : (
-				<>
-					<Section label="Open now" glyph={GLYPHS.open} count={view.open.length} empty={`No pools have ${view.noun} running right now.`}>
-						{view.open.map((s) => (
-							<OpenRow key={s.pool.id} standing={s} kind="open" now={now.minutes} />
-						))}
-					</Section>
-					<Section
-						label={`Starting ${view.span}`}
-						glyph={GLYPHS.soon}
-						count={view.soon.length}
-						empty={`Nothing else starts ${view.span}.`}
-					>
-						{view.soon.map((s) => (
-							<OpenRow key={s.pool.id} standing={s} kind="soon" now={now.minutes} />
-						))}
-					</Section>
-				</>
-			)}
-
-			{view.closed.length ? (
-				<Section label={quiet} glyph={GLYPHS.closed} count={view.closed.length} empty="">
-					{view.closed.map((s) => (
-						<ClosedRow key={s.pool.id} standing={s} />
+			<Section label="Now" glyph={GLYPHS.open} count={view.open.length} empty={`No pools have ${view.noun} running right now.`}>
+				{view.open.map((s, i) => (
+					<OpenRow key={s.pool.id} standing={s} kind="open" now={now.minutes} bar={spans.open[i]} />
+				))}
+			</Section>
+			{/* nothing more today needs no section of its own; Later has the rest */}
+			{view.soon.length ? (
+				<Section label="Soon" glyph={GLYPHS.soon} count={view.soon.length} empty="">
+					{view.soon.map((s, i) => (
+						<OpenRow key={s.pool.id} standing={s} kind="soon" now={now.minutes} bar={spans.soon[i]} />
 					))}
 				</Section>
 			) : null}
+			<Section label="Later" glyph={GLYPHS.later} count={view.later.length} empty="">
+				{view.later.map((s) => (
+					<LaterRow key={s.pool.id} standing={s} />
+				))}
+			</Section>
 		</div>
 	);
 }

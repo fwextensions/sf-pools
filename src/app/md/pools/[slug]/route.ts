@@ -2,8 +2,8 @@
 // markdown, prerendered like the page itself
 import { pacificToday } from "@/lib/closures";
 import { markdownHeaders, poolPageMarkdown } from "@/lib/page-markdown";
-import { buildPoolPages, poolPageSlugs } from "@/lib/pool-pages";
-import { loadAlerts, loadPools, loadSchedules } from "@/lib/site-data";
+import { buildPoolPages, poolPageSlugs, schedulesInForce } from "@/lib/pool-pages";
+import { loadAlerts, loadPools, loadSchedules, loadUpcomingSchedules } from "@/lib/site-data";
 import { SITE_URL } from "@/lib/site-url";
 
 type Params = { slug: string };
@@ -17,10 +17,23 @@ export function generateStaticParams(): Params[] {
 
 export async function GET(_request: Request, { params }: { params: Promise<Params> }): Promise<Response> {
 	const { slug } = await params;
-	const [records, schedules, alerts] = await Promise.all([loadPools(), loadSchedules(), loadAlerts()]);
-	const page = buildPoolPages(records, schedules).find((p) => p.slug === slug);
+	const [records, schedules, upcoming, alerts] = await Promise.all([
+		loadPools(),
+		loadSchedules(),
+		loadUpcomingSchedules(),
+		loadAlerts(),
+	]);
+	const today = pacificToday();
+	// the schedule in force today, as on the page
+	const pages = buildPoolPages(records, schedulesInForce(schedules, upcoming, today));
+	const page = pages.find((p) => p.slug === slug);
 	if (!page) return new Response("Not found\n", { status: 404 });
 
-	const text = poolPageMarkdown(page, { siteUrl: SITE_URL, alerts: alerts?.poolAlerts ?? [], today: pacificToday() });
+	const text = poolPageMarkdown(page, {
+		siteUrl: SITE_URL,
+		alerts: alerts?.poolAlerts ?? [],
+		today,
+		others: pages.filter((p) => p !== page),
+	});
 	return new Response(text, { headers: markdownHeaders(`${SITE_URL}/pools/${slug}`) });
 }

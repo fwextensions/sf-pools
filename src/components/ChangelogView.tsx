@@ -87,7 +87,15 @@ function PoolSection({ pool }: { pool: PoolChanges }) {
 		>
 			<div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 border-b border-line pb-2.5">
 				{pool.token && <PoolChip token={pool.token} />}
-				<h3 className="flex-1 whitespace-nowrap text-body font-semibold">{pool.name}</h3>
+				<h3 className="flex-1 whitespace-nowrap text-body font-semibold">
+					{pool.name}
+					{/* a newly posted schedule's changes, listed before they start */}
+					{pool.effectiveDate && (
+						<span className="ml-2.5 font-mono text-label font-medium tracking-[.08em] text-alert">
+							FROM {formatShortDate(pool.effectiveDate).toUpperCase()}
+						</span>
+					)}
+				</h3>
 				{/* the counts and the link wrap together, so the link stays at the right */}
 				<span className="ml-auto font-mono text-label tracking-[.08em] text-ink-2">
 					{poolCounts(pool)}
@@ -99,6 +107,7 @@ function PoolSection({ pool }: { pool: PoolChanges }) {
 								target="_blank"
 								rel="noreferrer"
 								aria-label={`${pool.name} schedule PDF`}
+								data-pool={pool.name}
 								className="link-inline whitespace-nowrap"
 							>
 								PDF<ExternalLinkIcon />
@@ -128,7 +137,9 @@ function PoolSection({ pool }: { pool: PoolChanges }) {
 				// no "show fewer", since the rows above it would jump out from under it
 				<details className="[&[open]>summary]:hidden">
 					<summary className="control mt-2.5 list-none font-mono text-label font-semibold tracking-[.08em] hover:border-ink [&::-webkit-details-marker]:hidden">
-						SHOW ALL {pool.rows.length} CHANGES
+						{/* trimmed to the caps, so the label centers in the box rather
+						    than riding above the room left for descenders */}
+						<span className="inline-block [text-box:trim-both_cap_alphabetic]">SHOW ALL {pool.rows.length} CHANGES</span>
 					</summary>
 					<ul>
 						{hidden.map((row, i) => (
@@ -232,7 +243,7 @@ export default function ChangelogView({
 						</section>
 
 						{detail.pools.map((pool) => (
-							<PoolSection key={pool.name} pool={pool} />
+							<PoolSection key={`${pool.name}|${pool.effectiveDate ?? ""}`} pool={pool} />
 						))}
 
 						<div className="font-mono flex flex-wrap items-baseline justify-between gap-3 text-label tracking-[.08em]">

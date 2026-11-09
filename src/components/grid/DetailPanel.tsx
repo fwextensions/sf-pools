@@ -1,12 +1,15 @@
 "use client";
 
+import Link from "next/link";
 import { memo, useCallback, useMemo, useSyncExternalStore } from "react";
 import ProgramName from "@/components/ProgramName";
 import PoolChip from "@/components/PoolChip";
+import SessionBar from "@/components/SessionBar";
 import { tagLabel } from "@/lib/program-taxonomy";
-import { cellDetail, emptyCellMessage } from "@/lib/grid/cell-detail";
+import { cellDetail, emptyCellMessage, sessionSpans } from "@/lib/grid/cell-detail";
 import type { FilterView, GridModel } from "@/lib/grid/grid-model";
 import { formatHour } from "@/lib/grid/sessions";
+import { poolSessionHref } from "@/lib/pool-pages";
 import HeightRatchet from "./HeightRatchet";
 
 // a session you cannot simply show up for says so on the card; drop-in is the
@@ -53,6 +56,10 @@ const DetailPanel = memo(function DetailPanel({
 		[selectedCell, model, filter]
 	);
 	const detail = cellView?.rows ?? null;
+	const spans = useMemo(
+		() => (detail && selectedCell ? sessionSpans(detail, selectedCell.hour) : []),
+		[detail, selectedCell]
+	);
 	const emptyReason = cellView?.empty ?? null;
 	const emptyAction =
 		emptyReason?.kind === "programs"
@@ -82,10 +89,15 @@ const DetailPanel = memo(function DetailPanel({
 			<HeightRatchet enabled={ratchet} resetKey={filterKey} hold={holdFloor}>
 			{detail?.map((d, i) => {
 				const access = accessNote(d.tags);
+				const span = spans[i];
 				return (
-					<div
+					// the whole row links to the pool's page, like the rows of the
+					// pools list, with the program name underlining on hover. The
+					// page picks this session out of the week
+					<Link
 						key={i}
-						className="flex items-baseline gap-2.5 border-b border-line py-2 text-body"
+						href={poolSessionHref(d.pool.id, { dayOfWeek: d.day, startTime: d.startTime, title: d.title })}
+						className="group relative flex items-baseline gap-2.5 border-b border-line py-2 text-body"
 					>
 						<PoolChip token={d.pool} />
 						{/* a wrapping flex row rather than inline text, so the lanes
@@ -93,7 +105,7 @@ const DetailPanel = memo(function DetailPanel({
 						    line instead of keeping the gap that separates them from
 						    the name */}
 						<span className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-3 gap-y-1 font-medium text-ink">
-							<span><ProgramName name={d.title} /></span>
+							<span className="underline-offset-[3px] group-hover:underline"><ProgramName name={d.title} /></span>
 							{d.badges.length ? (
 								<span className="meta whitespace-nowrap">{d.badges.join(" · ")}</span>
 							) : null}
@@ -104,7 +116,8 @@ const DetailPanel = memo(function DetailPanel({
 						<span className="font-mono text-small font-medium text-ink-2">
 							{d.startTime}–{d.endTime}
 						</span>
-					</div>
+						{span ? <SessionBar span={span} /> : null}
+					</Link>
 				);
 			})}
 			{emptyReason ? (
@@ -118,7 +131,7 @@ const DetailPanel = memo(function DetailPanel({
 							onClick={() => model.clearFilters(emptyAction.what, "empty_cell")}
 							className="control font-mono text-label font-semibold tracking-[.08em] text-ink-2 hover:border-ink"
 						>
-							{emptyAction.label}
+							<span className="inline-block [text-box:trim-both_cap_alphabetic]">{emptyAction.label}</span>
 						</button>
 					</div>
 				) : (

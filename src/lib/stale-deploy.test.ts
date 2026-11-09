@@ -44,6 +44,14 @@ describe("reloadForNewDeploy", () => {
 		expect(reload).toHaveBeenCalledTimes(1);
 	});
 
+	it("reports the reload before starting it, and only then", () => {
+		const onReload = jest.fn(() => expect(reload).not.toHaveBeenCalled());
+		reloadForNewDeploy(chunkError(), onReload);
+		reloadForNewDeploy(chunkError(), onReload);
+		reloadForNewDeploy(new Error("boom"), onReload);
+		expect(onReload).toHaveBeenCalledTimes(1);
+	});
+
 	it("doesn't reload again straight after, so a missing chunk can't loop", () => {
 		reloadForNewDeploy(chunkError());
 		expect(reloadForNewDeploy(chunkError())).toBe(false);

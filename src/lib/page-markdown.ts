@@ -8,6 +8,7 @@
 // nothing here may say "today" or "this week": dates are absolute, and only
 // closures that have already ended are dropped, as on the page.
 
+import { passPrices, type AdmissionFeesData } from "./admission-fees";
 import type { PoolPage } from "./pool-pages";
 import type { PoolAlert } from "./site-data";
 import type { PoolSchedule, ProgramEntry } from "./schedule-schema";
@@ -111,10 +112,12 @@ export type PoolMarkdownOptions = {
 	alerts: PoolAlert[];
 	/** YYYY-MM-DD in Pacific time; closures that ended before it are left out */
 	today: string;
+	/** the other pool pages, listed at the end */
+	others?: PoolPage[];
 };
 
 /** /pools/<slug>.md: what the pool's page shows */
-export function poolPageMarkdown(page: PoolPage, { siteUrl, alerts, today }: PoolMarkdownOptions): string {
+export function poolPageMarkdown(page: PoolPage, { siteUrl, alerts, today, others = [] }: PoolMarkdownOptions): string {
 	const site = siteUrl.replace(/\/$/, "");
 	const poolIds = page.pools.map(({ schedule }) => schedule.id);
 	const grid = formatGridQuery({ tags: [], pools: poolIds, cell: null });
@@ -129,6 +132,7 @@ export function poolPageMarkdown(page: PoolPage, { siteUrl, alerts, today }: Poo
 		"",
 		`- Address: [${escapeMarkdown(page.address)}, San Francisco](https://www.google.com/maps/search/?api=1&query=${mapsQuery})`,
 	];
+	if (page.phone) out.push(`- Phone: ${page.phone}`);
 	for (const { schedule, token } of page.pools) {
 		if (!schedule.pdfScheduleUrl) continue;
 		out.push(`- ${single ? "Schedule PDF" : `${token?.name ?? schedule.shortName} schedule PDF`}: ${schedule.pdfScheduleUrl}`);
@@ -149,12 +153,49 @@ export function poolPageMarkdown(page: PoolPage, { siteUrl, alerts, today }: Poo
 
 	for (const entry of page.pools) out.push(...scheduleSection(page, entry, today));
 
-	out.push("## Other pools", "", `- [All pools](${site}${markdownPath("/pools")})`, "");
+	out.push("## Other pools", "");
+	out.push(...others.map((p) => poolLink(p, site)));
+	out.push(`- [All pools](${site}${markdownPath("/pools")})`, "");
 	return out.join("\n").replace(/\n+$/, "\n");
 }
 
-/** /pools.md: the pool list */
-export function poolsIndexMarkdown(pages: PoolPage[], siteUrl: string): string {
+function poolLink(page: PoolPage, site: string): string {
+	const sessions = page.pools.reduce((n, { schedule }) => n + schedule.programs.length, 0);
+	return `- [${escapeMarkdown(page.facilityName)}](${site}${markdownPath(`/pools/${page.slug}`)}): ` +
+		`${escapeMarkdown(page.address)}, ${sessions} session${sessions === 1 ? "" : "s"} a week`;
+}
+
+const dollars = (price: number) => `$${price.toLocaleString("en-US")}`;
+
+// "Children 0-17", or "Medi-Cal" for a group named by who qualifies, as the page puts it
+function groupLabel({ name, detail }: { name: string; detail: string | null }): string {
+	if (detail && !/\d/.test(detail)) return detail.replace(/\s+recipients?$/i, "");
+	return detail ? `${name} ${detail}` : name;
+}
+
+function feesSection(fees: AdmissionFeesData): string[] {
+	const out = [
+		"## Admission fees",
+		"",
+		"The same at every pool. To purchase a swim pass or register for a class, visit https://sfrecpark.org/register. Drop-in visitors can pay the entry fee with exact cash or credit card at the pool entrance.",
+		"",
+	];
+	for (const pass of passPrices(fees.groups)) {
+		out.push(`### ${escapeMarkdown(pass.name)}`, "");
+		for (const { groups, price } of pass.prices) {
+			out.push(`- ${escapeMarkdown(groups.map(groupLabel).join(" / "))}: ${dollars(price)}`);
+		}
+		out.push("");
+	}
+	const effective = fees.effectiveDate
+		? `Effective ${formatScheduleDate(fees.effectiveDate, { month: "long", day: "numeric", year: "numeric" })}. `
+		: "";
+	out.push(`${effective}The full list of passes is in the [fee notice PDF](${fees.source}).`);
+	return out;
+}
+
+/** /pools.md: the pool list, and what a swim costs */
+export function poolsIndexMarkdown(pages: PoolPage[], siteUrl: string, fees: AdmissionFeesData | null = null): string {
 	const site = siteUrl.replace(/\/$/, "");
 	const out = [
 		"# Pools",
@@ -162,13 +203,8 @@ export function poolsIndexMarkdown(pages: PoolPage[], siteUrl: string): string {
 		"> San Francisco's public pools, run by SF Rec & Parks. Each pool's page has its address and its full weekly schedule.",
 		"",
 	];
-	for (const page of pages) {
-		const sessions = page.pools.reduce((n, { schedule }) => n + schedule.programs.length, 0);
-		out.push(
-			`- [${escapeMarkdown(page.facilityName)}](${site}${markdownPath(`/pools/${page.slug}`)}): ` +
-				`${escapeMarkdown(page.address)}, ${sessions} session${sessions === 1 ? "" : "s"} a week`
-		);
-	}
+	out.push(...pages.map((page) => poolLink(page, site)));
+	if (fees) out.push("", ...feesSection(fees));
 	return out.join("\n") + "\n";
 }
 

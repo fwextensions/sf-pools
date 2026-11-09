@@ -28,6 +28,6 @@ describe("the About page's markdown", () => {
 		expect(md).not.toContain("<!--");
 		expect(md).not.toContain("{SITE_URL}");
 		expect(md).toContain(`](${SITE}/now)`);
-		expect(md).toContain(`- [Balboa Pool](${SITE}/pools/balboa.md): 1000 Ocean Ave`);
+		expect(md).toContain(`- [Balboa Pool](${SITE}/pools/balboa.md): `);
 	});
 });

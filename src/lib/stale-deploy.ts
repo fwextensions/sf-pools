@@ -22,8 +22,9 @@ export function isChunkLoadError(error: unknown): boolean {
 		|| /Failed to load chunk|Loading chunk [\w-]+ failed|Failed to fetch dynamically imported module/i.test(error.message);
 }
 
-// true when a reload has been started, so the caller can skip its error UI
-export function reloadForNewDeploy(error: unknown): boolean {
+// true when a reload has been started, so the caller can skip its error UI.
+// onReload runs just before it, for reporting that it happened
+export function reloadForNewDeploy(error: unknown, onReload?: () => void): boolean {
 	if (typeof window === "undefined" || !isChunkLoadError(error)) return false;
 	try {
 		const last = Number(sessionStorage.getItem(RELOADED_AT_KEY));
@@ -33,6 +34,7 @@ export function reloadForNewDeploy(error: unknown): boolean {
 		// without sessionStorage there's no loop guard, so don't risk one
 		return false;
 	}
+	onReload?.();
 	window.location.reload();
 	return true;
 }

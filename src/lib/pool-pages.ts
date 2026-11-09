@@ -3,6 +3,7 @@
 // change without breaking links. North Beach's warm and cool pools are one
 // building at one address, so they share a page.
 
+import { createPoolCalendar } from "@/lib/pool-calendar";
 import type { PoolSchedule } from "@/lib/schedule-schema";
 import type { PoolRecord } from "@/lib/site-data";
 import { POOL_TOKENS, getPoolToken, type PoolToken } from "./pool-tokens";
@@ -36,6 +37,10 @@ export type PoolPage = {
 	facilityName: string;
 	/** street address without the city */
 	address: string;
+	/** the ZIP code, for structured data */
+	postalCode?: string;
+	/** "(415) 831-6805", when the facility's page lists one */
+	phone?: string;
 	/** the facility's page on sfrecpark.org */
 	pageUrl: string;
 	/** the pools on this page, in POOL_TOKENS order */
@@ -47,10 +52,44 @@ export function poolPageSlug(poolId: string): string | null {
 	return SLUG_BY_POOL_ID[poolId] ?? null;
 }
 
-/** a link to a pool's page, falling back to its section of the full schedules */
+/** a link to a pool's page, falling back to the list of pools */
 export function poolPageHref(poolId: string): string {
 	const slug = poolPageSlug(poolId);
-	return slug ? `/pools/${slug}` : `/schedules#pool-${poolId}`;
+	return slug ? `/pools/${slug}` : "/pools";
+}
+
+/** what a link needs to know to name a session */
+export type SessionRef = { dayOfWeek: string; startTime: string; title: string };
+
+/**
+ * The ?session= value naming one weekly session on its pool's page, from the
+ * weekday, start time and title: "tue-1230p-lap-swim". No pool has two
+ * sessions with the same title starting at the same time on one day. A page
+ * shared by two pools (North Beach) starts it with the pool's code, since
+ * both can run a lap swim at once: "nbw-fri-900a-lap-swim".
+ */
+export function sessionParam(poolId: string, session: SessionRef): string {
+	const slug = SLUG_BY_POOL_ID[poolId];
+	const shared = POOL_TOKENS.filter((t) => SLUG_BY_POOL_ID[t.id] === slug).length > 1;
+	const parts = [
+		session.dayOfWeek.slice(0, 3),
+		session.startTime.replace(/[^a-z0-9]/gi, ""),
+		session.title.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, ""),
+	];
+	if (shared) parts.unshift(getPoolToken(poolId)?.code ?? poolId);
+	return parts.join("-").toLowerCase();
+}
+
+/**
+ * a link to a pool's page with one or more of its sessions picked out, their
+ * keys joined with commas (which a key never holds)
+ */
+export function poolSessionHref(poolId: string, sessions: SessionRef | SessionRef[]): string {
+	const href = poolPageHref(poolId);
+	const list = Array.isArray(sessions) ? sessions : [sessions];
+	if (!poolPageSlug(poolId) || !list.length) return href;
+	const keys = [...new Set(list.map((session) => sessionParam(poolId, session)))];
+	return `${href}?session=${keys.join(",")}`;
 }
 
 /** every slug, in the order the pages are listed */
@@ -84,10 +123,23 @@ export function buildPoolPages(records: PoolRecord[], schedules: PoolSchedule[])
 			name: token.fullName.replace(/\s*\(.*\)$/, ""),
 			facilityName: (record?.name ?? schedule.name).replace(/\s+-\s+\w+ Pool$/, ""),
 			address: (record?.address ?? schedule.address ?? "").replace(/, San Francisco$/, ""),
+			postalCode: record?.postalCode,
+			phone: record?.phone,
 			pageUrl: record?.pageUrl ?? schedule.sfRecParkUrl ?? "",
 			pools: [{ schedule, token }],
 		});
 	}
 
 	return [...pages.values()];
+}
+
+/**
+ * Each pool's schedule in force on `date`: a newer PDF that has started takes
+ * over, as it does in the grid and Now & Soon, which go by the pool calendar,
+ * rather than waiting for the weekly run to promote it into the current
+ * schedules. The pool pages and their markdown copies both build from this.
+ */
+export function schedulesInForce(schedules: PoolSchedule[], upcoming: PoolSchedule[], date: string): PoolSchedule[] {
+	const calendar = createPoolCalendar(schedules, upcoming);
+	return schedules.map((s) => calendar.scheduleOn(s.id, date) ?? s);
 }

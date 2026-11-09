@@ -2,18 +2,21 @@
 // sessions that pass both filters, in pool order and then by start time, or,
 // when none do, why not.
 import { POOL_TOKENS, type PoolToken } from "@/lib/pool-tokens";
-import type { Session } from "@/lib/sessions";
+import type { Day, Session } from "@/lib/sessions";
 import type { GridFilter } from "./filters";
+import { spansOnOneScale, type SessionSpan } from "@/lib/session-span";
 import { sessionsInCell, type GridCell } from "./sessions";
 
 export type DetailRow = {
 	pool: PoolToken;
+	day: Day;
 	title: string;
 	badges: string[];
 	tags: string[];
 	startTime: string;
 	endTime: string;
 	startMin: number;
+	endMin: number;
 };
 
 export type CellDetail = {
@@ -37,17 +40,29 @@ export function cellDetail(
 			if (s.poolId !== token.id || !matchesTags(s)) continue;
 			rows.push({
 				pool: token,
+				day: s.dayOfWeek,
 				title: s.title,
 				badges: s.badges,
 				tags: s.tags,
 				startTime: s.startTime,
 				endTime: s.endTime,
 				startMin: s.startMin,
+				endMin: s.endMin,
 			});
 		}
 	}
 	rows.sort((a, b) => a.startMin - b.startMin);
 	return { rows, empty: rows.length ? null : explainEmptyCell(inCell, matchesTags, poolSet) };
+}
+
+// Where each row's session sits on a timeline shared by the whole list, the
+// part inside the selected hour marked darker
+export function sessionSpans(rows: Pick<DetailRow, "startMin" | "endMin">[], hour: number): SessionSpan[] {
+	const hourSpan: [number, number] = [hour * 60, hour * 60 + 60];
+	return spansOnOneScale(
+		rows.map((r) => ({ start: r.startMin, end: r.endMin, mark: hourSpan })),
+		hourSpan
+	);
 }
 
 // Why a selected grid cell lists no sessions. "Nothing scheduled" was the only

@@ -25,16 +25,20 @@ export default function SessionBlock({
 	color,
 	compact = false,
 	row = false,
+	sessionKey,
 }: {
 	program: ProgramEntry;
 	color: string;
 	compact?: boolean;
 	row?: boolean;
+	/** the ?session= value that picks this block out, see SessionFocus */
+	sessionKey?: string;
 }) {
 	const { title, badges, notes } = describeProgram(program);
 	if (compact) {
 		return (
 			<div
+				data-session={sessionKey}
 				className="flex h-full items-baseline gap-1.5 overflow-hidden border-l-[3px] bg-tint px-1.5 py-[3px]"
 				style={{ borderColor: color }}
 			>
@@ -48,6 +52,7 @@ export default function SessionBlock({
 	if (row) {
 		return (
 			<div
+				data-session={sessionKey}
 				className="grid grid-cols-[auto_minmax(0,1fr)] items-baseline gap-x-3 border-l-[3px] bg-tint px-2 py-1.5"
 				style={{ borderColor: color }}
 			>
@@ -71,7 +76,11 @@ export default function SessionBlock({
 		);
 	}
 	return (
-		<div className="h-full overflow-hidden border-l-[3px] bg-tint px-2 py-1.5" style={{ borderColor: color }}>
+		<div
+			data-session={sessionKey}
+			className="h-full overflow-hidden border-l-[3px] bg-tint px-2 py-1.5"
+			style={{ borderColor: color }}
+		>
 			<div className="font-mono text-label font-medium text-ink-2">
 				{program.startTime}–{program.endTime}
 			</div>

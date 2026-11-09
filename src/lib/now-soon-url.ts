@@ -1,16 +1,15 @@
 // Now & Soon's controls in the query string, written the way the week grid
-// writes its own: ?access=all&program=lap&when=tomorrow-am. Defaults are left
+// writes its own: ?access=all&program=lap. Defaults are left
 // out, so the plain page is a plain url. `program` is the grid's param with the
 // same tag slugs, so a link that says lap swim means it on either page.
-import { PROGRAM_CHOICES, WHEN_CHOICES, type NowSoonOptions, type ProgramChoice, type When } from "./now-soon";
+import { PROGRAM_CHOICES, type NowSoonOptions, type ProgramChoice } from "./now-soon";
 
-export const DEFAULT_OPTIONS: NowSoonOptions = { mode: "drop-in", program: null, when: "next" };
+export const DEFAULT_OPTIONS: NowSoonOptions = { mode: "drop-in", program: null };
 
-export function formatNowSoonQuery({ mode, program, when }: NowSoonOptions): string {
+export function formatNowSoonQuery({ mode, program }: NowSoonOptions): string {
 	const parts: string[] = [];
 	if (mode === "all") parts.push("access=all");
 	if (program) parts.push(`program=${program}`);
-	if (when !== "next") parts.push(`when=${when}`);
 	return parts.join("&");
 }
 
@@ -19,11 +18,9 @@ export function formatNowSoonQuery({ mode, program, when }: NowSoonOptions): str
 export function parseNowSoonQuery(params: Pick<URLSearchParams, "get">): NowSoonOptions {
 	const programs = (params.get("program") ?? "").split(",");
 	const program = programs.find((p): p is ProgramChoice => (PROGRAM_CHOICES as readonly string[]).includes(p)) ?? null;
-	const when = params.get("when");
 	return {
 		mode: params.get("access") === "all" ? "all" : "drop-in",
 		program,
-		when: (WHEN_CHOICES as readonly string[]).includes(when ?? "") ? (when as When) : "next",
 	};
 }
 
@@ -37,8 +34,13 @@ export function initialNowSoonOptions(searchParams: Pick<URLSearchParams, "get">
 	return parseNowSoonQuery(lastWrittenQuery == null ? searchParams : new URLSearchParams(lastWrittenQuery));
 }
 
+// params this page doesn't own, like the preview page's `at`, are kept ahead
+// of its own; `when`, from before the page dropped its When menu, goes
 export function writeNowSoonUrl(pathname: string, options: NowSoonOptions): void {
-	const qs = formatNowSoonQuery(options);
+	const others = new URLSearchParams(window.location.search);
+	for (const key of ["access", "program", "when"]) others.delete(key);
+	const kept = [...others].map(([key, value]) => `${key}=${encodeURIComponent(value).replace(/%3A/gi, ":")}`);
+	const qs = [...kept, formatNowSoonQuery(options)].filter(Boolean).join("&");
 	lastWrittenQuery = qs;
 	window.history.replaceState(null, "", qs ? `${pathname}?${qs}` : pathname);
 }

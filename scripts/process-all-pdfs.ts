@@ -7,6 +7,7 @@ import type { PoolSchedule } from "@/lib/schedule-schema";
 import { buildDayCells, formatDayCells, type DayCell } from "@/lib/pdf-table";
 import { applyGrounding, groundSessions } from "@/lib/grounding";
 import type { Closure } from "@/lib/closures";
+import type { MaintenanceData, MaintenanceEntry } from "@/lib/maintenance";
 import {
 	releaseSchedules,
 	releaseVerdict,
@@ -19,7 +20,7 @@ import { upcomingBase, type DiscoveredPool } from "./downloadPdf";
 import type { PoolRecord } from "@/lib/site-data";
 import { readPdfLines } from "./read-pdf-lines";
 import {
-	computeChangelog,
+	computeRunChangelog,
 	loadPreviousSchedules,
 	saveChangelog,
 	formatChangelogSummary,
@@ -33,6 +34,7 @@ const OUT_FILE = path.join(OUT_DIR, "all_schedules.json");
 const UPCOMING_FILE = path.join(OUT_DIR, "upcoming_schedules.json");
 const EXTRACTED_DIR = path.join(process.cwd(), "data", "extracted");
 const ALERTS_FILE = path.join(process.cwd(), "public", "data", "alerts.json");
+const MAINTENANCE_FILE = path.join(process.cwd(), "public", "data", "maintenance_schedule.json");
 
 type ExtractedMeta = {
 	pdfHash: string;
@@ -180,9 +182,18 @@ async function loadClosures(today: string): Promise<Map<string, Closure>> {
 	}
 }
 
+/** the maintenance schedule scrape-aquatics-docs saved, or none before its first run */
+async function loadMaintenance(): Promise<MaintenanceEntry[]> {
+	try {
+		return (JSON.parse(await readFile(MAINTENANCE_FILE, "utf-8")) as MaintenanceData).entries;
+	} catch {
+		return [];
+	}
+}
+
 export type ProcessResult = {
 	success: boolean;
-	changelog: ReturnType<typeof computeChangelog>;
+	changelog: ReturnType<typeof computeRunChangelog>;
 	extractedCount: number;
 	skippedCount: number;
 	/** pools with an announced closure running today */
@@ -241,6 +252,7 @@ export async function main(): Promise<ProcessResult> {
 	let skippedCount = 0;
 	const today = todayISO();
 	const closures = await loadClosures(today);
+	const maintenance = await loadMaintenance();
 
 	const extracts: PoolExtract[] = [];
 	const upcomingExtracts: PoolExtract[] = [];
@@ -339,6 +351,7 @@ export async function main(): Promise<ProcessResult> {
 		knownPoolIds: pools.map((p) => p.id),
 		closures,
 		today,
+		maintenance,
 		// escape hatch for local dev: ship extracts even when they fail health checks
 		allowUnhealthy: process.env.ALLOW_UNHEALTHY === "1",
 		log: console,
@@ -358,14 +371,16 @@ export async function main(): Promise<ProcessResult> {
 	// as upcoming last time. One the facility page no longer lists, or whose
 	// season has started, isn't carried over
 	const upcomingPdfIds = new Set(discovered.filter((d) => d.upcomingPdfUrl).map((d) => d.poolId));
+	const previousUpcoming = await loadPreviousUpcoming();
 	const upcomingRelease = releaseSchedules({
 		extracts: upcomingExtracts,
-		previousSchedules: (await loadPreviousUpcoming()).filter(
+		previousSchedules: previousUpcoming.filter(
 			(s) => upcomingPdfIds.has(s.id) && !!s.scheduleStartDate && s.scheduleStartDate > today
 		),
 		knownPoolIds: [...upcomingPdfIds],
 		closures,
 		today,
+		maintenance,
 		allowUnhealthy: process.env.ALLOW_UNHEALTHY === "1",
 		log: console,
 	});
@@ -387,7 +402,12 @@ export async function main(): Promise<ProcessResult> {
 
 	// compute and save changelog before writing new data; fold extraction
 	// anomalies into its warnings so they're persisted and surfaced by notify
-	const changelog = computeChangelog(previousSchedules, aggregated);
+	const changelog = computeRunChangelog({
+		previous: previousSchedules,
+		previousUpcoming,
+		current: aggregated,
+		upcoming,
+	});
 	changelog.quarantinedPools = quarantinedPools;
 	changelog.warnings.push(
 		...releaseWarnings(release),

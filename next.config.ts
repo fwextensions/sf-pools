@@ -18,9 +18,13 @@ const nextConfig: NextConfig = {
 			{ source: "/lane/:path*", destination: "https://us.i.posthog.com/:path*" },
 		];
 	},
-	// each markdown copy has one public URL
+	// the full schedules page gave way to a page per pool. A browser carries
+	// an old #pool-<id> link's hash across the redirect, and the pools list
+	// sends it on to that pool's page
 	async redirects() {
 		return [
+			{ source: "/schedules", destination: "/pools", permanent: true },
+			// each markdown copy has one public URL
 			{ source: "/md/pools", destination: "/pools.md", permanent: true },
 			{ source: "/md/pools/:slug", destination: "/pools/:slug.md", permanent: true },
 			{ source: "/md/about", destination: "/about.md", permanent: true },

@@ -1,16 +1,18 @@
-import type { CSSProperties } from "react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import AppleMapsLink from "@/components/AppleMapsLink";
 import GridLink from "@/components/grid/GridLink";
 import PoolChip from "@/components/PoolChip";
 import { ExternalLinkIcon } from "@/components/icons";
+import PoolList from "@/components/pools/PoolList";
+import PoolPageHeader from "@/components/pools/PoolPageHeader";
 import PoolScheduleSection from "@/components/schedule/PoolScheduleSection";
+import SessionFocus from "@/components/schedule/SessionFocus";
 import { markdownPath } from "@/lib/page-markdown";
-import { buildPoolPages, poolPageSlugs, type PoolPage } from "@/lib/pool-pages";
+import { buildPoolPages, poolPageSlugs, schedulesInForce, type PoolPage } from "@/lib/pool-pages";
 import { describeProgram } from "@/lib/program-display";
-import { loadAlerts, loadPools, loadSchedules } from "@/lib/site-data";
+import { pacificToday } from "@/lib/closures";
+import { loadAlerts, loadPools, loadSchedules, loadUpcomingSchedules } from "@/lib/site-data";
 import { SITE_URL } from "@/lib/site-url";
 
 type Params = { slug: string };
@@ -22,9 +24,14 @@ export function generateStaticParams(): Params[] {
 	return poolPageSlugs().map((slug) => ({ slug }));
 }
 
+// each pool's schedule in force when the page is built
+async function loadPages(): Promise<PoolPage[]> {
+	const [records, schedules, upcoming] = await Promise.all([loadPools(), loadSchedules(), loadUpcomingSchedules()]);
+	return buildPoolPages(records, schedulesInForce(schedules, upcoming, pacificToday()));
+}
+
 async function loadPage(slug: string): Promise<PoolPage | null> {
-	const [records, schedules] = await Promise.all([loadPools(), loadSchedules()]);
-	return buildPoolPages(records, schedules).find((p) => p.slug === slug) ?? null;
+	return (await loadPages()).find((p) => p.slug === slug) ?? null;
 }
 
 /** the distinct program names on the page's schedules, most sessions first */
@@ -61,6 +68,12 @@ function mapsUrl(page: PoolPage): string {
 	return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }
 
+/** "(415) 831-6805" -> "+1-415-831-6805", the international form schema.org asks for */
+function telephone(phone: string): string {
+	const digits = phone.replace(/\D/g, "");
+	return `+1-${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
 /** schema.org's description of the place, for search engines */
 function structuredData(page: PoolPage) {
 	return {
@@ -75,8 +88,10 @@ function structuredData(page: PoolPage) {
 			streetAddress: page.address,
 			addressLocality: "San Francisco",
 			addressRegion: "CA",
+			postalCode: page.postalCode,
 			addressCountry: "US",
 		},
+		telephone: page.phone ? telephone(page.phone) : undefined,
 	};
 }
 
@@ -90,7 +105,9 @@ function Fact({ label, children }: { label: string; children: React.ReactNode })
 }
 
 export default async function PoolPageView({ params }: { params: Promise<Params> }) {
-	const page = await loadPage((await params).slug);
+	const { slug } = await params;
+	const pages = await loadPages();
+	const page = pages.find((p) => p.slug === slug);
 	if (!page) notFound();
 
 	const alerts = await loadAlerts();
@@ -102,29 +119,15 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 	const single = page.pools.length === 1;
 
 	return (
-		// no jump nav or pinned pool name sits above the schedule here, so its
-		// day row pins straight under the site header
-		<main
-			style={
-				{
-					"--schedule-nav-h": "0px",
-					"--schedule-day-row-top": "0px",
-				} as CSSProperties
-			}
-		>
+		<main data-pool={page.name}>
 			<script
 				type="application/ld+json"
 				dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData(page)).replace(/</g, "\\u003c") }}
 			/>
-			<header className="pt-6 pb-3">
-				<nav aria-label="Breadcrumb" className="font-mono text-label font-medium tracking-[.08em] text-ink-2">
-					<Link href="/pools" className="link-inline">
-						ALL POOLS
-					</Link>
-				</nav>
+			<PoolPageHeader>
 				{/* the chips stay beside a name that wraps, centered on its first
 				    line: their box is one line of the heading tall */}
-				<div className="mt-2 flex items-start gap-x-2.5">
+				<div className="flex items-start gap-x-2.5">
 					<span className="flex h-[1lh] flex-none items-center gap-1 text-title leading-tight">
 						{page.pools.map(({ schedule, token }) => (
 							<PoolChip key={schedule.id} token={token} />
@@ -132,7 +135,7 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 					</span>
 					<h1 className="text-title font-semibold leading-tight">{page.facilityName}</h1>
 				</div>
-			</header>
+			</PoolPageHeader>
 
 			<dl className="grid grid-cols-1 gap-x-8 min-[560px]:grid-cols-3">
 				<Fact label="ADDRESS">
@@ -146,6 +149,11 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 							className="link-inline"
 						/>
 					</span>
+					{page.phone ? (
+						<a href={`tel:${page.phone.replace(/\D/g, "")}`} className="link-inline block w-fit">
+							{page.phone}
+						</a>
+					) : null}
 				</Fact>
 				{pdfs.length || page.pageUrl ? (
 					<Fact label="OFFICIAL">
@@ -204,6 +212,15 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 					label={single ? "Weekly schedule" : `${token?.name.match(/\((\w+)\)/)?.[1] ?? schedule.shortName} pool weekly schedule`}
 				/>
 			))}
+			<SessionFocus />
+
+			{/* the way on to the next pool, without going back up to the list */}
+			<nav aria-labelledby="other-pools" className="mt-12 border-t border-line pt-2.5">
+				<h2 id="other-pools" className="font-mono text-label font-semibold tracking-[.08em] text-ink-2">
+					OTHER POOLS
+				</h2>
+				<PoolList pages={pages.filter((p) => p !== page)} className="mt-1" />
+			</nav>
 		</main>
 	);
 }

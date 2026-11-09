@@ -129,3 +129,31 @@ describe("the markdown copies of the published schedules", () => {
 		for (const page of pages) expect(md).toContain(`](${SITE}/pools/${page.slug}.md)`);
 	});
 });
+
+describe("the pool list's markdown", () => {
+	it("says what a swim costs, as the page does", () => {
+		const fees = {
+			source: "https://sfrecpark.org/fees.pdf",
+			pdfHash: "",
+			effectiveDate: "2026-07-01",
+			groups: [
+				{ name: "Adult", detail: "18-64", fees: [{ name: "Drop-in", price: 8 }, { name: "10 Visits", price: 70 }] },
+				{ name: "Economic Need", detail: "Medi-Cal recipients", fees: [{ name: "Drop-in", price: 1 }] },
+			],
+		} as unknown as Parameters<typeof poolsIndexMarkdown>[2];
+		const md = poolsIndexMarkdown([balboaPage()], SITE, fees);
+		expect(md).toContain("## Admission fees");
+		expect(md).toContain("### Drop-in\n\n- Adult 18-64: $8\n- Medi-Cal: $1\n");
+		expect(md).toContain("Effective July 1, 2026. The full list of passes is in the [fee notice PDF](https://sfrecpark.org/fees.pdf).");
+	});
+});
+
+describe("a pool page's markdown, beyond the schedule", () => {
+	it("gives the phone number and links the other pools", () => {
+		const page = { ...balboaPage(), phone: "(415) 337-4701" };
+		const other = { ...balboaPage(), slug: "rossi", facilityName: "Rossi Pool" };
+		const md = poolPageMarkdown(page, { siteUrl: SITE, alerts: [], today: "2026-10-30", others: [other] });
+		expect(md).toContain("- Phone: (415) 337-4701");
+		expect(md).toContain(`## Other pools\n\n- [Rossi Pool](${SITE}/pools/rossi.md): `);
+	});
+});
