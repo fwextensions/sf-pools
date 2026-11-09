@@ -525,6 +525,23 @@ input[type="radio"] {
 	color: var(--color-ink-2);
 }
 
+/* the weekend reads as one block: a 2px rule runs under both its headings,
+   filling the gap above the first row. The rule hangs off Saturday's heading
+   and spans Sunday's column too, plus the 3px column gap between them */
+.grid-day[data-day="Saturday"] {
+	position: relative;
+}
+
+.grid-day[data-day="Saturday"]::after {
+	content: "";
+	position: absolute;
+	top: 100%;
+	left: 0;
+	width: calc(200% + 3px);
+	height: 2px;
+	background: var(--color-line-strong);
+}
+
 .grid-hour {
 	color: var(--color-ink-2);
 }
