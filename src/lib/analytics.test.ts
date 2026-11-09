@@ -4,12 +4,12 @@ import { internalTagFor, outboundLinkFor } from "./analytics";
 
 describe("internalTagFor", () => {
 	it("marks the browser on ?me=1", () => {
-		expect(internalTagFor("?me=1", "sf-pools.vercel.app")).toBe("mark");
-		expect(internalTagFor("?cell=thu-20&me=1", "sf-pools.vercel.app")).toBe("mark");
+		expect(internalTagFor("?me=1", "sfpools.org")).toBe("mark");
+		expect(internalTagFor("?cell=thu-20&me=1", "sfpools.org")).toBe("mark");
 	});
 
 	it("unmarks it on ?me=0, even on a dev server", () => {
-		expect(internalTagFor("?me=0", "sf-pools.vercel.app")).toBe("unmark");
+		expect(internalTagFor("?me=0", "sfpools.org")).toBe("unmark");
 		expect(internalTagFor("?me=0", "localhost")).toBe("unmark");
 	});
 
@@ -19,18 +19,18 @@ describe("internalTagFor", () => {
 	});
 
 	it("leaves an ordinary visit alone", () => {
-		expect(internalTagFor("", "sf-pools.vercel.app")).toBe("keep");
-		expect(internalTagFor("?me=yes", "sf-pools.vercel.app")).toBe("keep");
+		expect(internalTagFor("", "sfpools.org")).toBe("keep");
+		expect(internalTagFor("?me=yes", "sfpools.org")).toBe("keep");
 	});
 });
 
 describe("outboundLinkFor", () => {
-	const origin = "https://sf-pools.vercel.app";
+	const origin = "https://sfpools.org";
 
 	it("ignores links within the site", () => {
 		expect(outboundLinkFor("/pools/balboa", origin)).toBeNull();
 		expect(outboundLinkFor("#pool-mlk", origin)).toBeNull();
-		expect(outboundLinkFor("https://sf-pools.vercel.app/about", origin)).toBeNull();
+		expect(outboundLinkFor("https://sfpools.org/about", origin)).toBeNull();
 	});
 
 	it("counts Rec & Park's DocumentCenter links as PDFs", () => {
