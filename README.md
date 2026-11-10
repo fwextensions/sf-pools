@@ -92,6 +92,10 @@ Set `FAIL_ON_LARGE_CHANGES=false` locally to bypass this check during developmen
 - `npm run scrape-holidays` — fetch the city holiday list from sf.gov into `public/data/city_holidays.json` (`-- --force` to fetch when the year is already saved); the "Update City Holidays" workflow runs it daily from December through February
 - `npm run analyze-programs` — analyze raw vs canonical program names
 
+## Nightly Rebuild
+
+The pool pages and their `.md` copies are prerendered, so they only move on to a new day when the site builds. The "Nightly Rebuild" workflow POSTs a Vercel deploy hook at 08:10 UTC (just after midnight in San Francisco all year) to rebuild production from `main`. It reads the hook URL from the `VERCEL_DEPLOY_HOOK_URL` repository secret and skips with a warning when that is not set.
+
 ## How Extraction Works
 
 1. For each PDF, send content to the LLM with a strict Zod schema

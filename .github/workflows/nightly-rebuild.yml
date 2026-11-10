@@ -1,0 +1,29 @@
+name: Nightly Rebuild
+
+on:
+  schedule:
+    # 08:10 UTC is 12:10am PST and 1:10am PDT, so the build always lands
+    # just after midnight in San Francisco. The prerendered pool pages and
+    # their .md copies only change on a build, so this rolls them over to
+    # the new day: ended closures drop off and midweek schedules take over
+    - cron: "10 8 * * *"
+  workflow_dispatch:
+    # allow manual trigger from GitHub Actions UI
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    permissions: {}
+
+    steps:
+      - name: Trigger the Vercel deploy hook
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$DEPLOY_HOOK_URL" ]; then
+            echo "::warning::VERCEL_DEPLOY_HOOK_URL secret is not set; skipping the rebuild"
+            exit 0
+          fi
+          curl --silent --show-error --fail-with-body --retry 3 --retry-all-errors \
+            --request POST "$DEPLOY_HOOK_URL"
+          echo
