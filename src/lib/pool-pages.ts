@@ -3,6 +3,7 @@
 // change without breaking links. North Beach's warm and cool pools are one
 // building at one address, so they share a page.
 
+import { createPoolCalendar } from "@/lib/pool-calendar";
 import type { PoolSchedule } from "@/lib/schedule-schema";
 import type { PoolRecord } from "@/lib/site-data";
 import { POOL_TOKENS, getPoolToken, type PoolToken } from "./pool-tokens";
@@ -130,4 +131,15 @@ export function buildPoolPages(records: PoolRecord[], schedules: PoolSchedule[])
 	}
 
 	return [...pages.values()];
+}
+
+/**
+ * Each pool's schedule in force on `date`: a newer PDF that has started takes
+ * over, as it does in the grid and Now & Soon, which go by the pool calendar,
+ * rather than waiting for the weekly run to promote it into the current
+ * schedules. The pool pages and their markdown copies both build from this.
+ */
+export function schedulesInForce(schedules: PoolSchedule[], upcoming: PoolSchedule[], date: string): PoolSchedule[] {
+	const calendar = createPoolCalendar(schedules, upcoming);
+	return schedules.map((s) => calendar.scheduleOn(s.id, date) ?? s);
 }
