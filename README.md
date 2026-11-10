@@ -114,6 +114,10 @@ Closures (from alerts, PDF notes, the maintenance schedule and city holidays) ar
 - `npm run analyze-programs` — analyze raw vs canonical program names
 - `npm run renormalize-programs` — re-apply the program taxonomy to `all_schedules.json` without re-extracting
 
+## Nightly Rebuild
+
+The pool pages and their `.md` copies are prerendered, so they only move on to a new day when the site builds. The "Nightly Rebuild" workflow POSTs a Vercel deploy hook at 08:10 UTC (just after midnight in San Francisco all year) to rebuild production from `main`. It reads the hook URL from the `VERCEL_DEPLOY_HOOK_URL` repository secret and skips with a warning when that is not set.
+
 ## How Extraction Works
 
 1. For each PDF, send its content to the LLM with a strict Zod schema
