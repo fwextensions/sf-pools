@@ -1,6 +1,7 @@
 import type { AlertsData } from "@/lib/site-data";
 import { PoolSchedule } from "@/lib/schedule-schema";
 import ClosureNotice from "@/components/ClosureNotice";
+import AlertCarousel from "@/components/AlertCarousel";
 import type { ClosureWindow, ScheduleGap, SharedClosure } from "@/lib/pool-calendar";
 import { formatScheduleDate } from "@/lib/utils";
 import { hasClosureEnded } from "@/lib/closures";
@@ -83,10 +84,9 @@ export default function PoolAlerts({ alerts, pools, selectedPools, weekClosures 
 	};
 
 	return (
-		// two to a row when there's room, rather than full-width boxes that are
-		// mostly empty; a lone alert still spans the row. On a phone they
-		// scroll sideways in one row instead (alert-carousel in globals.css)
-		<div className="alert-carousel mt-3 mb-6 grid grid-cols-[repeat(auto-fit,minmax(min(100%,24rem),1fr))] gap-2">
+		// one row that scrolls sideways once there are more than fit; one or
+		// two (three on a desktop) share the row between them
+		<AlertCarousel count={relevantAlerts.length + relevantClosures.length + relevantGaps.length}>
 			{relevantClosures.map((c) => (
 				<div
 					key={`week-${c.startDate}-${c.endDate}-${c.reason}`}
@@ -206,7 +206,7 @@ export default function PoolAlerts({ alerts, pools, selectedPools, weekClosures 
 					</div>
 				)
 			)}
-		</div>
+		</AlertCarousel>
 	);
 }
 
