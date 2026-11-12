@@ -1,7 +1,8 @@
 {
 	"siteWideAlerts": [
 		"1. Please note, Rossi Pool will be closed for its annual maintenance from 11/2 and reopen on 11/22.",
-		"2. All Pools will be closed on Wednesday, November 11 in observance of Veterans' Day."
+		"2. All Pools will be closed on Wednesday, November 11 in observance of Veterans' Day.",
+		"4. Hamilton Pool Will be closed Nov 23-Nov 29 for building maintenance."
 	],
 	"poolAlerts": [
 		{
@@ -9,7 +10,7 @@
 			"poolName": "North Beach (Cool)",
 			"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 			"alertText": "Please note, North Beach Pool will be closed for its annual maintenance from October 13 and reopen on November 3. For schedules of our other pools please visit:",
-			"scrapedAt": "2026-11-06T23:51:15.839Z",
+			"scrapedAt": "2026-11-12T03:43:42.505Z",
 			"documentUrl": null,
 			"closure": {
 				"summary": "North Beach Pool is closed for annual maintenance from October 13 through November 2.",
@@ -31,7 +32,7 @@
 			"poolName": "North Beach (Warm)",
 			"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/North-Beach-Pool-218",
 			"alertText": "Please note, North Beach Pool will be closed for its annual maintenance from October 13 and reopen on November 3. For schedules of our other pools please visit:",
-			"scrapedAt": "2026-11-06T23:51:15.839Z",
+			"scrapedAt": "2026-11-12T03:43:42.505Z",
 			"documentUrl": null,
 			"closure": {
 				"summary": "North Beach Pool is closed for annual maintenance from October 13 through November 2.",
@@ -53,10 +54,23 @@
 			"poolName": "Rossi",
 			"pageUrl": "https://sfrecpark.org/Facilities/Facility/Details/Rossi-Pool-219",
 			"alertText": "Please note, Rossi Pool will be closed for its annual maintenance from 11/2 and reopen on 11/22. For schedules of our other pools please visit:",
-			"scrapedAt": "2026-11-06T23:51:15.839Z",
+			"scrapedAt": "2026-11-12T03:43:42.505Z",
 			"documentUrl": null,
-			"closure": null
+			"closure": {
+				"summary": "Rossi Pool is closed for annual maintenance from November 2 through November 21.",
+				"rawText": "Please note, Rossi Pool will be closed for its annual maintenance from 11/2 and reopen on 11/22. For schedules of our other pools please visit:",
+				"startDate": "2026-11-02",
+				"endDate": "2026-11-21",
+				"indefinite": false,
+				"sourceUrl": null,
+				"reason": "annual maintenance",
+				"scope": "whole-pool",
+				"source": "pattern+model",
+				"suppressPrograms": true,
+				"confidence": 1,
+				"disagreement": null
+			}
 		}
 	],
-	"lastUpdated": "2026-11-06T23:51:29.171Z"
+	"lastUpdated": "2026-11-12T03:43:53.103Z"
 }
