@@ -96,6 +96,19 @@ function dayBefore(date: string): string {
 
 type DateRange = { startDate: string | null; endDate: string | null };
 
+// one day as the notices write it, "November 2" or "11/2": four groups, the
+// month name and day or the month and day numbers
+const DAY = String.raw`(?:([A-Za-z]{3,9})\.?\s+(\d{1,2})\b|(\d{1,2})\/(\d{1,2})\b)`;
+
+// the month and day from DAY's four groups, starting at group `first`
+function monthDay(match: RegExpExecArray, first: number): { month: number; day: number } | null {
+	if (match[first]) {
+		const month = monthFromName(match[first]!);
+		return month ? { month, day: +match[first + 1]! } : null;
+	}
+	return { month: +match[first + 2]!, day: +match[first + 3]! };
+}
+
 /**
  * Pull a date range out of closure text. Handles the shapes SF Rec & Park
  * actually publishes; returns nulls when nothing recognisable is present.
@@ -117,6 +130,17 @@ export function parseDateRange(text: string, referenceYear: number): DateRange {
 		// a range that ends before it starts has crossed a year boundary
 		if (startDate && endDate && endDate < startDate) {
 			endDate = iso(year + 1, +compact[3]!, +compact[4]!);
+		}
+		return { startDate, endDate };
+	}
+
+	// "11/2 - 11/21" / "11/2 through 11/21"
+	const numeric = /\b(\d{1,2})\/(\d{1,2})\s*(?:-|–|—|to|thru|through|until)\s*(\d{1,2})\/(\d{1,2})\b/i.exec(text);
+	if (numeric) {
+		const startDate = iso(year, +numeric[1]!, +numeric[2]!);
+		let endDate = iso(year, +numeric[3]!, +numeric[4]!);
+		if (startDate && endDate && endDate < startDate) {
+			endDate = iso(year + 1, +numeric[3]!, +numeric[4]!);
 		}
 		return { startDate, endDate };
 	}
@@ -153,39 +177,33 @@ export function parseDateRange(text: string, referenceYear: number): DateRange {
 		}
 	}
 
-	// "closed from October 13 and reopen on November 2" — the reopening day is
-	// the first open one, so the closure ends the day before it
-	const fromReopen =
-		/\bfrom\s+([A-Za-z]{3,9})\.?\s+(\d{1,2})\b[^.]*?\breopen(?:s|ing)?(?:\s+on)?\s+([A-Za-z]{3,9})\.?\s+(\d{1,2})\b/i.exec(
-			text
-		);
+	// "closed from October 13 and reopen on November 2", or "from 11/2 and
+	// reopen on 11/22" — the reopening day is the first open one, so the
+	// closure ends the day before it
+	const fromReopen = new RegExp(`\\bfrom\\s+${DAY}[^.]*?\\breopen(?:s|ing)?(?:\\s+on)?\\s+${DAY}`, "i").exec(text);
 	if (fromReopen) {
-		const m1 = monthFromName(fromReopen[1]!);
-		const m2 = monthFromName(fromReopen[3]!);
-		if (m1 && m2) {
-			const startDate = iso(year, m1, +fromReopen[2]!);
-			let reopen = iso(year, m2, +fromReopen[4]!);
+		const start = monthDay(fromReopen, 1);
+		const end = monthDay(fromReopen, 5);
+		if (start && end) {
+			const startDate = iso(year, start.month, start.day);
+			let reopen = iso(year, end.month, end.day);
 			if (startDate && reopen && reopen <= startDate) {
-				reopen = iso(year + 1, m2, +fromReopen[4]!);
+				reopen = iso(year + 1, end.month, end.day);
 			}
 			return { startDate, endDate: reopen && dayBefore(reopen) };
 		}
 	}
 
 	// "closed through September 7" — an end with no announced start
-	const endOnly = /\b(?:through|thru|until)\s+([A-Za-z]{3,9})\.?\s+(\d{1,2})\b/i.exec(text);
-	if (endOnly) {
-		const m = monthFromName(endOnly[1]!);
-		if (m) return { startDate: null, endDate: iso(year, m, +endOnly[2]!) };
-	}
+	const endOnly = new RegExp(`\\b(?:through|thru|until)\\s+${DAY}`, "i").exec(text);
+	const end = endOnly && monthDay(endOnly, 1);
+	if (end) return { startDate: null, endDate: iso(year, end.month, end.day) };
 
 	// "reopens September 8" — closed through the day before
-	const reopenOnly = /\breopen(?:s|ing)?(?:\s+on)?\s+([A-Za-z]{3,9})\.?\s+(\d{1,2})\b/i.exec(text);
-	if (reopenOnly) {
-		const m = monthFromName(reopenOnly[1]!);
-		const reopen = m ? iso(year, m, +reopenOnly[2]!) : null;
-		if (reopen) return { startDate: null, endDate: dayBefore(reopen) };
-	}
+	const reopenOnly = new RegExp(`\\breopen(?:s|ing)?(?:\\s+on)?\\s+${DAY}`, "i").exec(text);
+	const reopenDay = reopenOnly && monthDay(reopenOnly, 1);
+	const reopen = reopenDay ? iso(year, reopenDay.month, reopenDay.day) : null;
+	if (reopen) return { startDate: null, endDate: dayBefore(reopen) };
 
 	return { startDate: null, endDate: null };
 }

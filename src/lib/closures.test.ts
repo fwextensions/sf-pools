@@ -69,6 +69,22 @@ describe("parseDateRange", () => {
 		).toEqual({ startDate: "2026-10-13", endDate: "2026-11-01" });
 	});
 
+	it("reads numeric dates the way the Rossi notice writes them", () => {
+		expect(
+			parseDateRange(
+				"Please note, Rossi Pool will be closed for its annual maintenance from 11/2 and reopen on 11/22. For schedules of our other pools please visit:",
+				2026
+			)
+		).toEqual({ startDate: "2026-11-02", endDate: "2026-11-21" });
+		expect(parseDateRange("Pool closed 12/20 - 1/5", 2026)).toEqual({ startDate: "2026-12-20", endDate: "2027-01-05" });
+		expect(parseDateRange("Pool closed through 9/7", 2026)).toEqual({ startDate: null, endDate: "2026-09-07" });
+		expect(parseDateRange("Pool closed for repairs, reopens 9/8", 2026)).toEqual({ startDate: null, endDate: "2026-09-07" });
+	});
+
+	it("leaves a time range alone", () => {
+		expect(parseDateRange("Pool closed 12pm-2pm for training", 2026)).toEqual({ startDate: null, endDate: null });
+	});
+
 	it("ends a reopen-only closure the day before it reopens", () => {
 		expect(parseDateRange("Pool closed for repairs, reopens September 8", 2026)).toEqual({
 			startDate: null,
