@@ -50,7 +50,7 @@ export default function SiteError({
 					href="/"
 					className="control font-mono text-small font-semibold tracking-[.08em] text-ink-2"
 				>
-					<span className="inline-block [text-box:trim-both_cap_alphabetic]">WEEK GRID</span>
+					<span className="inline-block [text-box:trim-both_cap_alphabetic]">SWIM TIMES</span>
 				</Link>
 			</div>
 		</div>

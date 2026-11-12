@@ -27,7 +27,7 @@ describe("the About page's markdown", () => {
 		expect(md).not.toMatch(/\]\(\//);
 		expect(md).not.toContain("<!--");
 		expect(md).not.toContain("{SITE_URL}");
-		expect(md).toContain(`](${SITE}/now)`);
+		expect(md).toContain(`[swim times](${SITE}/)`);
 		expect(md).toContain(`- [Balboa Pool](${SITE}/pools/balboa.md): `);
 	});
 });

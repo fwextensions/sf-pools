@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { memo, useCallback, useMemo, useSyncExternalStore } from "react";
+import { memo, useCallback, useMemo, useSyncExternalStore, type ReactNode } from "react";
 import ProgramName from "@/components/ProgramName";
 import PoolChip from "@/components/PoolChip";
 import SessionBar from "@/components/SessionBar";
@@ -31,12 +31,15 @@ const DetailPanel = memo(function DetailPanel({
 	canDrag,
 	ratchet,
 	holdFloor = false,
+	idle,
 }: {
 	model: GridModel;
 	filters: FilterView;
 	canDrag: boolean;
 	ratchet: boolean;
 	holdFloor?: boolean;
+	/** what the panel shows while no cell is picked: Now & Soon */
+	idle: ReactNode;
 }) {
 	const subscribe = useCallback(
 		(onChange: () => void) =>
@@ -70,21 +73,31 @@ const DetailPanel = memo(function DetailPanel({
 					? { what: "all" as const, label: "CLEAR FILTERS" }
 					: null;
 
+	if (!selectedCell) return <div className="mt-5">{idle}</div>;
+
 	return (
 		<div className="mt-4 border-t-2 border-ink pt-2.5">
-			<div className="flex items-baseline justify-between">
-				<span className="text-body font-semibold text-ink">
-					{selectedCell
-						? `${selectedCell.day} · ${formatHour(selectedCell.hour)}–${formatHour(selectedCell.hour + 1)}`
-						: canDrag
-							? "Drag across the grid"
-							: "Tap a cell for details"}
+			<div className="flex items-center justify-between gap-3">
+				<span className="whitespace-nowrap text-body font-semibold text-ink">
+					{selectedCell.day} · {formatHour(selectedCell.hour)}–{formatHour(selectedCell.hour + 1)}
 				</span>
-				{detail ? (
-					<span className="font-mono text-label font-medium text-ink-2">
-						{detail.length} SESSION{detail.length === 1 ? "" : "S"}
-					</span>
-				) : null}
+				<span className="flex items-center gap-3">
+					{/* a phone hasn't the width for the count beside the button,
+					    and the list it heads is short enough to count */}
+					{detail ? (
+						<span className="hidden whitespace-nowrap font-mono text-label font-medium text-ink-2 min-[560px]:inline">
+							{detail.length} SESSION{detail.length === 1 ? "" : "S"}
+						</span>
+					) : null}
+					{/* the same as clicking the cell again, which deselects it */}
+					<button
+						type="button"
+						onClick={() => model.selectCell(null, "click")}
+						className="control whitespace-nowrap font-mono text-label font-semibold tracking-[.08em] text-ink-2 hover:border-ink"
+					>
+						<span className="inline-block [text-box:trim-both_cap_alphabetic]">BACK TO NOW</span>
+					</button>
+				</span>
 			</div>
 			<HeightRatchet enabled={ratchet} resetKey={filterKey} hold={holdFloor}>
 			{detail?.map((d, i) => {
