@@ -8,10 +8,10 @@ import PoolList from "@/components/pools/PoolList";
 import PoolPageHeader from "@/components/pools/PoolPageHeader";
 import PoolScheduleSection from "@/components/schedule/PoolScheduleSection";
 import SessionFocus from "@/components/schedule/SessionFocus";
-import { buildPoolPages, poolPageSlugs, type PoolPage } from "@/lib/pool-pages";
+import { markdownPath } from "@/lib/page-markdown";
+import { buildPoolPages, poolPageSlugs, schedulesInForce, type PoolPage } from "@/lib/pool-pages";
 import { describeProgram } from "@/lib/program-display";
 import { pacificToday } from "@/lib/closures";
-import { createPoolCalendar } from "@/lib/pool-calendar";
 import { loadAlerts, loadPools, loadSchedules, loadUpcomingSchedules } from "@/lib/site-data";
 import { SITE_URL } from "@/lib/site-url";
 
@@ -24,16 +24,10 @@ export function generateStaticParams(): Params[] {
 	return poolPageSlugs().map((slug) => ({ slug }));
 }
 
-// each pool's schedule in force when the page is built: a newer PDF that
-// has started takes over here as it does in the grid and Now & Soon, which
-// go by the pool calendar, rather than waiting for the weekly run to promote
-// it into the current schedules
+// each pool's schedule in force when the page is built
 async function loadPages(): Promise<PoolPage[]> {
 	const [records, schedules, upcoming] = await Promise.all([loadPools(), loadSchedules(), loadUpcomingSchedules()]);
-	const calendar = createPoolCalendar(schedules, upcoming);
-	const today = pacificToday();
-	const inForce = schedules.map((s) => calendar.scheduleOn(s.id, today) ?? s);
-	return buildPoolPages(records, inForce);
+	return buildPoolPages(records, schedulesInForce(schedules, upcoming, pacificToday()));
 }
 
 async function loadPage(slug: string): Promise<PoolPage | null> {
@@ -62,7 +56,10 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 			`Weekly swim schedule for ${page.name} at ${page.address}, San Francisco` +
 			(programs ? `: ${programs} and more.` : ".") +
 			" Session times, closures and the official schedule PDF.",
-		alternates: { canonical: `/pools/${page.slug}` },
+		alternates: {
+			canonical: `/pools/${page.slug}`,
+			types: { "text/markdown": markdownPath(`/pools/${page.slug}`) },
+		},
 	};
 }
 
@@ -122,7 +119,7 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 	const single = page.pools.length === 1;
 
 	return (
-		<main>
+		<main data-pool={page.name}>
 			<script
 				type="application/ld+json"
 				dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData(page)).replace(/</g, "\\u003c") }}

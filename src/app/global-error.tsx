@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { trackError } from "@/lib/analytics";
+import { trackError, trackStaleDeployReload } from "@/lib/analytics";
 import { reloadForNewDeploy } from "@/lib/stale-deploy";
 
 /**
@@ -20,7 +20,7 @@ export default function GlobalError({
 		trackError(error, "root", error.digest);
 		// a tab left open across a deploy asks for chunks that are gone;
 		// a full reload fixes it, so do that rather than show this page
-		reloadForNewDeploy(error);
+		reloadForNewDeploy(error, () => trackStaleDeployReload("root"));
 	}, [error]);
 
 	return (

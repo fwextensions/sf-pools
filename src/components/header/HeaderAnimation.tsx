@@ -4,7 +4,9 @@ import { useEffect, useRef } from "react";
 import { HeaderPlaceholder, HEADER_HEIGHT } from "./HeaderPlaceholder";
 import "./header-placeholder.css";
 import displayFragShader from "./header-shader.frag";
+import { daylight, PRESET_ALTITUDES, sunAltitudeDeg } from "./sun";
 import { mountWater, type Water } from "./water";
+import { setWaterMode } from "@/lib/analytics";
 import { onMediaChange } from "@/lib/media-query";
 
 // Shader constants that ?water=no-<name> switches off, for comparing each
@@ -18,6 +20,16 @@ function withConstsZeroed(src: string, names: string[]) {
 		new RegExp(`const\\s+float\\s+${name}\\s*=\\s*-?[0-9]*\\.?[0-9]+\\s*;`),
 		`const float ${name} = 0.0;`
 	), src);
+}
+
+// The pinned water's background by day and by night, as RGB, for the bar
+// Safari 26 colors from it (see the effect below).
+const STRIP_DAY = [0x7b, 0xbc, 0xda];
+const STRIP_NIGHT = [0x2c, 0x5f, 0x8e];
+
+function stripColor(sun: number) {
+	const [r, g, b] = STRIP_NIGHT.map((night, i) => Math.round(night + (STRIP_DAY[i] - night) * sun));
+	return `rgb(${r}, ${g}, ${b})`;
 }
 
 // Water that breaks this soon after mounting means the GPU won't keep it
@@ -38,12 +50,42 @@ export default function HeaderAnimation()
 		// switches every effect off, which is the water as it was before them;
 		// no-check skips the black-frame check.
 		const flags = (new URLSearchParams(location.search).get("water") ?? "").split(",");
-		if (flags.includes("off")) return;
 		const plain = flags.includes("plain");
+		const timeOfDay = plain ? "day" : flags.find(f => f === "day" || f === "night");
+
+		// Safari 26 on iOS no longer reads theme-color for the bar behind the
+		// clock. It hit-tests just inside the top of the screen, walks up to the
+		// first fixed or sticky element, and takes the first plain
+		// background-color on the way; with none, the bar showed the day
+		// water's light blue all night. So the pinned water gets a background
+		// that follows the sun like the water does: the day color is what
+		// Safari showed before, and the night one the darker tiles between the
+		// pool lights. data-night switches the placeholder to its night look
+		// (see header-placeholder.css). The water reads the sun every minute,
+		// so this does too, and again when a tab left in the background, where
+		// timers are throttled, comes back.
+		const strip = host.closest<HTMLElement>("[data-site-water]");
+		const updateSun = () => {
+			const altitude = timeOfDay ? PRESET_ALTITUDES[timeOfDay] : sunAltitudeDeg(new Date());
+			const sun = daylight(altitude);
+			host.toggleAttribute("data-night", sun < 0.5);
+			if (strip) strip.style.backgroundColor = stripColor(sun);
+		};
+		const sunTimer = setInterval(updateSun, 60_000);
+		document.addEventListener("visibilitychange", updateSun);
+		updateSun();
+		const stopSun = () => {
+			clearInterval(sunTimer);
+			document.removeEventListener("visibilitychange", updateSun);
+		};
+
+		if (flags.includes("off")) {
+			setWaterMode({ mode: "off" });
+			return stopSun;
+		}
 		const zeroed = Object.entries(EFFECTS)
 			.filter(([flag]) => plain || flags.includes(`no-${flag}`))
 			.map(([, name]) => name);
-		const timeOfDay = plain ? "day" : flags.find(f => f === "day" || f === "night");
 		const waterOpts = {
 			// ?water=no-check turns off the black-frame check, for telling a GPU
 			// that draws black from a check that misreads it
@@ -74,10 +116,27 @@ export default function HeaderAnimation()
 		const applyLoopState = () => {
 			water?.setLooping(visible && !reducedMotion.matches);
 		};
+		// tells analytics what the header ended up showing, so vitals,
+		// bounces and crashes can be split by it
+		const reportMode = () => {
+			if (water) setWaterMode({ mode: "webgl", filtering: water.filtering, still: reducedMotion.matches });
+		};
+		const onMotionChange = () => {
+			applyLoopState();
+			reportMode();
+		};
+		let remounting = false;
 		const mount = () => {
 			remountId = 0;
 			mountedAt = performance.now();
 			water = mountWater(host, { ...waterOpts, onBroken: handleBroken });
+			if (water) {
+				reportMode();
+			} else {
+				// no WebGL or no usable float texture, or a GPU that wouldn't
+				// give back a context after taking one away
+				setWaterMode({ mode: "placeholder", reason: remounting ? "kept_breaking" : "unsupported" });
+			}
 			applyLoopState();
 		};
 
@@ -93,8 +152,10 @@ export default function HeaderAnimation()
 			water = null;
 			if (performance.now() - mountedAt < REMOUNT_GIVE_UP_MS) {
 				console.warn("Header water broke again right after mounting; leaving the placeholder.");
+				setWaterMode({ mode: "placeholder", reason: "kept_breaking" });
 				return;
 			}
+			remounting = true;
 			remountId = requestAnimationFrame(mount);
 		}
 
@@ -102,11 +163,12 @@ export default function HeaderAnimation()
 			visible = entries[entries.length - 1].isIntersecting;
 			applyLoopState();
 		});
-		const stopWatchingMotion = onMediaChange(reducedMotion, applyLoopState);
+		const stopWatchingMotion = onMediaChange(reducedMotion, onMotionChange);
 		observer.observe(host);
 		mount();
 
 		return () => {
+			stopSun();
 			observer.disconnect();
 			stopWatchingMotion();
 			cancelAnimationFrame(remountId);

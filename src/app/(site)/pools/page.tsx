@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import AdmissionFees from "@/components/pools/AdmissionFees";
 import PoolAnchorRedirect from "@/components/pools/PoolAnchorRedirect";
 import PoolList from "@/components/pools/PoolList";
+import { markdownPath } from "@/lib/page-markdown";
 import { buildPoolPages } from "@/lib/pool-pages";
 import { loadAdmissionFees, loadPools, loadSchedules } from "@/lib/site-data";
 
 export const metadata: Metadata = {
 	title: "Pools",
 	description: "San Francisco's public swimming pools, with each one's address and weekly swim schedule, and what a swim costs.",
-	alternates: { canonical: "/pools" },
+	alternates: { canonical: "/pools", types: { "text/markdown": markdownPath("/pools") } },
 };
 
 export default async function PoolsPage() {
