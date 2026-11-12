@@ -398,6 +398,69 @@ html {
 	}
 }
 
+/* The closure notices above the grid (AlertCarousel): one row that scrolls
+   sideways and snaps to each notice, rather than a stack that filled a
+   phone's first screen and pushed the grid down on a desktop. Each notice
+   grows from its basis to fill the row, so one or two (three on a desktop)
+   share it as before; past that the row overflows, and the basis leaves the
+   next notice peeking in at the edge, which says the row scrolls. Margins
+   rather than gap between them, since Safari before 14.1 has no gap in flex
+   rows. */
+.alert-carousel {
+	display: flex;
+	align-items: stretch;
+	overflow-x: auto;
+	overscroll-behavior-x: contain;
+	scroll-snap-type: x mandatory;
+	scrollbar-width: none;
+}
+
+.alert-carousel::-webkit-scrollbar {
+	display: none;
+}
+
+.alert-carousel > * {
+	flex: 1 0 85%;
+	scroll-snap-align: start;
+}
+
+.alert-carousel > * + * {
+	margin-left: 0.5rem;
+}
+
+@media (min-width: 560px) {
+	.alert-carousel > * {
+		flex-basis: 46%;
+	}
+}
+
+@media (min-width: 900px) {
+	.alert-carousel > * {
+		flex-basis: 31%;
+	}
+}
+
+/* On a phone the row runs out to the screen's edges, past the page gutter,
+   with the gutter kept as padding so the first notice still lines up with
+   the page. */
+@media (max-width: 559px) {
+	.alert-carousel {
+		margin-left: -1rem;
+		margin-right: -1rem;
+		padding-left: 1rem;
+		padding-right: 1rem;
+		scroll-padding-left: 1rem;
+	}
+
+	/* the padding at the row's far end, which Safari drops from the
+	   scrollable width of an overflowing flex row */
+	.alert-carousel::after {
+		content: "";
+		flex: none;
+		width: 1px;
+	}
+}
+
 /* White labels over the water, with a faint dark edge for the brightest
    caustics. */
 .site-tab-water {
