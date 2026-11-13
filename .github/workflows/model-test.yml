@@ -32,15 +32,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: flash-lite
-            model: gemini-3.5-flash-lite
-            thinking: ""
-          - name: hydrogen
+          - name: hydrogen-medium
             model: gemini-4-hydrogen
-            thinking: ""
-          - name: hydrogen-low
-            model: gemini-4-hydrogen
-            thinking: low
+            thinking: medium
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
