@@ -637,49 +637,38 @@ input[type="radio"] {
 	min-width: 14px;
 	min-height: 14px;
 	flex: none;
-	/* The outline is an inset shadow, not a border, so the box has no border
-	   for the layers below to be offset by. With a real 1.5px border they
-	   sat at inset: -1.5px to cover it, but iOS draws that border as 4 of
-	   its 4.5 device pixels, and the water showed past the box's edges. */
-	border: 0;
+	border: 1.5px solid var(--color-ink-2);
 	border-radius: 0;
-	box-shadow: inset 0 0 0 1.5px var(--color-ink-2);
 	background: var(--color-page);
 	cursor: pointer;
-}
-
-/* The phone size for every checkbox is 1.25rem, which is 21.25px at the
-   17px root: a box whose edges fall between device pixels. This one is a
-   whole number of pixels, so its fill and its layers end on the same one. */
-@media (max-width: 899px) {
-	input.picker-checkbox {
-		width: 21px;
-		height: 21px;
-		min-width: 21px;
-		min-height: 21px;
-	}
-}
-
-/* shadows aren't drawn in forced colors, so there the box gets a border back */
-@media (forced-colors: active) {
-	.picker-checkbox {
-		border: 1px solid CanvasText;
-	}
 }
 
 .picker-checkbox:checked,
 .picker-checkbox-on {
 	background: var(--color-ink);
-	box-shadow: inset 0 0 0 1.5px var(--color-ink);
+	border-color: var(--color-ink);
 }
 
-/* both layers are exactly the size of the box */
 .picker-checkbox::before,
 .picker-checkbox::after {
 	content: "";
 	position: absolute;
-	inset: 0;
 	pointer-events: none;
+}
+
+/* The water fills the inside of the box and leaves the border alone: the
+   border turns ink with the click, so the water only has to meet it. It
+   laps half a pixel under the border so no gap can open between the two,
+   and stays short of the border's outer edge, which iOS draws at 4 of its
+   4.5 device pixels; a layer sized to cover a full 1.5px showed past it. */
+.picker-checkbox::before {
+	inset: -0.5px;
+}
+
+/* the tick sits inside the border too; its viewBox is the 14px box less a
+   1.5px border all round */
+.picker-checkbox::after {
+	inset: 0;
 }
 
 /* The water. A percentage mask position is a share of the box's size less
@@ -710,7 +699,7 @@ input[type="radio"] {
    fade ended and it was drawn back into the page. */
 .picker-checkbox::after {
 	background: transparent;
-	mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='square'%3E%3Cpath d='M3.2 7.4 5.9 10.1 10.8 4.2'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+	mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='1.5 1.5 11 11' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='square'%3E%3Cpath d='M3.2 7.4 5.9 10.1 10.8 4.2'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
 }
 
 .picker-checkbox:checked::after,
