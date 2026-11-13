@@ -10,6 +10,7 @@ import { NoObjectGeneratedError, type LanguageModelUsage } from "ai";
 const PRICING: Record<string, { input: number; output: number }> = {
 	"gemini-3.1-flash-lite": { input: 0.25, output: 1.5 },
 	"gemini-3.5-flash-lite": { input: 0.3, output: 2.5 },
+	"gemini-4-hydrogen": { input: 1.5, output: 7.5 },
 };
 
 /** One model call, as written to the usage log. */

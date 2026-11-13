@@ -77,6 +77,10 @@ function runExtraction(pdfBuffer: Buffer, text: string, task: string, hints: Ext
 		temperature: 0,
 		// retry transient API failures (429/5xx/network) with backoff
 		maxRetries: 3,
+		// TEMP model test: THINKING_LEVEL=low|medium|high|xhigh
+		...(process.env.THINKING_LEVEL
+			? { providerOptions: { google: { thinkingConfig: { thinkingLevel: process.env.THINKING_LEVEL } } } }
+			: {}),
 		system: SYSTEM_PROMPT,
 		messages: [
 			{

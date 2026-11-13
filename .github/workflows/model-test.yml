@@ -1,0 +1,79 @@
+# TEMP: compare extraction models on the current PDFs. No commit, no notify.
+name: Model test
+
+on:
+  push:
+    branches: [claude/project-thread-2w8noy]
+
+jobs:
+  pdfs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "26"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run scrape && npm run download-pdfs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: inputs
+          path: |
+            data/pdfs/
+            data/pools.json
+            data/pdf-manifest.json
+            public/data/
+
+  extract:
+    needs: pdfs
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: flash-lite
+            model: gemini-3.5-flash-lite
+            thinking: ""
+          - name: hydrogen
+            model: gemini-4-hydrogen
+            thinking: ""
+          - name: hydrogen-low
+            model: gemini-4-hydrogen
+            thinking: low
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "26"
+          cache: "npm"
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: inputs
+          path: data-in
+      - run: |
+          cp -r data-in/data/pdfs/. data/pdfs/
+          cp data-in/data/pools.json data-in/data/pdf-manifest.json data/
+          cp -r data-in/public/data/. public/data/
+      - name: Extract
+        run: |
+          : > data/usage/llm-usage.jsonl
+          start=$(date +%s)
+          npx tsx scripts/process-all-pdfs.ts 2>&1 | tee extract.log
+          echo "wall seconds: $(( $(date +%s) - start ))" | tee -a extract.log
+        env:
+          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          EXTRACT_MODEL: ${{ matrix.model }}
+          THINKING_LEVEL: ${{ matrix.thinking }}
+          REFRESH_EXTRACT: "1"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: out-${{ matrix.name }}
+          path: |
+            extract.log
+            data/extracted/
+            data/usage/
+            data/changelog/
+            public/data/all_schedules.json
