@@ -675,16 +675,19 @@ input[type="radio"] {
 	mask-position: 0 26%;
 }
 
-/* the tick: Lucide's check, square-ended to suit the box */
+/* The tick: Lucide's check, square-ended to suit the box. It shows by taking
+   a color rather than by opacity: an opacity animation gives the layer its
+   own compositing surface for as long as it runs, and on an iPhone, where
+   the box is a fractional size, the tick jumped a pixel sideways when the
+   fade ended and it was drawn back into the page. */
 .picker-checkbox::after {
-	background: var(--color-on-ink);
+	background: transparent;
 	mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='square'%3E%3Cpath d='M3.2 7.4 5.9 10.1 10.8 4.2'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
-	opacity: 0;
 }
 
 .picker-checkbox:checked::after,
 .picker-checkbox-on::after {
-	opacity: 1;
+	background: var(--color-on-ink);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -716,8 +719,7 @@ input[type="radio"] {
 }
 
 @keyframes picker-tick {
-	from { opacity: 0; }
-	to { opacity: 1; }
+	from { background-color: transparent; }
 }
 
 @keyframes picker-drain {
