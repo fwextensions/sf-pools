@@ -4,7 +4,7 @@ Every public pool schedule in San Francisco, in one place.
 
 ## What this is
 
-The [San Francisco Recreation and Park Department](https://sfrecpark.org) runs nine public pools, and each one posts its schedule as a separate PDF. Finding a lap swim that fits your morning routine means opening several PDFs and comparing them by hand. This site does that comparison for you.
+The [San Francisco Recreation and Park Department](https://sfrecpark.org) runs nine public pools, and each one posts its schedule as a separate PDF. Finding a lap swim that fits your morning routine means opening several PDFs and comparing them by hand. This site collects all that information for you on a single page.
 
 The [week grid](/) shows which pools have a program at each hour of the week, [now & soon](/now) shows what’s open at the moment, and each of the [pools](/pools) has a page with its address and every session on its schedule.
 
