@@ -637,24 +637,48 @@ input[type="radio"] {
 	min-width: 14px;
 	min-height: 14px;
 	flex: none;
-	border: 1.5px solid var(--color-ink-2);
+	/* The outline is an inset shadow, not a border, so the box has no border
+	   for the layers below to be offset by. With a real 1.5px border they
+	   sat at inset: -1.5px to cover it, but iOS draws that border as 4 of
+	   its 4.5 device pixels, and the water showed past the box's edges. */
+	border: 0;
 	border-radius: 0;
+	box-shadow: inset 0 0 0 1.5px var(--color-ink-2);
 	background: var(--color-page);
 	cursor: pointer;
+}
+
+/* The phone size for every checkbox is 1.25rem, which is 21.25px at the
+   17px root: a box whose edges fall between device pixels. This one is a
+   whole number of pixels, so its fill and its layers end on the same one. */
+@media (max-width: 899px) {
+	input.picker-checkbox {
+		width: 21px;
+		height: 21px;
+		min-width: 21px;
+		min-height: 21px;
+	}
+}
+
+/* shadows aren't drawn in forced colors, so there the box gets a border back */
+@media (forced-colors: active) {
+	.picker-checkbox {
+		border: 1px solid CanvasText;
+	}
 }
 
 .picker-checkbox:checked,
 .picker-checkbox-on {
 	background: var(--color-ink);
-	border-color: var(--color-ink);
+	box-shadow: inset 0 0 0 1.5px var(--color-ink);
 }
 
-/* both layers cover the border too, so they are the size of the box */
+/* both layers are exactly the size of the box */
 .picker-checkbox::before,
 .picker-checkbox::after {
 	content: "";
 	position: absolute;
-	inset: -1.5px;
+	inset: 0;
 	pointer-events: none;
 }
 
