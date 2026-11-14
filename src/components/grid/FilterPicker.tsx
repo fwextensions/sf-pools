@@ -9,6 +9,30 @@ import type { FilterView, GridModel } from "@/lib/grid/grid-model";
 // The program and pool pickers, shared by the desktop sidebar and the mobile
 // panels, and the buttons that clear them.
 
+// A picker row's checkbox. Clicking it fills or drains the box (the
+// picker-checkbox styles in globals.css), and data-just is how the styles
+// tell a click from a box that was ticked by the URL or emptied by CLEAR:
+// it's set here, outside React's view of the element, and taken off again
+// when the last animation of the fill (the tick) or the drain has ended.
+function PickerCheckbox({ checked, onChange }: { checked: boolean; onChange: () => void }) {
+	return (
+		<input
+			type="checkbox"
+			checked={checked}
+			onChange={(event) => {
+				event.currentTarget.dataset.just = "";
+				onChange();
+			}}
+			onAnimationEnd={(event) => {
+				if (event.animationName === "picker-tick" || event.animationName === "picker-drain") {
+					delete event.currentTarget.dataset.just;
+				}
+			}}
+			className="picker-checkbox"
+		/>
+	);
+}
+
 // the program categories, one block per group with a rule between them. The
 // groups have no heading or checkbox of their own; the rule is enough to
 // keep the open swims apart from the lessons and the private bookings.
@@ -34,11 +58,9 @@ export function CategoryRows({
 					key={name}
 					className="flex cursor-pointer items-center gap-2.5 py-1.5"
 				>
-					<input
-						type="checkbox"
+					<PickerCheckbox
 						checked={tagSet.has(name)}
 						onChange={() => model.toggleTag(name)}
-						className="picker-checkbox"
 					/>
 					<span className="flex-1 text-body text-ink">{tagLabel(name)}</span>
 					<span className="font-mono text-small font-medium text-ink-2">
@@ -59,11 +81,9 @@ export function PoolRows({ model, filters }: { model: GridModel; filters: Filter
 				key={token.id}
 				className="flex cursor-pointer items-center gap-2.5 py-1.5"
 			>
-				<input
-					type="checkbox"
+				<PickerCheckbox
 					checked={selectedPools.includes(token.id)}
 					onChange={() => model.togglePool(token.id)}
-					className="picker-checkbox"
 				/>
 				<PoolChip token={token} />
 				<span className="flex-1 text-body text-ink">{token.name}</span>

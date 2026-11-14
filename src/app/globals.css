@@ -620,8 +620,17 @@ input[type="radio"] {
 	color: transparent;
 }
 
-/* small square checkboxes for the program picker's raw-name list */
+/* The pickers' square checkboxes. Ticked, the box is ink with a tick in the
+   page color. Clicking one fills it like a pool: ::before is an ink layer
+   whose top edge is a wave, cut by a mask two boxes wide and a little over
+   two tall, and the fill slides that mask up and sideways so the surface
+   moves as it rises. Unticking drains it straight down in half the time.
+   The motion is for a click only, which PickerCheckbox marks with
+   data-just, so a box ticked from the URL or cleared by a button just
+   changes. */
 .picker-checkbox {
+	--picker-fill: 280ms;
+	position: relative;
 	appearance: none;
 	width: 14px;
 	height: 14px;
@@ -638,6 +647,105 @@ input[type="radio"] {
 .picker-checkbox-on {
 	background: var(--color-ink);
 	border-color: var(--color-ink);
+}
+
+.picker-checkbox::before,
+.picker-checkbox::after {
+	content: "";
+	position: absolute;
+	pointer-events: none;
+}
+
+/* The water fills the inside of the box and leaves the border alone: the
+   border turns ink with the click, so the water only has to meet it. It
+   laps half a pixel under the border so no gap can open between the two,
+   and stays short of the border's outer edge, which iOS draws at 4 of its
+   4.5 device pixels; a layer sized to cover a full 1.5px showed past it. */
+.picker-checkbox::before {
+	inset: -0.5px;
+}
+
+/* the tick sits inside the border too; its viewBox is the 14px box less a
+   1.5px border all round */
+.picker-checkbox::after {
+	inset: 0;
+}
+
+/* The water. A percentage mask position is a share of the box's size less
+   the mask's, so with a mask 215% tall, -87% puts its top edge at the
+   bottom of the box (empty) and 30% puts the wave a pixel clear of the top
+   (full); at 200% wide, 100% is one box to the left, a whole wavelength. */
+.picker-checkbox::before {
+	/* Only drawn while a click's animation runs. At rest the box's own
+	   background is the fill: left in place, the wave's crest could round
+	   to a pixel above the box's top edge. */
+	visibility: hidden;
+	background: var(--color-ink);
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 30' preserveAspectRatio='none'%3E%3Cpath d='M0 4Q3.5 0 7 4T14 4T21 4T28 4V30H0Z'/%3E%3C/svg%3E");
+	mask-repeat: no-repeat;
+	mask-size: 200% 215%;
+	mask-position: 0 -87%;
+}
+
+.picker-checkbox:checked::before,
+.picker-checkbox-on::before {
+	mask-position: 0 30%;
+}
+
+/* The tick: Lucide's check, square-ended to suit the box. It shows by taking
+   a color rather than by opacity: an opacity animation gives the layer its
+   own compositing surface for as long as it runs, and on an iPhone, where
+   the box is a fractional size, the tick jumped a pixel sideways when the
+   fade ended and it was drawn back into the page. */
+.picker-checkbox::after {
+	background: transparent;
+	mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='1.5 1.5 11 11' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='square'%3E%3Cpath d='M3.2 7.4 5.9 10.1 10.8 4.2'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+}
+
+.picker-checkbox:checked::after,
+.picker-checkbox-on::after {
+	background: var(--color-on-ink);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.picker-checkbox[data-just]::before {
+		visibility: visible;
+	}
+
+	/* the box's own ink waits for the water to reach the top */
+	.picker-checkbox[data-just]:checked {
+		animation: picker-ink var(--picker-fill) linear;
+	}
+
+	.picker-checkbox[data-just]:checked::before {
+		animation: picker-fill var(--picker-fill) cubic-bezier(.3, .7, .3, 1) both;
+	}
+
+	.picker-checkbox[data-just]:checked::after {
+		animation: picker-tick 100ms calc(var(--picker-fill) * .8) both;
+	}
+
+	.picker-checkbox[data-just]:not(:checked)::before {
+		animation: picker-drain calc(var(--picker-fill) / 2) cubic-bezier(.7, 0, .7, .3) both;
+	}
+}
+
+@keyframes picker-ink {
+	0%, 99% { background-color: var(--color-page); }
+}
+
+@keyframes picker-fill {
+	from { mask-position: 100% -87%; }
+	to { mask-position: 0 30%; }
+}
+
+@keyframes picker-tick {
+	from { background-color: transparent; }
+}
+
+@keyframes picker-drain {
+	from { mask-position: 0 30%; }
+	to { mask-position: 0 -87%; }
 }
 
 /* ===========================================
