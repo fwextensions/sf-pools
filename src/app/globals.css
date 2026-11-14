@@ -15,8 +15,13 @@
 	--color-ink: #0e2733;
 	/* all secondary text, labels, meta, counts */
 	--color-ink-2: #4f6672;
-	/* interactive control borders only */
+	/* heavier rules that aren't a control's edge: the weekend marker, a
+	   session bar, a disabled arrow */
 	--color-line-strong: #c4d2d9;
+	/* The border of anything you can press. 3:1 or better against both the
+	   page and the tint, which is what it takes for a control known only by
+	   its outline (the icon buttons) to be seen as one. */
+	--color-control-edge: #7c919b;
 	/* row dividers, grid hairlines */
 	--color-line: #e2e8ec;
 	/* empty cells, stat tiles, hover */
@@ -124,7 +129,7 @@
 	color: var(--color-ink-2);
 }
 
-/* Buttons, inputs and pickers: a 1px line-strong hairline, 36px tall, or
+/* Buttons, inputs and pickers: a 1px control-edge hairline, 36px tall, or
    44px under 900px where they take a finger. Callers add their own text
    style and any selected state. */
 @utility control {
@@ -134,7 +139,7 @@
 	gap: 6px;
 	min-height: 36px;
 	padding-inline: 12px;
-	border: 1px solid var(--color-line-strong);
+	border: 1px solid var(--color-control-edge);
 	background: var(--color-page);
 	cursor: pointer;
 
@@ -160,6 +165,7 @@
 		--color-ink: #e4edf1;
 		--color-ink-2: #b4c6ce;
 		--color-line-strong: #557280;
+		--color-control-edge: #557280;
 		--color-line: #22343d;
 		--color-tint: #13232b;
 		--color-alert-tint: #2e1a17;

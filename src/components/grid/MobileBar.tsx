@@ -37,34 +37,18 @@ export function MobileChips({
 	return (
 		<div className="flex items-center justify-between gap-1">
 			<div className="flex min-w-0 items-center gap-1">
-				<button
-					type="button"
-					onClick={() => onOpenPanel(openPanel === "programs" ? null : "programs")}
-					className="control min-w-0 px-2.5 text-body font-medium max-[391px]:gap-1 max-[391px]:px-2 max-[391px]:text-small"
-					style={{
-						background: selectedTags.length ? "var(--color-ink)" : "var(--color-page)",
-						borderColor: selectedTags.length ? "var(--color-ink)" : undefined,
-						color: selectedTags.length ? "var(--color-on-ink)" : "var(--color-ink)",
-					}}
-				>
-					<span className="truncate">Programs:</span>
-					<span className="-ml-0.5 max-[391px]:ml-0">{selectedTags.length || "All"}</span>
-					<Chevron open={openPanel === "programs"} />
-				</button>
-				<button
-					type="button"
-					onClick={() => onOpenPanel(openPanel === "pools" ? null : "pools")}
-					className="control min-w-0 px-2.5 text-body font-medium max-[391px]:gap-1 max-[391px]:px-2 max-[391px]:text-small"
-					style={{
-						background: selectedPools.length ? "var(--color-ink)" : "var(--color-page)",
-						borderColor: selectedPools.length ? "var(--color-ink)" : undefined,
-						color: selectedPools.length ? "var(--color-on-ink)" : "var(--color-ink)",
-					}}
-				>
-					<span className="truncate">Pools:</span>
-					<span className="-ml-0.5 max-[391px]:ml-0">{selectedPools.length || "All"}</span>
-					<Chevron open={openPanel === "pools"} />
-				</button>
+				<PickerButton
+					label="Programs"
+					count={selectedTags.length}
+					open={openPanel === "programs"}
+					onToggle={() => onOpenPanel(openPanel === "programs" ? null : "programs")}
+				/>
+				<PickerButton
+					label="Pools"
+					count={selectedPools.length}
+					open={openPanel === "pools"}
+					onToggle={() => onOpenPanel(openPanel === "pools" ? null : "pools")}
+				/>
 			</div>
 			<div className="flex flex-none items-center gap-1">
 				{selectedTags.length || selectedPools.length ? <ClearIconButton model={model} /> : null}
@@ -93,6 +77,49 @@ export function MobileChips({
 	);
 }
 
+// One of the two picker buttons. The ink fill means its panel is open, the
+// same as the full-screen button's fill means that mode is on. A filter
+// being set shows as an ink border with a thick bar along the bottom, so a
+// closed button with filters can't pass for the open one. The bar is painted
+// as a background rather than an inset shadow or a wider border: iOS draws
+// inset shadows unevenly, and a wider border would change the button's box.
+function PickerButton({
+	label,
+	count,
+	open,
+	onToggle,
+}: {
+	label: string;
+	count: number;
+	open: boolean;
+	onToggle: () => void;
+}) {
+	const fill = open ? "var(--color-ink)" : "var(--color-page)";
+	const mark = open ? "var(--color-on-ink)" : "var(--color-ink)";
+	return (
+		<button
+			type="button"
+			aria-expanded={open}
+			aria-controls={PANEL_ID}
+			aria-label={count ? `${label}: ${count} selected` : `${label}: all`}
+			onClick={onToggle}
+			className="control min-w-0 px-2.5 text-body font-medium max-[391px]:gap-1 max-[391px]:px-2 max-[391px]:text-small"
+			style={{
+				background: count ? `linear-gradient(to top, ${mark} 3px, ${fill} 3px)` : fill,
+				borderColor: open || count ? "var(--color-ink)" : undefined,
+				color: mark,
+			}}
+		>
+			<span className="truncate">{label}:</span>
+			<span className="-ml-0.5 max-[391px]:ml-0">{count || "All"}</span>
+			<Chevron open={open} />
+		</button>
+	);
+}
+
+// the panel the picker buttons open, for their aria-controls
+const PANEL_ID = "grid-filter-panel";
+
 // on the page a panel is just tall and the rest scrolls past it: no height
 // cap and no scroller of its own, so the page is the only thing that
 // scrolls and a swipe started anywhere behaves the same. A capped panel
@@ -118,14 +145,16 @@ export function MobilePanel({
 	ref?: Ref<HTMLDivElement>;
 	children: { programs: ReactNode; pools: ReactNode };
 }) {
+	// on the page the panel runs out through the page gutter with the chip
+	// bar above it; in focus mode the tint already fills the screen
 	const className = `border-b-2 border-ink bg-tint ${
-		fill ? "overflow-y-auto overscroll-contain min-h-0 flex-initial" : ""
+		fill ? "overflow-y-auto overscroll-contain min-h-0 flex-initial" : "-mx-4 px-4"
 	}`;
 	if (openPanel === "programs") {
-		return <div ref={ref} className={className}>{children.programs}</div>;
+		return <div ref={ref} id={PANEL_ID} className={className}>{children.programs}</div>;
 	}
 	if (openPanel === "pools") {
-		return <div ref={ref} className={className}>{children.pools}</div>;
+		return <div ref={ref} id={PANEL_ID} className={className}>{children.pools}</div>;
 	}
 	return null;
 }
