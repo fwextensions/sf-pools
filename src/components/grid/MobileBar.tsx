@@ -78,10 +78,11 @@ export function MobileChips({
 }
 
 // One of the two picker buttons. The ink fill means its panel is open, the
-// same as the full-screen button's fill means that mode is on; a filter
-// being set shows as a count in a small ink badge instead, so a closed
-// button with filters can't pass for the open one. The button with nothing
-// picked says "All" in place of the badge.
+// same as the full-screen button's fill means that mode is on. A filter
+// being set shows as an ink border with a thick bar along the bottom, so a
+// closed button with filters can't pass for the open one. The bar is painted
+// as a background rather than an inset shadow or a wider border: iOS draws
+// inset shadows unevenly, and a wider border would change the button's box.
 function PickerButton({
 	label,
 	count,
@@ -93,6 +94,8 @@ function PickerButton({
 	open: boolean;
 	onToggle: () => void;
 }) {
+	const fill = open ? "var(--color-ink)" : "var(--color-page)";
+	const mark = open ? "var(--color-on-ink)" : "var(--color-ink)";
 	return (
 		<button
 			type="button"
@@ -100,27 +103,15 @@ function PickerButton({
 			aria-controls={PANEL_ID}
 			aria-label={count ? `${label}: ${count} selected` : `${label}: all`}
 			onClick={onToggle}
-			className="control min-w-0 px-2.5 text-body font-medium max-[391px]:gap-1 max-[391px]:px-1.5 max-[391px]:text-small"
+			className="control min-w-0 px-2.5 text-body font-medium max-[391px]:gap-1 max-[391px]:px-2 max-[391px]:text-small"
 			style={{
-				background: open ? "var(--color-ink)" : "var(--color-page)",
+				background: count ? `linear-gradient(to top, ${mark} 3px, ${fill} 3px)` : fill,
 				borderColor: open || count ? "var(--color-ink)" : undefined,
-				color: open ? "var(--color-on-ink)" : "var(--color-ink)",
+				color: mark,
 			}}
 		>
-			<span className="truncate">{count ? label : `${label}:`}</span>
-			{count ? (
-				<span
-					className="flex-none px-[5px] py-[3px] font-mono text-small font-semibold leading-none max-[391px]:px-[3px]"
-					style={{
-						background: open ? "var(--color-on-ink)" : "var(--color-ink)",
-						color: open ? "var(--color-ink)" : "var(--color-on-ink)",
-					}}
-				>
-					{count}
-				</span>
-			) : (
-				<span className="-ml-0.5 max-[391px]:ml-0">All</span>
-			)}
+			<span className="truncate">{label}:</span>
+			<span className="-ml-0.5 max-[391px]:ml-0">{count || "All"}</span>
 			<Chevron open={open} />
 		</button>
 	);
@@ -154,8 +145,10 @@ export function MobilePanel({
 	ref?: Ref<HTMLDivElement>;
 	children: { programs: ReactNode; pools: ReactNode };
 }) {
+	// on the page the panel runs out through the page gutter with the chip
+	// bar above it; in focus mode the tint already fills the screen
 	const className = `border-b-2 border-ink bg-tint ${
-		fill ? "overflow-y-auto overscroll-contain min-h-0 flex-initial" : ""
+		fill ? "overflow-y-auto overscroll-contain min-h-0 flex-initial" : "-mx-4 px-4"
 	}`;
 	if (openPanel === "programs") {
 		return <div ref={ref} id={PANEL_ID} className={className}>{children.programs}</div>;

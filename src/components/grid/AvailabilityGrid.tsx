@@ -207,7 +207,10 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays 
 				</div>
 			) : (
 				<div className="mx-auto max-w-[430px] min-[560px]:hidden">
-					<div ref={chipBarRef} className="sticky top-[var(--site-sticky-h)] z-10 border-b border-line bg-tint py-2.5 short:py-1.5">
+					{/* the bar's tint runs out through the page gutter to the screen
+					    edges, so the buttons keep a margin while staying in line
+					    with the grid below */}
+					<div ref={chipBarRef} className="sticky top-[var(--site-sticky-h)] z-10 -mx-4 border-b border-line bg-tint px-4 py-2.5 short:py-1.5">
 						{mobileChips}
 					</div>
 					<MobilePanel ref={panelRef} openPanel={openPanel}>{mobilePanelRows}</MobilePanel>
