@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import type { PoolSchedule } from "@/lib/schedule-schema";
 import type { CityHoliday } from "@/lib/city-holidays";
 import PoolAlerts from "@/components/PoolAlerts";
@@ -11,6 +11,7 @@ import { trackGridChange } from "@/lib/grid/grid-analytics";
 import { addDays, createPoolCalendar } from "@/lib/pool-calendar";
 import { pacificToday } from "@/lib/closures";
 import { initialGridState, writeGridUrl } from "@/lib/grid/url";
+import { GRID_PENDING_STYLE_ID } from "@/lib/grid/pending";
 import { trackFocusMode } from "@/lib/analytics";
 import { onMediaChange } from "@/lib/media-query";
 import type { AlertsData } from "@/lib/site-data";
@@ -26,17 +27,31 @@ type Props = {
 	alerts?: AlertsData | null;
 	/** the city's, which close every pool */
 	holidays?: CityHoliday[];
+	/** the San Francisco date the page was built on, which the prerendered
+	    week starts from */
+	today: string;
 };
 
-export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays = [] }: Props) {
-	const searchParams = useSearchParams();
+const subscribeNothing = () => () => {};
+
+/**
+ * The week grid, prerendered for the date the site was built on. The static
+ * HTML can be days old, so once it has hydrated the grid checks the reader's
+ * own date and builds the week again when it has moved on.
+ */
+export default function AvailabilityGrid({ today: builtOn, ...props }: Props) {
+	// the build's date while hydrating, the reader's after
+	const today = useSyncExternalStore(subscribeNothing, () => pacificToday(), () => builtOn);
+	return <WeekGrid key={today} today={today} {...props} />;
+}
+
+function WeekGrid({ all, upcoming = [], alerts, holidays = [], today }: Props) {
 	const pathname = usePathname();
 	// each weekday column is that day's next date, from today, so a closed
 	// pool's sessions drop out on the days its closure covers this week, as
 	// do the days outside its printed schedule; the notices above the grid
 	// say why
 	const [week] = useState(() => {
-		const today = pacificToday();
 		const calendar = createPoolCalendar(all, upcoming, holidays);
 		const last = addDays(today, 6);
 		return {
@@ -46,9 +61,14 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays 
 			gaps: calendar.scheduleGaps(today, last),
 		};
 	});
-	// created during the first render from the url rather than in an effect,
-	// so the grid never paints a frame unfiltered before the filters land
-	const [model] = useState(() => createGridModel(week.sessions, initialGridState(searchParams)));
+	// the server has no url to read, so the grid starts unfiltered on both
+	// sides and the url's filters and cell are applied before the hydrated
+	// page paints
+	const [model] = useState(() => createGridModel(week.sessions, { tags: [], pools: [], cell: null }));
+	useLayoutEffect(() => {
+		model.restore(initialGridState(new URLSearchParams(window.location.search)));
+		document.getElementById(GRID_PENDING_STYLE_ID)?.remove();
+	}, [model]);
 	const subscribeFilters = useCallback(
 		(onChange: () => void) =>
 			model.subscribe((change) => {
@@ -170,7 +190,7 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays 
 	};
 
 	return (
-		<div className="font-sans py-6 text-ink">
+		<div data-grid-root className="font-sans py-6 text-ink">
 			<PoolAlerts
 				alerts={alerts}
 				pools={all}

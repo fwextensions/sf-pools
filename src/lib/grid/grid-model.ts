@@ -15,7 +15,10 @@ export type GridAction =
 	| { type: "toggleGroup"; group: string; selected: boolean; total: number }
 	| { type: "togglePool"; pool: string; selected: boolean; total: number }
 	| { type: "clear"; programs: number; pools: number; source: "clear_button" | "empty_cell" }
-	| { type: "selectCell"; cell: GridCell | null; source: "click" | "drag" };
+	| { type: "selectCell"; cell: GridCell | null; source: "click" | "drag" }
+	// the state the url held, put back after the page hydrated unfiltered;
+	// the reader did nothing, so analytics skips it
+	| { type: "restore" };
 
 export type GridChange =
 	// the filters changed, and with them everything getFilters() returns
@@ -139,6 +142,17 @@ export function createGridModel(
 				pools,
 				source,
 			});
+		},
+
+		// the filters and cell a link carried, applied in one go. The page is
+		// prerendered unfiltered, so the grid starts that way and picks up
+		// the url's state once it has hydrated
+		restore(state: { tags: string[]; pools: string[]; cell: GridCell | null }) {
+			const action: GridAction = { type: "restore" };
+			filters = view(state.tags, state.pools);
+			shown = committed = state.cell;
+			emit({ kind: "filters", action });
+			emit({ kind: "cell", action, changed: true });
 		},
 
 		// a drag passing over a cell

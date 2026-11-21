@@ -46,6 +46,20 @@ describe("createGridModel", () => {
 		expect(model.getCell()).toBeNull();
 	});
 
+	it("restores the url's filters and cell in one go, as a restore rather than a reader's action", () => {
+		const { model, changes } = setup();
+		model.restore({ tags: ["program:lap"], pools: ["mlk"], cell: { day: "Monday", hour: 7 } });
+		expect(model.getFilters().tags).toEqual(["program:lap"]);
+		expect(model.getFilters().pools).toEqual(["mlk"]);
+		expect(model.getFilters().hitMatrix.has(hitKey("Monday", 7, "balboa"))).toBe(false);
+		expect(model.getCell()).toEqual({ day: "Monday", hour: 7 });
+		expect(model.getCommittedCell()).toEqual({ day: "Monday", hour: 7 });
+		expect(changes).toEqual([
+			{ kind: "filters", action: { type: "restore" } },
+			{ kind: "cell", action: { type: "restore" }, changed: true },
+		]);
+	});
+
 	it("toggles a tag, reports the state it leads to and recomputes the hits", () => {
 		const { model, changes } = setup();
 		const before = model.getFilters();
