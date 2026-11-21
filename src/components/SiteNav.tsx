@@ -5,12 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { trackSectionNav } from "@/lib/analytics";
 
-// The three sections of the site, in the order they read left to right. The
-// week grid is the home page, so its tab matches only the exact root path;
-// the other two match their whole subtree.
+// The sections of the site, in the order they read left to right. Swim times
+// (the week grid, with Now & Soon under it) is the home page, so its tab
+// matches only the exact root path; the pools tab matches its whole subtree.
 const SECTIONS = [
-	{ href: "/", label: "WEEK GRID" },
-	{ href: "/now", label: "NOW & SOON" },
+	{ href: "/", label: "SWIM TIMES" },
 	{ href: "/pools", label: "POOLS" },
 ];
 
