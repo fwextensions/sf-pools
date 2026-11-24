@@ -6,8 +6,7 @@ It's an independent project, not a city site.
 
 ## Pages
 
-- **`/`** (Week grid) — every session in a day × hour grid, filtered by program and pool. Filters and the selected cell live in the URL (`?program=…&pools=…&cell=thu-20`).
-- **`/now`** (Now & Soon) — what's open now, later today, and each pool's next opening. `/now-preview?at=2026-11-26T10:00` shows it at any San Francisco time.
+- **`/`** (Swim times) — every session in a day × hour grid, filtered by program and pool, with Now & Soon (what's open now, later today, and each pool's next opening, counting what the same filters pick) in the panel under it until a cell is picked. Filters and the selected cell live in the URL (`?program=…&pools=…&cell=thu-20`). `/now` redirects here. `/now-preview?at=2026-11-26T10:00` shows Now & Soon at any San Francisco time.
 - **`/pools`** — the pool list with addresses and admission fees; **`/pools/<slug>`** is a page per pool with its schedule, closures, phone and PDF links. `/schedules` redirects here.
 - **`/changes`** — the changelog of each pipeline run.
 - **`/about`** — text from `src/content/about.md`.
