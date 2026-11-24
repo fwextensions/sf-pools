@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore, type CSSProperties } from "react";
 import Link from "next/link";
 import type { PoolSchedule } from "@/lib/schedule-schema";
 import type { CityHoliday } from "@/lib/city-holidays";
@@ -244,7 +244,7 @@ function Section({
 }: {
 	first?: boolean;
 	label: string;
-	glyph: string;
+	glyph?: string;
 	count: number;
 	empty: string;
 	children: React.ReactNode;
@@ -253,7 +253,7 @@ function Section({
 		<section className={first ? "mt-3" : "mt-8"}>
 			<div className="flex items-baseline justify-between border-t-2 border-ink pt-2.5">
 				<span className="font-mono text-label font-semibold uppercase tracking-[.08em] text-ink">
-					<span aria-hidden className={`status-dot ${glyph}`} />
+					{glyph ? <span aria-hidden className={`status-dot ${glyph}`} /> : null}
 					{label}
 				</span>
 				<span className="font-mono text-label font-medium text-ink-2">
@@ -275,6 +275,8 @@ function Section({
 		</section>
 	);
 }
+
+const subscribeNothing = () => () => {};
 
 /**
  * Where every pool stands: open now, opening later today, and its first
@@ -301,6 +303,29 @@ export default function NowSoon({ all, upcoming = [], holidays = [], filter = nu
 	const counted = useMemo(() => (filter ? nowSoonFilter(filter) : PUBLIC_SESSIONS), [filter]);
 	const view = useMemo(() => nowSoon(pools, calendar, now, counted), [pools, calendar, now, counted]);
 	const spans = useMemo(() => nowSoonSpans(view.open, view.soon, now.minutes), [view, now.minutes]);
+	// false while the prerendered page hydrates, true after and on every
+	// later mount. The HTML is built ahead of time, so what's open "now" in
+	// it would be the build's now, and that is what a search engine would
+	// index; it holds just the pools, each linking to its page, until the
+	// reader's own clock takes over.
+	const hydrated = useSyncExternalStore(subscribeNothing, () => true, () => false);
+
+	if (!hydrated && !fixedNow) {
+		return (
+			<div className="font-sans text-ink">
+				<h2 className="text-body font-semibold text-ink">Now &amp; soon</h2>
+				<Section first label="Pools" count={pools.length} empty="">
+					{pools.map((pool) => (
+						<RowLink key={pool.id} pool={pool} stretch={null}>
+							<div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+								<PoolName pool={pool} weight="font-semibold" />
+							</div>
+						</RowLink>
+					))}
+				</Section>
+			</div>
+		);
+	}
 
 	return (
 		<div className="font-sans text-ink">
