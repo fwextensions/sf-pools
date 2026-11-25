@@ -1,7 +1,7 @@
 // Fetch Rec & Park's emergency alerts from the Alert Center into
 // public/data/emergency_alerts.json. Every alert is kept and logged; only
 // the ones that read as touching the pools show on the site. The file only
-// changes when the alerts do, so the hourly workflow commits, and Vercel
+// changes when the alerts do, so the scheduled workflow commits, and Vercel
 // deploys, only then. --notify sends a push for each newly posted alert
 // that affects the pools.
 import "dotenv/config";
