@@ -172,7 +172,7 @@ export async function loadAlerts(): Promise<AlertsData | null> {
 
 /**
  * Rec & Park's emergency alerts that read as affecting the pools, none when
- * the file is missing. The hourly workflow keeps the file, apart from the
+ * the file is missing. The emergency alerts workflow keeps the file, apart from the
  * weekly pipeline's alerts.json.
  */
 export async function loadEmergencyAlerts(): Promise<EmergencyAlert[]> {

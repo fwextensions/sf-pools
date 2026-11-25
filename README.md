@@ -130,7 +130,7 @@ Closures (from alerts, PDF notes, the maintenance schedule and city holidays) ar
 
 - **Update Pool Schedules** (`update-schedules.yml`) runs every Friday at 20:00 UTC, and on demand. It runs `build-schedules`, commits changes to `public/data/`, `data/changelog/`, the extraction cache and manifests, and sends Pushover notifications. The commit to `main` triggers a Vercel deploy.
 - **Update City Holidays** (`update-holidays.yml`) runs daily from December through February, and stops fetching once the new year's list is saved.
-- **Update Emergency Alerts** (`update-emergency-alerts.yml`) runs hourly. It commits `emergency_alerts.json` only when the alerts change, so Vercel deploys only for a new or removed alert, and sends a Pushover notification for a new one that affects the pools.
+- **Update Emergency Alerts** (`update-emergency-alerts.yml`) runs every two hours from about 7am to 7pm Pacific. It commits `emergency_alerts.json` only when the alerts change, so Vercel deploys only for a new or removed alert, and sends a Pushover notification for a new one that affects the pools.
 
 ## Environment Variables
 
