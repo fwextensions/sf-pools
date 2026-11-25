@@ -1,0 +1,16 @@
+{
+	"alerts": [
+		{
+			"id": "114",
+			"title": "Ocean Beach Parking Lot Closed Ahead of Storm & High Tides",
+			"text": "Ahead of tonight’s storm, Rec and Park is extending the Ocean Beach parking lot’s overnight closure beginning at 10PM into tomorrow afternoon due to high tides & surf.\n\nIf you’re using your parks, please be alert as strong gusts can topple healthy trees and snap limbs. Please avoid standing water and flooded areas and respect posted closures. During high surf, stay off beaches, rocks, and jetties. Never walk, bike or drive through floodwater.",
+			"category": "Park Closures & Service Changes",
+			"posted": "November 24, 2026 8:55 PM",
+			"url": "https://sfrecpark.org/AlertCenter.aspx?AID=Ocean-Beach-Parking-Lot-Closed-Ahead-of--114",
+			"affectsPools": false,
+			"poolIds": [],
+			"matched": null,
+			"firstSeen": "2026-11-25"
+		}
+	]
+}

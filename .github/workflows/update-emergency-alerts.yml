@@ -1,0 +1,50 @@
+name: Update Emergency Alerts
+
+on:
+  schedule:
+    # every hour, since a storm or smoke closure is posted and taken down
+    # within a day or two, far inside the weekly schedule run. The script
+    # only rewrites the file when the alerts change, so most runs commit
+    # nothing and Vercel only deploys for a new or removed alert
+    - cron: "23 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: emergency-alerts
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "26"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Scrape the Alert Center
+        run: npm run scrape-emergency-alerts -- --notify
+        env:
+          PUSHOVER_USER_KEY: ${{ secrets.PUSHOVER_USER_KEY }}
+          PUSHOVER_API_TOKEN: ${{ secrets.PUSHOVER_API_TOKEN }}
+
+      - name: Commit and push changes
+        run: |
+          [ -z "$(git status --porcelain public/data/emergency_alerts.json)" ] && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/data/emergency_alerts.json
+          git commit -m "Update emergency alerts $(date -I)"
+          # the schedule workflow may have pushed since the checkout
+          git pull --rebase
+          git push

@@ -21,6 +21,7 @@
 		"build-schedules": "npm run scrape && npm run download-pdfs && tsx scripts/scrape-alerts.ts --notify && tsx scripts/scrape-aquatics-docs.ts --notify && npm run process-all-pdfs",
 		"scrape-alerts": "tsx scripts/scrape-alerts.ts",
 		"scrape-holidays": "tsx scripts/scrape-holidays.ts",
+		"scrape-emergency-alerts": "tsx scripts/scrape-emergency-alerts.ts",
 		"scrape-aquatics-docs": "tsx scripts/scrape-aquatics-docs.ts",
 		"analyze-programs": "tsx scripts/analyze-program-names.ts",
 		"renormalize-programs": "tsx scripts/renormalize-programs.ts"

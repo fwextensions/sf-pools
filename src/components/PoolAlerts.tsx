@@ -5,9 +5,13 @@ import AlertCarousel from "@/components/AlertCarousel";
 import type { ClosureWindow, ScheduleGap, SharedClosure } from "@/lib/pool-calendar";
 import { formatScheduleDate } from "@/lib/utils";
 import { hasClosureEnded } from "@/lib/closures";
+import { alertShowsFor, type EmergencyAlert } from "@/lib/emergency-alerts";
+import EmergencyAlertNotice from "@/components/EmergencyAlertNotice";
 
 type Props = {
 	alerts?: AlertsData | null;
+	/** Rec & Park emergency alerts that read as affecting the pools */
+	emergencyAlerts?: EmergencyAlert[];
 	pools: PoolSchedule[];
 	selectedPools: string[];
 	/** closures from the PDFs' notes that fall in the week the grid shows */
@@ -18,7 +22,7 @@ type Props = {
 	from?: string;
 }
 
-export default function PoolAlerts({ alerts, pools, selectedPools, weekClosures = [], scheduleGaps = [], from = "" }: Props) {
+export default function PoolAlerts({ alerts, emergencyAlerts = [], pools, selectedPools, weekClosures = [], scheduleGaps = [], from = "" }: Props) {
 	// a facility page can keep a closure notice up after the pool reopens,
 	// until the next weekly scrape drops it; one that has ended says nothing
 	const poolAlerts = (alerts?.poolAlerts ?? []).filter((a) => !(from && a.closure && hasClosureEnded(a.closure, from)));
@@ -74,7 +78,11 @@ export default function PoolAlerts({ alerts, pools, selectedPools, weekClosures 
 			});
 		});
 
-	if (relevantAlerts.length === 0 && relevantClosures.length === 0 && relevantGaps.length === 0) {
+	// an alert for every pool shows whatever the filter; one naming pools,
+	// only with one of them in it
+	const relevantEmergencies = emergencyAlerts.filter((a) => alertShowsFor(a, selectedPools));
+
+	if (relevantEmergencies.length === 0 && relevantAlerts.length === 0 && relevantClosures.length === 0 && relevantGaps.length === 0) {
 		return null;
 	}
 
@@ -86,7 +94,11 @@ export default function PoolAlerts({ alerts, pools, selectedPools, weekClosures 
 	return (
 		// one row that scrolls sideways once there are more than fit; one or
 		// two (three on a desktop) share the row between them
-		<AlertCarousel count={relevantAlerts.length + relevantClosures.length + relevantGaps.length}>
+		<AlertCarousel count={relevantEmergencies.length + relevantAlerts.length + relevantClosures.length + relevantGaps.length}>
+			{/* first, since it can override everything after it */}
+			{relevantEmergencies.map((a) => (
+				<EmergencyAlertNotice key={`emergency-${a.id}`} alert={a} />
+			))}
 			{relevantClosures.map((c) => (
 				<div
 					key={`week-${c.startDate}-${c.endDate}-${c.reason}`}

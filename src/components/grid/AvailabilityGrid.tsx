@@ -4,6 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExter
 import { usePathname, useSearchParams } from "next/navigation";
 import type { PoolSchedule } from "@/lib/schedule-schema";
 import type { CityHoliday } from "@/lib/city-holidays";
+import type { EmergencyAlert } from "@/lib/emergency-alerts";
 import PoolAlerts from "@/components/PoolAlerts";
 import { createGridModel } from "@/lib/grid/grid-model";
 import { trackGridChange } from "@/lib/grid/grid-analytics";
@@ -25,9 +26,11 @@ type Props = {
 	alerts?: AlertsData | null;
 	/** the city's, which close every pool */
 	holidays?: CityHoliday[];
+	/** Rec & Park emergency alerts that read as affecting the pools */
+	emergencyAlerts?: EmergencyAlert[];
 };
 
-export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays = [] }: Props) {
+export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays = [], emergencyAlerts = [] }: Props) {
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
 	// each weekday column is that day's next date, from today, so a closed
@@ -168,6 +171,7 @@ export default function AvailabilityGrid({ all, upcoming = [], alerts, holidays 
 		<div className="font-sans py-6 text-ink">
 			<PoolAlerts
 				alerts={alerts}
+				emergencyAlerts={emergencyAlerts}
 				pools={all}
 				selectedPools={alertPools}
 				weekClosures={week.closures}

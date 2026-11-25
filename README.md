@@ -78,6 +78,7 @@ npm run build-schedules
 - **`public/data/alerts.json`** — Alerts and closures from each pool's facility page.
 - **`public/data/maintenance_schedule.json`**, **`public/data/admission_fees.json`** — Read from the citywide PDFs on the Swimming Pools page.
 - **`public/data/city_holidays.json`** — City holidays from sf.gov; all pools close on them.
+- **`public/data/emergency_alerts.json`** — Rec & Park's site-wide emergency alerts from the [Alert Center](https://sfrecpark.org/AlertCenter.aspx). Every alert is kept; only the ones that mention pools, swimming or aquatics, or close every facility, show above the grid and on pool pages (`src/lib/emergency-alerts.ts`).
 
 ### Pipeline Flow
 
@@ -111,6 +112,7 @@ Closures (from alerts, PDF notes, the maintenance schedule and city holidays) ar
 - `npm run scrape-alerts` — scrape pool alerts from SF Rec & Park
 - `npm run scrape-aquatics-docs` — read the maintenance schedule and admission fees PDFs (`-- --force`, `--dry-run`)
 - `npm run scrape-holidays` — fetch the city holiday list from sf.gov into `public/data/city_holidays.json` (`-- --force` to fetch when the year is already saved)
+- `npm run scrape-emergency-alerts` — read the Alert Center into `public/data/emergency_alerts.json` (`-- --notify` to push new alerts that affect the pools)
 - `npm run analyze-programs` — analyze raw vs canonical program names
 - `npm run renormalize-programs` — re-apply the program taxonomy to `all_schedules.json` without re-extracting
 
@@ -128,6 +130,7 @@ Closures (from alerts, PDF notes, the maintenance schedule and city holidays) ar
 
 - **Update Pool Schedules** (`update-schedules.yml`) runs every Friday at 20:00 UTC, and on demand. It runs `build-schedules`, commits changes to `public/data/`, `data/changelog/`, the extraction cache and manifests, and sends Pushover notifications. The commit to `main` triggers a Vercel deploy.
 - **Update City Holidays** (`update-holidays.yml`) runs daily from December through February, and stops fetching once the new year's list is saved.
+- **Update Emergency Alerts** (`update-emergency-alerts.yml`) runs hourly. It commits `emergency_alerts.json` only when the alerts change, so Vercel deploys only for a new or removed alert, and sends a Pushover notification for a new one that affects the pools.
 
 ## Environment Variables
 
