@@ -12,7 +12,9 @@ import { markdownPath } from "@/lib/page-markdown";
 import { buildPoolPages, poolPageSlugs, schedulesInForce, type PoolPage } from "@/lib/pool-pages";
 import { describeProgram } from "@/lib/program-display";
 import { pacificToday } from "@/lib/closures";
-import { loadAlerts, loadPools, loadSchedules, loadUpcomingSchedules } from "@/lib/site-data";
+import { loadAlerts, loadEmergencyAlerts, loadPools, loadSchedules, loadUpcomingSchedules } from "@/lib/site-data";
+import { alertShowsFor } from "@/lib/emergency-alerts";
+import EmergencyAlertNotice from "@/components/EmergencyAlertNotice";
 import { SITE_URL } from "@/lib/site-url";
 
 type Params = { slug: string };
@@ -115,6 +117,7 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 	// a notice the pipeline parsed into a closure already shows in the
 	// schedule below, as that pool's closed notice; only the rest show here
 	const notices = (alerts?.poolAlerts ?? []).filter((a) => poolIds.includes(a.poolId) && !a.closure);
+	const emergencies = (await loadEmergencyAlerts()).filter((a) => alertShowsFor(a, poolIds));
 	const pdfs = page.pools.filter(({ schedule }) => schedule.pdfScheduleUrl);
 	const single = page.pools.length === 1;
 
@@ -184,8 +187,11 @@ export default async function PoolPageView({ params }: { params: Promise<Params>
 				</Fact>
 			</dl>
 
-			{notices.length ? (
+			{notices.length || emergencies.length ? (
 				<div className="mt-3 flex flex-col gap-2">
+					{emergencies.map((a) => (
+						<EmergencyAlertNotice key={a.id} alert={a} />
+					))}
 					{notices.map((alert, i) => (
 						<div key={i} className="border-l-[3px] border-alert bg-alert-tint px-3 py-2.5">
 							<div className="font-mono text-label font-semibold tracking-[.08em] text-alert">ALERT</div>

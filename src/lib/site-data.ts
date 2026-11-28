@@ -12,6 +12,7 @@ import { AllSchedulesSchema, type PoolSchedule } from "@/lib/schedule-schema";
 import type { Closure } from "@/lib/closures";
 import type { CityHoliday, CityHolidaysData } from "@/lib/city-holidays";
 import type { AdmissionFeesData } from "@/lib/admission-fees";
+import type { EmergencyAlert, EmergencyAlertsData } from "@/lib/emergency-alerts";
 
 /** one pool in data/pools.json, the list the scrapers start from */
 export type PoolRecord = {
@@ -106,6 +107,7 @@ export type ChangelogEntry = {
 const SCHEDULES_FILE = () => path.join(process.cwd(), "public", "data", "all_schedules.json");
 const UPCOMING_FILE = () => path.join(process.cwd(), "public", "data", "upcoming_schedules.json");
 const ALERTS_FILE = () => path.join(process.cwd(), "public", "data", "alerts.json");
+const EMERGENCY_ALERTS_FILE = () => path.join(process.cwd(), "public", "data", "emergency_alerts.json");
 const HOLIDAYS_FILE = () => path.join(process.cwd(), "public", "data", "city_holidays.json");
 const FEES_FILE = () => path.join(process.cwd(), "public", "data", "admission_fees.json");
 const POOLS_FILE = () => path.join(process.cwd(), "data", "pools.json");
@@ -166,6 +168,22 @@ export async function loadAlerts(): Promise<AlertsData | null> {
 		throw error;
 	}
 	return (await readJson(file)) as AlertsData;
+}
+
+/**
+ * Rec & Park's emergency alerts that read as affecting the pools, none when
+ * the file is missing. The emergency alerts workflow keeps the file, apart from the
+ * weekly pipeline's alerts.json.
+ */
+export async function loadEmergencyAlerts(): Promise<EmergencyAlert[]> {
+	const file = EMERGENCY_ALERTS_FILE();
+	try {
+		await fs.access(file);
+	} catch (error) {
+		if (isMissing(error)) return [];
+		throw error;
+	}
+	return ((await readJson(file)) as EmergencyAlertsData).alerts.filter((a) => a.affectsPools);
 }
 
 /** the city's holidays, none when the file is missing */
